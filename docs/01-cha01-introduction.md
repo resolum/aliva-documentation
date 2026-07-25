@@ -77,6 +77,8 @@
 
 #### 1.2.2.1. Lean UX Problem Statement
 
+#### 1.2.2.2. Lean UX Assumptions
+
 **Business Assumptions**
 
 **User Assumptions**
@@ -87,10 +89,10 @@
 
 **Features Assumptions**
 
-#### 1.2.2.2. Lean UX Assumptions
-
 #### 1.2.2.3. Lean UX Hypothesis Statements
 
 #### 1.2.2.4. Lean UX Canvas
 
-## 1.3. Segmentos objetivo
+## 1.3. Segmentos objetivos
+
+<div style="page-break-after: always;"></div>
