@@ -15,7 +15,7 @@ Carrera de Ingeniería de Software
 <br> 
 <br>
 
-<span style="font-size: 16px;"> 202601 </span>
+<span style="font-size: 16px;"> 202602 </span>
 
 NRC
 

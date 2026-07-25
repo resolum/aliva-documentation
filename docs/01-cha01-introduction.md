@@ -1,0 +1,96 @@
+# Capítulo 1: Introducción
+
+## 1.1. Startup Profile
+
+### 1.1.1. Descripción de la Startup
+
+<table>
+    <tr>
+        <th> Elemento </th>
+        <th> Descripción </th>
+    </tr>
+    <tr>
+        <td> Misión </td>
+        <td> 02/04/26 </td>
+    </tr>
+    <tr>
+        <td> Visión </td>
+        <td> 02/04/26 </td>
+    </tr>
+</table>
+
+
+### 1.1.2. Perfiles de Integrantes del equipo
+
+<table>
+    <tr>
+        <th> Integrante </th>
+        <th> Imagen del integrante </th>
+        <th> Descripción y conocimientos </th>
+    </tr>
+    <tr>
+        <td> Calvo Yalan, Renato Guillermo (u202217053) </td>
+        <td> 02/04/26 </td>
+        <td> 02/04/26 </td>
+    </tr>
+    <tr>
+        <td> Coronel Espinoza, Farid Sebastian (u202312508) </td>
+        <td> 02/04/26 </td>
+        <td> 02/04/26 </td>
+    </tr>
+    <tr>
+        <td> Diaz Quispe, Matias Sebastian (u202311938) </td>
+        <td> 02/04/26 </td>
+        <td> 02/04/26 </td>
+    </tr>
+    <tr>
+        <td> Juarez Leon, Nicolas Emilio Walter (u202317483) </td>
+        <td> 02/04/26 </td>
+        <td> 02/04/26 </td>
+    </tr>
+    <tr>
+        <td> Rios Piñan, Dayro Richard (u202315283) </td>
+        <td> 02/04/26 </td>
+        <td> 02/04/26 </td>
+    </tr>
+</table>
+
+## 1.2. Solution Profile
+
+### 1.2.1. Antecedentes y problemática
+
+**What (¿Qué ocurre?)**
+
+**When (¿Cuándo y con qué frecuencia?)**
+
+**Where (¿Dónde sucede?)**
+
+**Who (¿Quiénes se ven afectados?)**
+
+**Why (¿Por qué es un problema?)**
+
+**How (¿Cómo se manifiesta?)**
+
+**How Much (¿Cuál es el impacto cuantitativo?)**
+
+### 1.2.2. Lean UX Process
+
+#### 1.2.2.1. Lean UX Problem Statement
+
+**Business Assumptions**
+
+**User Assumptions**
+
+**Business Outcomes**
+
+**User Outcomes & Benefits**
+
+**Features Assumptions**
+
+#### 1.2.2.2. Lean UX Assumptions
+
+#### 1.2.2.3. Lean UX Hypothesis Statements
+
+#### 1.2.2.4. Lean UX Canvas
+
+## 1.3. Segmentos objetivo
