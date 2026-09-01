@@ -77,7 +77,8 @@ Los principales afectados son las personas con discapacidad, que al no contar co
 
 **Why (¿Por qué es un problema?)**
 
-Es un problema debido a que la dependencia constante de terceros para realizar las actividades diarias dentro del hogar hace que las personas con discapacidad se sientan frustradas y limitadas en su autonomía, afectando tanto su bienestar emocional como su salud física.
+Es un problema debido a que la dependencia constante de terceros para realizar las actividades diarias dentro del hogar hace que las personas con discapacidad se sientan frustradas y limitadas en su autonomía, afectando tanto su bienestar emocional como su calidad de vida. Según la Organización Mundial de la Salud, la esencia misma de la dependencia radica precisamente en no poder vivir de forma autónoma y necesitar de manera sostenida la ayuda de otros para las actividades cotidianas, lo que confirma que la autonomía es un componente central del bienestar de esta población.
+
 
 **How (¿Cómo se manifiesta?)**
 
