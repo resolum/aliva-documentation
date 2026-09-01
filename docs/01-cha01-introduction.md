@@ -116,7 +116,7 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
 - Incrementar en 70% la proporción de actividades básicas del hogar que pueda realizar el usuario discapacitado sin requerir asistencia de terceros.
 - Reducir en un 65% el número de intervenciones de familiares o cuidadores requeridas para que el usuario realice actividades básicas del hogar.
 - Reducir en 60% el tiempo promedio requerido para que el usuario pueda completar una actividad básica del hogar.
-- Alcanzar una tasa de 95% de ejecución exitosa de las funciones críticas del sistema ante escenarios sin conexión a Internet.
+- Lograr que el 100% de los usuarios que no cuenten con Internet o experimenten una caída de la red sigan delegando comandos para completar sus actividades diarias.
 - Incrementar en 60% el nivel de autonomía percibida por los usuarios después de utilizar el sistema para realizar actividades básicas del hogar.
 - Reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación del usuario.
 
