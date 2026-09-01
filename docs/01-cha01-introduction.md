@@ -1,8 +1,8 @@
 # Capítulo 1: Introducción
 
-## 1.1 Startup Profile
+## 1.1. Startup Profile
 
-### 1.1.1 Descripción de la Startup
+### 1.1.1. Descripción de la Startup
 
 Smart Home surge con la finalidad de devolver autonomía a las personas con discapacidad motora y discapacidad visual en su propio hogar, permitiéndoles realizar actividades tan básicas como encender una luz o abrir una puerta sin depender de un familiar o cuidador. Sabemos que estas tareas, que para la mayoría son automáticas, representan para muchas personas una barrera diaria que limita su independencia y afecta su calidad de vida.
 
