@@ -22,7 +22,7 @@ Nos enfocamos en brindar soluciones accesibles para personas con discapacidad y 
     <tr>
       <td><strong>Misión</strong></td>
       <td>
-        Nuestra misión es desarrollar soluciones tecnológicas accesibles que permitan a personas con discapacidad ganar independencia en su vida diaria, integrando Inteligencia Artificial, Edge Computing e IoT en herramientas confiables y adaptadas a sus necesidades.
+        Nuestra misión es que ninguna persona con discapacidad dependa de otros para vivir su día a día. Combinamos Inteligencia Artificial, Edge Computing e IoT en soluciones pensadas desde las necesidades reales de cada usuario, no al revés.
       </td>
     </tr>
     <tr>
