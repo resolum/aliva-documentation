@@ -194,6 +194,13 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
 
 #### 1.2.2.3. Lean UX Hypothesis Statements
 
+- **Creemos que lograremos** un incremento de 70% en la proporción de actividades básicas del hogar que pueda realizar el usuario discapacitado sin requerir asistencia de terceros **si** las personas con discapacidad motora o visual realizan por sí mismas acciones básicas del hogar que anteriormente requerían asistencia **con** un sistema de comandos por voz.
+- **Creemos que lograremos** una reducción de 65% en el número de intervenciones de familiares o cuidadores requeridas para que el usuario realice actividades básicas del hogar **si** las personas con discapacidad motora o visual pueden solicitar y ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga **con** un sistema de detección de gestos.
+- **Creemos que lograremos** reducir en 60% el tiempo promedio requerido para que el usuario pueda completar una actividad básica del hogar **si** las personas con discapacidad motora o visual logran realizar acciones cotidianas de manera más rápida, sin tener que esperar la disponibilidad de un familiar o cuidador **gracias a la** persistencia de datos local de forma offline.
+- **Creemos que lograremos** que el 100% de los usuarios que no cuenten con Internet o experimenten una caída de la red sigan delegando comandos para completar sus actividades diarias **si** las personas con discapacidad motora o visual siguen realizando acciones básicas del hogar mediante el sistema incluso cuando no exista conexión a Internet, sintiendo mayor seguridad y confiabilidad en su uso **gracias al** módulo de toma de decisiones local
+- **Creemos que lograremos** incrementar en 60% el nivel de autonomía percibida por los usuarios después de utilizar el sistema para realizar actividades básicas del hogar **si** las personas con discapacidad motora o visual siente una mayor independencia y control sobre su entorno al poder realizar por sí misma acciones que anteriormente dependían de otra persona **gracias a** poder configurar de forma adaptativa el sistema.
+- **Creemos que lograremos** reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación del usuario **si** los familiares o cuidadores de las personas con discapacidad motora o visual pueden dedicar menos tiempo a realizar acciones rutinarias por la persona y concentrarse en actividades de asistencia que realmente requieran su intervención **gracias al** registro de acciones del familiar discapacitado.
+
 #### 1.2.2.4. Lean UX Canvas
 
 ## 1.3. Segmentos objetivos
