@@ -117,7 +117,7 @@ Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del di
 
 **Nuestro enfoque** inicial serán las personas con discapacidad motora o visual severa en el hogar y sus cuidadores familiares.
 
-**Sabremos que tenemos éxito** cuando veamos que los usuarios realizan de forma autónoma sus actividades cotidianas en el hogar sin requerir asistencia de terceros en un 70% de las ocasiones, reduciendo en un 65% las intervenciones rutinarias del cuidador.
+**Sabremos que tenemos éxito** cuando veamos que los usuarios realizan de forma autónoma parte de sus actividad cotidianas en el hogar sin requerir asistencia de terceros en un 70% de las ocasiones, reduciendo en un 65% las intervenciones rutinarias del cuidador.
 
 #### 1.2.2.2. Lean UX Assumptions
 
