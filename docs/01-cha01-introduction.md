@@ -40,7 +40,7 @@
     </tr>
     <tr>
         <td> Diaz Quispe, Matias Sebastian (u202311938) </td>
-        <td> 02/04/26 </td>
+        <td> <img src="https://imgur.com/tYzCBTQ.jpeg" alt="Matias Diaz Quispe" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
         <td> Soy estudiante de la carrera de Ingeniería de Software, actualmente cursando el 7mo ciclo. Cuento con conocimientos sólidos en desarrollo backend y móvil. Además, me adapto con facilidad y tengo una fuerte ética de trabajo.Por otro lado, poseo conocimientos en Git, TypeScript, React.js, HTML y Tailwind, así como en programación orientada a objetos. También tengo manejo básico de frameworks como Vue y Next.js. Contribuyo al equipo aportando soluciones prácticas y orientadas a resultados, buscando siempre optimizar procesos y mejorar la experiencia del usuario final.</td>
     </tr>
     <tr>
