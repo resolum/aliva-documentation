@@ -1,0 +1,42 @@
+name: Update Version Log
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "docs/**"
+
+# Prevents the automatic commit from re-triggering this same workflow in a loop
+concurrency:
+  group: update-version-log
+  cancel-in-progress: true
+
+jobs:
+  update-version-log:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # needed to have the full git log history
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run version log script
+        run: node docs/scripts/update-version-log.js
+
+      - name: Commit changes if any
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- docs/00-cover.md docs/scripts/version-state.json; then
+            git add docs/00-cover.md docs/scripts/version-state.json
+            git commit -m "chore: update version log [skip ci]"
+            git push
+          else
+            echo "No changes to the version log."
+          fi
