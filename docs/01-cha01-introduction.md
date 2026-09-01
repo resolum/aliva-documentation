@@ -4,11 +4,11 @@
 
 ### 1.1.1. Descripción de la Startup
 
-Resolum nace con el propósito de acercar la tecnología a personas con discapacidad motora y discapacidad visual, ofreciendo soluciones que les permitan recuperar parte de la autonomía que perdieron en actividades cotidianas del hogar, como encender un dispositivo, abrir una puerta o desplazarse dentro de su propio espacio. En un contexto donde muchas de estas personas dependen constantemente de un familiar o cuidador para este tipo de tareas, buscamos que ese control vuelva a estar en sus propias manos.
+Resolum nace con el propósito de acercar la tecnología a personas con discapacidad motora y discapacidad visual, ofreciendo soluciones que les permitan recuperar parte de la autonomía que perdieron en actividades cotidianas del hogar. En un contexto donde muchas de estas personas dependen constantemente de un familiar o cuidador para tareas tan básicas como encender un dispositivo o abrir una puerta, buscamos que ese control vuelva a estar en sus propias manos.
 
 Como parte de nuestra propuesta de valor, desarrollamos sistemas que se adaptan a las capacidades de cada usuario, priorizando la confiabilidad y el funcionamiento autónomo por sobre la dependencia de interfaces convencionales.
 
-Nos enfocamos en brindar soluciones accesibles para personas con discapacidad motora y visual, y sus familias, integrando tecnología que les ayude a recuperar el control sobre tareas básicas como encender una luz, abrir una puerta o desplazarse por su hogar.
+Nos enfocamos en brindar soluciones accesibles para personas con discapacidad motora y visual, y sus familias, integrando tecnología que les ayude a recuperar el control sobre su día a día dentro del hogar.
 
 ##### Misión y Visión
 <table>
