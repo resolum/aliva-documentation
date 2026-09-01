@@ -4,11 +4,11 @@
 
 ### 1.1.1. Descripción de la Startup
 
-Resolum nace con el propósito de acercar la tecnología a las personas con discapacidad, ofreciendo soluciones que les permitan recuperar parte de la autonomía que perdieron en actividades cotidianas del hogar, como encender un dispositivo, abrir una puerta o desplazarse dentro de su propio espacio. En un contexto donde muchas personas dependen constantemente de un familiar o cuidador para este tipo de tareas, buscamos que ese control vuelva a estar en sus propias manos.
+Resolum nace con el propósito de acercar la tecnología a personas con discapacidad motora y discapacidad visual, ofreciendo soluciones que les permitan recuperar parte de la autonomía que perdieron en actividades cotidianas del hogar, como encender un dispositivo, abrir una puerta o desplazarse dentro de su propio espacio. En un contexto donde muchas de estas personas dependen constantemente de un familiar o cuidador para este tipo de tareas, buscamos que ese control vuelva a estar en sus propias manos.
 
 Como parte de nuestra propuesta de valor, desarrollamos sistemas que se adaptan a las capacidades de cada usuario, priorizando la confiabilidad y el funcionamiento autónomo por sobre la dependencia de interfaces convencionales.
 
-Nos enfocamos en brindar soluciones accesibles para personas con discapacidad y sus familias, integrando tecnología que les ayude a recuperar el control sobre su día a día y mejore su calidad de vida.
+Nos enfocamos en brindar soluciones accesibles para personas con discapacidad motora y visual, y sus familias, integrando tecnología que les ayude a recuperar el control sobre tareas básicas como encender una luz, abrir una puerta o desplazarse por su hogar.
 
 ##### Misión y Visión
 <table>
@@ -22,13 +22,13 @@ Nos enfocamos en brindar soluciones accesibles para personas con discapacidad y 
     <tr>
       <td><strong>Misión</strong></td>
       <td>
-        Nuestra misión es que ninguna persona con discapacidad dependa de otros para vivir su día a día. Diseñamos soluciones pensadas desde las necesidades reales de cada usuario, no al revés.
+        Nuestra misión es ayudar a personas con discapacidad motora y visual a recuperar la autonomía en sus actividades cotidianas, reduciendo su dependencia de familiares y cuidadores en tareas básicas del hogar.
       </td>
     </tr>
     <tr>
       <td><strong>Visión</strong></td>
       <td>
-        Aspiramos a ser una referencia en soluciones tecnológicas de accesibilidad e inclusión en el país, impulsando la transformación digital hacia la recuperación de la autonomía de las personas con discapacidad. Visualizamos un futuro donde la tecnología esté al servicio de todos, sin importar sus capacidades físicas o sensoriales.
+        Aspiramos a ser una referencia en soluciones tecnológicas de accesibilidad en el país, impulsando la transformación digital hacia la recuperación de la autonomía de las personas con discapacidad. Visualizamos un futuro donde la tecnología esté al servicio de todos, sin importar sus capacidades físicas o sensoriales.
       </td>
     </tr>
   </tbody>
