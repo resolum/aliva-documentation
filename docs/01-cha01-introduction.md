@@ -4,21 +4,35 @@
 
 ### 1.1.1. Descripción de la Startup
 
-<table>
-    <tr>
-        <th> Elemento </th>
-        <th> Descripción </th>
-    </tr>
-    <tr>
-        <td> Misión </td>
-        <td> 02/04/26 </td>
-    </tr>
-    <tr>
-        <td> Visión </td>
-        <td> 02/04/26 </td>
-    </tr>
-</table>
+Resolum nace con el propósito de acercar la tecnología a personas con discapacidad motora y discapacidad visual, ofreciendo soluciones que les permitan recuperar parte de la autonomía que perdieron en actividades cotidianas del hogar. En un contexto donde muchas de estas personas dependen constantemente de un familiar o cuidador para tareas tan básicas como encender un dispositivo o abrir una puerta, buscamos que ese control vuelva a estar en sus propias manos.
 
+Como parte de nuestra propuesta de valor, desarrollamos sistemas que se adaptan a las capacidades de cada usuario, priorizando la confiabilidad y el funcionamiento autónomo por sobre la dependencia de interfaces convencionales.
+
+Nos enfocamos en brindar soluciones accesibles para personas con discapacidad motora y visual, y sus familias, integrando tecnología que les ayude a recuperar el control sobre su día a día dentro del hogar.
+
+##### Misión y Visión
+<table>
+  <thead>
+    <tr>
+      <th>Elemento</th>
+      <th>Descripción</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Misión</strong></td>
+      <td>
+        Nuestra misión es ayudar a personas con discapacidad motora y visual a recuperar la autonomía en sus actividades cotidianas, reduciendo su dependencia de familiares y cuidadores en tareas básicas del hogar.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Visión</strong></td>
+      <td>
+        Aspiramos a ser una referencia en soluciones tecnológicas de accesibilidad en el país, impulsando la transformación digital hacia la recuperación de la autonomía de las personas con discapacidad. Visualizamos un futuro donde la tecnología esté al servicio de todos, sin importar sus capacidades físicas o sensoriales.
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ### 1.1.2. Perfiles de Integrantes del equipo
 
