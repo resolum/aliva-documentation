@@ -35,8 +35,11 @@
     </tr>
     <tr>
         <td> Coronel Espinoza, Farid Sebastian (u202312508) </td>
-        <td> 02/04/26 </td>
-        <td> 02/04/26 </td>
+        <td> <img src="https://i.imgur.com/ntU3NXW.png" alt="Farid Sebastian Coronel Espinoza" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
+        <td> Soy estudiante de Ingeniería de Software con experiencia en desarrollo de soluciones tecnológicas y
+análisis funcional. He colaborado con equipos multidisciplinarios, participando desde el levantamiento de
+requisitos hasta la implementación de funcionalidades. Busco aportar una visión que combine
+conocimientos técnicos, comprensión del negocio y mejora continua. </td>
     </tr>
     <tr>
         <td> Diaz Quispe, Matias Sebastian (u202311938) </td>
