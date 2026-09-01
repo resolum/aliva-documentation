@@ -2,16 +2,15 @@
 
 ## 1.1. Startup Profile
 
-### 1.1.1. Descripción de la Startup
+### 1.1.1 Descripción de la Startup
 
-Smart Home surge con la finalidad de devolver autonomía a las personas con discapacidad motora y discapacidad visual en su propio hogar, permitiéndoles realizar actividades tan básicas como encender una luz o abrir una puerta sin depender de un familiar o cuidador. Sabemos que estas tareas, que para la mayoría son automáticas, representan para muchas personas una barrera diaria que limita su independencia y afecta su calidad de vida.
+Resolum nace con el propósito de acercar la tecnología a las personas con discapacidad, ofreciendo soluciones que les permitan ganar independencia en su vida diaria. En un contexto donde muchas personas dependen constantemente de un familiar o cuidador para tareas básicas, proponemos herramientas que les devuelvan ese control.
 
-Nuestra propuesta combina Inteligencia Artificial, Edge Computing e IoT para crear un sistema que se adapta al usuario y no al revés: reconoce gestos residuales del cuerpo para quienes tienen discapacidad motora, e interpreta comandos de voz con retroalimentación auditiva para quienes tienen discapacidad visual, todo esto sin depender de una conexión constante a internet.
+Como parte de nuestra propuesta de valor, incorporamos Inteligencia Artificial, Edge Computing e IoT para desarrollar sistemas que se adaptan a las capacidades de cada usuario, priorizando la confiabilidad y el funcionamiento autónomo por sobre la dependencia de interfaces convencionales.
 
-A diferencia de los asistentes comerciales que existen hoy en el mercado, buscamos ofrecer una solución pensada específicamente para personas con discapacidad, priorizando la confiabilidad y la autonomía real por encima de la simple comodidad.
+Nos enfocamos en brindar soluciones accesibles para personas con discapacidad y sus familias, integrando tecnología que impulse su independencia y mejore su calidad de vida.
 
 ##### Misión y Visión
-
 <table>
   <thead>
     <tr>
@@ -23,13 +22,13 @@ A diferencia de los asistentes comerciales que existen hoy en el mercado, buscam
     <tr>
       <td><strong>Misión</strong></td>
       <td>
-        Nuestra misión es devolver la autonomía a las personas con discapacidad motora y visual en la ejecución de sus actividades cotidianas del hogar, mediante un sistema de Inteligencia Artificial, Edge Computing e IoT que se adapta a sus capacidades particulares. Buscamos reducir la dependencia de familiares y cuidadores en tareas básicas del día a día, ofreciendo una alternativa confiable que no dependa exclusivamente del habla ni de una conexión constante a internet.
+        Nuestra misión es desarrollar soluciones tecnológicas accesibles que permitan a personas con discapacidad ganar independencia en su vida diaria, integrando Inteligencia Artificial, Edge Computing e IoT en herramientas confiables y adaptadas a sus necesidades.
       </td>
     </tr>
     <tr>
       <td><strong>Visión</strong></td>
       <td>
-        Aspiramos a ser una referencia en soluciones de accesibilidad para el hogar, impulsando espacios más inclusivos a través de tecnología que se adapte a la persona y no exija que la persona se adapte a la tecnología. Visualizamos un futuro donde la discapacidad motora o visual no sea un impedimento para vivir de forma independiente, con sistemas domésticos inteligentes, confiables y accesibles al alcance de cualquier hogar.
+        Aspiramos a ser una referencia en soluciones tecnológicas de accesibilidad e inclusión en Latinoamérica, impulsando la transformación digital hacia una vida más independiente para las personas con discapacidad. Visualizamos un futuro donde la tecnología esté al servicio de todos, sin importar sus capacidades físicas o sensoriales.
       </td>
     </tr>
   </tbody>
