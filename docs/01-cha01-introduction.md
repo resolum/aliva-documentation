@@ -4,7 +4,7 @@
 
 ### 1.1.1. Descripción de la Startup
 
-Resolum nace con el propósito de acercar la tecnología a las personas con discapacidad, ofreciendo soluciones que les permitan recuperar parte de la autonomía que perdieron en sus actividades diarias. En un contexto donde muchas personas dependen constantemente de un familiar o cuidador para tareas básicas, proponemos herramientas que les devuelvan ese control.
+Resolum nace con el propósito de acercar la tecnología a las personas con discapacidad, ofreciendo soluciones que les permitan recuperar parte de la autonomía que perdieron en sus actividades diarias. En un contexto donde muchas personas dependen constantemente de un familiar o cuidador para tareas básicas, buscamos que ese control vuelva a estar en sus propias manos.
 
 Como parte de nuestra propuesta de valor, desarrollamos sistemas que se adaptan a las capacidades de cada usuario, priorizando la confiabilidad y el funcionamiento autónomo por sobre la dependencia de interfaces convencionales.
 
