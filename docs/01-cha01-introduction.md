@@ -2,7 +2,7 @@
 
 ## 1.1. Startup Profile
 
-### 1.1.1 Descripción de la Startup
+### 1.1.1. Descripción de la Startup
 
 Resolum nace con el propósito de acercar la tecnología a las personas con discapacidad, ofreciendo soluciones que les permitan ganar independencia en su vida diaria. En un contexto donde muchas personas dependen constantemente de un familiar o cuidador para tareas básicas, proponemos herramientas que les devuelvan ese control.
 
