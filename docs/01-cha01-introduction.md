@@ -135,7 +135,7 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
     - Sus cuidadores lo usan cuando necesitan cambiar algún parámetro para ajustar el ecosistema a la necesidad de la persona asignada y para saber qué están haciendo en tiempo real.
 - **¿Cómo debería verse y comportarse el producto?**
     - El ecosistema IoT debe comportarse de forma efectiva en entornos con baja o nula conexión a internet. A su vez, debe reaccionar a los comandos de forma inmediata y confirmar los comandos con el usuario.
-    - Por otro lado, las aplicaciones cliente deben describir claramente las configuraciones del sistema y de las acciones de las personas con discapacidad.
+    - Por otro lado, el cuidador (o familiar responsable) debe ser capaz de configurar una nueva regla de automatización (como abrir una puerta) en menos de 2 minutos y sin necesidad de asistencia técnica.
 
 **User Outcomes & Benefits**
 
