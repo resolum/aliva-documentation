@@ -104,6 +104,9 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
 
 ### 1.2.2. Lean UX Process
 
+Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del diseño del producto. Una vez identificada la problemática, empleamos este proceso para estructurar nuestras ideas como hipótesis de negocio y usuario. Esto nos permitió priorizar de manera ágil las áreas clave de desarrollo, asegurando que el diseño del producto propuesto esté directamente validado por el mercado y enfocado en generar valor real tanto para el usuario como para el negocio
+
+
 #### 1.2.2.1. Lean UX Problem Statement
 
 #### 1.2.2.2. Lean UX Assumptions
