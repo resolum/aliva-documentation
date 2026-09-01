@@ -1,24 +1,39 @@
 # Capítulo 1: Introducción
 
-## 1.1. Startup Profile
+## 1.1 Startup Profile
 
-### 1.1.1. Descripción de la Startup
+### 1.1.1 Descripción de la Startup
+
+Smart Home surge con la finalidad de devolver autonomía a las personas con discapacidad motora y discapacidad visual en su propio hogar, permitiéndoles realizar actividades tan básicas como encender una luz o abrir una puerta sin depender de un familiar o cuidador. Sabemos que estas tareas, que para la mayoría son automáticas, representan para muchas personas una barrera diaria que limita su independencia y afecta su calidad de vida.
+
+Nuestra propuesta combina Inteligencia Artificial, Edge Computing e IoT para crear un sistema que se adapta al usuario y no al revés: reconoce gestos residuales del cuerpo para quienes tienen discapacidad motora, e interpreta comandos de voz con retroalimentación auditiva para quienes tienen discapacidad visual, todo esto sin depender de una conexión constante a internet.
+
+A diferencia de los asistentes comerciales que existen hoy en el mercado, buscamos ofrecer una solución pensada específicamente para personas con discapacidad, priorizando la confiabilidad y la autonomía real por encima de la simple comodidad.
+
+##### Misión y Visión
 
 <table>
+  <thead>
     <tr>
-        <th> Elemento </th>
-        <th> Descripción </th>
+      <th>Elemento</th>
+      <th>Descripción</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Misión</strong></td>
+      <td>
+        Nuestra misión es devolver la autonomía a las personas con discapacidad motora y visual en la ejecución de sus actividades cotidianas del hogar, mediante un sistema de Inteligencia Artificial, Edge Computing e IoT que se adapta a sus capacidades particulares. Buscamos reducir la dependencia de familiares y cuidadores en tareas básicas del día a día, ofreciendo una alternativa confiable que no dependa exclusivamente del habla ni de una conexión constante a internet.
+      </td>
     </tr>
     <tr>
-        <td> Misión </td>
-        <td> 02/04/26 </td>
+      <td><strong>Visión</strong></td>
+      <td>
+        Aspiramos a ser una referencia en soluciones de accesibilidad para el hogar, impulsando espacios más inclusivos a través de tecnología que se adapte a la persona y no exija que la persona se adapte a la tecnología. Visualizamos un futuro donde la discapacidad motora o visual no sea un impedimento para vivir de forma independiente, con sistemas domésticos inteligentes, confiables y accesibles al alcance de cualquier hogar.
+      </td>
     </tr>
-    <tr>
-        <td> Visión </td>
-        <td> 02/04/26 </td>
-    </tr>
+  </tbody>
 </table>
-
 
 ### 1.1.2. Perfiles de Integrantes del equipo
 
