@@ -85,6 +85,7 @@ Proyecto
 
 # Registro de Versiones del Informe
 
+<!-- VERSION_TABLE_START -->
 <table>
     <tr>
         <th> Versión </th>
@@ -93,24 +94,169 @@ Proyecto
         <th> Descripción de la modificación </th>
     </tr>
     <tr>
-        <td> Version </td>
-        <td> 02/04/26 </td>
-        <td> Un Bot </td>
-        <td> Descripción </td>
+        <td> 1.27 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add cover page and base sections. </td>
+    </tr>
+    <tr>
+        <td> 1.28 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 01. </td>
+    </tr>
+    <tr>
+        <td> 1.29 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 02. </td>
+    </tr>
+    <tr>
+        <td> 1.30 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 03. </td>
+    </tr>
+    <tr>
+        <td> 1.31 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 04. </td>
+    </tr>
+    <tr>
+        <td> 1.32 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 05. </td>
+    </tr>
+    <tr>
+        <td> 1.33 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 06. </td>
+    </tr>
+    <tr>
+        <td> 1.34 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 07. </td>
+    </tr>
+    <tr>
+        <td> 1.35 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for conclusions, bibliography and annexes. </td>
+    </tr>
+    <tr>
+        <td> 1.36 </td>
+        <td> 30/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add table of contents </td>
+    </tr>
+    <tr>
+        <td> 1.37 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add startup profile section with mission and vision </td>
+    </tr>
+    <tr>
+        <td> 1.38 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add startup profile section with mission and vision </td>
+    </tr>
+    <tr>
+        <td> 1.39 </td>
+        <td> 31/08/26 </td>
+        <td> RenatoCY </td>
+        <td> Expand introduction section with detailed problem analysis </td>
+    </tr>
+    <tr>
+        <td> 1.40 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite startup description to focus on resolum. </td>
+    </tr>
+    <tr>
+        <td> 1.41 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.42 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.43 </td>
+        <td> 01/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Enhance problem analysis in introduction section for clarity and depth </td>
+    </tr>
+    <tr>
+        <td> 1.44 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.45 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.46 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.47 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.48 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Specify target audience and clarify mission around autonomy recovery </td>
+    </tr>
+    <tr>
+        <td> 1.49 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Remove duplicate examples across paragraphs in startup description </td>
+    </tr>
+    <tr>
+        <td> 1.50 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add lean ux assumptions section. </td>
+    </tr>
+    <tr>
+        <td> 1.51 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update business outcome to align with lean ux. </td>
+    </tr>
+    <tr>
+        <td> 1.52 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update system behavior description to align with lean ux. </td>
     </tr>
 </table>
+<!-- VERSION_TABLE_END -->
 
 <div style="page-break-after: always;"></div>
 
 # Project Report Collaboration Insights
 
 Texto base
-
-<div style="page-break-after: always;"></div>
-
-# Contenido
-
-## Tabla de contenidos
 
 <div style="page-break-after: always;"></div>
 
@@ -225,6 +371,8 @@ Texto base
    * [Video About-the-Team](08-conclusions.md#video-about-the-team)
 * [Bibliografía](09-bibliography.md#bibliografía)
 * [Anexos](10-annexes.md#anexos)
+
+<div style="page-break-after: always;"></div>
 
 # Student Outcome
 
