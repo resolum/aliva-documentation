@@ -28,7 +28,7 @@ Nos enfocamos en brindar soluciones accesibles para personas con discapacidad y 
     <tr>
       <td><strong>Visión</strong></td>
       <td>
-        Aspiramos a ser una referencia en soluciones tecnológicas de accesibilidad e inclusión en Latinoamérica, impulsando la transformación digital hacia la recuperación de la autonomía de las personas con discapacidad. Visualizamos un futuro donde la tecnología esté al servicio de todos, sin importar sus capacidades físicas o sensoriales.
+        Aspiramos a ser una referencia en soluciones tecnológicas de accesibilidad e inclusión en el país, impulsando la transformación digital hacia la recuperación de la autonomía de las personas con discapacidad. Visualizamos un futuro donde la tecnología esté al servicio de todos, sin importar sus capacidades físicas o sensoriales.
       </td>
     </tr>
   </tbody>
