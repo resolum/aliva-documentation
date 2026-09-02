@@ -2,6 +2,14 @@
 
 ## 2.1. Competidores
 
+- **Fundación ONCE** (competidor indirecto): Proyecto desarrollado que presenta un modelo de hogar domotizado adaptado a las necesidades de personas con discapacidad. Está orientado a personas con discapacidad motora y visual que buscan mayor autonomía en el hogar. Su principal fortaleza es el respaldo técnico y la trayectoria de una organización consolidada en el sector, aunque funciona más como referente institucional que como producto comercial escalable y no tiene presencia en el mercado peruano.
+
+- **Somfy** (competidor indirecto): Fabricante europeo de kits de domótica que permiten controlar luces, persianas, temperatura y seguridad desde una app o por comandos de voz. Se orienta a hogares en general, incluyendo personas con movilidad reducida. Su principal ventaja es el respaldo de marca y la disponibilidad inmediata de hardware accesible en costo, aunque su oferta es genérica y no está pensada específicamente para discapacidad severa ni para operar sin conexión a Internet.
+
+- **My Sweet Smart Home** (competidor directo): Proyecto europeo desarrollado bajo el programa Erasmus+ que ofrece un entorno inteligente adaptado a personas con discapacidad, combinando automatización del hogar, control por voz y señales sonoras. Está orientado a personas con discapacidad motora y visual dentro del contexto europeo. Destaca por su especialización real en el segmento de discapacidad, aunque su alcance se limita a Europa y no resuelve el requerimiento de funcionamiento con baja o nula conectividad.
+
+- **Amazon Alexa** (competidor directo): Ecosistema de asistente de voz e integraciones smart home que permite controlar luces, enchufes y cerraduras mediante comandos verbales. Es ampliamente adoptado por personas con discapacidad motora como solución de accesibilidad general. Su principal fortaleza es la enorme base de usuarios y la madurez del reconocimiento de voz, aunque depende de conexión constante a Internet y no ofrece reconocimiento de gestos como canal alternativo de comando.
+
 ### 2.1.1. Análisis competitivo
 
 <table>
