@@ -208,4 +208,45 @@ Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del di
 
 ## 1.3. Segmentos objetivos
 
+Esta sección incluye la descripción de los segmentos asociados al dominio del problema, incluyendo características demográficas e información estadística de sustento
+
+segmento objetivo 1: Persona con discapacidad visual
+
+Características demográficas:
+- Edad: 18 a más  años de edad 
+- Género: Ambos
+- Nivel de educación: Secundaria completa o superior
+- Ingresos: Bajos a medios
+- ubicación geográfica : Perú 
+
+Información estadistica de sustento:
+
+Según el Censo Nacional 2017 (INEI), la población total con discapacidad en el país es de 3,209,261 personas, de las cuales el 48,3% presenta dificultad para ver como su discapacidad única o principal (más de 1,5 millones de personas). (Fuente: INEI, "Población con discapacidad en el Perú", Censo 2017)
+
+El Instituto Nacional de Estadística e Informática (INEI), citado por Punto Seguido - UPC, señala que en el Perú habitan más de 1 millón de personas con discapacidad visual, de las cuales más de medio millón residen en Lima. (Fuente: Punto Seguido - UPC, 2024, con base en datos INEI)
+
+Según la Primera Encuesta Nacional Especializada sobre Discapacidad (ENEDIS-INEI), la dificultad para ver afecta al 50,9% de la población con discapacidad (dato que incluye comorbilidad, es decir, personas con más de una limitación). (Fuente: INEI, ENEDIS)
+
+El uso del sistema braille es muy bajo en el país: solo el 6% de la población con discapacidad visual lo utiliza, según datos de la UNESCO (2017). (Fuente: UNESCO, citado por Punto Seguido - UPC)
+
+Segmento objetivo 2: Persona con discapacidad motora
+
+Características demográficas:
+- Edad: 18 a más años de edad
+- Género: Ambos
+- Nivel de educación: Secundaria completa o superior
+- Ingresos: Bajos a medios
+- ubicación geográfica : Perú 
+
+Información estadistica de sustento:
+
+
+Según el Censo Nacional 2017 (INEI), del total de 3,209,261 personas con discapacidad, la dificultad para moverse o caminar afecta al 15,1% como discapacidad única. (Fuente: INEI, "Población con discapacidad en el Perú", Censo 2017)
+
+Según El Comercio (Urbanova), citando al INEI, el 10,3% de peruanos con discapacidad presenta dificultad para desplazarse por las calles, tomar autobuses y visitar parques. (Fuente: El Comercio, 2023, con base en datos INEI)
+
+Según la ENEDIS-INEI, la discapacidad motora (dificultad para moverse/caminar y/o usar brazos o piernas) es la que más afecta a la población con discapacidad en el país: 932 mil personas (59,2%), lo que la convierte en la discapacidad más frecuente a nivel nacional. (Fuente: INEI, ENEDIS)
+
+La edad avanzada es la principal causa de esta discapacidad (32,5% de los casos), seguida de enfermedad crónica (24,4%). (Fuente: INEI, ENEDIS)
+
 <div style="page-break-after: always;"></div>
