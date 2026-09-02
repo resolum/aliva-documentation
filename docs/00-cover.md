@@ -249,6 +249,24 @@ Proyecto
         <td> Nicolas Juarez Leon </td>
         <td> Update system behavior description to align with lean ux. </td>
     </tr>
+    <tr>
+        <td> 1.53 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> AR-19 add lean ux process description. </td>
+    </tr>
+    <tr>
+        <td> 1.54 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> AR-19 add lean UX problem statement for home assistance service. </td>
+    </tr>
+    <tr>
+        <td> 1.55 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> AR-19 clarify success criteria for user autonomy in home activities. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
