@@ -122,12 +122,12 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
 
 **Business Outcomes**
 
-- Incrementar en 70% la proporción de actividades básicas del hogar que pueda realizar el usuario discapacitado sin requerir asistencia de terceros.
-- Reducir en un 65% el número de intervenciones de familiares o cuidadores requeridas para que el usuario realice actividades básicas del hogar.
-- Reducir en 60% el tiempo promedio requerido para que el usuario pueda completar una actividad básica del hogar.
-- Lograr que el 100% de los usuarios que no cuenten con Internet o experimenten una caída de la red sigan delegando comandos para completar sus actividades diarias.
-- Incrementar en 60% el nivel de autonomía percibida por los usuarios después de utilizar el sistema para realizar actividades básicas del hogar.
-- Reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación del usuario.
+- Incrementar en 70% la proporción de actividades básicas del hogar que pueda realizar la persona discapacitada sin requerir asistencia de terceros.
+- Reducir en un 65% el número de intervenciones de familiares o cuidadores requeridas para que la persona discapacitada realice actividades básicas del hogar.
+- Reducir en 60% el tiempo promedio requerido para que la persona discapacitada pueda completar una actividad básica del hogar.
+- Lograr que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan delegando comandos para completar sus actividades diarias.
+- Incrementar en 60% el nivel de autonomía percibida por las personas discapacitadas después de utilizar el sistema para realizar actividades básicas del hogar.
+- Reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación de la persona discapacitada.
 
 **User Assumptions**
 
@@ -149,32 +149,32 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
 **User Outcomes & Benefits**
 
 - La persona discapacitada realizará por sí misma acciones básicas del hogar que anteriormente requerían asistencia.
-- La persona discapacitada podrá solicitar y ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga.
+- La persona discapacitada podrá ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga.
 - La persona discapacitada podrá realizar acciones cotidianas de manera más rápida, sin tener que esperar la disponibilidad de un familiar o cuidador.
 - La persona discapacitada podrá seguir realizando acciones básicas del hogar mediante el sistema incluso cuando no exista conexión a Internet, sintiendo mayor seguridad y confiabilidad en su uso.
 - La persona discapacitada sentirá mayor independencia y control sobre su entorno al poder realizar por sí misma acciones que anteriormente dependían de otra persona.
-- El familiar o cuidador podrá dedicar menos tiempo a realizar acciones rutinarias por la persona y concentrarse en actividades de asistencia que realmente requieran su intervención.
+- El familiar o cuidador podrá dedicar menos tiempo a realizar acciones rutinarias por la persona discapacitada y concentrarse en actividades de asistencia que realmente requieran su intervención.
 
 **Features Assumptions**
 
-1. **Sistema de comandos por voz**
+1. **Sistema de detección de comandos por voz**
 
-- **Suposición:** Permitir al usuario discapacitado delegar comandos mediante el uso de la voz le permitirá tomar mayor control de las actividades básicas del hogar que antes realizaba con dificultad o asistencia.
+- **Suposición:** Permitir a la persona discapacitada delegar comandos mediante el uso de la voz le permitirá tomar mayor control de las actividades básicas del hogar que antes realizaba con dificultad o asistencia.
 - **Riesgo:** Si el sistema no detecta con precisión la voz del usuario, ejecutará comandos que el usuario no requiera, lo que provocará que la solución pierda al usuario.
 
 2. **Sistema de detección de gestos**
 
-- **Suposición:** Permitir al usuario discapacitado delegar comandos usando gestos con el cuerpo le permitirá realizar actividades sin necesidad de asistencia reduciendo las intervenciones de sus cuidadores en actividades que se realicen mediante comandos.
+- **Suposición:** Permitir a la persona discapacitada delegar comandos usando gestos con el cuerpo le permitirá realizar actividades sin necesidad de asistencia reduciendo las intervenciones de sus cuidadores en actividades que se realicen mediante comandos.
 - **Riesgo:** Si el sistema no se estructura correctamente para que detecte gestos, el usuario no sentirá que la solución le está brindando la respuesta que necesita a sus problemas.
 
 3. **Automaticación de actividades básicas**
 
-- **Suposición:** Proveer de una forma de automatización que permita al usuario realizar actividades básicas en el hogar conseguirá una reducción en el tiempo que toma normalmente realizarlas.
+- **Suposición:** Proveer de una forma de automatización que permita a la persona discapacitada realizar actividades básicas en el hogar conseguirá una reducción en el tiempo que toma normalmente realizarlas.
 - **Riesgo:** Si la arquitectura del sistema de automatización no se define correctamente tomando en cuenta la velocidad deseada y las restricciones definidas, el usuario perderá confianza por posibles retrasos de los comandos.
 
 4. **Módulo de toma de decisiones**
 
-- **Suposición:** El sistema analizará los comandos recibidos por el usuario para determinar cuál es la acción que está deseando e iniciar el flujo de activación de la actividad con los dispositivos requeridos.
+- **Suposición:** El sistema analizará los comandos recibidos por la persona discapacitada para determinar cuál es la acción que está deseando e iniciar el flujo de activación de la actividad con los dispositivos requeridos.
 - **Riesgo:** Si el sistema demora en determinar la actividad requerida, puede ocasionar apilamiento de acciones que puede confundir en gran medida al discapacitado.
 
 5. **Configuración adaptativa del sistema**
@@ -184,12 +184,12 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
 
 #### 1.2.2.3. Lean UX Hypothesis Statements
 
-- **Creemos que lograremos** un incremento de 70% en la proporción de actividades básicas del hogar que pueda realizar el usuario discapacitado sin requerir asistencia de terceros **si** las personas con discapacidad motora o visual realizan por sí mismas acciones básicas del hogar que anteriormente requerían asistencia **con** un sistema de comandos por voz.
-- **Creemos que lograremos** una reducción de 65% en el número de intervenciones de familiares o cuidadores requeridas para que el usuario realice actividades básicas del hogar **si** las personas con discapacidad motora o visual pueden solicitar y ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga **con** un sistema de detección de gestos.
-- **Creemos que lograremos** reducir en 60% el tiempo promedio requerido para que el usuario pueda completar una actividad básica del hogar **si** las personas con discapacidad motora o visual logran realizar acciones cotidianas de manera más rápida, sin tener que esperar la disponibilidad de un familiar o cuidador **gracias a la** automaticación de actividades básicas.
-- **Creemos que lograremos** que el 100% de los usuarios que no cuenten con Internet o experimenten una caída de la red sigan delegando comandos para completar sus actividades diarias **si** las personas con discapacidad motora o visual siguen realizando acciones básicas del hogar mediante el sistema incluso cuando no exista conexión a Internet, sintiendo mayor seguridad y confiabilidad en su uso **gracias al** módulo de toma de decisiones local.
-- **Creemos que lograremos** incrementar en 60% el nivel de autonomía percibida por los usuarios después de utilizar el sistema para realizar actividades básicas del hogar **si** las personas con discapacidad motora o visual siente una mayor independencia y control sobre su entorno al poder realizar por sí misma acciones que anteriormente dependían de otra persona **gracias a** poder configurar de forma adaptativa el sistema.
-- **Creemos que lograremos** reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación del usuario **si** los familiares o cuidadores de las personas con discapacidad motora o visual pueden dedicar menos tiempo a realizar acciones rutinarias por la persona y concentrarse en actividades de asistencia que realmente requieran su intervención **gracias a la** automaticación de actividades básicas.
+- **Creemos que lograremos** un incremento de 70% en la proporción de actividades básicas del hogar que pueda realizar la persona discapacitada sin requerir asistencia de terceros **si** las personas con discapacidad motora o visual realizan por sí mismas acciones básicas del hogar que anteriormente requerían asistencia obligatoria **gracias a** un sistema de reconocimiento de comandos por voz.
+- **Creemos que lograremos** una reducción de 65% en el número de intervenciones de familiares o cuidadores requeridas para que la persona discapacitada realice actividades básicas del hogar **si** las personas con discapacidad motora o visual pueden ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga **gracias a** un sistema de detección de gestos.
+- **Creemos que lograremos** reducir en 60% el tiempo promedio requerido para que la persona discapacitada pueda completar una actividad básica del hogar **si** las personas con discapacidad motora o visual logran realizar acciones cotidianas de manera más rápida, sin tener que esperar la disponibilidad de un familiar o cuidador **gracias a la** automatización de actividades básicas.
+- **Creemos que lograremos** que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan delegando comandos para completar sus actividades diarias **si** las personas con discapacidad motora o visual siguen realizando acciones básicas del hogar mediante el sistema incluso cuando no exista conexión a Internet, sintiendo mayor seguridad y confiabilidad en su uso **gracias al** módulo de toma de decisiones local.
+- **Creemos que lograremos** incrementar en 60% el nivel de autonomía percibida por las personas discapacitadas después de utilizar el sistema para realizar actividades básicas del hogar **si** las personas con discapacidad motora o visual siente una mayor independencia y control sobre su entorno al poder realizar por sí misma acciones que anteriormente dependían de otra persona **gracias a** poder configurar de forma adaptativa el sistema.
+- **Creemos que lograremos** reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación de la persona discapacitada **si** los familiares o cuidadores de las personas con discapacidad motora o visual pueden dedicar menos tiempo a realizar acciones rutinarias por la persona y concentrarse en actividades de asistencia que realmente requieran su intervención obligatoria **gracias a la** automatización de actividades básicas.
 
 #### 1.2.2.4. Lean UX Canvas
 
