@@ -267,6 +267,48 @@ Proyecto
         <td> Far14z </td>
         <td> AR-19 clarify success criteria for user autonomy in home activities. </td>
     </tr>
+    <tr>
+        <td> 1.56 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 add lean ux hypothesis statements section. </td>
+    </tr>
+    <tr>
+        <td> 1.57 </td>
+        <td> 02/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.58 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 update hypothesis 3 &amp; 6 to so it align logically. </td>
+    </tr>
+    <tr>
+        <td> 1.59 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 clarify user definition and outcomes. </td>
+    </tr>
+    <tr>
+        <td> 1.60 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 refine terms used in the statements. </td>
+    </tr>
+    <tr>
+        <td> 1.61 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 update statement 1 &amp; 2 to mention use of voice and gesture recognition. </td>
+    </tr>
+    <tr>
+        <td> 1.62 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 update statement 4 to reduce the use of technical definitions. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
