@@ -125,7 +125,7 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
 - Incrementar en 70% la proporción de actividades básicas del hogar que pueda realizar la persona discapacitada sin requerir asistencia de terceros.
 - Reducir en un 65% el número de intervenciones de familiares o cuidadores requeridas para que la persona discapacitada realice actividades básicas del hogar.
 - Reducir en 60% el tiempo promedio requerido para que la persona discapacitada pueda completar una actividad básica del hogar.
-- Lograr que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan delegando comandos para completar sus actividades diarias.
+- Lograr que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan utilizando el sistema para completar sus actividades diarias.
 - Incrementar en 60% el nivel de autonomía percibida por las personas discapacitadas después de utilizar el sistema para realizar actividades básicas del hogar.
 - Reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación de la persona discapacitada.
 
@@ -148,12 +148,12 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
 
 **User Outcomes & Benefits**
 
-- La persona discapacitada realizará por sí misma acciones básicas del hogar que anteriormente requerían asistencia.
-- La persona discapacitada podrá ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga.
-- La persona discapacitada podrá realizar acciones cotidianas de manera más rápida, sin tener que esperar la disponibilidad de un familiar o cuidador.
-- La persona discapacitada podrá seguir realizando acciones básicas del hogar mediante el sistema incluso cuando no exista conexión a Internet, sintiendo mayor seguridad y confiabilidad en su uso.
-- La persona discapacitada sentirá mayor independencia y control sobre su entorno al poder realizar por sí misma acciones que anteriormente dependían de otra persona.
-- El familiar o cuidador podrá dedicar menos tiempo a realizar acciones rutinarias por la persona discapacitada y concentrarse en actividades de asistencia que realmente requieran su intervención.
+- La persona discapacitada realiza por sí misma acciones básicas del hogar que anteriormente requerían asistencia.
+- La persona discapacitada puede ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga.
+- La persona discapacitada puede realizar acciones cotidianas de manera más rápida, sin tener que esperar la disponibilidad de un familiar o cuidador.
+- La persona discapacitada siente mayor seguridad y confiabilidad al realizar sus actividades mediante el uso del sistema en escenarios de baja o nula señal de conexión a Internet.
+- La persona discapacitada siente mayor independencia y control sobre su entorno al poder realizar por sí misma acciones que anteriormente dependían de otra persona.
+- El familiar o cuidador puede dedicar menos tiempo a realizar acciones rutinarias por la persona discapacitada y concentrarse en actividades de asistencia que realmente requieran su intervención.
 
 **Features Assumptions**
 
@@ -187,7 +187,7 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
 - **Creemos que lograremos** un incremento de 70% en la proporción de actividades básicas del hogar que pueda realizar la persona discapacitada sin requerir asistencia de terceros **si** las personas con discapacidad motora o visual realizan por sí mismas acciones básicas del hogar que anteriormente requerían asistencia obligatoria **gracias a** un sistema de reconocimiento de comandos por voz o por gestos.
 - **Creemos que lograremos** una reducción de 65% en el número de intervenciones de familiares o cuidadores requeridas para que la persona discapacitada realice actividades básicas del hogar **si** las personas con discapacidad motora o visual pueden ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga **gracias a** un sistema de reconocimiento de comandos por voz o por gestos.
 - **Creemos que lograremos** reducir en 60% el tiempo promedio requerido para que la persona discapacitada pueda completar una actividad básica del hogar **si** las personas con discapacidad motora o visual logran realizar acciones cotidianas de manera más rápida, sin tener que esperar la disponibilidad de un familiar o cuidador **gracias a la** simplificación de actividades básicas.
-- **Creemos que lograremos** que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan delegando comandos para completar sus actividades diarias **si** las personas con discapacidad motora o visual siguen realizando acciones básicas del hogar mediante el sistema incluso cuando no exista conexión a Internet, sintiendo mayor seguridad y confiabilidad en su uso **gracias al** módulo de toma de decisiones local.
+- **Creemos que lograremos** que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan utilizando el sistema para completar sus actividades diarias **si** las personas con discapacidad motora o visual sienten mayor seguridad y confiabilidad realizar sus actividades mediante el uso del sistema en escenarios de baja o nula señal de conexión a Internet **gracias al** módulo de toma de decisiones local.
 - **Creemos que lograremos** incrementar en 60% el nivel de autonomía percibida por las personas discapacitadas después de utilizar el sistema para realizar actividades básicas del hogar **si** las personas con discapacidad motora o visual siente una mayor independencia y control sobre su entorno al poder realizar por sí misma acciones que anteriormente dependían de otra persona **gracias a** la configuración adaptativa del sistema realizada por sus familiares.
 - **Creemos que lograremos** reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación de la persona discapacitada **si** los familiares o cuidadores de las personas con discapacidad motora o visual pueden dedicar menos tiempo a realizar acciones rutinarias por la persona y concentrarse en actividades de asistencia que realmente requieran su intervención obligatoria **gracias a la** simplificación de actividades básicas.
 
