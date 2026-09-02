@@ -104,7 +104,20 @@ A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad
 
 ### 1.2.2. Lean UX Process
 
+Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del diseño del producto. Una vez identificada la problemática, empleamos este proceso para estructurar nuestras ideas como hipótesis de negocio y usuario. Esto nos permitió priorizar de manera ágil las áreas clave de desarrollo, asegurando que el diseño del producto propuesto esté directamente validado por el mercado y enfocado en generar valor real tanto para el usuario como para el negocio
+
+
 #### 1.2.2.1. Lean UX Problem Statement
+
+**El estado actual** de la asistencia y el cuidado en el hogar para personas con discapacidades severas en el Perú se ha centrado casi exclusivamente en el soporte físico diario, continuo y no remunerado por parte de familiares directos, o en el alto costo económico de contratar cuidadores profesionales.
+
+**Lo que las alternativas** de asistencia existentes no logran abordar es que más de 3.2 millones de personas presentan alguna discapacidad permanente. Debido a que el 65.7% de esta población no utiliza Internet y carece de herramientas de accesibilidad física adaptadas a su entorno, se ven forzadas a depender de forma diaria y constante de un tercero para tareas tan básicas como encender una luz o abrir una puerta, lo que genera frustración y limita severamente su autonomía y bienestar emocional.
+
+**Nuestro servicio**, Alivia, abordará esta brecha mediante un ecosistema adaptable de automatización física del hogar que no dependa de conexión constante a Internet y que permita a los usuarios ejecutar acciones cotidianas mediante comandos de voz simplificados o la detección de sus movimientos corporales residuales.
+
+**Nuestro enfoque** inicial serán las personas con discapacidad motora o visual severa en el hogar y sus cuidadores familiares.
+
+**Sabremos que tenemos éxito** cuando veamos que los usuarios realizan de forma autónoma parte de sus actividad cotidianas en el hogar sin requerir asistencia de terceros en un 70% de las ocasiones, reduciendo en un 65% las intervenciones rutinarias del cuidador.
 
 #### 1.2.2.2. Lean UX Assumptions
 
