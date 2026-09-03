@@ -2,6 +2,8 @@
 
 ## 1.1. Startup Profile
 
+<img src="https://imgur.com/Usux8Tf.jpg" alt="Aliva" style="width: 150px; display: block; margin: 0 auto; border-radius: 10%;">
+
 ### 1.1.1. Descripción de la Startup
 
 Resolum nace con el propósito de acercar la tecnología a personas con discapacidad motora y discapacidad visual, ofreciendo soluciones que les permitan recuperar parte de la autonomía que perdieron en actividades cotidianas del hogar. En un contexto donde muchas de estas personas dependen constantemente de un familiar o cuidador para tareas tan básicas como encender un dispositivo o abrir una puerta, buscamos que ese control vuelva a estar en sus propias manos.
