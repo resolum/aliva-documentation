@@ -208,7 +208,7 @@ Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del di
 
 Se aplicó Lean UX Canvas para estructurar las hipótesis de negocio y usuario, priorizando las áreas clave de desarrollo y asegurando que el diseño del producto propuesto esté directamente validado por el mercado y enfocado en generar valor real tanto para el usuario como para el negocio.
 
-![Lean UX Hypothesis Statements](https://i.imgur.com/pyeeWV3.png)
+![Lean UX Hypothesis Statements](https://i.imgur.com/NniOAxl.png)
 
 ## 1.3. Segmentos objetivos
 
