@@ -39,7 +39,7 @@
     </tr>
     <tr>
         <td>Ventaja competitiva</td>
-        <td>Funciona sin Internet, con voz y gestos como doble canal de comando.</td>
+        <td>Funciona con voz y gestos como doble canal de comando.</td>
         <td>Trayectoria y respaldo institucional en el sector.</td>
         <td>Adopción masiva y voz muy madura.</td>
         <td>Marca reconocida y hardware disponible.</td>
