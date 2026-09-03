@@ -216,4 +216,47 @@ Se aplicó Lean UX Canvas para estructurar las hipótesis de negocio y usuario, 
 
 ## 1.3. Segmentos objetivos
 
+Esta sección incluye la descripción de los segmentos asociados al dominio del problema, incluyendo características demográficas e información estadística de sustento.
+
+#### Segmento objetivo 1: Persona con discapacidad motora o visual
+
+**Características demográficas:**
+
+* **Edad:** 18 a más años de edad
+* **Género:** Ambos
+* **Nivel de educación:** Secundaria completa o superior
+* **Ingresos:** Bajos a medios
+* **Ubicación geográfica:** Perú
+
+**Información estadística de sustento:**
+
+Según el Censo Nacional 2017 (INEI), la población total con discapacidad en el país es de **3,209,261 personas**, de las cuales el **48,3%** presenta dificultad para ver y el **15,1%** dificultad para moverse o caminar como discapacidad única o principal — juntas, **más del 63%** de las personas con una sola discapacidad. *(Fuente: INEI, "Población con discapacidad en el Perú", Censo 2017)*
+
+El INEI, citado por Punto Seguido - UPC, señala que en el Perú habitan **más de 1 millón de personas con discapacidad visual**, de las cuales más de medio millón residen en Lima. *(Fuente: Punto Seguido - UPC, 2024, con base en datos INEI)*
+
+Según la ENEDIS-INEI, la dificultad para ver afecta al **50,9%** de la población con discapacidad (dato que incluye comorbilidad), mientras que la discapacidad motora (dificultad para moverse/caminar y/o usar brazos o piernas) es la que más afecta a nivel nacional: **932 mil personas (59,2%)**. *(Fuente: INEI, ENEDIS)*
+
+El uso del sistema braille es muy bajo en el país: solo el **6%** de la población con discapacidad visual lo utiliza, según datos de la UNESCO (2017). *(Fuente: UNESCO, citado por Punto Seguido - UPC)*
+
+Según El Comercio (Urbanova), citando al INEI, el **10,3%** de peruanos con discapacidad presenta dificultad para desplazarse por las calles, tomar autobuses y visitar parques. La edad avanzada es la principal causa de la discapacidad motora (**32,5%** de los casos), seguida de enfermedad crónica (**24,4%**). *(Fuente: El Comercio, 2023 / INEI, ENEDIS)*
+
+#### Segmento objetivo 2: Familiar o cuidador de persona con discapacidad
+
+**Características demográficas:**
+
+* **Edad:** 25 a más años de edad (predominantemente entre 30 y 49 años)
+* **Género:** Mayoritariamente mujeres
+* **Rol:** Cónyuge, madre/padre, hijo(a) u otro familiar directo a cargo del cuidado
+* **Nivel de educación:** Secundaria completa o superior
+* **Ingresos:** Bajos a medios
+* **Ubicación geográfica:** Perú (con mayor concentración en Lima)
+
+**Información estadística de sustento:**
+
+De acuerdo con los resultados de la ENEDIS-INEI, el **41%** de las personas con discapacidad en el Perú presenta algún grado de dependencia, lo que obliga a sus familiares a reorganizar o dejar de lado actividades cotidianas para dedicarse a su cuidado. *(Fuente: INEI, ENEDIS)*
+
+Este trabajo de cuidado recae de forma desproporcionada en mujeres: a nivel nacional, el **86%** de las personas dedicadas al trabajo de cuidado no remunerado (incluye cuidado de familiares con discapacidad, adultos mayores y trabajo doméstico) son mujeres. *(Fuente: Infobae, 2024, con base en cifras oficiales)*
+
+La ENUT 2024 (INEI) confirma esta brecha: las mujeres de 30 a 39 años son quienes más tiempo dedican al trabajo no remunerado, seguidas de las de 40 a 49 años, rango que coincide con el perfil típico de cuidadoras familiares. *(Fuente: INEI, ENUT 2024)*
+
 <div style="page-break-after: always;"></div>
