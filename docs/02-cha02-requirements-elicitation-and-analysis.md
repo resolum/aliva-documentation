@@ -14,105 +14,111 @@
 
 <table>
     <tr>
-        <td colspan="6"> Competitive Analysis Landscape </td>
+        <td colspan="7"><b>Competitive Analysis Landscape</b></td>
     </tr>
     <tr>
-        <td colspan="2"> ¿Por qué llevar a cabo este análisis? </td>
-        <td colspan="4"> Escribir respuesta aquí </td>
+        <td colspan="2">¿Por qué llevar a cabo este análisis?</td>
+        <td colspan="5">Conocer qué tan cubierta está la necesidad de autonomía en el hogar de personas con discapacidad motora y visual, y validar si el enfoque offline de Alivia representa una ventaja real frente al resto del mercado.</td>
     </tr>
     <tr>
-        <th colspan="2" rowspan="2"> </th>
-        <th> Resolum </th>
-        <th> Competidor 1 </th>
-        <th> Competidor 2 </th>
-        <th> Competidor 3 </th>
+        <th colspan="2"></th>
+        <th>Alivia <br><img src="https://imgur.com/Usux8Tf.jpg" width="80"/></th>
+        <th>Fundación ONCE <br><img src="https://imgur.com/yResSp2.jpg" width="80"/></th>
+        <th>Amazon Alexa <br><img src="https://imgur.com/6Pb0RIE.jpg" width="80"/></th>
+        <th>Somfy <br><img src="https://imgur.com/z9HCKlW.jpg" width="80"/></th>
+        <th>My Sweet Smart Home <br><img src="https://imgur.com/F0gWQ35.jpg" width="80"/></th>
     </tr>
     <tr>
-        <td> Logo Resolum </td>
-        <td> Logo Competidor 1 </td>
-        <td> Logo Competidor 2 </td>
-        <td> Logo Competidor 3 </td>
+        <td rowspan="2" style="writing-mode: vertical-lr; transform: rotate(180deg); text-align: center">Perfil</td>
+        <td>Overview</td>
+        <td>Personas con discapacidad motora y visual que buscan mayor autonomía en el hogar mediante comandos de voz y gestos.</td>
+        <td>Modelo de casa domotizada adaptada a personas con discapacidad.</td>
+        <td>Asistente de voz e integraciones smart home.</td>
+        <td>Kits de domótica para movilidad reducida.</td>
+        <td>Entorno inteligente adaptado a discapacidad.</td>
     </tr>
     <tr>
-        <td rowspan="2" style="writing-mode: vertical-lr; text-align: center"> Perfil </td>
-        <td> Overview </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td>Ventaja competitiva</td>
+        <td>Solución especializada en la autonomía y supervisión de personas con discapacidad motora y visual.</td>
+        <td>Trayectoria y respaldo institucional en el sector.</td>
+        <td>Adopción masiva y voz muy madura.</td>
+        <td>Marca reconocida y hardware disponible.</td>
+        <td>Especialización real en discapacidad.</td>
     </tr>
     <tr>
-        <td> Ventaja competitiva </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td rowspan="2" style="writing-mode: vertical-lr; transform: rotate(180deg); text-align: center">Perfil de Marketing</td>
+        <td>Mercado objetivo</td>
+        <td>Hogares con algún miembro con discapacidad motora o visual, junto a sus cuidadores.</td>
+        <td>Sector de la edificación, diseño y accesibilidad en España.</td>
+        <td>Usuarios de smart home en general.</td>
+        <td>Hogares en general.</td>
+        <td>Personas con discapacidad </td>
     </tr>
     <tr>
-        <td rowspan="2" style="writing-mode: vertical-lr; text-align: center"> Perfil de Marketing </td>
-        <td> Mercado Objetivo </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td>Estrategias de marketing</td>
+        <td>Alianzas con asociaciones y apoyo de CONADIS.</td>
+        <td>Exposiciones itinerantes como referente institucional.</td>
+        <td>Posicionamiento masivo como hogar inteligente.</td>
+        <td>Marca premium de confort y automatización.</td>
+        <td>Difusión vía fondos de innovación social.</td>
     </tr>
     <tr>
-        <td> Estrategias de Marketing </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td rowspan="3" style="writing-mode: vertical-lr; transform: rotate(180deg); text-align: center">Perfil de Producto</td>
+        <td>Productos & Servicios</td>
+        <td>IoT + decisión local + configuración para cuidadores.</td>
+        <td>Vivienda modelo, sin producto propio.</td>
+        <td>Altavoces + integraciones con luces y cerraduras.</td>
+        <td>Persianas, luces, temperatura y seguridad.</td>
+        <td>Automatización + señales sonoras.</td>
     </tr>
     <tr>
-        <td rowspan="3" style="writing-mode: vertical-lr; text-align: center"> Perfil de Producto </td>
-        <td> Productos & Servicios </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td>Precios & Costos</td>
+        <td>Bajo costo</td>
+        <td>No aplica, no es comercial.</td>
+        <td>Bajo costo por dispositivo.</td>
+        <td>Costo medio-alto por kit.</td>
+        <td>Financiado con fondos públicos.</td>
     </tr>
     <tr>
-        <td> Precios & Costos </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td>Canales de distribución (Web y/o Móvil)</td>
+        <td>Web y Móvil</td>
+        <td>Web</td>
+        <td>Web</td>
+        <td>Web y Móvil</td>
+        <td>Web</td>
     </tr>
     <tr>
-        <td> Canales de distribución (Web y/o Móvil) </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td rowspan="4" style="writing-mode: vertical-lr; transform: rotate(180deg); text-align: center">Análisis SWOT</td>
+        <td>Fortalezas</td>
+        <td>Funcionamiento offline y doble canal de comando.</td>
+        <td>Credibilidad y experiencia en discapacidad.</td>
+        <td>Base de usuarios enorme.</td>
+        <td>Hardware confiable.</td>
+        <td>Enfoque real en discapacidad.</td>
     </tr>
     <tr>
-        <td rowspan="4" style="writing-mode: vertical-lr; text-align: center"> Análisis SWOT </td>
-        <td> Fortalezas </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td>Debilidades</td>
+        <td>Marca nueva, sin reconocimiento.</td>
+        <td>No escalable, sin presencia en Perú.</td>
+        <td>Depende de Internet.</td>
+        <td>No especializado en discapacidad.</td>
+        <td>Sin alcance fuera de Europa.</td>
     </tr>
     <tr>
-        <td> Debilidades </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td>Oportunidades</td>
+        <td>Baja competencia especializada en Perú.</td>
+        <td>Replicarse en Latinoamérica.</td>
+        <td>Sumar funciones de accesibilidad.</td>
+        <td>Entrar al nicho de discapacidad.</td>
+        <td>Expandirse fuera de Europa.</td>
     </tr>
     <tr>
-        <td> Oportunidades </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-    </tr>
-    <tr>
-        <td> Amenazas </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td>Amenazas</td>
+        <td>Entrada de Alexa o Google Home al nicho.</td>
+        <td>Perder relevancia frente a soluciones ágiles.</td>
+        <td>Soluciones más especializadas.</td>
+        <td>Startups locales más enfocadas.</td>
+        <td>Depender de fondos públicos.</td>
     </tr>
 </table>
 

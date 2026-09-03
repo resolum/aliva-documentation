@@ -10,6 +10,10 @@ Como parte de nuestra propuesta de valor, desarrollamos sistemas que se adaptan 
 
 Nos enfocamos en brindar soluciones accesibles para personas con discapacidad motora y visual, y sus familias, integrando tecnología que les ayude a recuperar el control sobre su día a día dentro del hogar.
 
+<div style="display: flex; justify-content: center; align-items: center;">
+  <img src="https://imgur.com/Usux8Tf.jpg" alt="logo-alivia" style="width: 350px; border-radius: 10%;">
+</div>
+
 ##### Misión y Visión
 <table>
   <thead>
