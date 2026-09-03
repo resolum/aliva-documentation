@@ -351,6 +351,48 @@ Proyecto
         <td> Addicted2you </td>
         <td> Update Lean UX Hypothesis Statements image link </td>
     </tr>
+    <tr>
+        <td> 1.70 </td>
+        <td> 03/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Add competitive analysis table. </td>
+    </tr>
+    <tr>
+        <td> 1.71 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitive analysis table. </td>
+    </tr>
+    <tr>
+        <td> 1.72 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add startup logo </td>
+    </tr>
+    <tr>
+        <td> 1.73 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitive analysis table. </td>
+    </tr>
+    <tr>
+        <td> 1.74 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.75 </td>
+        <td> 03/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Center startup logo and adjust competitors table content. </td>
+    </tr>
+    <tr>
+        <td> 1.76 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Change logo size in startup description. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
