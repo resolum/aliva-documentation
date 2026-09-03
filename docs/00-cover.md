@@ -321,6 +321,36 @@ Proyecto
         <td> Matias Diaz </td>
         <td> Add competitors section. </td>
     </tr>
+    <tr>
+        <td> 1.65 </td>
+        <td> 02/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Added lean ux canvas </td>
+    </tr>
+    <tr>
+        <td> 1.66 </td>
+        <td> 02/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Changed image link </td>
+    </tr>
+    <tr>
+        <td> 1.67 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.68 </td>
+        <td> 02/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update Lean UX Hypothesis Statements image link </td>
+    </tr>
+    <tr>
+        <td> 1.69 </td>
+        <td> 03/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update Lean UX Hypothesis Statements image link </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
