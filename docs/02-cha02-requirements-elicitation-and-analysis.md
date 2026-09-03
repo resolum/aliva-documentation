@@ -31,7 +31,7 @@
     <tr>
         <td rowspan="2" style="writing-mode: vertical-lr; transform: rotate(180deg); text-align: center">Perfil</td>
         <td>Overview</td>
-        <td>Automatización del hogar para discapacidad motora y visual, con voz y gestos.</td>
+        <td>Personas con discapacidad motora y visual que buscan mayor autonomía en el hogar mediante comandos de voz y gestos.</td>
         <td>Modelo de casa domotizada adaptada a personas con discapacidad.</td>
         <td>Asistente de voz e integraciones smart home.</td>
         <td>Kits de domótica para movilidad reducida.</td>
@@ -39,7 +39,7 @@
     </tr>
     <tr>
         <td>Ventaja competitiva</td>
-        <td>Funciona con voz y gestos como doble canal de comando.</td>
+        <td>Solución especializada en la autonomía y supervisión de personas con discapacidad motora y visual.</td>
         <td>Trayectoria y respaldo institucional en el sector.</td>
         <td>Adopción masiva y voz muy madura.</td>
         <td>Marca reconocida y hardware disponible.</td>
