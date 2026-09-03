@@ -393,6 +393,24 @@ Proyecto
         <td> Matias Diaz </td>
         <td> Change logo size in startup description. </td>
     </tr>
+    <tr>
+        <td> 1.77 </td>
+        <td> 02/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-16 add demographic segments and statistical information for visually and motor-disabled individuals </td>
+    </tr>
+    <tr>
+        <td> 1.78 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.79 </td>
+        <td> 03/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-16 update demographic segments and statistical information for visually and motor-disabled individuals </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
