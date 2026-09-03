@@ -56,7 +56,7 @@
     </tr>
     <tr>
         <td>Estrategias de marketing</td>
-        <td>Alianzas con casas de reposo y asociaciones, apoyo de CONADIS.</td>
+        <td>Alianzas con asociaciones y apoyo de CONADIS.</td>
         <td>Exposiciones itinerantes como referente institucional.</td>
         <td>Posicionamiento masivo como hogar inteligente.</td>
         <td>Marca premium de confort y automatización.</td>
