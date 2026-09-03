@@ -85,6 +85,7 @@ Proyecto
 
 # Registro de Versiones del Informe
 
+<!-- VERSION_TABLE_START -->
 <table>
     <tr>
         <th> Versión </th>
@@ -93,24 +94,331 @@ Proyecto
         <th> Descripción de la modificación </th>
     </tr>
     <tr>
-        <td> Version </td>
-        <td> 02/04/26 </td>
-        <td> Un Bot </td>
-        <td> Descripción </td>
+        <td> 1.27 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add cover page and base sections. </td>
+    </tr>
+    <tr>
+        <td> 1.28 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 01. </td>
+    </tr>
+    <tr>
+        <td> 1.29 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 02. </td>
+    </tr>
+    <tr>
+        <td> 1.30 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 03. </td>
+    </tr>
+    <tr>
+        <td> 1.31 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 04. </td>
+    </tr>
+    <tr>
+        <td> 1.32 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 05. </td>
+    </tr>
+    <tr>
+        <td> 1.33 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 06. </td>
+    </tr>
+    <tr>
+        <td> 1.34 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 07. </td>
+    </tr>
+    <tr>
+        <td> 1.35 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for conclusions, bibliography and annexes. </td>
+    </tr>
+    <tr>
+        <td> 1.36 </td>
+        <td> 30/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add table of contents </td>
+    </tr>
+    <tr>
+        <td> 1.37 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add startup profile section with mission and vision </td>
+    </tr>
+    <tr>
+        <td> 1.38 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add startup profile section with mission and vision </td>
+    </tr>
+    <tr>
+        <td> 1.39 </td>
+        <td> 31/08/26 </td>
+        <td> RenatoCY </td>
+        <td> Expand introduction section with detailed problem analysis </td>
+    </tr>
+    <tr>
+        <td> 1.40 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite startup description to focus on resolum. </td>
+    </tr>
+    <tr>
+        <td> 1.41 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.42 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.43 </td>
+        <td> 01/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Enhance problem analysis in introduction section for clarity and depth </td>
+    </tr>
+    <tr>
+        <td> 1.44 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.45 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.46 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.47 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.48 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Specify target audience and clarify mission around autonomy recovery </td>
+    </tr>
+    <tr>
+        <td> 1.49 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Remove duplicate examples across paragraphs in startup description </td>
+    </tr>
+    <tr>
+        <td> 1.50 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add lean ux assumptions section. </td>
+    </tr>
+    <tr>
+        <td> 1.51 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update business outcome to align with lean ux. </td>
+    </tr>
+    <tr>
+        <td> 1.52 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update system behavior description to align with lean ux. </td>
+    </tr>
+    <tr>
+        <td> 1.53 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> AR-19 add lean ux process description. </td>
+    </tr>
+    <tr>
+        <td> 1.54 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> AR-19 add lean UX problem statement for home assistance service. </td>
+    </tr>
+    <tr>
+        <td> 1.55 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> AR-19 clarify success criteria for user autonomy in home activities. </td>
+    </tr>
+    <tr>
+        <td> 1.56 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 add lean ux hypothesis statements section. </td>
+    </tr>
+    <tr>
+        <td> 1.57 </td>
+        <td> 02/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.58 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 update hypothesis 3 &amp; 6 to so it align logically. </td>
+    </tr>
+    <tr>
+        <td> 1.59 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 clarify user definition and outcomes. </td>
+    </tr>
+    <tr>
+        <td> 1.60 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 refine terms used in the statements. </td>
+    </tr>
+    <tr>
+        <td> 1.61 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 update statement 1 &amp; 2 to mention use of voice and gesture recognition. </td>
+    </tr>
+    <tr>
+        <td> 1.62 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 update statement 4 to reduce the use of technical definitions. </td>
+    </tr>
+    <tr>
+        <td> 1.63 </td>
+        <td> 02/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.64 </td>
+        <td> 02/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitors section. </td>
+    </tr>
+    <tr>
+        <td> 1.65 </td>
+        <td> 02/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Added lean ux canvas </td>
+    </tr>
+    <tr>
+        <td> 1.66 </td>
+        <td> 02/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Changed image link </td>
+    </tr>
+    <tr>
+        <td> 1.67 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.68 </td>
+        <td> 02/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update Lean UX Hypothesis Statements image link </td>
+    </tr>
+    <tr>
+        <td> 1.69 </td>
+        <td> 03/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update Lean UX Hypothesis Statements image link </td>
+    </tr>
+    <tr>
+        <td> 1.70 </td>
+        <td> 03/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Add competitive analysis table. </td>
+    </tr>
+    <tr>
+        <td> 1.71 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitive analysis table. </td>
+    </tr>
+    <tr>
+        <td> 1.72 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add startup logo </td>
+    </tr>
+    <tr>
+        <td> 1.73 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitive analysis table. </td>
+    </tr>
+    <tr>
+        <td> 1.74 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.75 </td>
+        <td> 03/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Center startup logo and adjust competitors table content. </td>
+    </tr>
+    <tr>
+        <td> 1.76 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Change logo size in startup description. </td>
+    </tr>
+    <tr>
+        <td> 1.77 </td>
+        <td> 02/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-16 add demographic segments and statistical information for visually and motor-disabled individuals </td>
+    </tr>
+    <tr>
+        <td> 1.78 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.79 </td>
+        <td> 03/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-16 update demographic segments and statistical information for visually and motor-disabled individuals </td>
     </tr>
 </table>
+<!-- VERSION_TABLE_END -->
 
 <div style="page-break-after: always;"></div>
 
 # Project Report Collaboration Insights
 
 Texto base
-
-<div style="page-break-after: always;"></div>
-
-# Contenido
-
-## Tabla de contenidos
 
 <div style="page-break-after: always;"></div>
 
@@ -225,6 +533,8 @@ Texto base
    * [Video About-the-Team](08-conclusions.md#video-about-the-team)
 * [Bibliografía](09-bibliography.md#bibliografía)
 * [Anexos](10-annexes.md#anexos)
+
+<div style="page-break-after: always;"></div>
 
 # Student Outcome
 
