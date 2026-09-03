@@ -309,6 +309,18 @@ Proyecto
         <td> Nicolas Juarez Leon </td>
         <td> AR-14 update statement 4 to reduce the use of technical definitions. </td>
     </tr>
+    <tr>
+        <td> 1.63 </td>
+        <td> 02/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.64 </td>
+        <td> 02/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitors section. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
