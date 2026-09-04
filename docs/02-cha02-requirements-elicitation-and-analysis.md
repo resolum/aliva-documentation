@@ -124,6 +124,37 @@
 
 ### 2.1.2. Estrategias y tácticas frente a competidores
 
+#### Enfoque Estratégico
+Alivia se posiciona como una solución de automatización del hogar especializada en discapacidad motora y visual, combinando comandos por voz y gestos con procesamiento local que no depende de conexión constante a Internet.
+
+---
+
+#### 1. Frente a Fundación ONCE
+- Producto comercial y escalable
+- Presencia en el mercado peruano
+- Configuración orientada al uso diario
+
+---
+
+#### 2. Frente a Amazon Alexa
+- Funcionamiento sin conexión constante a Internet
+- Doble canal de comando: voz y gestos
+- Especialización en discapacidad severa
+
+---
+
+#### 3. Frente a Somfy
+- Enfoque en discapacidad motora y visual
+- Menor costo para el segmento objetivo
+- Configuración adaptada a necesidades del usuario
+
+---
+
+#### 4. Frente a My Sweet Smart Home
+- Presencia en el mercado peruano
+- Alianzas con CONADIS y asociaciones locales
+- Modelo sostenible sin depender de fondos públicos
+
 ## 2.2. Entrevistas
 
 ### 2.2.1. Diseño de entrevistas
