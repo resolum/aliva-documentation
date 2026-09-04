@@ -24,14 +24,14 @@
 
 <table>
     <tr>
-        <th> Integrante </th>
+        <th> Integrante </th> 
         <th> Imagen del integrante </th>
         <th> Descripción y conocimientos </th>
     </tr>
     <tr>
         <td> Calvo Yalan, Renato Guillermo (u202217053) </td>
-        <td> 02/04/26 </td>
-        <td> 02/04/26 </td>
+        <td> <img src="https://imgur.com/7WPnnzU.png" alt="Renato Guillermo Calvo Yalan" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
+        <td> Soy estudiante de Ingeniería de Software y me interesa especialmente la ciberseguridad y la inteligencia artificial, áreas en las que quiero seguir desarrollándome y aplicar mis conocimientos en proyectos reales. Considero que una de mis principales fortalezas es el liderazgo, ya que me gusta organizar el trabajo, asumir responsabilidades y ayudar a que un equipo avance hacia sus objetivos. También me considero una persona perseverante, con conocimientos en distintos lenguajes de programación y muchas ganas de seguir aprendiendo. Mi objetivo es aprovechar estas habilidades para desarrollar, junto con mi grupo, un proyecto sólido, innovador y exitoso, en el que todos podamos aportar y crecer. </td>
     </tr>
     <tr>
         <td> Coronel Espinoza, Farid Sebastian (u202312508) </td>
