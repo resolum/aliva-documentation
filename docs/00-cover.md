@@ -411,6 +411,30 @@ Proyecto
         <td> RenatoCY </td>
         <td> AR-16 update demographic segments and statistical information for visually and motor-disabled individuals </td>
     </tr>
+    <tr>
+        <td> 1.80 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.81 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitive strategies and tactics section. </td>
+    </tr>
+    <tr>
+        <td> 1.82 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Clarify how each competitive tactic will be achieved. </td>
+    </tr>
+    <tr>
+        <td> 1.83 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rephrase competitive tactics in future tense to reflect pre-launch stage. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
