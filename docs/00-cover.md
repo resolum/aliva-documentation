@@ -1,83 +1,49 @@
 <div align="center">
 
-<img src="https://i.imgur.com/uoAo2Eb.png" alt="Logo UPC" style="width: 70px; height: auto;" />
-
-<br>
-
-Universidad Peruana De Ciencias Aplicadas
-
-Carrera de Ingeniería de Software
-
-<p>
-
-<strong> <span style="font-size: 16px;"> 1ASI0728 Arquitecturas de Software Emergentes </span> </strong>
-
-<br> 
-<br>
-
-<span style="font-size: 16px;"> 202602 </span>
-
-NRC
-
-<strong> Colocar la NRC del curso </strong>
-
-Docente
-
-<strong> Nombre del docente </strong>
+<img src="https://i.imgur.com/uoAo2Eb.png" alt="Logo UPC" style="width: 80px; height: auto;" />
 
 <br>
 <br>
 
-<strong> <span style="font-size: 16px;"> Informe de Trabajo Final </span> </strong>
+<strong> UNIVERSIDAD PERUANA DE CIENCIAS APLICADAS </strong>
 
-Equipo
+<strong> FACULTAD DE INGENIERÍA </strong>
 
-<strong> Resolum </strong>
+<strong> INGENIERÍA DE SOFTWARE </strong>
+
+<span style="font-size: 16px;"> CURSO: 1ASI0728 - ARQUITECTURAS DE SOFTWARE EMERGENTES </span>
+
+<strong> DOCENTE: </strong> Ernesto Ocampo Tello
+
+<strong> NRC: </strong> 9061
+
+<strong> <span style="font-size: 16px;"> TRABAJO FINAL </span> </strong>
+
+<br>
+
+<strong> STARTUP: </strong> Resolum
+
+<strong> SOLUCIÓN: </strong> Alivia
 
 <br>
 
-Proyecto
+<strong> INTEGRANTES: </strong>
 
-<strong> Por nombrar </strong>
+Calvo Yalan, Renato Guillermo (u202217053)
 
-<br>
+Coronel Espinoza, Farid Sebastian (u202312508)
 
-</p>
+Diaz Quispe, Matías Sebastian (u202311938)
 
-<strong> Integrantes </strong>
+Juarez Leon, Nicolas Emilio Walter (u202317483)
 
-<br>
-<br>
-
-<table style="border-collapse: collapse; border: none;">
-    <tr>
-        <th style="border: none; text-align: center;">Código</th>
-        <th style="border: none; text-align: center;">Apellidos y Nombres</th>
-    </tr>
-    <tr>
-        <td style="border: none;">u202217053</td>
-        <td style="border: none;">Calvo Yalan, Renato Guillermo</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202312508</td>
-        <td style="border: none;">Coronel Espinoza, Farid Sebastian</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202311938</td>
-        <td style="border: none;">Diaz Quispe, Matias Diaz</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202317483</td>
-        <td style="border: none;">Juarez Leon, Nicolas Emilio Walter</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202315283</td>
-        <td style="border: none;">Rios Piñan, Dayro Richard</td>
-    </tr>
-</table>
+Rios Piñan, Dayro Richard (u202315283)
 
 <br>
-<strong> Agosto, 2026 </strong>
+
+<strong> Ciclo Académico: </strong> 202620
+
+<br>
 
 </div>
 
