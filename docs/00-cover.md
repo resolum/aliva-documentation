@@ -401,6 +401,18 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Matias Diaz </td>
         <td> Rephrase competitive tactics in future tense to reflect pre-launch stage. </td>
     </tr>
+    <tr>
+        <td> 1.84 </td>
+        <td> 04/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.85 </td>
+        <td> 04/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add cover page with information about team and course. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
