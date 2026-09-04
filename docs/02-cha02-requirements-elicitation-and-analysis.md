@@ -125,35 +125,38 @@
 ### 2.1.2. Estrategias y tácticas frente a competidores
 
 #### Enfoque Estratégico
-Alivia se posiciona como una solución de automatización del hogar especializada en discapacidad motora y visual, combinando comandos por voz y gestos con procesamiento local que no depende de conexión constante a Internet.
+Alivia se posiciona como una solución de automatización del hogar especializada en discapacidad motora y visual, combinando comandos por voz y gestos con procesamiento local que no depende de una conexión constante a Internet. A diferencia de la competencia, que ofrece soluciones genéricas o limitadas a un solo canal de comando, buscamos convertirnos en la alternativa más confiable para este segmento en el mercado peruano.
 
 ---
 
 #### 1. Frente a Fundación ONCE
-- Producto comercial y escalable
-- Presencia en el mercado peruano
-- Configuración orientada al uso diario
+- Ofrecemos un producto comercial y escalable, no solo un modelo de referencia institucional sin fines comerciales
+- Buscamos tener presencia real en el mercado peruano mediante alianzas con asociaciones locales y el apoyo de CONADIS
+- Nuestra configuración está pensada para el uso diario en el hogar, no para exhibición o fines educativos
+- Brindamos soporte continuo y actualizaciones, en lugar de un modelo estático de vivienda demostrativa
 
 ---
 
 #### 2. Frente a Amazon Alexa
-- Funcionamiento sin conexión constante a Internet
-- Doble canal de comando: voz y gestos
-- Especialización en discapacidad severa
+- No dependemos de una conexión constante a Internet, gracias a un módulo de toma de decisiones que procesa los comandos de forma local
+- Contamos con doble canal de comando (voz y gestos), ampliando el acceso a personas con discapacidad motora que no pueden depender solo del habla
+- Diseñamos el sistema desde el inicio para discapacidad severa, en lugar de adaptar después una solución de smart home genérico
+- Ofrecemos confirmación auditiva pensada específicamente para personas con discapacidad visual, y no solo respuestas genéricas de asistente virtual
 
 ---
 
 #### 3. Frente a Somfy
-- Enfoque en discapacidad motora y visual
-- Menor costo para el segmento objetivo
-- Configuración adaptada a necesidades del usuario
+- Nos enfocamos específicamente en discapacidad motora y visual, en lugar de dirigirnos a hogares en general
+- Buscamos ofrecer un costo más accesible para este segmento, priorizando componentes de bajo costo y un modelo de licencias frente al hardware premium de Somfy
+- Adaptamos la configuración a las necesidades reales del usuario, no una solución genérica de domótica
+- Priorizamos la confiabilidad ante fallas de conexión, un aspecto que Somfy no resuelve directamente
 
 ---
 
 #### 4. Frente a My Sweet Smart Home
-- Presencia en el mercado peruano
-- Alianzas con CONADIS y asociaciones locales
-- Modelo sostenible sin depender de fondos públicos
+- Buscamos tener presencia y alcance en el mercado peruano, partiendo de un contexto local en lugar de replicar un modelo europeo
+- Planteamos un modelo sostenible mediante venta de licencias y hardware, en lugar de depender de fondos de innovación social
+- Apuntamos a una expansión progresiva dentro de Latinoamérica, partiendo de una base sólida en Perú
 
 ## 2.2. Entrevistas
 
