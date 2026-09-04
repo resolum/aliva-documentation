@@ -53,8 +53,8 @@ conocimientos técnicos, comprensión del negocio y mejora continua. </td>
     </tr>
     <tr>
         <td> Rios Piñan, Dayro Richard (u202315283) </td>
-        <td> 02/04/26 </td>
-        <td> 02/04/26 </td>
+         <td> <img src="https://i.imgur.com/ldZxPfL.png" alt="Matias Diaz Quispe" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
+        <td> Mi nombre es Dayro Rios, tengo 20 años y actualmente estoy en el octavo ciclo de la carrera de Ingeniería de Software en la Universidad Peruana de Ciencias Aplicadas. Disfruto de escuchar música, jugar videojuegos y practicar deportes. Me considero una persona empática y tengo facilidad para comunicarme en entornos de trabajo en equipo. </td>
     </tr>
 </table>
 
