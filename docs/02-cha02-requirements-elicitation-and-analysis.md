@@ -128,6 +128,63 @@
 
 ### 2.2.1. Diseño de entrevistas
 
+
+#### Segmento objetivo 1: Personas con discapacidad motora o visual
+
+##### Preguntas personales:
+
+* ¿Cuál es su nombre?
+
+* ¿Cuál es su edad?
+
+* ¿En qué lugar vive actualmente ?
+
+* ¿Con quién vive actualmente?
+
+* ¿Qué tipo de discapacidad presenta (motora, visual, o ambas) y desde cuándo la tiene?
+
+##### Preguntas específicas:
+
+* ¿Qué actividades básicas del hogar le resultan más difíciles de realizar por su cuenta (por ejemplo: abrir puertas, encender luces, ajustar la temperatura)?
+
+* ¿Con qué frecuencia necesita pedir ayuda a otra persona para realizar este tipo de actividades en un día normal?
+
+* ¿Quién le brinda esa ayuda habitualmente (familiar, cuidador contratado, ambos)?
+
+* ¿Qué hace cuando necesita realizar una de estas actividades y no hay nadie disponible para ayudarlo/a en ese momento?
+
+* ¿Ha utilizado alguna vez algún dispositivo o sistema de asistencia tecnológica en su hogar (asistentes de voz, sensores, automatización)? ¿Cuál fue su experiencia?
+
+* Si tuviera un sistema que le permitiera controlar luces, puertas u otros dispositivos del hogar usando solo su voz o movimientos de su cuerpo, ¿qué tan útil cree que sería para usted?
+
+#### Segmento objetivo 2: Familiar o cuidador de persona con discapacidad
+
+##### Preguntas personales:
+
+* ¿Cuál es su nombre?
+
+* ¿Cuál es su edad?
+
+* ¿En qué lugar vive actualmente ?
+
+* ¿Qué relación tiene con la persona a la que cuida ?
+
+* ¿Vive en el mismo hogar que la persona con discapacidad?
+
+* ¿Es usted el único cuidador de esta persona, o comparte esa responsabilidad con alguien más?
+
+##### Preguntas específicas:
+
+* ¿Cuáles son las actividades basicas en la que apoya a la persona?
+
+* ¿Qué pasa cuando usted no está disponible y la persona necesita ayuda con una de estas tareas?
+
+* ¿Ha utilizado o considerado usar algún sistema para apoyar a la persona a su cargo?
+
+* ¿Qué tan dispuesto/a estaría a dejar que la persona realice estas actividades con el sistema, sin su intervención directa?
+
+* ¿Qué tan importante es para usted poder monitorear qué actividades realiza la persona a su cargo mediante el sistema?
+
 ### 2.2.2. Registro de entrevistas
 
 **Segmento 1: Nombre del segmento 1**
