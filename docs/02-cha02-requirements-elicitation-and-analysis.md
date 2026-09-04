@@ -124,6 +124,40 @@
 
 ### 2.1.2. Estrategias y tácticas frente a competidores
 
+#### Enfoque Estratégico
+Alivia se posicionará como una solución de automatización del hogar especializada en discapacidad motora y visual, combinando comandos por voz y gestos con procesamiento local que no dependerá de una conexión constante a Internet. A diferencia de la competencia, que ofrece soluciones genéricas o limitadas a un solo canal de comando, buscamos convertirnos en la alternativa más confiable para este segmento en el mercado peruano.
+
+---
+
+#### 1. Frente a Fundación ONCE
+- Ofreceremos un producto comercial y escalable, no solo un modelo de referencia institucional sin fines comerciales
+- Buscaremos tener presencia real en el mercado peruano mediante alianzas con asociaciones locales y el apoyo de CONADIS
+- Pensaremos nuestra configuración para el uso diario en el hogar, no para exhibición o fines educativos
+- Brindaremos soporte continuo y actualizaciones, en lugar de un modelo estático de vivienda demostrativa
+
+---
+
+#### 2. Frente a Amazon Alexa
+- No dependeremos de una conexión constante a Internet, gracias a un módulo de toma de decisiones que procesará los comandos de forma local
+- Contaremos con doble canal de comando (voz y gestos), ampliando el acceso a personas con discapacidad motora que no pueden depender solo del habla
+- Diseñaremos el sistema desde el inicio para discapacidad severa, en lugar de adaptar después una solución de smart home genérico
+- Ofreceremos confirmación auditiva pensada específicamente para personas con discapacidad visual, y no solo respuestas genéricas de asistente virtual
+
+---
+
+#### 3. Frente a Somfy
+- Nos enfocaremos específicamente en discapacidad motora y visual, en lugar de dirigirnos a hogares en general
+- Buscaremos ofrecer un costo más accesible para este segmento, priorizando componentes de bajo costo y un modelo de licencias frente al hardware premium de Somfy
+- Adaptaremos la configuración a las necesidades reales del usuario, no una solución genérica de domótica
+- Priorizaremos la confiabilidad ante fallas de conexión, un aspecto que Somfy no resuelve directamente
+
+---
+
+#### 4. Frente a My Sweet Smart Home
+- Buscaremos tener presencia y alcance en el mercado peruano, partiendo de un contexto local en lugar de replicar un modelo europeo
+- Plantearemos un modelo sostenible mediante venta de licencias y hardware, en lugar de depender de fondos de innovación social
+- Apuntaremos a una expansión progresiva dentro de Latinoamérica, partiendo de una base sólida en Perú
+
 ## 2.2. Entrevistas
 
 ### 2.2.1. Diseño de entrevistas
