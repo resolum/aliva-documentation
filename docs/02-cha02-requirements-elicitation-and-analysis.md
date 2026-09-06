@@ -162,8 +162,7 @@ Alivia se posicionará como una solución de automatización del hogar especiali
 
 ### 2.2.1. Diseño de entrevistas
 
-
-#### Segmento objetivo 1: Personas con discapacidad motora o visual
+#### Segmento objetivo 1: Persona con discapacidad motora severa (en situación de postración)
 
 ##### Preguntas personales:
 
@@ -171,25 +170,32 @@ Alivia se posicionará como una solución de automatización del hogar especiali
 
 * ¿Cuál es su edad?
 
-* ¿En qué lugar vive actualmente ?
+* ¿Dónde vive actualmente?
 
-* ¿Con quién vive actualmente?
+* ¿Con quién vive?
 
-* ¿Qué tipo de discapacidad presenta (motora, visual, o ambas) y desde cuándo la tiene?
+* ¿Desde cuándo tiene esta condición?
+
 
 ##### Preguntas específicas:
 
-* ¿Qué actividades básicas del hogar le resultan más difíciles de realizar por su cuenta (por ejemplo: abrir puertas, encender luces, ajustar la temperatura)?
+* ¿Qué cosas del hogar le cuesta hacer solo/a ?
 
-* ¿Con qué frecuencia necesita pedir ayuda a otra persona para realizar este tipo de actividades en un día normal?
+* ¿Cuántas veces al día pide ayuda para esas cosas?
 
-* ¿Quién le brinda esa ayuda habitualmente (familiar, cuidador contratado, ambos)?
+* ¿Quién le ayuda normalmente?
 
-* ¿Qué hace cuando necesita realizar una de estas actividades y no hay nadie disponible para ayudarlo/a en ese momento?
+* ¿Qué hace cuando nadie puede ayudarlo/a en ese momento?
 
-* ¿Ha utilizado alguna vez algún dispositivo o sistema de asistencia tecnológica en su hogar (asistentes de voz, sensores, automatización)? ¿Cuál fue su experiencia?
+* ¿Qué parte de su mano o dedos puede mover un poco?
 
-* Si tuviera un sistema que le permitiera controlar luces, puertas u otros dispositivos del hogar usando solo su voz o movimientos de su cuerpo, ¿qué tan útil cree que sería para usted?
+* ¿Alguna vez ha usado algún dispositivo  para hacer estas cosas más fácil? ¿Cómo le fue?
+
+* Si tuviera un anillo pequeño que, con solo mover un poco el dedo, le permitiera prender la luz o abrir la puerta, ¿le gustaría usarlo?
+
+* ¿Preferiría escuchar las opciones (luz, puerta, ventana) y elegir con un movimiento, en vez de ver una pantalla?
+
+* ¿Qué le preocuparía de usar un sistema así?
 
 #### Segmento objetivo 2: Familiar o cuidador de persona con discapacidad
 
