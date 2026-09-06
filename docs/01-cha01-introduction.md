@@ -217,7 +217,7 @@ Se aplicó Lean UX Canvas para estructurar las hipótesis de negocio y usuario, 
 
 Esta sección incluye la descripción de los segmentos asociados al dominio del problema, incluyendo características demográficas e información estadística de sustento.
 
-#### Segmento objetivo 1: Persona con discapacidad motora severa(postrado), con o sin discapacidad visual asociada
+#### Segmento objetivo 1: Persona con discapacidad motora severa(postrado)
 
 **Características demográficas:**
 
