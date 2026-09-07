@@ -79,7 +79,7 @@ Nos enfocamos en brindar soluciones accesibles para personas con discapacidad mo
 
 **What (¿Qué ocurre?)**
 
-La problemática que se presenta es la dependencia de terceros que tienen las personas con discapacidad para realizar actividades básicas del hogar, al no contar con los medios para ejecutarlas de forma autónoma. En Perú, más de 3.2 millones de personas presentan alguna discapacidad permanente (INEI, Censo 2017).
+La problemática que se presenta es la dependencia de terceros que tienen las personas con discapacidad motora severa para realizar actividades básicas del hogar, al no contar con los medios para ejecutarlas de forma autónoma. En Perú, más de 3.2 millones de personas presentan alguna discapacidad permanente (INEI, Censo 2017).
 
 **When (¿Cuándo y con qué frecuencia?)**
 
@@ -87,24 +87,23 @@ El problema ocurre de forma diaria y constante, ya que cada vez que la persona c
 
 **Where (¿Dónde sucede?)**
 
-El problema surge en el interior de la casa de la persona con discapacidad, con mayor frecuencia en espacios cotidianos como el dormitorio .
+El problema surge en el interior de la casa de la persona con discapacidad, con mayor frecuencia en espacios cotidianos como el dormitorio.
 
 **Who (¿Quiénes se ven afectados?)**
 
-Los principales afectados son las personas con discapacidad, que al no contar con los medios para realizar actividades básicas del hogar de forma autónoma, dependen de terceros para ejecutarlas. Esta dependencia también impacta a los familiares que asumen el rol de cuidadores de forma no remunerada, quienes deben reorganizar su tiempo y disponibilidad para poder asistirlos. En los casos donde se contrata a un cuidador profesional, la dependencia se traduce en un costo económico sostenido para la familia.
+Los principales afectados son las personas con discapacidad motora severa, en situación de postración, que al no contar con los medios para realizar actividades básicas del hogar de forma autónoma, dependen de terceros para ejecutarlas. Esta dependencia también impacta a los familiares que asumen el rol de cuidadores de forma no remunerada, quienes deben reorganizar su tiempo y disponibilidad para poder asistirlos. En los casos donde se contrata a un cuidador profesional, la dependencia se traduce en un costo económico sostenido para la familia.
 
 **Why (¿Por qué es un problema?)**
 
 Es un problema debido a que la dependencia constante de terceros para realizar las actividades diarias dentro del hogar hace que las personas con discapacidad se sientan frustradas y limitadas en su autonomía, afectando tanto su bienestar emocional como su calidad de vida. Según la Organización Mundial de la Salud, la esencia misma de la dependencia radica precisamente en no poder vivir de forma autónoma y necesitar de manera sostenida la ayuda de otros para las actividades cotidianas, lo que confirma que la autonomía es un componente central del bienestar de esta población.
 
-
 **How (¿Cómo se manifiesta?)**
 
-El problema se manifiesta a través de la necesidad constante de solicitar ayuda para tareas simples ( abrir una puerta, prender la luz) y la interrupción de las actividades de la persona que lo esta cuidando cada vez que se requiere asistencia.
+El problema se manifiesta a través de la necesidad constante de solicitar ayuda para tareas simples (abrir una puerta, prender la luz) y la interrupción de las actividades de la persona que lo está cuidando cada vez que se requiere asistencia.
 
 **How Much (¿Cuál es el impacto cuantitativo?)**
 
-A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad permanente (INEI, Censo 2017), de las cuales la dificultad para ver (48,3%) y para moverse o caminar (15,1%) son las más prevalentes entre quienes tienen una sola discapacidad, sumando en conjunto más del 63% de este grupo. Asimismo, el 65,7% de la población con discapacidad no usa Internet (INEI, 2022), lo que evidencia una brecha significativa en el acceso a soluciones tecnológicas de apoyo.
+A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad permanente (INEI, Censo 2017), de las cuales la dificultad para moverse o caminar afecta al 15,1% como discapacidad única o principal. Según la ENEDIS-INEI, la discapacidad motora (dificultad para moverse/caminar y/o usar brazos o piernas) es la de mayor prevalencia a nivel nacional, con 932 mil personas (59,2%) del total de personas con discapacidad, y el 41% de las personas con discapacidad presenta algún grado de dependencia para realizar sus actividades cotidianas. Asimismo, el 65,7% de la población con discapacidad no usa Internet (INEI, 2022), lo que evidencia una brecha significativa en el acceso a soluciones tecnológicas de apoyo.
 
 ### 1.2.2. Lean UX Process
 
@@ -218,27 +217,29 @@ Se aplicó Lean UX Canvas para estructurar las hipótesis de negocio y usuario, 
 
 Esta sección incluye la descripción de los segmentos asociados al dominio del problema, incluyendo características demográficas e información estadística de sustento.
 
-#### Segmento objetivo 1: Persona con discapacidad motora o visual
+#### Segmento objetivo 1: Persona con discapacidad motora severa(postrado)
 
 **Características demográficas:**
 
 * **Edad:** 18 a más años de edad
 * **Género:** Ambos
-* **Nivel de educación:** Secundaria completa o superior
-* **Ingresos:** Bajos a medios
+* **Condición física:** Sin movilidad o con movilidad muy limitada en las piernas, movilidad reducida en los brazos, y movilidad limitada en manos y dedos.
+* * **Ingresos:** Todos los niveles socioeconómicos
 * **Ubicación geográfica:** Perú
 
 **Información estadística de sustento:**
 
-Según el Censo Nacional 2017 (INEI), la población total con discapacidad en el país es de **3,209,261 personas**, de las cuales el **48,3%** presenta dificultad para ver y el **15,1%** dificultad para moverse o caminar como discapacidad única o principal — juntas, **más del 63%** de las personas con una sola discapacidad. *(Fuente: INEI, "Población con discapacidad en el Perú", Censo 2017)*
+Según el Censo Nacional 2017 (INEI), la población total con discapacidad en el país es de **3,209,261 personas**, de las cuales el **15,1%** presenta dificultad para moverse o caminar como discapacidad única o principal. *(Fuente: INEI, "Población con discapacidad en el Perú", Censo 2017)*
 
-El INEI, citado por Punto Seguido - UPC, señala que en el Perú habitan **más de 1 millón de personas con discapacidad visual**, de las cuales más de medio millón residen en Lima. *(Fuente: Punto Seguido - UPC, 2024, con base en datos INEI)*
+Según la ENEDIS-INEI, la discapacidad motora (dificultad para moverse/caminar y/o usar brazos o piernas) es la que más afecta a nivel nacional, con **932 mil personas (59,2%)** de la población con discapacidad — la de mayor prevalencia en el país. *(Fuente: INEI, ENEDIS)*
 
-Según la ENEDIS-INEI, la dificultad para ver afecta al **50,9%** de la población con discapacidad (dato que incluye comorbilidad), mientras que la discapacidad motora (dificultad para moverse/caminar y/o usar brazos o piernas) es la que más afecta a nivel nacional: **932 mil personas (59,2%)**. *(Fuente: INEI, ENEDIS)*
+La edad avanzada es la principal causa de esta discapacidad (**32,5%** de los casos), seguida de enfermedad crónica (**24,4%**), lo que evidencia que buena parte de este segmento presenta una condición motora progresiva y de alto compromiso funcional. *(Fuente: INEI, ENEDIS)*
 
-El uso del sistema braille es muy bajo en el país: solo el **6%** de la población con discapacidad visual lo utiliza, según datos de la UNESCO (2017). *(Fuente: UNESCO, citado por Punto Seguido - UPC)*
+De acuerdo con la ENEDIS-INEI, el **41%** de las personas con discapacidad en el Perú presenta algún grado de dependencia para realizar sus actividades cotidianas, siendo este el grupo con mayor necesidad de asistencia constante de terceros — perfil que corresponde directamente al segmento objetivo. *(Fuente: INEI, ENEDIS)*
 
-Según El Comercio (Urbanova), citando al INEI, el **10,3%** de peruanos con discapacidad presenta dificultad para desplazarse por las calles, tomar autobuses y visitar parques. La edad avanzada es la principal causa de la discapacidad motora (**32,5%** de los casos), seguida de enfermedad crónica (**24,4%**). *(Fuente: El Comercio, 2023 / INEI, ENEDIS)*
+Según El Comercio (Urbanova), citando al INEI, el **10,3%** de peruanos con discapacidad presenta dificultad para desplazarse por las calles, tomar autobuses y visitar parques, lo que confirma la limitación severa de movilidad de este grupo incluso fuera del hogar. *(Fuente: El Comercio, 2023, con base en datos INEI)*
+
+Adicionalmente, la ENEDIS-INEI reporta que el **50,9%** de la población con discapacidad presenta dificultad para ver (dato que incluye comorbilidad), lo que sustenta que una parte relevante de las personas con discapacidad motora severa puede presentar también discapacidad visual asociada. *(Fuente: INEI, ENEDIS)*
 
 #### Segmento objetivo 2: Familiar o cuidador de persona con discapacidad
 
