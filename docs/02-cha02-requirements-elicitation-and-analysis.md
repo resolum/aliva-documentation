@@ -2,13 +2,13 @@
 
 ## 2.1. Competidores
 
-- **Fundación ONCE** (competidor indirecto): Proyecto desarrollado que presenta un modelo de hogar domotizado adaptado a las necesidades de personas con discapacidad. Está orientado a personas con discapacidad motora y visual que buscan mayor autonomía en el hogar. Su principal fortaleza es el respaldo técnico y la trayectoria de una organización consolidada en el sector, aunque funciona más como referente institucional que como producto comercial escalable y no tiene presencia en el mercado peruano.
+- **Fundación ONCE** (competidor indirecto): Un proyecto que demuestra el modelo de una casa inteligente adaptada para personas con discapacidad. El público objetivo son personas con discapacidades motoras graves que desean independencia en su entorno familiar. La principal ventaja es el apoyo técnico de la fundación y la reputación de la organización como líder en este ámbito; sin embargo, el proyecto funciona más como una referencia institucional que como un proyecto comercial y no se presenta en el mercado peruano.
 
-- **Somfy** (competidor indirecto): Fabricante europeo de kits de domótica que permiten controlar luces, persianas, temperatura y seguridad desde una app o por comandos de voz. Se orienta a hogares en general, incluyendo personas con movilidad reducida. Su principal ventaja es el respaldo de marca y la disponibilidad inmediata de hardware accesible en costo, aunque su oferta es genérica y no está pensada específicamente para discapacidad severa ni para operar sin conexión a Internet.
+- **Somfy** (competidor indirecto): Un fabricante europeo de kits de casa inteligente que ayuda a controlar las luces, persianas, la temperatura y la seguridad desde la aplicación o mediante comandos de voz. Este proyecto va dirigido a las casas en general, incluyendo aquellas donde viven personas con movilidad reducida. Las principales ventajas son la buena marca y la disponibilidad inmediata de hardware asequible, pero su oferta es genérica, no está específicamente pensada para discapacidades graves y no puede funcionar sin conexión a Internet.
 
-- **My Sweet Smart Home** (competidor directo): Proyecto europeo desarrollado bajo el programa Erasmus+ que ofrece un entorno inteligente adaptado a personas con discapacidad, combinando automatización del hogar, control por voz y señales sonoras. Está orientado a personas con discapacidad motora y visual dentro del contexto europeo. Destaca por su especialización real en el segmento de discapacidad, aunque su alcance se limita a Europa y no resuelve el requerimiento de funcionamiento con baja o nula conectividad.
+- **My Sweet Smart Home** (competidor directo): Un proyecto europeo desarrollado dentro del marco del programa Erasmus+ que ofrece un entorno inteligente para personas con discapacidad, combinando la automatización del hogar, el control por voz y las señales sonoras. Este proyecto va dirigido a personas con discapacidades motoras graves en el contexto europeo. La principal ventaja es la especialización para el segmento de las discapacidades, aunque no ofrece solución al problema del acceso a Internet.
 
-- **Amazon Alexa** (competidor directo): Ecosistema de asistente de voz e integraciones smart home que permite controlar luces, enchufes y cerraduras mediante comandos verbales. Es ampliamente adoptado por personas con discapacidad motora como solución de accesibilidad general. Su principal fortaleza es la enorme base de usuarios y la madurez del reconocimiento de voz, aunque depende de conexión constante a Internet y no ofrece reconocimiento de gestos como canal alternativo de comando.
+- **Amazon Alexa** (competidor directo): Asistente de voz e integraciones con casas inteligentes que permiten controlar luces, enchufes y cerraduras mediante comandos verbales. Es ampliamente adoptado por personas con discapacidad motora como solución de accesibilidad general. La principal ventaja es la enorme base de usuarios y el reconocimiento de voz de alto nivel, pero esta tecnología requiere una conexión a Internet constante y no incluye el reconocimiento de gestos como una forma de transmitir los comandos.
 
 ### 2.1.1. Análisis competitivo
 
@@ -18,7 +18,7 @@
     </tr>
     <tr>
         <td colspan="2">¿Por qué llevar a cabo este análisis?</td>
-        <td colspan="5">Conocer qué tan cubierta está la necesidad de autonomía en el hogar de personas con discapacidad motora y visual, y validar si el enfoque offline de Alivia representa una ventaja real frente al resto del mercado.</td>
+        <td colspan="5">Conocer qué tan cubierta está la necesidad de autonomía en el hogar de personas con discapacidad motora severa, y validar si el enfoque offline de Alivia representa una ventaja real frente al resto del mercado.</td>
     </tr>
     <tr>
         <th colspan="2"></th>
@@ -31,7 +31,7 @@
     <tr>
         <td rowspan="2" style="writing-mode: vertical-lr; transform: rotate(180deg); text-align: center">Perfil</td>
         <td>Overview</td>
-        <td>Personas con discapacidad motora y visual que buscan mayor autonomía en el hogar mediante comandos de voz y gestos.</td>
+        <td>Personas con discapacidad motora severa que buscan mayor autonomía en el hogar mediante comandos de voz y gestos.</td>
         <td>Modelo de casa domotizada adaptada a personas con discapacidad.</td>
         <td>Asistente de voz e integraciones smart home.</td>
         <td>Kits de domótica para movilidad reducida.</td>
@@ -39,7 +39,7 @@
     </tr>
     <tr>
         <td>Ventaja competitiva</td>
-        <td>Solución especializada en la autonomía y supervisión de personas con discapacidad motora y visual.</td>
+        <td>Solución especializada en la autonomía y supervisión de personas con discapacidad motora severa.</td>
         <td>Trayectoria y respaldo institucional en el sector.</td>
         <td>Adopción masiva y voz muy madura.</td>
         <td>Marca reconocida y hardware disponible.</td>
@@ -48,7 +48,7 @@
     <tr>
         <td rowspan="2" style="writing-mode: vertical-lr; transform: rotate(180deg); text-align: center">Perfil de Marketing</td>
         <td>Mercado objetivo</td>
-        <td>Hogares con algún miembro con discapacidad motora o visual, junto a sus cuidadores.</td>
+        <td>Hogares con algún miembro con discapacidad motora severa, junto a sus cuidadores.</td>
         <td>Sector de la edificación, diseño y accesibilidad en España.</td>
         <td>Usuarios de smart home en general.</td>
         <td>Hogares en general.</td>
@@ -122,41 +122,41 @@
     </tr>
 </table>
 
-### 2.1.2. Estrategias y tácticas frente a competidores
+### 2.1.2. Estrategias y tácticas contra la competencia
 
-#### Enfoque Estratégico
-Alivia se posicionará como una solución de automatización del hogar especializada en discapacidad motora y visual, combinando comandos por voz y gestos con procesamiento local que no dependerá de una conexión constante a Internet. A diferencia de la competencia, que ofrece soluciones genéricas o limitadas a un solo canal de comando, buscamos convertirnos en la alternativa más confiable para este segmento en el mercado peruano.
+#### Estrategia Centrada
+Alivia se posicionará como una solución de automatización del hogar dedicada a personas con grandes discapacidades motoras, basada en comandos de voz y de gesto y con procesamiento local que no requerirá una conectividad constante a Internet. A diferencia de la competencia que ofrece soluciones generales o limitadas a un solo comando de control, se intentará convertirse en el aliado más confiable para esta población en el mercado peruano.
 
 ---
 
 #### 1. Frente a Fundación ONCE
-- Ofreceremos un producto comercial y escalable, no solo un modelo de referencia institucional sin fines comerciales
-- Buscaremos tener presencia real en el mercado peruano mediante alianzas con asociaciones locales y el apoyo de CONADIS
-- Pensaremos nuestra configuración para el uso diario en el hogar, no para exhibición o fines educativos
-- Brindaremos soporte continuo y actualizaciones, en lugar de un modelo estático de vivienda demostrativa
+- Ofrecer un producto comercial y escalable y no un modelo institucional de referencia no comercial
+- Tener presencia en el mercado peruano a través de asociaciones locales y el apoyo de CONADIS
+- Diseñar un sistema pensando en su uso diario en el hogar y no solo para demostración o educación
+- Proveer soporte continuo a la plataforma y actualizaciones y no una configuración estática de un modelo de hogar demostrativo
 
 ---
 
 #### 2. Frente a Amazon Alexa
-- No dependeremos de una conexión constante a Internet, gracias a un módulo de toma de decisiones que procesará los comandos de forma local
-- Contaremos con doble canal de comando (voz y gestos), ampliando el acceso a personas con discapacidad motora que no pueden depender solo del habla
-- Diseñaremos el sistema desde el inicio para discapacidad severa, en lugar de adaptar después una solución de smart home genérico
-- Ofreceremos confirmación auditiva pensada específicamente para personas con discapacidad visual, y no solo respuestas genéricas de asistente virtual
+- No depender de una conexión constante a Internet gracias a un módulo de decisiones que procesa los comandos de forma local
+- Tener un doble comando (de voz y de gesto) dando acceso a personas con discapacidad motriz que no pueden depender únicamente del comando de voz
+- Pensar desde el principio en una discapacidad grave, no adaptarse a una solución de domótica general
+- Dar una confirmación auditiva especial para personas con discapacidad visual asociada a la motriz y no solo una respuesta genérica de los asistentes virtuales
 
 ---
 
 #### 3. Frente a Somfy
-- Nos enfocaremos específicamente en discapacidad motora y visual, en lugar de dirigirnos a hogares en general
-- Buscaremos ofrecer un costo más accesible para este segmento, priorizando componentes de bajo costo y un modelo de licencias frente al hardware premium de Somfy
-- Adaptaremos la configuración a las necesidades reales del usuario, no una solución genérica de domótica
-- Priorizaremos la confiabilidad ante fallas de conexión, un aspecto que Somfy no resuelve directamente
+- Ser eficaz para personas con discapacidades motoras graves y no para casas en general
+- Ofrecer un costo más accesible para esta población, priorizando componentes de bajo costo y un modelo de licenciamiento frente al hardware premium de Somfy
+- Adaptar la configuración a las necesidades reales del usuario y no una solución genérica de domótica
+- Priorizar la confiabilidad ante fallas de conexión, un aspecto que Somfy no resuelve directamente
 
 ---
 
 #### 4. Frente a My Sweet Smart Home
-- Buscaremos tener presencia y alcance en el mercado peruano, partiendo de un contexto local en lugar de replicar un modelo europeo
-- Plantearemos un modelo sostenible mediante venta de licencias y hardware, en lugar de depender de fondos de innovación social
-- Apuntaremos a una expansión progresiva dentro de Latinoamérica, partiendo de una base sólida en Perú
+- Tener presencia y alcance en el mercado peruano, partiendo de un contexto local en lugar de replicar un modelo europeo
+- Proponer un modelo sostenible a través del licenciamiento y la venta de hardware y no apoyado por fondos de innovación social
+- Apuntar a una expansión progresiva dentro de Latinoamérica, partiendo de una base sólida en Perú
 
 ## 2.2. Entrevistas
 

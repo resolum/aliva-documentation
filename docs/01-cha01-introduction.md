@@ -4,11 +4,11 @@
 
 ### 1.1.1. Descripción de la Startup
 
-Resolum nace con el propósito de acercar la tecnología a personas con discapacidad motora y discapacidad visual, ofreciendo soluciones que les permitan recuperar parte de la autonomía que perdieron en actividades cotidianas del hogar. En un contexto donde muchas de estas personas dependen constantemente de un familiar o cuidador para tareas tan básicas como encender un dispositivo o abrir una puerta, buscamos que ese control vuelva a estar en sus propias manos.
+La razón de la creación de Resolum es acercar las innovaciones tecnológicas a las personas que sufren de discapacidades motoras severas, brindándoles soluciones que les permitan recuperar parte de la independencia que han perdido durante sus actividades diarias del hogar. Muchas de estas personas también sufren de discapacidades visuales, por lo tanto, nuestras soluciones toman en cuenta ambas discapacidades en el diseño de la experiencia del usuario. En una situación donde muchas de estas personas tienen que depender constantemente de un familiar o de un cuidador para las acciones más básicas como encender un dispositivo o abrir una puerta, nos esforzamos por darles de vuelta el control de estas acciones.
 
-Como parte de nuestra propuesta de valor, desarrollamos sistemas que se adaptan a las capacidades de cada usuario, priorizando la confiabilidad y el funcionamiento autónomo por sobre la dependencia de interfaces convencionales.
+En el curso de cumplir nuestra propuesta de valor, implementamos sistemas adaptativos que ponen más énfasis en la confiabilidad y el trabajo autónomo, más que depender de interfaces tradicionales.
 
-Nos enfocamos en brindar soluciones accesibles para personas con discapacidad motora y visual, y sus familias, integrando tecnología que les ayude a recuperar el control sobre su día a día dentro del hogar.
+Brindamos soluciones accesibles para personas con discapacidades motoras severas y sus familias, a través de la integración de la tecnología en su vida diaria en el hogar.
 
 <div style="display: flex; justify-content: center; align-items: center;">
   <img src="https://imgur.com/Usux8Tf.jpg" alt="logo-alivia" style="width: 350px; border-radius: 10%;">
