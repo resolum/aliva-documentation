@@ -425,6 +425,24 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> github-actions[bot] </td>
         <td> Update version log [skip ci] </td>
     </tr>
+    <tr>
+        <td> 1.88 </td>
+        <td> 04/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.89 </td>
+        <td> 06/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Refine introduction section to specify challenges faced by individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.90 </td>
+        <td> 06/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Update target segment description for individuals with severe motor disabilities </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
