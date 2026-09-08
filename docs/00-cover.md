@@ -443,6 +443,42 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> RenatoCY </td>
         <td> Update target segment description for individuals with severe motor disabilities </td>
     </tr>
+    <tr>
+        <td> 1.91 </td>
+        <td> 07/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.92 </td>
+        <td> 07/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Align sections with updated target segments. </td>
+    </tr>
+    <tr>
+        <td> 1.93 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remover referencias a discapacidad visual y gestos </td>
+    </tr>
+    <tr>
+        <td> 1.94 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remove references to visual impairment and gestures. </td>
+    </tr>
+    <tr>
+        <td> 1.95 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remove references to visual impairment and gestures. </td>
+    </tr>
+    <tr>
+        <td> 1.96 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remove references to visual impairment and gestures. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
