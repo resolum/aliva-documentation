@@ -479,6 +479,30 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> equinox-1092 </td>
         <td> Remove references to visual impairment and gestures. </td>
     </tr>
+    <tr>
+        <td> 1.97 </td>
+        <td> 06/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Refine interview questions for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.98 </td>
+        <td> 07/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Refine interview questions for individuals with motor disabilities for clarity and relevance </td>
+    </tr>
+    <tr>
+        <td> 1.99 </td>
+        <td> 08/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.100 </td>
+        <td> 08/09/26 </td>
+        <td> Far14z </td>
+        <td> Enhance interview questions for individuals with disabilities to gather more comprehensive insights. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
