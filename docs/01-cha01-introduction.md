@@ -4,17 +4,18 @@
 
 ### 1.1.1. Descripción de la Startup
 
-La razón de la creación de Resolum es acercar las innovaciones tecnológicas a las personas que sufren de discapacidades motoras severas, brindándoles soluciones que les permitan recuperar parte de la independencia que han perdido durante sus actividades diarias del hogar. Muchas de estas personas también sufren de discapacidades visuales, por lo tanto, nuestras soluciones toman en cuenta ambas discapacidades en el diseño de la experiencia del usuario. En una situación donde muchas de estas personas tienen que depender constantemente de un familiar o de un cuidador para las acciones más básicas como encender un dispositivo o abrir una puerta, nos esforzamos por darles de vuelta el control de estas acciones.
+El objetivo detrás del desarrollo de Resolum es permitir que la tecnología sea más accesible para las personas con discapacidades motoras severas, las cuales podrán encontrar una solución que les permita recuperar su independencia al realizar tareas cotidianas en su hogar. Las personas que sufren estas discapacidades tienen que depender de otra persona, ya sea un familiar o un cuidador, para realizar incluso tareas sencillas como encender el equipo o abrir las puertas; nuestro objetivo es permitirles que vuelvan a tomar las riendas.
 
-En el curso de cumplir nuestra propuesta de valor, implementamos sistemas adaptativos que ponen más énfasis en la confiabilidad y el trabajo autónomo, más que depender de interfaces tradicionales.
+Nuestra propuesta de valor se basa en un sistema confiable y autónomo más que en el uso de interfaces tradicionales.
 
-Brindamos soluciones accesibles para personas con discapacidades motoras severas y sus familias, a través de la integración de la tecnología en su vida diaria en el hogar.
+Ofrecemos soluciones accesibles para personas con discapacidades motoras severas y sus familiares.
 
 <div style="display: flex; justify-content: center; align-items: center;">
   <img src="https://imgur.com/Usux8Tf.jpg" alt="logo-alivia" style="width: 350px; border-radius: 10%;">
 </div>
 
 ##### Misión y Visión
+
 <table>
   <thead>
     <tr>
@@ -26,13 +27,13 @@ Brindamos soluciones accesibles para personas con discapacidades motoras severas
     <tr>
       <td><strong>Misión</strong></td>
       <td>
-        Nuestra misión es ayudar a personas con discapacidad motora y visual a recuperar la autonomía en sus actividades cotidianas, reduciendo su dependencia de familiares y cuidadores en tareas básicas del hogar.
+        Nuestra misión es ayudar a las personas con discapacidades motoras severas a recuperar la independencia en sus actividades cotidianas, reduciendo su dependencia de familiares y cuidadores en tareas básicas del hogar.
       </td>
     </tr>
     <tr>
       <td><strong>Visión</strong></td>
       <td>
-        Aspiramos a ser una referencia en soluciones tecnológicas de accesibilidad en el país, impulsando la transformación digital hacia la recuperación de la autonomía de las personas con discapacidad. Visualizamos un futuro donde la tecnología esté al servicio de todos, sin importar sus capacidades físicas o sensoriales.
+        Aspiramos a ser una referencia en soluciones tecnológicas de accesibilidad en el país, impulsando la transformación digital hacia la recuperación de la independencia de las personas con discapacidades motoras severas. Visualizamos un futuro donde la tecnología esté al servicio de todos, sin importar sus capacidades físicas.
       </td>
     </tr>
   </tbody>
