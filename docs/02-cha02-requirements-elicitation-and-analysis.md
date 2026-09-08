@@ -161,8 +161,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ### 2.2.1. Diseño de entrevistas
 
-
-#### Segmento objetivo 1: Personas con discapacidad motora o visual
+#### Segmento objetivo 1: Persona con discapacidad motora (en situación de postración)
 
 ##### Preguntas personales:
 
@@ -170,25 +169,35 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 * ¿Cuál es su edad?
 
-* ¿En qué lugar vive actualmente ?
+* ¿Dónde vive actualmente?
 
 * ¿Con quién vive actualmente?
 
-* ¿Qué tipo de discapacidad presenta (motora, visual, o ambas) y desde cuándo la tiene?
+* ¿Qué tipo de discapacidad presenta y desde cuándo la tiene?
+
+* ¿Qué dispositivos tecnológicos utiliza actualmente: celular, tableta, computadora u otro?
+
+* ¿Qué marcas, instituciones o servicios relacionados con su salud y movilidad utiliza o considera de confianza?
 
 ##### Preguntas específicas:
 
-* ¿Qué actividades básicas del hogar le resultan más difíciles de realizar por su cuenta (por ejemplo: abrir puertas, encender luces, ajustar la temperatura)?
+* ¿Qué actividades básicas del hogar le resultan más difíciles de realizar por su cuenta (por ejemplo: abrir puertas, encender luces, abrir persianas)?
 
-* ¿Con qué frecuencia necesita pedir ayuda a otra persona para realizar este tipo de actividades en un día normal?
+* ¿Con qué frecuencia suele pedir ayuda para realizar sus actividades?
 
-* ¿Quién le brinda esa ayuda habitualmente (familiar, cuidador contratado, ambos)?
+* ¿Cuál es la actividad que más le gustaría poder hacer por sí mismo?
+
+* Cuando necesita ayuda para realizar una actividad y su familiar o cuidador no se encuentra cerca, ¿cómo se comunica actualmente con esa persona y qué dificultades suele experimentar al hacerlo?
+
+* ¿Por qué es importante para usted poder encender la luz, abrir la puerta o las persianas sin ayuda? ¿Qué cambiaría en su día a día si pudiera hacerlo solo?
+
+* ¿Quién le brinda esa ayuda habitualmente?
 
 * ¿Qué hace cuando necesita realizar una de estas actividades y no hay nadie disponible para ayudarlo/a en ese momento?
 
-* ¿Ha utilizado alguna vez algún dispositivo o sistema de asistencia tecnológica en su hogar (asistentes de voz, sensores, automatización)? ¿Cuál fue su experiencia?
+* ¿Ha utilizado alguna vez algún dispositivo o sistema de asistencia tecnológica en su hogar? ¿Cuál fue su experiencia?
 
-* Si tuviera un sistema que le permitiera controlar luces, puertas u otros dispositivos del hogar usando solo su voz o movimientos de su cuerpo, ¿qué tan útil cree que sería para usted?
+* Si tuviera un sistema que le permitiera controlar luces, puertas u otros dispositivos del hogar usando pequeños movimientos de su mano o dedos, ¿qué tan útil cree que sería para usted?
 
 #### Segmento objetivo 2: Familiar o cuidador de persona con discapacidad
 
@@ -198,25 +207,36 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 * ¿Cuál es su edad?
 
-* ¿En qué lugar vive actualmente ?
+* ¿En qué lugar vive actualmente?
 
-* ¿Qué relación tiene con la persona a la que cuida ?
+* ¿Qué relación tiene con la persona a la que cuida?
 
 * ¿Vive en el mismo hogar que la persona con discapacidad?
 
 * ¿Es usted el único cuidador de esta persona, o comparte esa responsabilidad con alguien más?
 
+* ¿Qué dispositivos tecnológicos utiliza actualmente y cuál usa con mayor frecuencia: celular, tableta, computadora u otro?
+
+* ¿Qué marcas, instituciones, aplicaciones o servicios utiliza o considera confiables para apoyar el cuidado de la persona a su cargo?
+
 ##### Preguntas específicas:
 
-* ¿Cuáles son las actividades basicas en la que apoya a la persona?
+* ¿Cuáles son las actividades básicas en las que apoya a la persona?
+
+* Cuando la persona a su cargo necesita ayuda y usted no se encuentra cerca o está realizando otra actividad, ¿cómo se comunica con usted y qué dificultades suelen presentarse en ese proceso?
+
+* ¿Con qué frecuencia le brinda esta asistencia durante el día?
+
+* ¿Cuál de estas actividades le genera más carga o desgaste a lo largo del día?
 
 * ¿Qué pasa cuando usted no está disponible y la persona necesita ayuda con una de estas tareas?
 
 * ¿Ha utilizado o considerado usar algún sistema para apoyar a la persona a su cargo?
 
-* ¿Qué tan dispuesto/a estaría a dejar que la persona realice estas actividades con el sistema, sin su intervención directa?
+* ¿Qué tan dispuesto/a estaría a dejar que la persona realice estas actividades con el sistema, sin su intervención directa? ¿Qué le haría sentirse seguro?
 
-* ¿Qué tan importante es para usted poder monitorear qué actividades realiza la persona a su cargo mediante el sistema?
+* ¿Qué tan importante es para usted poder monitorear qué actividades realiza la persona a su cargo mediante el sistema? ¿Qué le gustaría poder ver específicamente?
+
 
 ### 2.2.2. Registro de entrevistas
 
