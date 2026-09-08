@@ -122,15 +122,15 @@
     </tr>
 </table>
 
-### 2.1.2. Estrategias y tácticas contra la competencia
+### 2.1.2. Estrategias y tácticas frente a competidores.
 
-#### Estrategia enfocada
+#### Enfoque Estratégico
 
 Alivia está pensado para convertirse en la primera opción de las personas que sufren de discapacidades motoras. Los comandos de voz y el procesamiento local nos permiten trabajar sin internet. Los competidores proponen ya sea soluciones generales o soluciones que funcionan a través de un solo canal. Nosotros queremos convertirnos en el aliado más confiable de este grupo en el mercado peruano.
 
 ---
 
-#### 1. Comparado con la Fundación ONCE
+#### 1. Frente a la Fundación ONCE
 -Nuestro proyecto no es una institución de referencia sino un producto comercial escalable.
 -Nos hemos establecido en el mercado peruano gracias a la presencia de socios locales y la cooperación con CONADIS.
 -El sistema fue creado para uso doméstico, no para demostración y educación.
@@ -138,21 +138,21 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ---
 
-#### 2. Comparado con Amazon Alexa
+#### 2. Frente a Amazon Alexa
 -No requerimos acceso constante a internet debido a la presencia de un módulo local que toma las decisiones.
 -Desde el principio consideramos discapacidades motoras severas, no modificamos alguna solución genérica de hogar inteligente.
 -Ofrecemos comandos de voz personalizados de acuerdo a las capacidades de los usuarios, algo que los asistentes comerciales no pueden hacer.
 
 ---
 
-#### 3. Comparado con Somfy
+#### 3. Frente a Somfy
 -Nos enfocamos en personas con discapacidades motoras severas, no en hogares en general.
 -Reducimos los costos gracias a componentes asequibles y un modelo de licencia, a diferencia de Somfy con su costoso hardware.
 -Priorizamos la confiabilidad en caso de problemas de conexión, algo que Somfy ignora.
 
 ---
 
-#### 4. Comparado con My Sweet Smart Home
+#### 4. Frente a My Sweet Smart Home
 -Nos hemos establecido en el mercado peruano, no trayendo una solución europea al país.
 -Sostenemos el modelo con licenciamiento y venta de hardware, no con fondos de innovación social.
 -Nos expandiremos gradualmente poco a poco por toda América Latina desde nuestra base en Perú.
