@@ -221,7 +221,7 @@ Alivia se posicionará como una solución de automatización del hogar especiali
 
 ### 2.2.2. Registro de entrevistas
 
-**Segmento 1: Nombre del segmento 1**
+**Segmento 1: Personas con discapacidad motora**
 
 <table>
     <tr>
@@ -237,11 +237,97 @@ Alivia se posicionará como una solución de automatización del hogar especiali
     </tr>
     <tr>
         <td><strong>Edad</strong></td>
+        <td>62 años</td>
+    </tr>
+    <tr>
+        <td><strong>Rol</strong></td>
+        <td>Persona con discapacidad motora</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="https://imgur.com/R5DGVTS.png" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="">Enlace a la grabación</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+
+### **1. Características Objetivas**
+* **Origen de la Discapacidad:** Presenta una discapacidad física por **parálisis cerebral**. Esta fue consecuencia de un error clínico al nacer, ya que debió nacer por cesárea y la falta de esta vía cortó el flujo de oxígeno a su cerebro.
+* **Evolución Médica y Física:**
+    * Desde los 9 años utilizó muletas de madera y anteriormente se desplazaba en triciclo.
+    * En el año **2017**, desarrolló un problema crónico en las rodillas que le impidió volver a usarlas, viéndose obligado a depender por completo de una **silla de ruedas**.
+    * Presenta limitaciones de movilidad en el tren superior: solo puede manipular con normalidad la **mano izquierda**, mientras que la derecha solo la mueve con mucho esfuerzo.
+    * No puede permanecer de pie más de media hora debido a que el dolor en las rodillas se vuelve insoportable.
+* **Red de Apoyo Familiar y Asistencia:** Su **papá** es quien le brinda asistencia habitual para incorporarse y sentarse. El resto de su familia lo moviliza y carga para subir escaleras o trasladarse. Adicionalmente, recibe terapia física de la madre del entrevistador, a quien le tiene un profundo agradecimiento por restaurar la conductividad eléctrica de sus músculos.
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Personalidad y Actitud:** Gerardo se muestra como un hombre altamente **independiente, disciplinado, culto, autodidacta y sumamente reflexivo**. Posee un orgullo muy firme por su autonomía, señalando que le molesta depender del apoyo físico de otros porque desde niño aprendió a no necesitar de nadie.
+* **Filosofía de Vida:** Se rige bajo una estricta filosofía de autosuperación aprendida en su colegio especial de La Molina, el cual era dirigido por una maestra alemana. Su principio fundamental es que **la discapacidad es únicamente física, no intelectual**, por lo que es un deber hacer trabajar la inteligencia y formarse. Bajo esta mentalidad de adaptación, aprendió de joven de manera indirecta inglés, francés e italiano para comunicarse respetuosamente con los médicos y religiosos extranjeros que lo rodeaban.
+* **Puntos de Dolor y Frustración:**
+    * **Pérdida de libertad de tránsito:** El confinamiento en la silla de ruedas en 2017 le afectó sentimental y emocionalmente ("el mundo se me cayó"), ya que siempre le había gustado explorar y pasear. Siente que depender de un tercero le ha cerrado el mundo.
+    * **Sincronización metabólica forzada:** Ante la falta de cuidadores disponibles en ciertos momentos, Gerardo debe realizar una planificación bioquímica de su cuerpo. Controla rigurosamente su alimentación y restringe la toma de líquidos para sincronizar su metabolismo y aguantar sin ir al baño de 2 a 3 horas y media. Si prevé que no habrá nadie para ayudarle, se ve obligado a quedarse en cama y miccionar en un recipiente adaptado.
+    * **Deficiencia en el sistema científico local:** Siente frustración ante el bajo desarrollo e inversión científica en el país para la atención de personas con discapacidad.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivos en Uso:** Cuenta con una **computadora adaptada**, un **televisor adaptado** en su habitación y mantiene siempre su **teléfono celular** a su lado para llamar en caso de emergencias.
+* **Comportamiento Tecnológico y Canales:**
+    * **Consumo de contenidos:** Descarga películas mediante "páginas hacker" y las acomoda en su pantalla para no depender de que alguien lo lleve al cine.
+    * **Uso de Inteligencia Artificial:** Utiliza activamente **ChatGPT** para resolver sus dudas técnicas sobre ensamblaje de computadoras, destacando la perfección de sus respuestas.
+    * **Conocimientos de Programación:** Cuenta con experiencia previa en programación, habiendo trabajado en el control y modificación de señales de cámaras de seguridad. En el pasado (alrededor de 1989, bajo la alcaldía de Federico en San Martín de Porres), programó sistemas de control por voz orientados a la seguridad (con comandos de voz como "control rojo" y "control azul").
+* **Interacción y Canales de Preferencia:**
+    * **Preferencia por el control de voz:** Aboga fuertemente por que los dispositivos de asistencia funcionen mediante **comandos de voz** en lugar del movimiento físico o el uso de los dedos, considerándolo el método más inclusivo y adaptable para personas con movilidad nula en sus extremidades.
+    * **Domótica rústica:** Abre las puertas y ventanas empujándolas mecánicamente con sus muletas. Aunque conoce el potencial de la domótica para encender luces mediante el celular, no lo ha implementado por limitaciones económicas y por haber creído inicialmente que él mismo debía diseñar y soldar todo el circuito, enterándose tarde de que ya existían soluciones comerciales.
+* **Marcas e Influencias de Diseño:**
+    * Gerardo tiene una gran influencia de la **tecnología alemana**, la cual considera de estándar superior. Admira la marca de tecnología de movilidad alemana **Albert Efix**, destacando que sus sillas de ruedas electrónicas están programadas con la calidad de un automóvil e incorporan lectores para medir con exactitud el nivel de batería.
+    * En contraste, rechaza los productos de procedencia **china** por considerarlos "primitivos" y carentes de medidores de energía, lo que limita la verdadera independencia de traslado.
+ </td>
+    </tr>
+</table>
+
+<br>
+
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #2</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
+        <td>Nombre del entrevistado</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Apellidos del entrevistado</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
         <td>XX años</td>
     </tr>
     <tr>
         <td><strong>Rol</strong></td>
-        <td>Rol o puesto del entrevistado</td>
+        <td>Persona con discapacidad motora severa (postrada)</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
@@ -256,15 +342,68 @@ Alivia se posicionará como una solución de automatización del hogar especiali
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="https://bit.ly/41kf54H">https://bit.ly/41kf54H</a></td>
+        <td><a href="">Enlace a la grabación</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:08 min</td>
+        <td>00:00 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>04:31 min</td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+        Resumen de la entrevista
+        </td>
+    </tr>
+</table>
+
+<br>
+
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #3</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
+        <td>Nombre del entrevistado</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Apellidos del entrevistado</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>XX años</td>
+    </tr>
+    <tr>
+        <td><strong>Rol</strong></td>
+        <td>Persona con discapacidad motora severa (postrada)</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="">Enlace a la grabación</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>00:00 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
@@ -275,6 +414,183 @@ Alivia se posicionará como una solución de automatización del hogar especiali
 </table>
 
 **Segmento 2: Nombre del segmento 2**
+
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #1</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
+        <td>Manuel Alejandroo</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Molina Vázquez</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>23 años</td>
+    </tr>
+    <tr>
+        <td><strong>Rol</strong></td>
+        <td>Familiar o cuidador de persona con discapacidad</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="https://imgur.com/lZd0SaE.png" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="Imagen de la entrevista">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="">Enlace a la grabación</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+
+### **Comportamiento, Desgaste y Dolores**
+* **Desgaste Físico Extremo:** Manuel experimenta un **desgaste físico en todas las actividades diarias** debido a la necesidad constante de cargarlo, movilizarlo y empujar su **silla de ruedas**.
+* **Preocupación por la Desatención:** Uno de sus mayores temores y puntos de dolor es que, en su ausencia, su tío tenga necesidades fisiológicas y **no haya nadie cerca para asistirle o darle de comer**.
+* **Personalidad y Actitud:** Se muestra como un joven **responsable, protector y cauteloso**. Valora enormemente la integridad de su familiar, declarando firmemente que **no confiaría el cuidado de su tío a "cualquier cosa o a cualquier persona"**, exigiendo un nivel de seguridad absoluto en cualquier alternativa de soporte.
+
+---
+
+### **Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivos y Canales Actuales:** Manuel utiliza un **teléfono inteligente (smartphone)** como herramienta principal de comunicación. El único canal tecnológico de interacción mencionado en la entrevista es **WhatsApp**, el cual es el medio por el que su tío suele enviarle **mensajes de audio**.
+* **Uso del Celular en Exteriores:** Manuel **siempre lleva consigo el celular cuando sale a la calle**, lo que consolida al smartphone como su canal de interacción omnipresente en el día a día.
+* **Limitaciones Tecnológicas Detectadas:** La comunicación actual mediante WhatsApp es ineficaz cuando Manuel está fuera de casa, ya que a menudo **no se percata de las llamadas o de las notificaciones de urgencia**.
+* **Hábitos e Influencia del Entorno:** Al ser un estudiante que asiste activamente a la **universidad** o transita por la **calle**, el ruido ambiental o las normas de las aulas le impiden escuchar los audios que le envía su tío.
+---
+
+### **Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Disposición al Cambio:** Manuel muestra una **excelente disposición** a adoptar un sistema automatizado. Califica como **"demasiado factible" y "práctico"** delegar tareas a un sistema tecnológico, ya que esto le liberaría tiempo para concentrarse en sus responsabilidades personales y académicas una vez cumplidos los deberes críticos de la mañana.
+* **Requisitos del Sistema para el Arquetipo:**
+    1. **Monitoreo en tiempo real:** Es sumamente importante para él saber qué le pasa a su tío en todo momento.
+    2. **Notificaciones de Texto Tipo Pop-Up:** El sistema debe notificar los incidentes o necesidades en **tiempo real utilizando texto escrito en pantalla en lugar de audio**, facilitando una lectura rápida, discreta y eficiente mientras él se encuentra en clases o en la vía pública.
+
+       </td>
+    </tr>
+</table>
+
+<br>
+
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #2</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
+        <td>Nombre del entrevistado</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Apellidos del entrevistado</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>XX años</td>
+    </tr>
+    <tr>
+        <td><strong>Rol</strong></td>
+        <td>Familiar o cuidador de persona con discapacidad</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="">Enlace a la grabación</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+        Resumen de la entrevista
+        </td>
+    </tr>
+</table>
+
+<br>
+
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #3</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
+        <td>Nombre del entrevistado</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Apellidos del entrevistado</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>XX años</td>
+    </tr>
+    <tr>
+        <td><strong>Rol</strong></td>
+        <td>Familiar o cuidador de persona con discapacidad</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="">Enlace a la grabación</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+        Resumen de la entrevista
+        </td>
+    </tr>
+</table>
 
 ### 2.2.3. Análisis de entrevistas
 
