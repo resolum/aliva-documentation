@@ -1,83 +1,49 @@
 <div align="center">
 
-<img src="https://i.imgur.com/uoAo2Eb.png" alt="Logo UPC" style="width: 70px; height: auto;" />
-
-<br>
-
-Universidad Peruana De Ciencias Aplicadas
-
-Carrera de Ingeniería de Software
-
-<p>
-
-<strong> <span style="font-size: 16px;"> 1ASI0728 Arquitecturas de Software Emergentes </span> </strong>
-
-<br> 
-<br>
-
-<span style="font-size: 16px;"> 202602 </span>
-
-NRC
-
-<strong> Colocar la NRC del curso </strong>
-
-Docente
-
-<strong> Nombre del docente </strong>
+<img src="https://i.imgur.com/uoAo2Eb.png" alt="Logo UPC" style="width: 80px; height: auto;" />
 
 <br>
 <br>
 
-<strong> <span style="font-size: 16px;"> Informe de Trabajo Final </span> </strong>
+<strong> UNIVERSIDAD PERUANA DE CIENCIAS APLICADAS </strong>
 
-Equipo
+<strong> FACULTAD DE INGENIERÍA </strong>
 
-<strong> Resolum </strong>
+<strong> INGENIERÍA DE SOFTWARE </strong>
+
+<span style="font-size: 16px;"> CURSO: 1ASI0728 - ARQUITECTURAS DE SOFTWARE EMERGENTES </span>
+
+<strong> DOCENTE: </strong> Ernesto Ocampo Tello
+
+<strong> NRC: </strong> 9061
+
+<strong> <span style="font-size: 16px;"> TRABAJO FINAL </span> </strong>
+
+<br>
+
+<strong> STARTUP: </strong> Resolum
+
+<strong> SOLUCIÓN: </strong> Alivia
 
 <br>
 
-Proyecto
+<strong> INTEGRANTES: </strong>
 
-<strong> Por nombrar </strong>
+Calvo Yalan, Renato Guillermo (u202217053)
 
-<br>
+Coronel Espinoza, Farid Sebastian (u202312508)
 
-</p>
+Diaz Quispe, Matías Sebastian (u202311938)
 
-<strong> Integrantes </strong>
+Juarez Leon, Nicolas Emilio Walter (u202317483)
 
-<br>
-<br>
-
-<table style="border-collapse: collapse; border: none;">
-    <tr>
-        <th style="border: none; text-align: center;">Código</th>
-        <th style="border: none; text-align: center;">Apellidos y Nombres</th>
-    </tr>
-    <tr>
-        <td style="border: none;">u202217053</td>
-        <td style="border: none;">Calvo Yalan, Renato Guillermo</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202312508</td>
-        <td style="border: none;">Coronel Espinoza, Farid Sebastian</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202311938</td>
-        <td style="border: none;">Diaz Quispe, Matias Diaz</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202317483</td>
-        <td style="border: none;">Juarez Leon, Nicolas Emilio Walter</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202315283</td>
-        <td style="border: none;">Rios Piñan, Dayro Richard</td>
-    </tr>
-</table>
+Rios Piñan, Dayro Richard (u202315283)
 
 <br>
-<strong> Agosto, 2026 </strong>
+
+<strong> Ciclo Académico: </strong> 202620
+
+<br>
 
 </div>
 
@@ -85,6 +51,7 @@ Proyecto
 
 # Registro de Versiones del Informe
 
+<!-- VERSION_TABLE_START -->
 <table>
     <tr>
         <th> Versión </th>
@@ -93,24 +60,469 @@ Proyecto
         <th> Descripción de la modificación </th>
     </tr>
     <tr>
-        <td> Version </td>
-        <td> 02/04/26 </td>
-        <td> Un Bot </td>
-        <td> Descripción </td>
+        <td> 1.27 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add cover page and base sections. </td>
+    </tr>
+    <tr>
+        <td> 1.28 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 01. </td>
+    </tr>
+    <tr>
+        <td> 1.29 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 02. </td>
+    </tr>
+    <tr>
+        <td> 1.30 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 03. </td>
+    </tr>
+    <tr>
+        <td> 1.31 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 04. </td>
+    </tr>
+    <tr>
+        <td> 1.32 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 05. </td>
+    </tr>
+    <tr>
+        <td> 1.33 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 06. </td>
+    </tr>
+    <tr>
+        <td> 1.34 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for chapter 07. </td>
+    </tr>
+    <tr>
+        <td> 1.35 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add base sections for conclusions, bibliography and annexes. </td>
+    </tr>
+    <tr>
+        <td> 1.36 </td>
+        <td> 30/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add table of contents </td>
+    </tr>
+    <tr>
+        <td> 1.37 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add startup profile section with mission and vision </td>
+    </tr>
+    <tr>
+        <td> 1.38 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add startup profile section with mission and vision </td>
+    </tr>
+    <tr>
+        <td> 1.39 </td>
+        <td> 31/08/26 </td>
+        <td> RenatoCY </td>
+        <td> Expand introduction section with detailed problem analysis </td>
+    </tr>
+    <tr>
+        <td> 1.40 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite startup description to focus on resolum. </td>
+    </tr>
+    <tr>
+        <td> 1.41 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.42 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.43 </td>
+        <td> 01/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Enhance problem analysis in introduction section for clarity and depth </td>
+    </tr>
+    <tr>
+        <td> 1.44 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.45 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.46 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.47 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rewrite mission statement </td>
+    </tr>
+    <tr>
+        <td> 1.48 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Specify target audience and clarify mission around autonomy recovery </td>
+    </tr>
+    <tr>
+        <td> 1.49 </td>
+        <td> 01/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Remove duplicate examples across paragraphs in startup description </td>
+    </tr>
+    <tr>
+        <td> 1.50 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add lean ux assumptions section. </td>
+    </tr>
+    <tr>
+        <td> 1.51 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update business outcome to align with lean ux. </td>
+    </tr>
+    <tr>
+        <td> 1.52 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update system behavior description to align with lean ux. </td>
+    </tr>
+    <tr>
+        <td> 1.53 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> AR-19 add lean ux process description. </td>
+    </tr>
+    <tr>
+        <td> 1.54 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> AR-19 add lean UX problem statement for home assistance service. </td>
+    </tr>
+    <tr>
+        <td> 1.55 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> AR-19 clarify success criteria for user autonomy in home activities. </td>
+    </tr>
+    <tr>
+        <td> 1.56 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 add lean ux hypothesis statements section. </td>
+    </tr>
+    <tr>
+        <td> 1.57 </td>
+        <td> 02/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.58 </td>
+        <td> 01/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 update hypothesis 3 &amp; 6 to so it align logically. </td>
+    </tr>
+    <tr>
+        <td> 1.59 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 clarify user definition and outcomes. </td>
+    </tr>
+    <tr>
+        <td> 1.60 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 refine terms used in the statements. </td>
+    </tr>
+    <tr>
+        <td> 1.61 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 update statement 1 &amp; 2 to mention use of voice and gesture recognition. </td>
+    </tr>
+    <tr>
+        <td> 1.62 </td>
+        <td> 02/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> AR-14 update statement 4 to reduce the use of technical definitions. </td>
+    </tr>
+    <tr>
+        <td> 1.63 </td>
+        <td> 02/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.64 </td>
+        <td> 02/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitors section. </td>
+    </tr>
+    <tr>
+        <td> 1.65 </td>
+        <td> 02/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Added lean ux canvas </td>
+    </tr>
+    <tr>
+        <td> 1.66 </td>
+        <td> 02/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Changed image link </td>
+    </tr>
+    <tr>
+        <td> 1.67 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.68 </td>
+        <td> 02/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update Lean UX Hypothesis Statements image link </td>
+    </tr>
+    <tr>
+        <td> 1.69 </td>
+        <td> 03/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update Lean UX Hypothesis Statements image link </td>
+    </tr>
+    <tr>
+        <td> 1.70 </td>
+        <td> 03/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Add competitive analysis table. </td>
+    </tr>
+    <tr>
+        <td> 1.71 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitive analysis table. </td>
+    </tr>
+    <tr>
+        <td> 1.72 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add startup logo </td>
+    </tr>
+    <tr>
+        <td> 1.73 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitive analysis table. </td>
+    </tr>
+    <tr>
+        <td> 1.74 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.75 </td>
+        <td> 03/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Center startup logo and adjust competitors table content. </td>
+    </tr>
+    <tr>
+        <td> 1.76 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Change logo size in startup description. </td>
+    </tr>
+    <tr>
+        <td> 1.77 </td>
+        <td> 02/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-16 add demographic segments and statistical information for visually and motor-disabled individuals </td>
+    </tr>
+    <tr>
+        <td> 1.78 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.79 </td>
+        <td> 03/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-16 update demographic segments and statistical information for visually and motor-disabled individuals </td>
+    </tr>
+    <tr>
+        <td> 1.80 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.81 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitive strategies and tactics section. </td>
+    </tr>
+    <tr>
+        <td> 1.82 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Clarify how each competitive tactic will be achieved. </td>
+    </tr>
+    <tr>
+        <td> 1.83 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rephrase competitive tactics in future tense to reflect pre-launch stage. </td>
+    </tr>
+    <tr>
+        <td> 1.84 </td>
+        <td> 04/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.85 </td>
+        <td> 04/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add cover page with information about team and course. </td>
+    </tr>
+    <tr>
+        <td> 1.86 </td>
+        <td> 04/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-25 add interview questions for target segments in requirements elicitation </td>
+    </tr>
+    <tr>
+        <td> 1.87 </td>
+        <td> 04/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.88 </td>
+        <td> 04/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.89 </td>
+        <td> 06/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Refine introduction section to specify challenges faced by individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.90 </td>
+        <td> 06/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Update target segment description for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.91 </td>
+        <td> 07/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.92 </td>
+        <td> 07/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Align sections with updated target segments. </td>
+    </tr>
+    <tr>
+        <td> 1.93 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remover referencias a discapacidad visual y gestos </td>
+    </tr>
+    <tr>
+        <td> 1.94 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remove references to visual impairment and gestures. </td>
+    </tr>
+    <tr>
+        <td> 1.95 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remove references to visual impairment and gestures. </td>
+    </tr>
+    <tr>
+        <td> 1.96 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remove references to visual impairment and gestures. </td>
+    </tr>
+    <tr>
+        <td> 1.97 </td>
+        <td> 06/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Refine interview questions for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.98 </td>
+        <td> 07/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Refine interview questions for individuals with motor disabilities for clarity and relevance </td>
+    </tr>
+    <tr>
+        <td> 1.99 </td>
+        <td> 08/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.100 </td>
+        <td> 08/09/26 </td>
+        <td> Far14z </td>
+        <td> Enhance interview questions for individuals with disabilities to gather more comprehensive insights. </td>
+    </tr>
+    <tr>
+        <td> 1.101 </td>
+        <td> 08/09/26 </td>
+        <td> Far14z </td>
+        <td> Refine lean ux problem statement to enhance clarity on challenges faced by individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.102 </td>
+        <td> 08/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
     </tr>
 </table>
+<!-- VERSION_TABLE_END -->
 
 <div style="page-break-after: always;"></div>
 
 # Project Report Collaboration Insights
 
 Texto base
-
-<div style="page-break-after: always;"></div>
-
-# Contenido
-
-## Tabla de contenidos
 
 <div style="page-break-after: always;"></div>
 
@@ -225,6 +637,8 @@ Texto base
    * [Video About-the-Team](08-conclusions.md#video-about-the-team)
 * [Bibliografía](09-bibliography.md#bibliografía)
 * [Anexos](10-annexes.md#anexos)
+
+<div style="page-break-after: always;"></div>
 
 # Student Outcome
 
