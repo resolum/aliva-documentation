@@ -113,15 +113,15 @@ Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del di
 
 #### 1.2.2.1. Lean UX Problem Statement
 
-**El estado actual** de la asistencia y el cuidado en el hogar para personas con discapacidades severas en el Perú se ha centrado casi exclusivamente en el soporte físico diario, continuo y no remunerado por parte de familiares directos, o en el alto costo económico de contratar cuidadores profesionales.
+**El estado actual** de la asistencia y el cuidado en el hogar para personas con discapacidad motora severa en el Perú se caracteriza por una alta dependencia del apoyo físico, diario y no remunerado proporcionado por familiares directos. Cuando este apoyo no está disponible, las familias deben recurrir a cuidadores profesionales, lo que representa un costo económico que no todos los hogares pueden asumir.
 
-**Lo que las alternativas** de asistencia existentes no logran abordar es que más de 3.2 millones de personas presentan alguna discapacidad permanente. Debido a que el 65.7% de esta población no utiliza Internet y carece de herramientas de accesibilidad física adaptadas a su entorno, se ven forzadas a depender de forma diaria y constante de un tercero para tareas tan básicas como encender una luz o abrir una puerta, lo que genera frustración y limita severamente su autonomía y bienestar emocional.
+**Lo que las alternativas** de asistencia existentes no logran abordar adecuadamente es la falta de autonomía de las personas con movilidad severamente limitada dentro de sus propios hogares. En el Perú, más de 3.2 millones de personas presentan alguna discapacidad permanente y una parte significativa tiene dificultades para moverse, caminar o utilizar los brazos y las piernas. Estas limitaciones pueden impedir que realicen independientemente acciones cotidianas como encender una luz, abrir una puerta, controlar dispositivos del hogar o solicitar ayuda. Como consecuencia, requieren la intervención frecuente de un familiar o cuidador, lo que afecta la autonomía del usuario y aumenta la carga física, emocional y de tiempo de quien lo asiste.
 
-**Nuestro servicio**, Alivia, abordará esta brecha mediante un ecosistema adaptable de automatización física del hogar que no dependa de conexión constante a Internet y que permita a los usuarios ejecutar acciones cotidianas mediante comandos de voz simplificados o la detección de sus movimientos corporales residuales.
+**Nuestro servicio**, Alivia, abordará esta problemática mediante un ecosistema adaptable de asistencia y automatización del hogar cuyas funciones principales no dependerán de una conexión constante a Internet. La solución permitirá que las personas con discapacidad motora severa controlen elementos de su entorno y soliciten ayuda mediante comandos de voz simplificados. Asimismo, facilitará el monitoreo y la recepción de alertas por parte de sus cuidadores familiares.
 
-**Nuestro enfoque** inicial serán las personas con discapacidad motora o visual severa en el hogar y sus cuidadores familiares.
+**Nuestro enfoque** inicial estará dirigido a personas adultas con discapacidad motora severa que permanecen postradas o presentan movilidad muy limitada en las extremidades, pero conservan la capacidad de comunicarse verbalmente, así como a los familiares responsables de brindarles asistencia cotidiana en el hogar.
 
-**Sabremos que tenemos éxito** cuando veamos que los usuarios realizan de forma autónoma parte de sus actividad cotidianas en el hogar sin requerir asistencia de terceros en un 70% de las ocasiones, reduciendo en un 65% las intervenciones rutinarias del cuidador.
+**Sabremos que tenemos éxito** cuando los usuarios puedan realizar autónomamente determinadas actividades cotidianas dentro del hogar sin solicitar ayuda de terceros en, al menos, el 70 % de las ocasiones, y cuando las intervenciones rutinarias de sus cuidadores familiares se reduzcan en un 65 %.
 
 #### 1.2.2.2. Lean UX Assumptions
 
