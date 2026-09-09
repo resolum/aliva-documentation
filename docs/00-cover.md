@@ -503,6 +503,18 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Far14z </td>
         <td> Enhance interview questions for individuals with disabilities to gather more comprehensive insights. </td>
     </tr>
+    <tr>
+        <td> 1.101 </td>
+        <td> 08/09/26 </td>
+        <td> Far14z </td>
+        <td> Refine lean ux problem statement to enhance clarity on challenges faced by individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.102 </td>
+        <td> 08/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
