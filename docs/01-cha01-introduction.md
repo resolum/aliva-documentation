@@ -4,17 +4,18 @@
 
 ### 1.1.1. Descripción de la Startup
 
-Resolum nace con el propósito de acercar la tecnología a personas con discapacidad motora y discapacidad visual, ofreciendo soluciones que les permitan recuperar parte de la autonomía que perdieron en actividades cotidianas del hogar. En un contexto donde muchas de estas personas dependen constantemente de un familiar o cuidador para tareas tan básicas como encender un dispositivo o abrir una puerta, buscamos que ese control vuelva a estar en sus propias manos.
+El objetivo detrás del desarrollo de Resolum es permitir que la tecnología sea más accesible para las personas con discapacidades motoras severas, las cuales podrán encontrar una solución que les permita recuperar su independencia al realizar tareas cotidianas en su hogar. Las personas que sufren estas discapacidades tienen que depender de otra persona, ya sea un familiar o un cuidador, para realizar incluso tareas sencillas como encender el equipo o abrir las puertas; nuestro objetivo es permitirles que vuelvan a tomar las riendas.
 
-Como parte de nuestra propuesta de valor, desarrollamos sistemas que se adaptan a las capacidades de cada usuario, priorizando la confiabilidad y el funcionamiento autónomo por sobre la dependencia de interfaces convencionales.
+Nuestra propuesta de valor se basa en un sistema confiable y autónomo más que en el uso de interfaces tradicionales.
 
-Nos enfocamos en brindar soluciones accesibles para personas con discapacidad motora y visual, y sus familias, integrando tecnología que les ayude a recuperar el control sobre su día a día dentro del hogar.
+Ofrecemos soluciones accesibles para personas con discapacidades motoras severas y sus familiares.
 
 <div style="display: flex; justify-content: center; align-items: center;">
   <img src="https://imgur.com/Usux8Tf.jpg" alt="logo-alivia" style="width: 350px; border-radius: 10%;">
 </div>
 
 ##### Misión y Visión
+
 <table>
   <thead>
     <tr>
@@ -26,13 +27,13 @@ Nos enfocamos en brindar soluciones accesibles para personas con discapacidad mo
     <tr>
       <td><strong>Misión</strong></td>
       <td>
-        Nuestra misión es ayudar a personas con discapacidad motora y visual a recuperar la autonomía en sus actividades cotidianas, reduciendo su dependencia de familiares y cuidadores en tareas básicas del hogar.
+        Nuestra misión es ayudar a las personas con discapacidades motoras severas a recuperar la independencia en sus actividades cotidianas, reduciendo su dependencia de familiares y cuidadores en tareas básicas del hogar.
       </td>
     </tr>
     <tr>
       <td><strong>Visión</strong></td>
       <td>
-        Aspiramos a ser una referencia en soluciones tecnológicas de accesibilidad en el país, impulsando la transformación digital hacia la recuperación de la autonomía de las personas con discapacidad. Visualizamos un futuro donde la tecnología esté al servicio de todos, sin importar sus capacidades físicas o sensoriales.
+        Aspiramos a ser una referencia en soluciones tecnológicas de accesibilidad en el país, impulsando la transformación digital hacia la recuperación de la independencia de las personas con discapacidades motoras severas. Visualizamos un futuro donde la tecnología esté al servicio de todos, sin importar sus capacidades físicas.
       </td>
     </tr>
   </tbody>
@@ -79,7 +80,7 @@ Nos enfocamos en brindar soluciones accesibles para personas con discapacidad mo
 
 **What (¿Qué ocurre?)**
 
-La problemática que se presenta es la dependencia de terceros que tienen las personas con discapacidad para realizar actividades básicas del hogar, al no contar con los medios para ejecutarlas de forma autónoma. En Perú, más de 3.2 millones de personas presentan alguna discapacidad permanente (INEI, Censo 2017).
+La problemática que se presenta es la dependencia de terceros que tienen las personas con discapacidad motora severa para realizar actividades básicas del hogar, al no contar con los medios para ejecutarlas de forma autónoma. En Perú, más de 3.2 millones de personas presentan alguna discapacidad permanente (INEI, Censo 2017).
 
 **When (¿Cuándo y con qué frecuencia?)**
 
@@ -87,24 +88,23 @@ El problema ocurre de forma diaria y constante, ya que cada vez que la persona c
 
 **Where (¿Dónde sucede?)**
 
-El problema surge en el interior de la casa de la persona con discapacidad, con mayor frecuencia en espacios cotidianos como el dormitorio .
+El problema surge en el interior de la casa de la persona con discapacidad, con mayor frecuencia en espacios cotidianos como el dormitorio.
 
 **Who (¿Quiénes se ven afectados?)**
 
-Los principales afectados son las personas con discapacidad, que al no contar con los medios para realizar actividades básicas del hogar de forma autónoma, dependen de terceros para ejecutarlas. Esta dependencia también impacta a los familiares que asumen el rol de cuidadores de forma no remunerada, quienes deben reorganizar su tiempo y disponibilidad para poder asistirlos. En los casos donde se contrata a un cuidador profesional, la dependencia se traduce en un costo económico sostenido para la familia.
+Los principales afectados son las personas con discapacidad motora severa, en situación de postración, que al no contar con los medios para realizar actividades básicas del hogar de forma autónoma, dependen de terceros para ejecutarlas. Esta dependencia también impacta a los familiares que asumen el rol de cuidadores de forma no remunerada, quienes deben reorganizar su tiempo y disponibilidad para poder asistirlos. En los casos donde se contrata a un cuidador profesional, la dependencia se traduce en un costo económico sostenido para la familia.
 
 **Why (¿Por qué es un problema?)**
 
 Es un problema debido a que la dependencia constante de terceros para realizar las actividades diarias dentro del hogar hace que las personas con discapacidad se sientan frustradas y limitadas en su autonomía, afectando tanto su bienestar emocional como su calidad de vida. Según la Organización Mundial de la Salud, la esencia misma de la dependencia radica precisamente en no poder vivir de forma autónoma y necesitar de manera sostenida la ayuda de otros para las actividades cotidianas, lo que confirma que la autonomía es un componente central del bienestar de esta población.
 
-
 **How (¿Cómo se manifiesta?)**
 
-El problema se manifiesta a través de la necesidad constante de solicitar ayuda para tareas simples ( abrir una puerta, prender la luz) y la interrupción de las actividades de la persona que lo esta cuidando cada vez que se requiere asistencia.
+El problema se manifiesta a través de la necesidad constante de solicitar ayuda para tareas simples (abrir una puerta, prender la luz) y la interrupción de las actividades de la persona que lo está cuidando cada vez que se requiere asistencia.
 
 **How Much (¿Cuál es el impacto cuantitativo?)**
 
-A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad permanente (INEI, Censo 2017), de las cuales la dificultad para ver (48,3%) y para moverse o caminar (15,1%) son las más prevalentes entre quienes tienen una sola discapacidad, sumando en conjunto más del 63% de este grupo. Asimismo, el 65,7% de la población con discapacidad no usa Internet (INEI, 2022), lo que evidencia una brecha significativa en el acceso a soluciones tecnológicas de apoyo.
+A nivel nacional, más de 3,2 millones de personas presentan alguna discapacidad permanente (INEI, Censo 2017), de las cuales la dificultad para moverse o caminar afecta al 15,1% como discapacidad única o principal. Según la ENEDIS-INEI, la discapacidad motora (dificultad para moverse/caminar y/o usar brazos o piernas) es la de mayor prevalencia a nivel nacional, con 932 mil personas (59,2%) del total de personas con discapacidad, y el 41% de las personas con discapacidad presenta algún grado de dependencia para realizar sus actividades cotidianas. Asimismo, el 65,7% de la población con discapacidad no usa Internet (INEI, 2022), lo que evidencia una brecha significativa en el acceso a soluciones tecnológicas de apoyo.
 
 ### 1.2.2. Lean UX Process
 
@@ -113,15 +113,15 @@ Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del di
 
 #### 1.2.2.1. Lean UX Problem Statement
 
-**El estado actual** de la asistencia y el cuidado en el hogar para personas con discapacidades severas en el Perú se ha centrado casi exclusivamente en el soporte físico diario, continuo y no remunerado por parte de familiares directos, o en el alto costo económico de contratar cuidadores profesionales.
+**El estado actual** de la asistencia y el cuidado en el hogar para personas con discapacidad motora severa en el Perú se caracteriza por una alta dependencia del apoyo físico, diario y no remunerado proporcionado por familiares directos. Cuando este apoyo no está disponible, las familias deben recurrir a cuidadores profesionales, lo que representa un costo económico que no todos los hogares pueden asumir.
 
-**Lo que las alternativas** de asistencia existentes no logran abordar es que más de 3.2 millones de personas presentan alguna discapacidad permanente. Debido a que el 65.7% de esta población no utiliza Internet y carece de herramientas de accesibilidad física adaptadas a su entorno, se ven forzadas a depender de forma diaria y constante de un tercero para tareas tan básicas como encender una luz o abrir una puerta, lo que genera frustración y limita severamente su autonomía y bienestar emocional.
+**Lo que las alternativas** de asistencia existentes no logran abordar adecuadamente es la falta de autonomía de las personas con movilidad severamente limitada dentro de sus propios hogares. En el Perú, más de 3.2 millones de personas presentan alguna discapacidad permanente y una parte significativa tiene dificultades para moverse, caminar o utilizar los brazos y las piernas. Estas limitaciones pueden impedir que realicen independientemente acciones cotidianas como encender una luz, abrir una puerta, controlar dispositivos del hogar o solicitar ayuda. Como consecuencia, requieren la intervención frecuente de un familiar o cuidador, lo que afecta la autonomía del usuario y aumenta la carga física, emocional y de tiempo de quien lo asiste.
 
-**Nuestro servicio**, Alivia, abordará esta brecha mediante un ecosistema adaptable de automatización física del hogar que no dependa de conexión constante a Internet y que permita a los usuarios ejecutar acciones cotidianas mediante comandos de voz simplificados o la detección de sus movimientos corporales residuales.
+**Nuestro servicio**, Alivia, abordará esta problemática mediante un ecosistema adaptable de asistencia y automatización del hogar cuyas funciones principales no dependerán de una conexión constante a Internet. La solución permitirá que las personas con discapacidad motora severa controlen elementos de su entorno y soliciten ayuda mediante comandos de voz simplificados. Asimismo, facilitará el monitoreo y la recepción de alertas por parte de sus cuidadores familiares.
 
-**Nuestro enfoque** inicial serán las personas con discapacidad motora o visual severa en el hogar y sus cuidadores familiares.
+**Nuestro enfoque** inicial estará dirigido a personas adultas con discapacidad motora severa que permanecen postradas o presentan movilidad muy limitada en las extremidades, pero conservan la capacidad de comunicarse verbalmente, así como a los familiares responsables de brindarles asistencia cotidiana en el hogar.
 
-**Sabremos que tenemos éxito** cuando veamos que los usuarios realizan de forma autónoma parte de sus actividad cotidianas en el hogar sin requerir asistencia de terceros en un 70% de las ocasiones, reduciendo en un 65% las intervenciones rutinarias del cuidador.
+**Sabremos que tenemos éxito** cuando los usuarios puedan realizar autónomamente determinadas actividades cotidianas dentro del hogar sin solicitar ayuda de terceros en, al menos, el 70 % de las ocasiones, y cuando las intervenciones rutinarias de sus cuidadores familiares se reduzcan en un 65 %.
 
 #### 1.2.2.2. Lean UX Assumptions
 
@@ -218,27 +218,29 @@ Se aplicó Lean UX Canvas para estructurar las hipótesis de negocio y usuario, 
 
 Esta sección incluye la descripción de los segmentos asociados al dominio del problema, incluyendo características demográficas e información estadística de sustento.
 
-#### Segmento objetivo 1: Persona con discapacidad motora o visual
+#### Segmento objetivo 1: Persona con discapacidad motora severa(postrado)
 
 **Características demográficas:**
 
 * **Edad:** 18 a más años de edad
 * **Género:** Ambos
-* **Nivel de educación:** Secundaria completa o superior
-* **Ingresos:** Bajos a medios
+* **Condición física:** Sin movilidad o con movilidad muy limitada en las piernas, movilidad reducida en los brazos, y movilidad limitada en manos y dedos.
+* * **Ingresos:** Todos los niveles socioeconómicos
 * **Ubicación geográfica:** Perú
 
 **Información estadística de sustento:**
 
-Según el Censo Nacional 2017 (INEI), la población total con discapacidad en el país es de **3,209,261 personas**, de las cuales el **48,3%** presenta dificultad para ver y el **15,1%** dificultad para moverse o caminar como discapacidad única o principal — juntas, **más del 63%** de las personas con una sola discapacidad. *(Fuente: INEI, "Población con discapacidad en el Perú", Censo 2017)*
+Según el Censo Nacional 2017 (INEI), la población total con discapacidad en el país es de **3,209,261 personas**, de las cuales el **15,1%** presenta dificultad para moverse o caminar como discapacidad única o principal. *(Fuente: INEI, "Población con discapacidad en el Perú", Censo 2017)*
 
-El INEI, citado por Punto Seguido - UPC, señala que en el Perú habitan **más de 1 millón de personas con discapacidad visual**, de las cuales más de medio millón residen en Lima. *(Fuente: Punto Seguido - UPC, 2024, con base en datos INEI)*
+Según la ENEDIS-INEI, la discapacidad motora (dificultad para moverse/caminar y/o usar brazos o piernas) es la que más afecta a nivel nacional, con **932 mil personas (59,2%)** de la población con discapacidad — la de mayor prevalencia en el país. *(Fuente: INEI, ENEDIS)*
 
-Según la ENEDIS-INEI, la dificultad para ver afecta al **50,9%** de la población con discapacidad (dato que incluye comorbilidad), mientras que la discapacidad motora (dificultad para moverse/caminar y/o usar brazos o piernas) es la que más afecta a nivel nacional: **932 mil personas (59,2%)**. *(Fuente: INEI, ENEDIS)*
+La edad avanzada es la principal causa de esta discapacidad (**32,5%** de los casos), seguida de enfermedad crónica (**24,4%**), lo que evidencia que buena parte de este segmento presenta una condición motora progresiva y de alto compromiso funcional. *(Fuente: INEI, ENEDIS)*
 
-El uso del sistema braille es muy bajo en el país: solo el **6%** de la población con discapacidad visual lo utiliza, según datos de la UNESCO (2017). *(Fuente: UNESCO, citado por Punto Seguido - UPC)*
+De acuerdo con la ENEDIS-INEI, el **41%** de las personas con discapacidad en el Perú presenta algún grado de dependencia para realizar sus actividades cotidianas, siendo este el grupo con mayor necesidad de asistencia constante de terceros — perfil que corresponde directamente al segmento objetivo. *(Fuente: INEI, ENEDIS)*
 
-Según El Comercio (Urbanova), citando al INEI, el **10,3%** de peruanos con discapacidad presenta dificultad para desplazarse por las calles, tomar autobuses y visitar parques. La edad avanzada es la principal causa de la discapacidad motora (**32,5%** de los casos), seguida de enfermedad crónica (**24,4%**). *(Fuente: El Comercio, 2023 / INEI, ENEDIS)*
+Según El Comercio (Urbanova), citando al INEI, el **10,3%** de peruanos con discapacidad presenta dificultad para desplazarse por las calles, tomar autobuses y visitar parques, lo que confirma la limitación severa de movilidad de este grupo incluso fuera del hogar. *(Fuente: El Comercio, 2023, con base en datos INEI)*
+
+Adicionalmente, la ENEDIS-INEI reporta que el **50,9%** de la población con discapacidad presenta dificultad para ver (dato que incluye comorbilidad), lo que sustenta que una parte relevante de las personas con discapacidad motora severa puede presentar también discapacidad visual asociada. *(Fuente: INEI, ENEDIS)*
 
 #### Segmento objetivo 2: Familiar o cuidador de persona con discapacidad
 
