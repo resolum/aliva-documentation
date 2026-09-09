@@ -248,15 +248,15 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
-        <td>Nombre del entrevistado</td>
+        <td> Gerardo Alfredo</td>
     </tr>
     <tr>
         <td><strong>Apellidos</strong></td>
-        <td>Apellidos del entrevistado</td>
+        <td>Encarnación Ramirez </td>
     </tr>
     <tr>
         <td><strong>Edad</strong></td>
-        <td>62 años</td>
+        <td>61 años</td>
     </tr>
     <tr>
         <td><strong>Rol</strong></td>
@@ -334,15 +334,15 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
-        <td>Nombre del entrevistado</td>
+        <td>Vanessa Ingrid</td>
     </tr>
     <tr>
         <td><strong>Apellidos</strong></td>
-        <td>Apellidos del entrevistado</td>
+        <td>Torres Vilca</td>
     </tr>
     <tr>
         <td><strong>Edad</strong></td>
-        <td>XX años</td>
+        <td>44 años</td>
     </tr>
     <tr>
         <td><strong>Rol</strong></td>
@@ -374,8 +374,46 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     <tr>
         <td><strong>Resumen</strong></td>
         <td>
-        Resumen de la entrevista
-        </td>
+
+
+# **Informe de Caracterización de Usuario: Resumen de Entrevista**
+
+### **Identificación de la Sesión**
+* **Segmento Objetivo:** Persona con discapacidad motora.
+* **Entrevistada:** Vanessa Torres.
+
+---
+
+### **1. Características Objetivas**
+* **Edad y Diagnóstico:** Vanessa nació en el año **1982**. Fue diagnosticada con **esclerosis múltiple** hace más de 10 años y perdió el control de sus extremidades inferiores 5 años después de recibir dicho diagnóstico.
+* **Condición Física:** Carece de control corporal y equilibrio en las piernas. Debido a su condición y a su baja estatura al estar sentada en la silla de ruedas, se le dificulta alcanzar interruptores o controles situados a cierta altura.
+* **Insumos Médicos:** Utiliza **pañal** para realizar sus necesidades fisiológicas.
+* **Red de Apoyo y Asistencia:** Su **mamá y su tía** son quienes le brindan asistencia constante. Requiere ayuda con **bastante frecuencia** para sus actividades cotidianas.
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Puntos de Dolor y Frustración:**
+  * **Dependencia para acostarse:** Le resulta frustrante depender de sus familiares para irse a la cama a dormir cuando tiene sueño, requiriendo que la trasladen en la silla de ruedas o la carguen.
+  * **Anhelo de movilidad e independencia:** Su principal meta física es poder pararse, controlar su cuerpo y recuperar el equilibrio para no depender de otros al ir al baño o desplazarse.
+* **Dinámica en Ausencia de Cuidadores:** Cuando su mamá o su tía salen de casa, la dejan reposando en la cama o en el sillón viendo televisión; en esos momentos realiza sus necesidades en el pañal al no poder movilizarse sola.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivo de Uso Habitual:** El **celular** es el dispositivo tecnológico que más utiliza en su día a día.
+* **Canales de Interacción Interna:** A pesar de contar con celular, **no utiliza el teléfono para comunicarse con sus familiares dentro del hogar**. Su canal de interacción es **verbal (hablado)** o mediante **llamados a viva voz** en caso de emergencia (como una caída), aprovechando la cercanía física de sus cuidadoras.
+* *Nota sobre vacíos de información:* No se mencionaron marcas específicas de dispositivos, navegadores web (browsers) ni experiencias previas con herramientas de domótica.
+
+---
+
+### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Experiencia Previa:** **Nunca** ha utilizado un dispositivo o sistema tecnológico de asistencia.
+* **Disposición al Cambio:** Muestra una disposición **total e inmediata** ("Por supuesto que sí") para probar un dispositivo que le permita realizar actividades por sí misma.
+* **Actividades Prioritarias a Automatizar:** Le gustaría poder gestionar de manera independiente acciones como acostarse, encender la luz o cerrar la puerta de su habitación sin solicitar ayuda física.
+
+---
+</td>
     </tr>
 </table>
 
@@ -387,26 +425,26 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
-        <td>Nombre del entrevistado</td>
+        <td>Jaime</td>
     </tr>
     <tr>
         <td><strong>Apellidos</strong></td>
-        <td>Apellidos del entrevistado</td>
+        <td>Ramos García</td>
     </tr>
     <tr>
         <td><strong>Edad</strong></td>
-        <td>XX años</td>
+        <td>65 años</td>
     </tr>
     <tr>
         <td><strong>Rol</strong></td>
-        <td>Persona con discapacidad motora severa (postrada)</td>
+        <td>Persona con discapacidad motora </td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
         <td>
         <div align="center">
             <img 
-                src="" 
+                src="https://imgur.com/U2Zsvng.png" 
                 style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
                 alt="">
         </div>
@@ -427,8 +465,36 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     <tr>
         <td><strong>Resumen</strong></td>
         <td>
-        Resumen de la entrevista
-        </td>
+
+### **1. Características Objetivas (Perfil Demográfico y de Contexto)**
+* **Edad y Ubicación:** Jaime tiene **65 años** de edad y vive en la urbanización Ingeniería (5ta etapa), en el distrito de **San Martín de Porres, Lima**.
+* **Origen y Evolución de la Discapacidad:** Presenta una discapacidad motora desde hace **20 años**; anteriormente caminaba con total normalidad. Para desplazarse utiliza una **silla de ruedas**.
+* **Seguro Médico:** Cuenta con cobertura de **seguro social(Essalud)**.
+* **Entorno Familiar y Red de Apoyo:** Vive únicamente con su **padre, quien tiene casi 90 años**. Sus hermanos viven cada uno por su lado.
+* **Capacidad Física:** A pesar de la inmovilidad en sus piernas, mantiene mucha fuerza en los brazos y manifiesta que sus brazos son prácticamente "sus piernas".
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Nivel de Autonomía:** Trata de valerse por sí mismo acomodándose en la cama como puede. Reporta pedir ayuda con una frecuencia mínima ("casi nada"), salvo en ocasiones puntuales para el baño o la ducha.
+* **Anhelo Principal:** La actividad que más le gustaría volver a hacer por sí mismo es **caminar** y salir a pasear de forma independiente.
+* **Dinámica en Ausencia de Cuidadores:** Cuando requiere ayuda y no hay nadie en casa, se queda recostado en la cama o sentado hasta que alguien llega o se comunica mediante llamadas telefónicas.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivo en Uso:** El único dispositivo tecnológico que utiliza en su vida diaria es el **teléfono celular**.
+* **Canales de Comunicación:** Se comunica con sus familiares utilizando **llamadas telefónicas y WhatsApp**.
+* **Interacción con el Entorno Físico:** Utiliza la misma silla de ruedas como punto de apoyo físico para abrir las puertas de su casa.
+* **Limitación Física Específica:** Le resulta **imposible abrir las ventanas** de su hogar debido a que son duras, no puede ponerse de pie y no tiene de dónde apoyarse.
+
+---
+
+### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Experiencia Previa:** **Nunca** ha utilizado un dispositivo tecnológico de asistencia para abrir ventanas o ponerse de pie.
+* **Disposición al Cambio:** Muestra una disposición clara para utilizar un dispositivo que le permita controlar la apertura y cierre de ventanas por sí mismo.
+* **Requerimientos:** Considera que le sería de gran utilidad un mecanismo de apoyo (como adaptarse con un bastón o un control autónomo) para gestionar sus ventanas sin depender de terceros. 
+     </td>
     </tr>
 </table>
 
