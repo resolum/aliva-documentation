@@ -48,12 +48,13 @@ conocimientos técnicos, comprensión del negocio y mejora continua. </td>
     </tr>
     <tr>
         <td> Juarez Leon, Nicolas Emilio Walter (u202317483) </td>
-        <td> 02/04/26 </td>
-        <td> 02/04/26 </td>
+        <td> <img src="https://i.imgur.com/kgmKLFh.png" alt="Nicolas Juarez Leon" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
+        <td> Soy estudiante de la carrera de Ingeniería de Software. Mi interés se centra en las áreas de arquitectura de software y el planeamiento y gestión de proyectos de software, las cuales quiero profundizar a futuro y aplicar en los proyectos que participo.
+        Además, he trabajado en equipos multidisciplinarios asumiendo tareas y responsabilidades, comunicando avances con el equipo y brindando ideas para el progreso del proyecto. Asimismo, siempre busco adquirir conocimientos y habilidades nuevas para mejorar y seguir aportando al equipo. Finalmente, mi objetivo en este proyecto es brindar ideas efectivas y combinarlas con conocimientos técnicos para solucionar una problemática real. </td>
     </tr>
     <tr>
         <td> Rios Piñan, Dayro Richard (u202315283) </td>
-         <td> <img src="https://i.imgur.com/ldZxPfL.png" alt="Matias Diaz Quispe" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
+         <td> <img src="https://i.imgur.com/ldZxPfL.png" alt="Dayro Rios Piñan" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
         <td> Mi nombre es Dayro Rios, tengo 20 años y actualmente estoy en el octavo ciclo de la carrera de Ingeniería de Software en la Universidad Peruana de Ciencias Aplicadas. Disfruto de escuchar música, jugar videojuegos y practicar deportes. Me considero una persona empática y tengo facilidad para comunicarme en entornos de trabajo en equipo. </td>
     </tr>
 </table>
