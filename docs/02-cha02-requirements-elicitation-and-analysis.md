@@ -311,7 +311,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 El As-Is Scenario Mapping es una herramienta que permite visualizar el estado actual de un proceso o experiencia desde la perspectiva del usuario. En este caso, se ha utilizado para mapear la experiencia de personas con discapacidad motora o visual en su interacción con el hogar y los dispositivos de domótica existentes y familiares o cuidadores que los asisten.
 
-**Segmento Objetivo 1: Persona con discapacidad motora o visual**: El As-Is Scenario Mapping revela que estas personas enfrentan dificultades significativas al intentar que los cuidadores o familiares comprendan sus necesidades y preferencias en el hogar. La falta de comunicación efectiva y la dependencia de otros para realizar tareas básicas genera frustración y limita su autonomía.
+**Segmento Objetivo 1: Persona con discapacidad motora severa**: El As-Is Scenario Mapping revela que estas personas enfrentan dificultades significativas al intentar que los cuidadores o familiares comprendan sus necesidades y preferencias en el hogar. La falta de comunicación efectiva y la dependencia de otros para realizar tareas básicas genera frustración y limita su autonomía.
 
 ![as-is scenario mapping](https://i.imgur.com/XZyysa1.png)
 
