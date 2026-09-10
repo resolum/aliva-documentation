@@ -131,9 +131,9 @@ Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del di
 
 **Business Assumptions**
 
-- Creemos que el usuario discapacitado necesita realizar acciones cotidianas como encender interruptores, abrir puertas, etc. de forma autónoma sin requerir la presencia del familiar responsable o cuidador asignado.
-- Creemos que la solución a este problema será dada mediante un entorno de Internet de las Cosas e Inteligencia Artificial que recibirá comandos por parte del usuario discapacitado ya sea por voz o por movimientos residuales del cuerpo para realizar las acciones cotidianas.
-- Creemos que nuestros clientes iniciales son personas con discapacidad motora o visual y sus cuidadores (o familiares responsables) que buscan sentirse con mayor autonomía y reducir la carga de asistencia rutinaria para orientar ese tiempo en labores que requieran mayor atención, respectivamente.
+- Creemos que el usuario discapacitado necesita realizar acciones cotidianas como encender interruptores, abrir puertas, entre otras, de forma autónoma sin requerir la presencia del familiar responsable o cuidador asignado.
+- Creemos que la respuesta a este problema será dada mediante una solución que recibirá comandos por parte del usuario discapacitado mediante el uso de la voz para realizar las acciones cotidianas.
+- Creemos que nuestros clientes iniciales son personas con discapacidad motora severa y sus cuidadores (o familiares responsables) que buscan sentirse con mayor autonomía y reducir la carga de asistencia rutinaria para orientar ese tiempo en labores que requieran mayor atención, respectivamente.
 - Creemos que el principal valor que nuestros clientes buscan de la solución es poder realizar actividades básicas en el hogar de forma autónoma mediante tecnologías de asistencia.
 - Además, creemos que nuestros clientes pueden obtener otros beneficios como reducción del tiempo promedio en realizar actividades básicas y sentir una mayor seguridad en las actividades que se realizan.
 - Creemos que obtendremos nuestra base de clientes mediante recomendaciones de usuarios que utilicen la solución, relaciones comerciales con casas de reposo y asociaciones dado la Hoja de Ruta de Tecnología de Apoyo 2024–2030 mediante el CONADIS.
@@ -152,7 +152,7 @@ Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del di
 
 **User Assumptions**
 
-- **¿Quién es el usuario?** Personas con discapacidad visual y motora que buscan elevar su nivel de autonomía frente a actividades básicas como encender luces y abrir puertas de los distintos ambientes del hogar, y los cuidadores o familiares responsables que se encargan de velar por el cuidado y la seguridad de las personas con discapacidad.
+- **¿Quién es el usuario?** Personas con discapacidad motora severa que buscan elevar su nivel de autonomía frente a actividades básicas como encender luces y abrir puertas de los distintos ambientes del hogar, y los cuidadores o familiares responsables que se encargan de velar por el cuidado y la seguridad de las personas con discapacidad.
 - **¿Dónde encajaría nuestro producto en la vida (o trabajo) del usuario?**
     - Para las personas con discapacidad: encajaría en su vida cotidiana, pues, mediante el sistema el usuario puede realizar actividades básicas de su día a día con comandos dados por sí mismo.
     - Para los cuidadores o familiares responsables: encajaría, también, en su día a día, pues, con el sistema, podrán configurarlo de acuerdo a las necesidades de las personas a cargo y saber las actividades que realizan.
@@ -164,7 +164,7 @@ Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del di
     - Las personas con discapacidad lo usan de forma constante y diaria para desarrollar actividades básicas en el hogar.
     - Sus cuidadores lo usan cuando necesitan cambiar algún parámetro para ajustar el ecosistema a la necesidad de la persona asignada y para saber qué están haciendo en tiempo real.
 - **¿Cómo debería verse y comportarse el producto?**
-    - El ecosistema IoT debe comportarse de forma efectiva en entornos con baja o nula conexión a internet. A su vez, debe reaccionar a los comandos de forma inmediata y confirmar los comandos con el usuario.
+    - El sistema debe responder inmediatamente en todo momento, sin importar fallas externas o caídas de red. A su vez, debe reaccionar a los comandos de forma inmediata y confirmarlos con el usuario.
     - Por otro lado, el cuidador (o familiar responsable) debe ser capaz de configurar una nueva regla de automatización (como abrir una puerta) en menos de 2 minutos y sin necesidad de asistencia técnica.
 
 **User Outcomes & Benefits**
@@ -172,7 +172,7 @@ Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del di
 - La persona discapacitada realiza por sí misma acciones básicas del hogar que anteriormente requerían asistencia.
 - La persona discapacitada puede ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga.
 - La persona discapacitada puede realizar acciones cotidianas de manera más rápida, sin tener que esperar la disponibilidad de un familiar o cuidador.
-- La persona discapacitada siente mayor seguridad y confiabilidad al realizar sus actividades mediante el uso del sistema en escenarios de baja o nula señal de conexión a Internet.
+- La persona discapacitada siente total tranquilidad y seguridad de que el sistema responderá inmediatamente en todo momento, sin importar fallas externas o caídas de red
 - La persona discapacitada siente mayor independencia y control sobre su entorno al poder realizar por sí misma acciones que anteriormente dependían de otra persona.
 - El familiar o cuidador puede dedicar menos tiempo a realizar acciones rutinarias por la persona discapacitada y concentrarse en actividades de asistencia que realmente requieran su intervención.
 
@@ -183,34 +183,29 @@ Lean UX es un enfoque colaborativo que sitúa a las personas en el centro del di
 - **Suposición:** Permitir a la persona discapacitada delegar comandos mediante el uso de la voz le permitirá tomar mayor control de las actividades básicas del hogar que antes realizaba con dificultad o asistencia.
 - **Riesgo:** Si el sistema no detecta con precisión la voz del usuario, ejecutará comandos que el usuario no requiera, lo que provocará que la solución pierda al usuario.
 
-2. **Sistema de detección de gestos**
-
-- **Suposición:** Permitir a la persona discapacitada delegar comandos usando gestos con el cuerpo le permitirá realizar actividades sin necesidad de asistencia reduciendo las intervenciones de sus cuidadores en actividades que se realicen mediante comandos.
-- **Riesgo:** Si el sistema no se estructura correctamente para que detecte gestos, el usuario no sentirá que la solución le está brindando la respuesta que necesita a sus problemas.
-
-3. **Simplificación de actividades básicas**
+2. **Simplificación de actividades básicas**
 
 - **Suposición:** Proveer una forma de simplificar las actividades básicas en el hogar, de forma que se reduce o elimina la necesidad de contacto directo o acercamiento, conseguirá una reducción en el tiempo que toma normalmente realizarlas.
 - **Riesgo:** Si la arquitectura del sistema de automatización no se define correctamente tomando en cuenta la velocidad deseada y las restricciones definidas, el usuario perderá confianza por posibles retrasos de los comandos.
 
-4. **Módulo de toma de decisiones**
+3. **Módulo de toma de decisiones**
 
 - **Suposición:** El sistema analizará los comandos recibidos por la persona discapacitada para determinar cuál es la acción que está deseando e iniciar el flujo de activación de la actividad con los dispositivos requeridos.
 - **Riesgo:** Si el sistema demora en determinar la actividad requerida, puede ocasionar apilamiento de acciones que puede confundir en gran medida al discapacitado.
 
-5. **Configuración adaptativa del sistema**
+4. **Configuración adaptativa del sistema**
 
 - **Suposición:** Permitir al familiar o cuidador de la persona discapacitada configurar el sistema dependiendo de las necesidades del discapacitado le ayudará a sentirse con mayor capacidad y seguridad de realizar actividades básicas en su hogar sin asistencia de terceros.
 - **Riesgo:** Si la solución no cuenta con configuración suficiente o instrucciones que guíen al familiar, este se sentirá abrumado y perderá confianza en la solución por su complejidad.
 
 #### 1.2.2.3. Lean UX Hypothesis Statements
 
-- **Creemos que lograremos** un incremento de 70% en la proporción de actividades básicas del hogar que pueda realizar la persona discapacitada sin requerir asistencia de terceros **si** las personas con discapacidad motora o visual realizan por sí mismas acciones básicas del hogar que anteriormente requerían asistencia obligatoria **gracias a** un sistema de reconocimiento de comandos por voz o por gestos.
-- **Creemos que lograremos** una reducción de 65% en el número de intervenciones de familiares o cuidadores requeridas para que la persona discapacitada realice actividades básicas del hogar **si** las personas con discapacidad motora o visual pueden ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga **gracias a** un sistema de reconocimiento de comandos por voz o por gestos.
-- **Creemos que lograremos** reducir en 60% el tiempo promedio requerido para que la persona discapacitada pueda completar una actividad básica del hogar **si** las personas con discapacidad motora o visual logran realizar acciones cotidianas de manera más rápida, sin tener que esperar la disponibilidad de un familiar o cuidador **gracias a la** simplificación de actividades básicas.
-- **Creemos que lograremos** que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan utilizando el sistema para completar sus actividades diarias **si** las personas con discapacidad motora o visual sienten mayor seguridad y confiabilidad realizar sus actividades mediante el uso del sistema en escenarios de baja o nula señal de conexión a Internet **gracias al** módulo de toma de decisiones local.
-- **Creemos que lograremos** incrementar en 60% el nivel de autonomía percibida por las personas discapacitadas después de utilizar el sistema para realizar actividades básicas del hogar **si** las personas con discapacidad motora o visual siente una mayor independencia y control sobre su entorno al poder realizar por sí misma acciones que anteriormente dependían de otra persona **gracias a** la configuración adaptativa del sistema realizada por sus familiares.
-- **Creemos que lograremos** reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación de la persona discapacitada **si** los familiares o cuidadores de las personas con discapacidad motora o visual pueden dedicar menos tiempo a realizar acciones rutinarias por la persona y concentrarse en actividades de asistencia que realmente requieran su intervención obligatoria **gracias a la** simplificación de actividades básicas.
+- **Creemos que lograremos** un incremento de 70% en la proporción de actividades básicas del hogar que pueda realizar la persona discapacitada sin requerir asistencia de terceros **si** las personas con discapacidad motora severa realizan por sí mismas acciones básicas del hogar que anteriormente requerían asistencia obligatoria **gracias a** un sistema de reconocimiento de comandos por voz.
+- **Creemos que lograremos** una reducción de 65% en el número de intervenciones de familiares o cuidadores requeridas para que la persona discapacitada realice actividades básicas del hogar **si** las personas con discapacidad motora severa pueden ejecutar acciones del hogar sin tener que llamar o esperar a que un familiar o cuidador intervenga **gracias a** un sistema de reconocimiento de comandos por voz.
+- **Creemos que lograremos** reducir en 60% el tiempo promedio requerido para que la persona discapacitada pueda completar una actividad básica del hogar **si** las personas con discapacidad motora severa logran realizar acciones cotidianas de manera más rápida, sin tener que esperar la disponibilidad de un familiar o cuidador **gracias a la** simplificación de actividades básicas.
+- **Creemos que lograremos** que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan utilizando el sistema para completar sus actividades diarias **si** las personas con discapacidad motora severa sienten total tranquilidad y seguridad de que el sistema responderá inmediatamente en todo momento, sin importar fallas externas o caídas de red **gracias al** módulo de toma de decisiones local.
+- **Creemos que lograremos** incrementar en 60% el nivel de autonomía percibida por las personas discapacitadas después de utilizar el sistema para realizar actividades básicas del hogar **si** las personas con discapacidad motora severa sienten una mayor independencia y control sobre su entorno al poder realizar por sí misma acciones que anteriormente dependían de otra persona **gracias a** la configuración adaptativa del sistema realizada por sus familiares.
+- **Creemos que lograremos** reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación de la persona discapacitada **si** los familiares o cuidadores de las personas con discapacidad motora severa pueden dedicar menos tiempo a realizar acciones rutinarias por la persona y concentrarse en actividades de asistencia que realmente requieran su intervención obligatoria **gracias a la** simplificación de actividades básicas.
 
 #### 1.2.2.4. Lean UX Canvas
 
