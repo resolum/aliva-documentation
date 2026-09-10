@@ -315,12 +315,72 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 <table>
     <tr>
-        <th> Término </th>
+        <th> Term (English / Español) </th>
         <th> Definición </th>
     </tr>
     <tr>
+        <td> Person with severe motor disability (Persona con discapacidad motora severa) </td>
+        <td> Persona adulta con movilidad muy limitada o nula en las extremidades, que puede requerir apoyo para realizar actividades básicas dentro de su hogar.</td>
+    </tr>
+    <tr>
+        <td> Caregiver (Cuidador) </td>
+        <td> Familiar o profesional responsable de brindar apoyo, supervisión y cuidado cotidiano a una persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <td> Household (Hogar) </td>
+        <td> Entorno físico donde vive la persona con discapacidad y donde se realizan las actividades cotidianas que pueden requerir asistencia.</td>
+    </tr>
+    <tr>
+        <td> Autonomy (Autonomía) </td>
+        <td> Capacidad de la persona con discapacidad para decidir y realizar una actividad cotidiana sin depender de la intervención directa de otra persona.</td>
+    </tr>
+    <tr>
+        <td> Independence (Independencia) </td>
+        <td> Condición en la que la persona con discapacidad puede desenvolverse en su hogar con menor necesidad de apoyo de familiares o cuidadores.</td>
+    </tr>
+    <tr>
+        <td> Dependency (Dependencia) </td>
+        <td> Necesidad de recibir ayuda de otra persona para iniciar, ejecutar o completar una actividad cotidiana.</td>
+    </tr>
+    <tr>
+        <td> Daily living activity (Actividad de la vida diaria) </td>
+        <td> Acción necesaria para desenvolverse en el hogar, como encender una luz, abrir una puerta, mover una persiana o solicitar ayuda.</td>
+    </tr>
+    <tr>
+        <td> Assistance (Asistencia) </td>
+        <td> Apoyo físico, verbal o tecnológico que permite a la persona con discapacidad realizar una actividad que no puede completar por sí sola.</td>
+    </tr>
+    <tr>
+        <td> Care routine (Rutina de cuidado) </td>
+        <td> Conjunto de actividades de apoyo que el cuidador realiza de manera recurrente para atender las necesidades de la persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <td> Caregiver intervention (Intervención del cuidador) </td>
+        <td> Participación directa del cuidador para realizar o completar una actividad en representación de la persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <td> Request for assistance (Solicitud de asistencia) </td>
+        <td> Petición mediante la cual la persona con discapacidad comunica que necesita apoyo de su cuidador para atender una necesidad o realizar una actividad.</td>
+    </tr>
+    <tr>
+        <td> Voice instruction (Instrucción de voz) </td>
+        <td> Expresión verbal que la persona con discapacidad utiliza para comunicar una necesidad o indicar que desea realizar una actividad en su hogar.</td>
+    </tr>
+    <tr>
+        <td> Accessibility need (Necesidad de accesibilidad) </td>
+        <td> Condición o requerimiento específico que debe considerarse para que la persona con discapacidad pueda interactuar con su entorno y realizar actividades de forma segura y comprensible.</td>
+    </tr>
+    <tr>
+        <td> Perceived autonomy (Autonomía percibida) </td>
+        <td> Grado en que la persona con discapacidad siente que controla sus actividades y decisiones cotidianas sin depender de otra persona.</td>
+    </tr>
+    <tr>
+        <td> Safety (Seguridad) </td>
+        <td> Condición en la que la persona con discapacidad puede realizar una actividad sin exponerse a un riesgo innecesario y el cuidador puede confiar en que sus necesidades serán atendidas.</td>
+    </tr>
+    <tr>
         <td> Version </td>
-        <td> 02/04/26 </td>
+        <td> 09/09/26 </td>
     </tr>
 </table>
 
