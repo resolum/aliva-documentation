@@ -563,6 +563,24 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Nicolas Juarez Leon </td>
         <td> Add profile description and photo for Nicolas Juarez. </td>
     </tr>
+    <tr>
+        <td> 1.111 </td>
+        <td> 09/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.112 </td>
+        <td> 09/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update assuptions to match with current target segments. </td>
+    </tr>
+    <tr>
+        <td> 1.113 </td>
+        <td> 09/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Ensure that the assumptions don't use specific technology definition. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
