@@ -313,7 +313,7 @@ El As-Is Scenario Mapping es una herramienta que permite visualizar el estado ac
 
 **Segmento Objetivo 1: Persona con discapacidad motora o visual**: El As-Is Scenario Mapping revela que estas personas enfrentan dificultades significativas al intentar que los cuidadores o familiares comprendan sus necesidades y preferencias en el hogar. La falta de comunicación efectiva y la dependencia de otros para realizar tareas básicas genera frustración y limita su autonomía.
 
-![as-is scenario mapping](https://i.imgur.com/NXIfnxm.png)
+![as-is scenario mapping](https://i.imgur.com/XZyysa1.png)
 
 **Segmento Objetivo 2: Familiar o cuidador de persona con discapacidad**: El As-Is Scenario Mapping muestra que los cuidadores y familiares a menudo carecen de información clara sobre cómo satisfacer las necesidades de las personas con discapacidad. Esto puede llevar a malentendidos, errores en la asistencia y una experiencia general insatisfactoria y frustrante para ambas partes.
 
