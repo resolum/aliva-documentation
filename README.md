@@ -1,6 +1,6 @@
-# Veyra Report
+# Alivia Documentation
 
-Repositorio oficial de la documentación del proyecto **Veyra**, desarrollado por **Resolum** para el curso **Arquitecturas de Software Emergentes** de la Universidad Peruana de Ciencias Aplicadas.
+Repositorio oficial de la documentación del proyecto **Alivia**, desarrollado por **Resolum** para el curso **Arquitecturas de Software Emergentes** de la Universidad Peruana de Ciencias Aplicadas.
 
 ## Información del Proyecto
 
@@ -10,15 +10,15 @@ Repositorio oficial de la documentación del proyecto **Veyra**, desarrollado po
 | Carrera          | Ingeniería de Software                    |
 | Curso            | Arquitecturas de Software Emergentes      |
 | Código del curso | 1ASI0728                                  |
-| NRC              | Colocar NRC                               |
+| NRC              | 9061                                      |
 | Startup          | Resolum                                   |
-| Producto         | Veyra                                     |
+| Producto         | Alivia                                    |
 | Ciclo académico  | 202620                                    |
 
 ## Estructura del Repositorio
 
 ```text
-veyra-report/
+alivia-documentation/
 ├── docs/
 │   ├── 00-cover.md
 │   ├── 01-cha01-introduction.md

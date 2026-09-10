@@ -1,83 +1,49 @@
 <div align="center">
 
-<img src="https://i.imgur.com/uoAo2Eb.png" alt="Logo UPC" style="width: 70px; height: auto;" />
-
-<br>
-
-Universidad Peruana De Ciencias Aplicadas
-
-Carrera de Ingeniería de Software
-
-<p>
-
-<strong> <span style="font-size: 16px;"> 1ASI0728 Arquitecturas de Software Emergentes </span> </strong>
-
-<br> 
-<br>
-
-<span style="font-size: 16px;"> 202602 </span>
-
-NRC
-
-<strong> Colocar la NRC del curso </strong>
-
-Docente
-
-<strong> Nombre del docente </strong>
+<img src="https://i.imgur.com/uoAo2Eb.png" alt="Logo UPC" style="width: 80px; height: auto;" />
 
 <br>
 <br>
 
-<strong> <span style="font-size: 16px;"> Informe de Trabajo Final </span> </strong>
+<strong> UNIVERSIDAD PERUANA DE CIENCIAS APLICADAS </strong>
 
-Equipo
+<strong> FACULTAD DE INGENIERÍA </strong>
 
-<strong> Resolum </strong>
+<strong> INGENIERÍA DE SOFTWARE </strong>
+
+<span style="font-size: 16px;"> CURSO: 1ASI0728 - ARQUITECTURAS DE SOFTWARE EMERGENTES </span>
+
+<strong> DOCENTE: </strong> Ernesto Ocampo Tello
+
+<strong> NRC: </strong> 9061
+
+<strong> <span style="font-size: 16px;"> TRABAJO FINAL </span> </strong>
+
+<br>
+
+<strong> STARTUP: </strong> Resolum
+
+<strong> SOLUCIÓN: </strong> Alivia
 
 <br>
 
-Proyecto
+<strong> INTEGRANTES: </strong>
 
-<strong> Por nombrar </strong>
+Calvo Yalan, Renato Guillermo (u202217053)
 
-<br>
+Coronel Espinoza, Farid Sebastian (u202312508)
 
-</p>
+Diaz Quispe, Matías Sebastian (u202311938)
 
-<strong> Integrantes </strong>
+Juarez Leon, Nicolas Emilio Walter (u202317483)
 
-<br>
-<br>
-
-<table style="border-collapse: collapse; border: none;">
-    <tr>
-        <th style="border: none; text-align: center;">Código</th>
-        <th style="border: none; text-align: center;">Apellidos y Nombres</th>
-    </tr>
-    <tr>
-        <td style="border: none;">u202217053</td>
-        <td style="border: none;">Calvo Yalan, Renato Guillermo</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202312508</td>
-        <td style="border: none;">Coronel Espinoza, Farid Sebastian</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202311938</td>
-        <td style="border: none;">Diaz Quispe, Matias Diaz</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202317483</td>
-        <td style="border: none;">Juarez Leon, Nicolas Emilio Walter</td>
-    </tr>
-    <tr>
-        <td style="border: none;">u202315283</td>
-        <td style="border: none;">Rios Piñan, Dayro Richard</td>
-    </tr>
-</table>
+Rios Piñan, Dayro Richard (u202315283)
 
 <br>
-<strong> Agosto, 2026 </strong>
+
+<strong> Ciclo Académico: </strong> 202620
+
+<br>
 
 </div>
 
@@ -410,6 +376,210 @@ Proyecto
         <td> 03/09/26 </td>
         <td> RenatoCY </td>
         <td> AR-16 update demographic segments and statistical information for visually and motor-disabled individuals </td>
+    </tr>
+    <tr>
+        <td> 1.80 </td>
+        <td> 03/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.81 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add competitive strategies and tactics section. </td>
+    </tr>
+    <tr>
+        <td> 1.82 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Clarify how each competitive tactic will be achieved. </td>
+    </tr>
+    <tr>
+        <td> 1.83 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Rephrase competitive tactics in future tense to reflect pre-launch stage. </td>
+    </tr>
+    <tr>
+        <td> 1.84 </td>
+        <td> 04/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.85 </td>
+        <td> 04/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add cover page with information about team and course. </td>
+    </tr>
+    <tr>
+        <td> 1.86 </td>
+        <td> 04/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-25 add interview questions for target segments in requirements elicitation </td>
+    </tr>
+    <tr>
+        <td> 1.87 </td>
+        <td> 04/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.88 </td>
+        <td> 04/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.89 </td>
+        <td> 06/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Refine introduction section to specify challenges faced by individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.90 </td>
+        <td> 06/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Update target segment description for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.91 </td>
+        <td> 07/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.92 </td>
+        <td> 07/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Align sections with updated target segments. </td>
+    </tr>
+    <tr>
+        <td> 1.93 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remover referencias a discapacidad visual y gestos </td>
+    </tr>
+    <tr>
+        <td> 1.94 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remove references to visual impairment and gestures. </td>
+    </tr>
+    <tr>
+        <td> 1.95 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remove references to visual impairment and gestures. </td>
+    </tr>
+    <tr>
+        <td> 1.96 </td>
+        <td> 08/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Remove references to visual impairment and gestures. </td>
+    </tr>
+    <tr>
+        <td> 1.97 </td>
+        <td> 06/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Refine interview questions for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.98 </td>
+        <td> 07/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Refine interview questions for individuals with motor disabilities for clarity and relevance </td>
+    </tr>
+    <tr>
+        <td> 1.99 </td>
+        <td> 08/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.100 </td>
+        <td> 08/09/26 </td>
+        <td> Far14z </td>
+        <td> Enhance interview questions for individuals with disabilities to gather more comprehensive insights. </td>
+    </tr>
+    <tr>
+        <td> 1.101 </td>
+        <td> 08/09/26 </td>
+        <td> Far14z </td>
+        <td> Refine lean ux problem statement to enhance clarity on challenges faced by individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.102 </td>
+        <td> 08/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.103 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add profile for Matias Diaz. </td>
+    </tr>
+    <tr>
+        <td> 1.104 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add profile for Matias Diaz. </td>
+    </tr>
+    <tr>
+        <td> 1.105 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add profile for Matias Diaz. </td>
+    </tr>
+    <tr>
+        <td> 1.106 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> Update photo and description profile for farid coronel. </td>
+    </tr>
+    <tr>
+        <td> 1.107 </td>
+        <td> 03/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add profile for Dayro Rios with photo and description </td>
+    </tr>
+    <tr>
+        <td> 1.108 </td>
+        <td> 04/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Add profile for Renato Guillermo Calvo Yalan with photo and description </td>
+    </tr>
+    <tr>
+        <td> 1.109 </td>
+        <td> 09/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.110 </td>
+        <td> 09/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add profile description and photo for Nicolas Juarez. </td>
+    </tr>
+    <tr>
+        <td> 1.111 </td>
+        <td> 09/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.112 </td>
+        <td> 09/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update assuptions to match with current target segments. </td>
+    </tr>
+    <tr>
+        <td> 1.113 </td>
+        <td> 09/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Ensure that the assumptions don't use specific technology definition. </td>
     </tr>
 </table>
 <!-- VERSION_TABLE_END -->
