@@ -303,11 +303,9 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ### 2.3.2. User Task Matrix
 
-### 2.3.3. User Journey Mapping
+### 2.3.3. Empathy Mapping
 
-### 2.3.4. Empathy Mapping
-
-### 2.3.5. As-Is Scenario Mapping
+### 2.3.4. As-Is Scenario Mapping
 
 El As-Is Scenario Mapping es una herramienta que permite visualizar el estado actual de un proceso o experiencia desde la perspectiva del usuario. En este caso, se ha utilizado para mapear la experiencia de personas con discapacidad motora o visual en su interacción con el hogar y los dispositivos de domótica existentes y familiares o cuidadores que los asisten.
 
@@ -323,9 +321,7 @@ Podemos conluir que la experiencia de las personas con discapacidad motora sever
 
 Podemos concluir que la experiencia de los cuidadores y familiares de personas con discapacidad es frustrante y agotadora ya que deben estar al pendiente de las necesidades de la persona con discapacidad, lo que puede generar estrés y ansiedad. Esto resalta la necesidad de soluciones que faciliten la comunicación y la comprensión mutua entre cuidadores y personas con discapacidad, mejorando así la calidad de vida de ambos.
 
-## 2.4. Big Picture Eventstorming
-
-## 2.5. Ubiquitous Language
+## 2.4. Ubiquitous Language
 
 <table>
     <tr>
