@@ -503,6 +503,156 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Far14z </td>
         <td> Enhance interview questions for individuals with disabilities to gather more comprehensive insights. </td>
     </tr>
+    <tr>
+        <td> 1.101 </td>
+        <td> 08/09/26 </td>
+        <td> Far14z </td>
+        <td> Refine lean ux problem statement to enhance clarity on challenges faced by individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.102 </td>
+        <td> 08/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.103 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add profile for Matias Diaz. </td>
+    </tr>
+    <tr>
+        <td> 1.104 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add profile for Matias Diaz. </td>
+    </tr>
+    <tr>
+        <td> 1.105 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add profile for Matias Diaz. </td>
+    </tr>
+    <tr>
+        <td> 1.106 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> Update photo and description profile for farid coronel. </td>
+    </tr>
+    <tr>
+        <td> 1.107 </td>
+        <td> 03/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add profile for Dayro Rios with photo and description </td>
+    </tr>
+    <tr>
+        <td> 1.108 </td>
+        <td> 04/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Add profile for Renato Guillermo Calvo Yalan with photo and description </td>
+    </tr>
+    <tr>
+        <td> 1.109 </td>
+        <td> 09/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.110 </td>
+        <td> 09/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add profile description and photo for Nicolas Juarez. </td>
+    </tr>
+    <tr>
+        <td> 1.111 </td>
+        <td> 09/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.112 </td>
+        <td> 09/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update assuptions to match with current target segments. </td>
+    </tr>
+    <tr>
+        <td> 1.113 </td>
+        <td> 09/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Ensure that the assumptions don't use specific technology definition. </td>
+    </tr>
+    <tr>
+        <td> 1.114 </td>
+        <td> 03/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add As-Is Scenario Mapping section to analyze user experience for individuals with motor or visual disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.115 </td>
+        <td> 03/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add target segment for caregivers in As-Is Scenario Mapping to enhance understanding of user needs </td>
+    </tr>
+    <tr>
+        <td> 1.116 </td>
+        <td> 10/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.117 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update target segment descriptions for clarity and accuracy </td>
+    </tr>
+    <tr>
+        <td> 1.118 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update target segment description for clarity in As-Is Scenario Mapping </td>
+    </tr>
+    <tr>
+        <td> 1.119 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Enhance As-Is Scenario Mapping with conclusions on user experiences and needs </td>
+    </tr>
+    <tr>
+        <td> 1.120 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.121 </td>
+        <td> 10/09/26 </td>
+        <td> Far14z </td>
+        <td> Add user task matrix analysis for target segments to enhance understanding of user needs. </td>
+    </tr>
+    <tr>
+        <td> 1.122 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add ubiquitous language definitions for accessibility context </td>
+    </tr>
+    <tr>
+        <td> 1.123 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Remove outdated version information from requirements document </td>
+    </tr>
+    <tr>
+        <td> 1.124 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.125 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update terminology for clarity in requirements document </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 

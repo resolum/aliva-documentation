@@ -685,11 +685,123 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ### 2.3.2. User Task Matrix
 
+Para este análisis se consideran los dos segmentos objetivos del proyecto, representados por los user personas Sebastian Sanchez (persona asistida) y Mariano Diaz (responsable/cuidador). Se elaboró una única matriz en la que se evalúan la frecuencia y la importancia de las tareas que cada uno realiza actualmente, sustentadas en la evidencia recogida durante las entrevistas. Las actividades identificadas pertenecen al dominio del problema y no dependen de la existencia de una solución tecnológica.
+
+#### User Task Matrix
+
+<table border="1" cellpadding="10" cellspacing="0" style="margin-left: auto; margin-right: auto; font-family: sans-serif;">
+  <tr>
+    <th rowspan="2">Tarea</th>
+    <th colspan="2">Sebastian Sanchez (Persona asistida)</th>
+    <th colspan="2">Mariano Diaz (Responsable)</th>
+  </tr>
+  <tr>
+    <th>Frecuencia</th>
+    <th>Importancia</th>
+    <th>Frecuencia</th>
+    <th>Importancia</th>
+  </tr>
+  <tr>
+    <td>Comunicar / recibir una necesidad de asistencia</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / brindar ayuda para actividades cotidianas</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / ejecutar el encendido o apagado de las luces</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>Medium</td>
+  </tr>
+  <tr>
+    <td>Solicitar / ejecutar la apertura o cierre de puertas, ventanas y persianas</td>
+    <td>Medium</td>
+    <td>High</td>
+    <td>Medium</td>
+    <td>Medium</td>
+  </tr>
+  <tr>
+    <td>Solicitar / alcanzar objetos de uso personal</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Esperar respuesta / preparar el entorno antes de ausentarse</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Contactar a otra persona / coordinar con otro familiar o cuidador cuando no está disponible</td>
+    <td>Medium</td>
+    <td>High</td>
+    <td>Medium</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / atender ayuda durante la noche</td>
+    <td>Medium</td>
+    <td>High</td>
+    <td>Medium</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / ayudar en actividades de alimentación, higiene o movilidad</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / atender ayuda ante una situación urgente</td>
+    <td>Low</td>
+    <td>High</td>
+    <td>Low</td>
+    <td>High</td>
+  </tr>
+</table>
+
+**Análisis del Task Matrix:**
+
+A partir del User Task Matrix elaborado, se identifican los siguientes hallazgos:
+
+**Tareas con mayor frecuencia e importancia para ambos segmentos:** Comunicar/recibir una necesidad de asistencia, Solicitar/brindar ayuda para actividades cotidianas, Solicitar/alcanzar objetos de uso personal, Esperar respuesta/preparar el entorno antes de ausentarse, y Solicitar/ayudar en actividades de alimentación, higiene o movilidad son las tareas que Sebastian Sanchez y Mariano Diaz realizan con frecuencia High e importancia High, lo que las posiciona como el núcleo de tareas compartidas del dominio.
+
+**Principales diferencias:** en el control del entorno se observan divergencias claras. Solicitar/ejecutar el encendido o apagado de las luces tiene importancia High para Sebastian pero solo Medium para Mariano, reflejando que para el primero representa una barrera directa a su autonomía, mientras que para el segundo es una interrupción rutinaria de menor peso. De forma similar, solicitar/ejecutar la apertura o cierre de puertas, ventanas y persianas mantiene importancia High para Sebastian frente a Medium para Mariano, evidenciando que estas tareas afectan de manera más crítica a la persona asistida que al cuidador.
+
+**Coincidencias relevantes:** Contactar a otra persona/coordinar con otro familiar o cuidador y Solicitar/atender ayuda durante la noche comparten frecuencia Medium e importancia High en ambos segmentos, lo que indica que, aunque no ocurren todos los días, su correcta atención es determinante para la continuidad del cuidado. De forma más marcada, Solicitar/atender ayuda ante una situación urgente presenta frecuencia Low pero importancia High para ambos User Personas, confirmando que, pese a su baja recurrencia, la atención oportuna ante emergencias es un requisito crítico que la solución debe garantizar con prioridad absoluta.
+
 ### 2.3.3. User Journey Mapping
 
 ### 2.3.4. Empathy Mapping
 
 ### 2.3.5. As-Is Scenario Mapping
+
+El As-Is Scenario Mapping es una herramienta que permite visualizar el estado actual de un proceso o experiencia desde la perspectiva del usuario. En este caso, se ha utilizado para mapear la experiencia de personas con discapacidad motora o visual en su interacción con el hogar y los dispositivos de domótica existentes y familiares o cuidadores que los asisten.
+
+**Segmento Objetivo 1: Persona con discapacidad motora severa**: El As-Is Scenario Mapping revela que estas personas enfrentan dificultades significativas al intentar que los cuidadores o familiares comprendan sus necesidades y preferencias en el hogar. La falta de comunicación efectiva y la dependencia de otros para realizar tareas básicas genera frustración y limita su autonomía.
+
+![as-is scenario mapping](https://i.imgur.com/XZyysa1.png)
+
+Podemos conluir que la experiencia de las personas con discapacidad motora severa en el hogar es limitada y frustrante debido a la falta de comunicación efectiva con sus cuidadores o familiares. Esto resalta la necesidad de soluciones que faciliten la autonomía y la independencia de estas personas, permitiéndoles controlar su entorno sin depender de otros.
+
+**Segmento Objetivo 2: Familiar o cuidador de persona con discapacidad**: El As-Is Scenario Mapping muestra que los cuidadores y familiares a menudo carecen de información clara sobre cómo satisfacer las necesidades de las personas con discapacidad. Esto puede llevar a malentendidos, errores en la asistencia y una experiencia general insatisfactoria y frustrante para ambas partes.
+
+![as-is scenario mapping](https://i.imgur.com/4vIXJwo.png)
+
+Podemos concluir que la experiencia de los cuidadores y familiares de personas con discapacidad es frustrante y agotadora ya que deben estar al pendiente de las necesidades de la persona con discapacidad, lo que puede generar estrés y ansiedad. Esto resalta la necesidad de soluciones que faciliten la comunicación y la comprensión mutua entre cuidadores y personas con discapacidad, mejorando así la calidad de vida de ambos.
 
 ## 2.4. Big Picture Eventstorming
 
@@ -697,12 +809,68 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 <table>
     <tr>
-        <th> Término </th>
+        <th> Term (English / Español) </th>
         <th> Definición </th>
     </tr>
     <tr>
-        <td> Version </td>
-        <td> 02/04/26 </td>
+        <td> Disabled person (Persona discapacitada) </td>
+        <td> Persona adulta con movilidad muy limitada o nula en las extremidades, que puede requerir apoyo para realizar actividades básicas dentro de su hogar.</td>
+    </tr>
+    <tr>
+        <td> Caregiver (Cuidador) </td>
+        <td> Familiar o profesional responsable de brindar apoyo, supervisión y cuidado cotidiano a una persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <td> Household (Hogar) </td>
+        <td> Entorno físico donde vive la persona con discapacidad y donde se realizan las actividades cotidianas que pueden requerir asistencia.</td>
+    </tr>
+    <tr>
+        <td> Autonomy (Autonomía) </td>
+        <td> Capacidad de la persona con discapacidad para decidir y realizar una actividad cotidiana sin depender de la intervención directa de otra persona.</td>
+    </tr>
+    <tr>
+        <td> Independence (Independencia) </td>
+        <td> Condición en la que la persona con discapacidad puede desenvolverse en su hogar con menor necesidad de apoyo de familiares o cuidadores.</td>
+    </tr>
+    <tr>
+        <td> Dependency (Dependencia) </td>
+        <td> Necesidad de recibir ayuda de otra persona para iniciar, ejecutar o completar una actividad cotidiana.</td>
+    </tr>
+    <tr>
+        <td> Daily living activity (Actividad de la vida diaria) </td>
+        <td> Acción necesaria para desenvolverse en el hogar, como encender una luz, abrir una puerta, mover una persiana o solicitar ayuda.</td>
+    </tr>
+    <tr>
+        <td> Assistance (Asistencia) </td>
+        <td> Apoyo físico, verbal o tecnológico que permite a la persona con discapacidad realizar una actividad que no puede completar por sí sola.</td>
+    </tr>
+    <tr>
+        <td> Care routine (Rutina de cuidado) </td>
+        <td> Conjunto de actividades de apoyo que el cuidador realiza de manera recurrente para atender las necesidades de la persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <td> Caregiver intervention (Intervención del cuidador) </td>
+        <td> Participación directa del cuidador para realizar o completar una actividad en representación de la persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <td> Request for assistance (Solicitud de asistencia) </td>
+        <td> Petición mediante la cual la persona con discapacidad comunica que necesita apoyo de su cuidador para atender una necesidad o realizar una actividad.</td>
+    </tr>
+    <tr>
+        <td> Voice instruction (Instrucción de voz) </td>
+        <td> Expresión verbal que la persona con discapacidad utiliza para comunicar una necesidad o indicar que desea realizar una actividad en su hogar.</td>
+    </tr>
+    <tr>
+        <td> Accessibility need (Necesidad de accesibilidad) </td>
+        <td> Condición o requerimiento específico que debe considerarse para que la persona con discapacidad pueda interactuar con su entorno y realizar actividades de forma segura y comprensible.</td>
+    </tr>
+    <tr>
+        <td> Perceived autonomy (Autonomía percibida) </td>
+        <td> Grado en que la persona con discapacidad siente que controla sus actividades y decisiones cotidianas sin depender de otra persona.</td>
+    </tr>
+    <tr>
+        <td> Safety (Seguridad) </td>
+        <td> Condición en la que la persona con discapacidad puede realizar una actividad sin exponerse a un riesgo innecesario y el cuidador puede confiar en que sus necesidades serán atendidas.</td>
     </tr>
 </table>
 
