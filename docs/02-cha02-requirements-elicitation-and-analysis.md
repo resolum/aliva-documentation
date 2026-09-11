@@ -303,7 +303,127 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ### 2.3.2. User Task Matrix
 
+Para este análisis se consideran los dos segmentos objetivos del proyecto, representados por los user personas Sebastian Sanchez (persona asistida) y Mariano Diaz (responsable/cuidador). Se elaboró una única matriz en la que se evalúan la frecuencia y la importancia de las tareas que cada uno realiza actualmente, sustentadas en la evidencia recogida durante las entrevistas. Las actividades identificadas pertenecen al dominio del problema y no dependen de la existencia de una solución tecnológica.
+
+#### User Task Matrix
+
+<table border="1" cellpadding="10" cellspacing="0" style="margin-left: auto; margin-right: auto; font-family: sans-serif;">
+  <tr>
+    <th rowspan="2">Tarea</th>
+    <th colspan="2">Sebastian Sanchez (Persona asistida)</th>
+    <th colspan="2">Mariano Diaz (Responsable)</th>
+  </tr>
+  <tr>
+    <th>Frecuencia</th>
+    <th>Importancia</th>
+    <th>Frecuencia</th>
+    <th>Importancia</th>
+  </tr>
+  <tr>
+    <td>Comunicar / recibir una necesidad de asistencia</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / brindar ayuda para actividades cotidianas</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / ejecutar el encendido o apagado de las luces</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>Medium</td>
+  </tr>
+  <tr>
+    <td>Solicitar / ejecutar la apertura o cierre de puertas, ventanas y persianas</td>
+    <td>Medium</td>
+    <td>High</td>
+    <td>Medium</td>
+    <td>Medium</td>
+  </tr>
+  <tr>
+    <td>Solicitar / alcanzar objetos de uso personal</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Esperar respuesta / preparar el entorno antes de ausentarse</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Contactar a otra persona / coordinar con otro familiar o cuidador cuando no está disponible</td>
+    <td>Medium</td>
+    <td>High</td>
+    <td>Medium</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / atender ayuda durante la noche</td>
+    <td>Medium</td>
+    <td>High</td>
+    <td>Medium</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / ayudar en actividades de alimentación, higiene o movilidad</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / atender ayuda ante una situación urgente</td>
+    <td>Low</td>
+    <td>High</td>
+    <td>Low</td>
+    <td>High</td>
+  </tr>
+</table>
+
+**Análisis del Task Matrix:**
+
+A partir del User Task Matrix elaborado, se identifican los siguientes hallazgos:
+
+**Tareas con mayor frecuencia e importancia para ambos segmentos:** Comunicar/recibir una necesidad de asistencia, Solicitar/brindar ayuda para actividades cotidianas, Solicitar/alcanzar objetos de uso personal, Esperar respuesta/preparar el entorno antes de ausentarse, y Solicitar/ayudar en actividades de alimentación, higiene o movilidad son las tareas que Sebastian Sanchez y Mariano Diaz realizan con frecuencia High e importancia High, lo que las posiciona como el núcleo de tareas compartidas del dominio.
+
+**Principales diferencias:** en el control del entorno se observan divergencias claras. Solicitar/ejecutar el encendido o apagado de las luces tiene importancia High para Sebastian pero solo Medium para Mariano, reflejando que para el primero representa una barrera directa a su autonomía, mientras que para el segundo es una interrupción rutinaria de menor peso. De forma similar, solicitar/ejecutar la apertura o cierre de puertas, ventanas y persianas mantiene importancia High para Sebastian frente a Medium para Mariano, evidenciando que estas tareas afectan de manera más crítica a la persona asistida que al cuidador.
+
+**Coincidencias relevantes:** Contactar a otra persona/coordinar con otro familiar o cuidador y Solicitar/atender ayuda durante la noche comparten frecuencia Medium e importancia High en ambos segmentos, lo que indica que, aunque no ocurren todos los días, su correcta atención es determinante para la continuidad del cuidado. De forma más marcada, Solicitar/atender ayuda ante una situación urgente presenta frecuencia Low pero importancia High para ambos User Personas, confirmando que, pese a su baja recurrencia, la atención oportuna ante emergencias es un requisito crítico que la solución debe garantizar con prioridad absoluta.
+
 ### 2.3.3. Empathy Mapping
+
+Para complementar el análisis de necesidades, se elaboró un Empathy Map por cada segmento objetivo del proyecto, tomando como base el user persona correspondiente y los hallazgos del User Task Matrix. Esta herramienta permite profundizar en lo que cada persona piensa, siente, dice, hace, ve y escucha en su día a día, así como identificar sus principales dolores (pains) y expectativas (gains), con el fin de sustentar el diseño de la solución en necesidades reales y no en supuestos.
+
+**Segmento Objetivo 1: Persona con discapacidad motora severa**
+
+![Empathy Map - Persona con discapacidad motora severa](https://i.imgur.com/4ZlwuLB.png)
+
+**Análisis del Empathy Map: Sebastián Sánchez**
+
+A partir del Empathy Map elaborado, se identifican los siguientes hallazgos:
+
+**Tensión entre lo que piensa/siente y lo que hace:** existe una brecha marcada entre el deseo de autonomía de Sebastián ("ser más independiente y tener mayor control de su entorno") y su comportamiento actual, que sigue centrado en esperar la disponibilidad de su cuidador para acciones tan básicas como abrir una puerta o encender una luz. Esto confirma que la solución no debe limitarse a facilitar la comunicación de necesidades, sino a permitirle ejecutar directamente esas acciones sin intermediarios.
+
+**El entorno físico como principal fuente de frustración:** tanto en "What do they SEE" como en "PAINS" se repite el mismo obstáculo — interruptores, picaportes y mecanismos que no puede alcanzar o accionar sin esfuerzo. Esto valida que el foco del producto debe estar en el control remoto o automatizado de elementos del hogar (luces, puertas, ventanas), más que en otros aspectos secundarios de su vida diaria.
+
+**La dependencia genera un costo emocional, no solo funcional:** los bloques de PAINS y de pensamientos/sentimientos coinciden en frustración, ansiedad e inseguridad ante la ausencia de su cuidador. Esto indica que el valor de la solución no es solo práctico (resolver una tarea), sino también emocional: reducir la ansiedad de sentirse desatendido en momentos sin compañía.
+
+**Consistencia entre lo que dice y lo que espera lograr (GAINS):** las citas textuales de Sebastián ("quisiera poder abrir las ventanas, las puertas y encender la iluminación...") se alinean directamente con sus GAINS (independencia, seguridad, rapidez). Esta coherencia discurso-expectativa fortalece la validez del insight y reduce el riesgo de que sea un deseo aislado o poco representativo.
+
+**El teléfono/smartphone como único canal de mediación actual:** en "What do they DO" se observa que su único recurso ante la ausencia de ayuda es el teléfono, ya sea para pedir asistencia o llamar en emergencias. Esto lo posiciona como el canal más natural sobre el cual construir la interacción con la solución tecnológica, dado que ya es su herramienta de referencia.
+
+**Un dolor de baja frecuencia pero alto impacto:** aunque no se repite tanto como los otros, el punto "anhelo de poder moverse o actuar sobre su entorno sin restricciones" conecta con la tarea de "solicitar ayuda ante una situación urgente" del Task Matrix (frecuencia Low, importancia High), reforzando que los mecanismos de emergencia deben estar garantizados incluso si se usan con poca frecuencia.
 
 ### 2.3.4. As-Is Scenario Mapping
 
@@ -322,16 +442,5 @@ Podemos conluir que la experiencia de las personas con discapacidad motora sever
 Podemos concluir que la experiencia de los cuidadores y familiares de personas con discapacidad es frustrante y agotadora ya que deben estar al pendiente de las necesidades de la persona con discapacidad, lo que puede generar estrés y ansiedad. Esto resalta la necesidad de soluciones que faciliten la comunicación y la comprensión mutua entre cuidadores y personas con discapacidad, mejorando así la calidad de vida de ambos.
 
 ## 2.4. Ubiquitous Language
-
-<table>
-    <tr>
-        <th> Término </th>
-        <th> Definición </th>
-    </tr>
-    <tr>
-        <td> Version </td>
-        <td> 02/04/26 </td>
-    </tr>
-</table>
 
 <div style="page-break-after: always;"></div>
