@@ -683,6 +683,18 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ### 2.3.1. User Persona
 
+Para entender mejor los deseos de los segmentos objetivo, se diseña un User Persona para cada uno, tomando como base información clave tras haber analizado profundamente las entrevistas. Estos User Persona son represtaciones ficticias que ayudan al equipo a desarrollar un proceso de Needfinding que permita detectar e identificar las necesidades clave de cada segmento objetivo para el desarrollo de la solución.
+
+**User Persona 1: Personas con discapacidad motora severa**
+
+![Descripción de información del segmento de personas con discapacidad motora severa](https://i.imgur.com/gdtslYN.png)
+
+En conclusión, el User Persona de este segmento objetivo sintetiza el perfil de una persona adulta con discapacidad motora que presenta importantes limitaciones para movilizarse y manipular elementos físicos. Esta situación condiciona su capacidad para realizar actividades cotidianas dentro del hogar. Por otro lado, sus principales objetivos y motivaciones se concentran en alcanzar mayor autonomía, tener control sobre su entorno, realizar actividades de manera más rápida y segura y reducir la dependencia de su cuidador, mientras que sus principales frustraciones surgen precisamente de tener que depender de otras personas, adaptar su rutina a su disponibilidad y no poder realizar actividades como abrir puertas, ventanas o encender luces por sí mismo. En este contexto, el problema principal identificado es la dificultad para interactuar de forma autónoma con elementos básicos del hogar debido a sus limitaciones motoras, generando dependencia y reduciendo su capacidad de decidir cuándo y cómo realizar sus actividades. Por ello, sus necesidades principales se orientan hacia contar con un mecanismo de interacción accesible y adaptado a sus capacidades, que le permita controlar elementos del hogar de forma independiente, recibir confirmación de las acciones realizadas y solicitar asistencia cuando una situación requiera la intervención de otra persona.
+
+**User Persona 2: Familiar o cuidador de persona con discapacidad**
+
+![]()
+
 ### 2.3.2. User Task Matrix
 
 Para este análisis se consideran los dos segmentos objetivos del proyecto, representados por los user personas Sebastian Sanchez (persona asistida) y Mariano Diaz (responsable/cuidador). Se elaboró una única matriz en la que se evalúan la frecuencia y la importancia de las tareas que cada uno realiza actualmente, sustentadas en la evidencia recogida durante las entrevistas. Las actividades identificadas pertenecen al dominio del problema y no dependen de la existencia de una solución tecnológica.
@@ -783,11 +795,9 @@ A partir del User Task Matrix elaborado, se identifican los siguientes hallazgos
 
 **Coincidencias relevantes:** Contactar a otra persona/coordinar con otro familiar o cuidador y Solicitar/atender ayuda durante la noche comparten frecuencia Medium e importancia High en ambos segmentos, lo que indica que, aunque no ocurren todos los días, su correcta atención es determinante para la continuidad del cuidado. De forma más marcada, Solicitar/atender ayuda ante una situación urgente presenta frecuencia Low pero importancia High para ambos User Personas, confirmando que, pese a su baja recurrencia, la atención oportuna ante emergencias es un requisito crítico que la solución debe garantizar con prioridad absoluta.
 
-### 2.3.3. User Journey Mapping
+### 2.3.3. Empathy Mapping
 
-### 2.3.4. Empathy Mapping
-
-### 2.3.5. As-Is Scenario Mapping
+### 2.3.4. As-Is Scenario Mapping
 
 El As-Is Scenario Mapping es una herramienta que permite visualizar el estado actual de un proceso o experiencia desde la perspectiva del usuario. En este caso, se ha utilizado para mapear la experiencia de personas con discapacidad motora o visual en su interacción con el hogar y los dispositivos de domótica existentes y familiares o cuidadores que los asisten.
 
