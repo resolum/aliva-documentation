@@ -309,6 +309,20 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ### 2.3.5. As-Is Scenario Mapping
 
+El As-Is Scenario Mapping es una herramienta que permite visualizar el estado actual de un proceso o experiencia desde la perspectiva del usuario. En este caso, se ha utilizado para mapear la experiencia de personas con discapacidad motora o visual en su interacción con el hogar y los dispositivos de domótica existentes y familiares o cuidadores que los asisten.
+
+**Segmento Objetivo 1: Persona con discapacidad motora severa**: El As-Is Scenario Mapping revela que estas personas enfrentan dificultades significativas al intentar que los cuidadores o familiares comprendan sus necesidades y preferencias en el hogar. La falta de comunicación efectiva y la dependencia de otros para realizar tareas básicas genera frustración y limita su autonomía.
+
+![as-is scenario mapping](https://i.imgur.com/XZyysa1.png)
+
+Podemos conluir que la experiencia de las personas con discapacidad motora severa en el hogar es limitada y frustrante debido a la falta de comunicación efectiva con sus cuidadores o familiares. Esto resalta la necesidad de soluciones que faciliten la autonomía y la independencia de estas personas, permitiéndoles controlar su entorno sin depender de otros.
+
+**Segmento Objetivo 2: Familiar o cuidador de persona con discapacidad**: El As-Is Scenario Mapping muestra que los cuidadores y familiares a menudo carecen de información clara sobre cómo satisfacer las necesidades de las personas con discapacidad. Esto puede llevar a malentendidos, errores en la asistencia y una experiencia general insatisfactoria y frustrante para ambas partes.
+
+![as-is scenario mapping](https://i.imgur.com/4vIXJwo.png)
+
+Podemos concluir que la experiencia de los cuidadores y familiares de personas con discapacidad es frustrante y agotadora ya que deben estar al pendiente de las necesidades de la persona con discapacidad, lo que puede generar estrés y ansiedad. Esto resalta la necesidad de soluciones que faciliten la comunicación y la comprensión mutua entre cuidadores y personas con discapacidad, mejorando así la calidad de vida de ambos.
+
 ## 2.4. Big Picture Eventstorming
 
 ## 2.5. Ubiquitous Language
