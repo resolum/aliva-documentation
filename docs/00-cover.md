@@ -683,6 +683,24 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> github-actions[bot] </td>
         <td> Update version log [skip ci] </td>
     </tr>
+    <tr>
+        <td> 1.131 </td>
+        <td> 10/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add segment 1 interview analysis with supporting chart </td>
+    </tr>
+    <tr>
+        <td> 1.132 </td>
+        <td> 10/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Correct wheelchair/crutches inconsistency and simplify chart. </td>
+    </tr>
+    <tr>
+        <td> 1.133 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
