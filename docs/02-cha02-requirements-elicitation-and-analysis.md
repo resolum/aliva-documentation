@@ -817,6 +817,24 @@ A partir del User Task Matrix elaborado, se identifican los siguientes hallazgos
 
 ### 2.3.3. Empathy Mapping
 
+**Segmento Objetivo 1: Persona con discapacidad motora severa**
+
+![Empathy Map - Persona con discapacidad motora severa](https://i.imgur.com/4ZlwuLB.png)
+
+**Análisis del Empathy Map: Sebastián Sánchez:**
+
+**Tensión entre lo que piensa/siente y lo que hace:** existe una brecha marcada entre el deseo de autonomía de Sebastián ("ser más independiente y tener mayor control de su entorno") y su comportamiento actual, que sigue centrado en esperar la disponibilidad de su cuidador para acciones tan básicas como abrir una puerta o encender una luz. Esto confirma que la solución no debe limitarse a facilitar la comunicación de necesidades, sino a permitirle ejecutar directamente esas acciones sin intermediarios.
+
+**El entorno físico como principal fuente de frustración:** tanto en "What do they SEE" como en "PAINS" se repite el mismo obstáculo — interruptores, picaportes y mecanismos que no puede alcanzar o accionar sin esfuerzo. Esto valida que el foco del producto debe estar en el control remoto o automatizado de elementos del hogar (luces, puertas, ventanas), más que en otros aspectos secundarios de su vida diaria.
+
+**La dependencia genera un costo emocional, no solo funcional:** los bloques de PAINS y de pensamientos/sentimientos coinciden en frustración, ansiedad e inseguridad ante la ausencia de su cuidador. Esto indica que el valor de la solución no es solo práctico (resolver una tarea), sino también emocional: reducir la ansiedad de sentirse desatendido en momentos sin compañía.
+
+**Consistencia entre lo que dice y lo que espera lograr (GAINS):** las citas textuales de Sebastián ("quisiera poder abrir las ventanas, las puertas y encender la iluminación...") se alinean directamente con sus GAINS (independencia, seguridad, rapidez). Esta coherencia discurso-expectativa fortalece la validez del insight y reduce el riesgo de que sea un deseo aislado o poco representativo.
+
+**El teléfono/smartphone como único canal de mediación actual:** en "What do they DO" se observa que su único recurso ante la ausencia de ayuda es el teléfono, ya sea para pedir asistencia o llamar en emergencias. Esto lo posiciona como el canal más natural sobre el cual construir la interacción con la solución tecnológica, dado que ya es su herramienta de referencia.
+
+**Un dolor de baja frecuencia pero alto impacto:** aunque no se repite tanto como los otros, el punto "anhelo de poder moverse o actuar sobre su entorno sin restricciones" conecta con la tarea de "solicitar ayuda ante una situación urgente" del Task Matrix (frecuencia Low, importancia High), reforzando que los mecanismos de emergencia deben estar garantizados incluso si se usan con poca frecuencia.
+
 ### 2.3.4. As-Is Scenario Mapping
 
 El As-Is Scenario Mapping es una herramienta que permite visualizar el estado actual de un proceso o experiencia desde la perspectiva del usuario. En este caso, se ha utilizado para mapear la experiencia de personas con discapacidad motora o visual en su interacción con el hogar y los dispositivos de domótica existentes y familiares o cuidadores que los asisten.
@@ -833,74 +851,16 @@ Podemos conluir que la experiencia de las personas con discapacidad motora sever
 
 Podemos concluir que la experiencia de los cuidadores y familiares de personas con discapacidad es frustrante y agotadora ya que deben estar al pendiente de las necesidades de la persona con discapacidad, lo que puede generar estrés y ansiedad. Esto resalta la necesidad de soluciones que faciliten la comunicación y la comprensión mutua entre cuidadores y personas con discapacidad, mejorando así la calidad de vida de ambos.
 
-## 2.4. Big Picture Eventstorming
-
-## 2.5. Ubiquitous Language
+## 2.4. Ubiquitous Language
 
 <table>
     <tr>
-        <th> Term (English / Español) </th>
+        <th> Término </th>
         <th> Definición </th>
     </tr>
     <tr>
-        <td> Disabled person (Persona discapacitada) </td>
-        <td> Persona adulta con movilidad muy limitada o nula en las extremidades, que puede requerir apoyo para realizar actividades básicas dentro de su hogar.</td>
-    </tr>
-    <tr>
-        <td> Caregiver (Cuidador) </td>
-        <td> Familiar o profesional responsable de brindar apoyo, supervisión y cuidado cotidiano a una persona con discapacidad.</td>
-    </tr>
-    <tr>
-        <td> Household (Hogar) </td>
-        <td> Entorno físico donde vive la persona con discapacidad y donde se realizan las actividades cotidianas que pueden requerir asistencia.</td>
-    </tr>
-    <tr>
-        <td> Autonomy (Autonomía) </td>
-        <td> Capacidad de la persona con discapacidad para decidir y realizar una actividad cotidiana sin depender de la intervención directa de otra persona.</td>
-    </tr>
-    <tr>
-        <td> Independence (Independencia) </td>
-        <td> Condición en la que la persona con discapacidad puede desenvolverse en su hogar con menor necesidad de apoyo de familiares o cuidadores.</td>
-    </tr>
-    <tr>
-        <td> Dependency (Dependencia) </td>
-        <td> Necesidad de recibir ayuda de otra persona para iniciar, ejecutar o completar una actividad cotidiana.</td>
-    </tr>
-    <tr>
-        <td> Daily living activity (Actividad de la vida diaria) </td>
-        <td> Acción necesaria para desenvolverse en el hogar, como encender una luz, abrir una puerta, mover una persiana o solicitar ayuda.</td>
-    </tr>
-    <tr>
-        <td> Assistance (Asistencia) </td>
-        <td> Apoyo físico, verbal o tecnológico que permite a la persona con discapacidad realizar una actividad que no puede completar por sí sola.</td>
-    </tr>
-    <tr>
-        <td> Care routine (Rutina de cuidado) </td>
-        <td> Conjunto de actividades de apoyo que el cuidador realiza de manera recurrente para atender las necesidades de la persona con discapacidad.</td>
-    </tr>
-    <tr>
-        <td> Caregiver intervention (Intervención del cuidador) </td>
-        <td> Participación directa del cuidador para realizar o completar una actividad en representación de la persona con discapacidad.</td>
-    </tr>
-    <tr>
-        <td> Request for assistance (Solicitud de asistencia) </td>
-        <td> Petición mediante la cual la persona con discapacidad comunica que necesita apoyo de su cuidador para atender una necesidad o realizar una actividad.</td>
-    </tr>
-    <tr>
-        <td> Voice instruction (Instrucción de voz) </td>
-        <td> Expresión verbal que la persona con discapacidad utiliza para comunicar una necesidad o indicar que desea realizar una actividad en su hogar.</td>
-    </tr>
-    <tr>
-        <td> Accessibility need (Necesidad de accesibilidad) </td>
-        <td> Condición o requerimiento específico que debe considerarse para que la persona con discapacidad pueda interactuar con su entorno y realizar actividades de forma segura y comprensible.</td>
-    </tr>
-    <tr>
-        <td> Perceived autonomy (Autonomía percibida) </td>
-        <td> Grado en que la persona con discapacidad siente que controla sus actividades y decisiones cotidianas sin depender de otra persona.</td>
-    </tr>
-    <tr>
-        <td> Safety (Seguridad) </td>
-        <td> Condición en la que la persona con discapacidad puede realizar una actividad sin exponerse a un riesgo innecesario y el cuidador puede confiar en que sus necesidades serán atendidas.</td>
+        <td> Version </td>
+        <td> 02/04/26 </td>
     </tr>
 </table>
 
