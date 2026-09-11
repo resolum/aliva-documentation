@@ -409,9 +409,7 @@ Para complementar el análisis de necesidades, se elaboró un Empathy Map por ca
 
 ![Empathy Map - Persona con discapacidad motora severa](https://i.imgur.com/4ZlwuLB.png)
 
-**Análisis del Empathy Map: Sebastián Sánchez**
-
-A partir del Empathy Map elaborado, se identifican los siguientes hallazgos:
+**Análisis del Empathy Map: Sebastián Sánchez:**
 
 **Tensión entre lo que piensa/siente y lo que hace:** existe una brecha marcada entre el deseo de autonomía de Sebastián ("ser más independiente y tener mayor control de su entorno") y su comportamiento actual, que sigue centrado en esperar la disponibilidad de su cuidador para acciones tan básicas como abrir una puerta o encender una luz. Esto confirma que la solución no debe limitarse a facilitar la comunicación de necesidades, sino a permitirle ejecutar directamente esas acciones sin intermediarios.
 
