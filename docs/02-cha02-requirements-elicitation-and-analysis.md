@@ -679,6 +679,26 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ### 2.2.3. Análisis de entrevistas
 
+Después de realizar entrevistas con nuestros segmentos objetivo, es momento de interpretar nuestros hallazgos. En esta parte vamos a separar los elementos objetivos y subjetivos de los datos recolectados en las entrevistas, con el fin de determinar patrones de comportamiento y necesidades insatisfechas, como se muestra en los gráficos estadísticos que siguen.
+
+---
+
+#### Segmento 1: Persona con discapacidad motora severa
+
+**Análisis de Características Objetivas y Subjetivas:**
+
+Las entrevistas indican que una persona con discapacidades motoras severas depende de un familiar directo para realizar las tareas básicas del hogar sin ningún tipo de asistencia tecnológica. El 100% de los entrevistados tienen una discapacidad motora de diversos orígenes (parálisis cerebral en la Entrevista 1, esclerosis múltiple en la Entrevista 2 y las secuelas de una caída en la Entrevista 3). Asimismo, el 100% de los entrevistados afirman que utilizan una silla de ruedas y necesitan pedir ayuda a un familiar directo (padre, madre, tía) para realizar sus actividades diarias.
+
+En cuanto al uso de la tecnología el 100% de los entrevistados usan un teléfono celular como dispositivo principal principalmente para las llamadas y WhatsApp en caso de emergencia. Sin embargo el 67% (Entrevistas 2 y 3) nunca han usado un dispositivo o un sistema de asistencia tecnológica en sus hogares lo cual indica una evidente brecha en el acceso a estas tecnologías. El 33% (Entrevista 1) es una persona con experiencia previa en programación y familiaridad con sistemas de control de voz, quien no pudo implementar el sistema de automatización del hogar porque desconocía las soluciones comerciales del problema y debido a limitaciones económicas.
+
+En cuanto a las actividades más difíciles el 100% de los entrevistados indicaron tener problemas para controlar la luz, la puerta y la ventana de su habitación sin ayuda. En la segunda entrevista la entrevistada enfatizó que la silla de ruedas no le permite usar los interruptores, mientras que en la primera entrevista el entrevistado indicó que se apoya con sus muletas para empujar puertas y ventanas.
+
+Desde la perspectiva subjetiva el 100% de los entrevistados indicaron una actitud favorable al usar el sistema que les permita controlar estos objetos en su hogar. Además el 33% (Entrevista 1) indicaron una preferencia por el control de voz sobre el control de gestos o movimiento basado en la experiencia previa con sistemas de reconocimiento de voz ya que este modo parece ser más inclusivo para aquellos que no tienen movilidad en sus extremidades. Un aspecto emocional de este tema también se vuelve evidente en las tres entrevistas: la falta de independencia se la describen como una experiencia de frustración que influye en su bienestar emocional y en la sensación de control sobre su vida.
+
+![Gráfico Estadístico Persona con Discapacidad Motora Severa](https://imgur.com/ikIAYeN.png)
+
+En resumen se puede afirmar que una persona con discapacidad motora severa quiere ser independiente de la asistencia para controlar los objetos básicos en la proximidad inmediata (luz, puerta o ventana), pero necesita que la solución sea accesible, económica y que priorice el comando de voz como canal principal de interacción.
+
 ## 2.3. Needfinding
 
 ### 2.3.1. User Persona
