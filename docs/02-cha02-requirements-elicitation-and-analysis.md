@@ -303,6 +303,104 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ### 2.3.2. User Task Matrix
 
+Para este análisis se consideran los dos segmentos objetivos del proyecto, representados por los user personas Sebastian Sanchez (persona asistida) y Mariano Diaz (responsable/cuidador). Se elaboró una única matriz en la que se evalúan la frecuencia y la importancia de las tareas que cada uno realiza actualmente, sustentadas en la evidencia recogida durante las entrevistas. Las actividades identificadas pertenecen al dominio del problema y no dependen de la existencia de una solución tecnológica.
+
+#### User Task Matrix
+
+<table border="1" cellpadding="10" cellspacing="0" style="margin-left: auto; margin-right: auto; font-family: sans-serif;">
+  <tr>
+    <th rowspan="2">Tarea</th>
+    <th colspan="2">Sebastian Sanchez (Persona asistida)</th>
+    <th colspan="2">Mariano Diaz (Responsable)</th>
+  </tr>
+  <tr>
+    <th>Frecuencia</th>
+    <th>Importancia</th>
+    <th>Frecuencia</th>
+    <th>Importancia</th>
+  </tr>
+  <tr>
+    <td>Comunicar / recibir una necesidad de asistencia</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / brindar ayuda para actividades cotidianas</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / ejecutar el encendido o apagado de las luces</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>Medium</td>
+  </tr>
+  <tr>
+    <td>Solicitar / ejecutar la apertura o cierre de puertas, ventanas y persianas</td>
+    <td>Medium</td>
+    <td>High</td>
+    <td>Medium</td>
+    <td>Medium</td>
+  </tr>
+  <tr>
+    <td>Solicitar / alcanzar objetos de uso personal</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Esperar respuesta / preparar el entorno antes de ausentarse</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Contactar a otra persona / coordinar con otro familiar o cuidador cuando no está disponible</td>
+    <td>Medium</td>
+    <td>High</td>
+    <td>Medium</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / atender ayuda durante la noche</td>
+    <td>Medium</td>
+    <td>High</td>
+    <td>Medium</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / ayudar en actividades de alimentación, higiene o movilidad</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+    <td>High</td>
+  </tr>
+  <tr>
+    <td>Solicitar / atender ayuda ante una situación urgente</td>
+    <td>Low</td>
+    <td>High</td>
+    <td>Low</td>
+    <td>High</td>
+  </tr>
+</table>
+
+**Análisis del Task Matrix:**
+
+A partir del User Task Matrix elaborado, se identifican los siguientes hallazgos:
+
+**Tareas con mayor frecuencia e importancia para ambos segmentos:** Comunicar/recibir una necesidad de asistencia, Solicitar/brindar ayuda para actividades cotidianas, Solicitar/alcanzar objetos de uso personal, Esperar respuesta/preparar el entorno antes de ausentarse, y Solicitar/ayudar en actividades de alimentación, higiene o movilidad son las tareas que Sebastian Sanchez y Mariano Diaz realizan con frecuencia High e importancia High, lo que las posiciona como el núcleo de tareas compartidas del dominio.
+
+**Principales diferencias:** en el control del entorno se observan divergencias claras. Solicitar/ejecutar el encendido o apagado de las luces tiene importancia High para Sebastian pero solo Medium para Mariano, reflejando que para el primero representa una barrera directa a su autonomía, mientras que para el segundo es una interrupción rutinaria de menor peso. De forma similar, solicitar/ejecutar la apertura o cierre de puertas, ventanas y persianas mantiene importancia High para Sebastian frente a Medium para Mariano, evidenciando que estas tareas afectan de manera más crítica a la persona asistida que al cuidador.
+
+**Coincidencias relevantes:** Contactar a otra persona/coordinar con otro familiar o cuidador y Solicitar/atender ayuda durante la noche comparten frecuencia Medium e importancia High en ambos segmentos, lo que indica que, aunque no ocurren todos los días, su correcta atención es determinante para la continuidad del cuidado. De forma más marcada, Solicitar/atender ayuda ante una situación urgente presenta frecuencia Low pero importancia High para ambos User Personas, confirmando que, pese a su baja recurrencia, la atención oportuna ante emergencias es un requisito crítico que la solución debe garantizar con prioridad absoluta.
+
 ### 2.3.3. User Journey Mapping
 
 ### 2.3.4. Empathy Mapping
