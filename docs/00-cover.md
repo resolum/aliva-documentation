@@ -515,6 +515,54 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> github-actions[bot] </td>
         <td> Update version log [skip ci] </td>
     </tr>
+    <tr>
+        <td> 1.103 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add profile for Matias Diaz. </td>
+    </tr>
+    <tr>
+        <td> 1.104 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add profile for Matias Diaz. </td>
+    </tr>
+    <tr>
+        <td> 1.105 </td>
+        <td> 31/08/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add profile for Matias Diaz. </td>
+    </tr>
+    <tr>
+        <td> 1.106 </td>
+        <td> 01/09/26 </td>
+        <td> Far14z </td>
+        <td> Update photo and description profile for farid coronel. </td>
+    </tr>
+    <tr>
+        <td> 1.107 </td>
+        <td> 03/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add profile for Dayro Rios with photo and description </td>
+    </tr>
+    <tr>
+        <td> 1.108 </td>
+        <td> 04/09/26 </td>
+        <td> RenatoCY </td>
+        <td> Add profile for Renato Guillermo Calvo Yalan with photo and description </td>
+    </tr>
+    <tr>
+        <td> 1.109 </td>
+        <td> 09/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.110 </td>
+        <td> 09/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add profile description and photo for Nicolas Juarez. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
