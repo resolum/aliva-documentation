@@ -378,10 +378,6 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
         <td> Safety (Seguridad) </td>
         <td> Condición en la que la persona con discapacidad puede realizar una actividad sin exponerse a un riesgo innecesario y el cuidador puede confiar en que sus necesidades serán atendidas.</td>
     </tr>
-    <tr>
-        <td> Version </td>
-        <td> 09/09/26 </td>
-    </tr>
 </table>
 
 <div style="page-break-after: always;"></div>
