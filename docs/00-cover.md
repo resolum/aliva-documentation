@@ -629,6 +629,30 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Far14z </td>
         <td> Add user task matrix analysis for target segments to enhance understanding of user needs. </td>
     </tr>
+    <tr>
+        <td> 1.122 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add ubiquitous language definitions for accessibility context </td>
+    </tr>
+    <tr>
+        <td> 1.123 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Remove outdated version information from requirements document </td>
+    </tr>
+    <tr>
+        <td> 1.124 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.125 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update terminology for clarity in requirements document </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
