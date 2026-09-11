@@ -653,6 +653,24 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Addicted2you </td>
         <td> Update terminology for clarity in requirements document </td>
     </tr>
+    <tr>
+        <td> 1.126 </td>
+        <td> 08/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-26 update interview records and demographic details for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.127 </td>
+        <td> 09/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-26 update interview summaries and demographic details for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.128 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
