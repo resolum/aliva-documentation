@@ -431,7 +431,7 @@ Podemos concluir que la experiencia de los cuidadores y familiares de personas c
         <th> Definición </th>
     </tr>
     <tr>
-        <td> Person with severe motor disability (Persona con discapacidad motora severa) </td>
+        <td> Disabled person (Persona discapacitada) </td>
         <td> Persona adulta con movilidad muy limitada o nula en las extremidades, que puede requerir apoyo para realizar actividades básicas dentro de su hogar.</td>
     </tr>
     <tr>
