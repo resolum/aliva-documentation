@@ -617,6 +617,18 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Addicted2you </td>
         <td> Enhance As-Is Scenario Mapping with conclusions on user experiences and needs </td>
     </tr>
+    <tr>
+        <td> 1.120 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.121 </td>
+        <td> 10/09/26 </td>
+        <td> Far14z </td>
+        <td> Add user task matrix analysis for target segments to enhance understanding of user needs. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
