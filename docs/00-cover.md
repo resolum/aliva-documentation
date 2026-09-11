@@ -581,6 +581,54 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Nicolas Juarez Leon </td>
         <td> Ensure that the assumptions don't use specific technology definition. </td>
     </tr>
+    <tr>
+        <td> 1.114 </td>
+        <td> 03/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add As-Is Scenario Mapping section to analyze user experience for individuals with motor or visual disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.115 </td>
+        <td> 03/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add target segment for caregivers in As-Is Scenario Mapping to enhance understanding of user needs </td>
+    </tr>
+    <tr>
+        <td> 1.116 </td>
+        <td> 10/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.117 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update target segment descriptions for clarity and accuracy </td>
+    </tr>
+    <tr>
+        <td> 1.118 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update target segment description for clarity in As-Is Scenario Mapping </td>
+    </tr>
+    <tr>
+        <td> 1.119 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Enhance As-Is Scenario Mapping with conclusions on user experiences and needs </td>
+    </tr>
+    <tr>
+        <td> 1.120 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.121 </td>
+        <td> 10/09/26 </td>
+        <td> Far14z </td>
+        <td> Add user task matrix analysis for target segments to enhance understanding of user needs. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
