@@ -240,11 +240,342 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ### 2.2.2. Registro de entrevistas
 
-**Segmento 1: Nombre del segmento 1**
+**Segmento 1: Personas con discapacidad motora**
 
 <table>
     <tr>
         <th colspan="2" style="text-align:center;">Entrevista #1</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
+        <td> Gerardo Alfredo</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Encarnación Ramirez </td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>61 años</td>
+    </tr>
+    <tr>
+        <td><strong>Rol</strong></td>
+        <td>Persona con discapacidad motora</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="https://imgur.com/R5DGVTS.png" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="">Enlace a la grabación</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+
+### **1. Características Objetivas**
+* **Origen de la Discapacidad:** Presenta una discapacidad física por **parálisis cerebral**. Esta fue consecuencia de un error clínico al nacer, ya que debió nacer por cesárea y la falta de esta vía cortó el flujo de oxígeno a su cerebro.
+* **Evolución Médica y Física:**
+    * Desde los 9 años utilizó muletas de madera y anteriormente se desplazaba en triciclo.
+    * En el año **2017**, desarrolló un problema crónico en las rodillas que le impidió volver a usarlas, viéndose obligado a depender por completo de una **silla de ruedas**.
+    * Presenta limitaciones de movilidad en el tren superior: solo puede manipular con normalidad la **mano izquierda**, mientras que la derecha solo la mueve con mucho esfuerzo.
+    * No puede permanecer de pie más de media hora debido a que el dolor en las rodillas se vuelve insoportable.
+* **Red de Apoyo Familiar y Asistencia:** Su **papá** es quien le brinda asistencia habitual para incorporarse y sentarse. El resto de su familia lo moviliza y carga para subir escaleras o trasladarse. Adicionalmente, recibe terapia física de la madre del entrevistador, a quien le tiene un profundo agradecimiento por restaurar la conductividad eléctrica de sus músculos.
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Personalidad y Actitud:** Gerardo se muestra como un hombre altamente **independiente, disciplinado, culto, autodidacta y sumamente reflexivo**. Posee un orgullo muy firme por su autonomía, señalando que le molesta depender del apoyo físico de otros porque desde niño aprendió a no necesitar de nadie.
+* **Filosofía de Vida:** Se rige bajo una estricta filosofía de autosuperación aprendida en su colegio especial de La Molina, el cual era dirigido por una maestra alemana. Su principio fundamental es que **la discapacidad es únicamente física, no intelectual**, por lo que es un deber hacer trabajar la inteligencia y formarse. Bajo esta mentalidad de adaptación, aprendió de joven de manera indirecta inglés, francés e italiano para comunicarse respetuosamente con los médicos y religiosos extranjeros que lo rodeaban.
+* **Puntos de Dolor y Frustración:**
+    * **Pérdida de libertad de tránsito:** El confinamiento en la silla de ruedas en 2017 le afectó sentimental y emocionalmente ("el mundo se me cayó"), ya que siempre le había gustado explorar y pasear. Siente que depender de un tercero le ha cerrado el mundo.
+    * **Sincronización metabólica forzada:** Ante la falta de cuidadores disponibles en ciertos momentos, Gerardo debe realizar una planificación bioquímica de su cuerpo. Controla rigurosamente su alimentación y restringe la toma de líquidos para sincronizar su metabolismo y aguantar sin ir al baño de 2 a 3 horas y media. Si prevé que no habrá nadie para ayudarle, se ve obligado a quedarse en cama y miccionar en un recipiente adaptado.
+    * **Deficiencia en el sistema científico local:** Siente frustración ante el bajo desarrollo e inversión científica en el país para la atención de personas con discapacidad.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivos en Uso:** Cuenta con una **computadora adaptada**, un **televisor adaptado** en su habitación y mantiene siempre su **teléfono celular** a su lado para llamar en caso de emergencias.
+* **Comportamiento Tecnológico y Canales:**
+    * **Consumo de contenidos:** Descarga películas mediante "páginas hacker" y las acomoda en su pantalla para no depender de que alguien lo lleve al cine.
+    * **Uso de Inteligencia Artificial:** Utiliza activamente **ChatGPT** para resolver sus dudas técnicas sobre ensamblaje de computadoras, destacando la perfección de sus respuestas.
+    * **Conocimientos de Programación:** Cuenta con experiencia previa en programación, habiendo trabajado en el control y modificación de señales de cámaras de seguridad. En el pasado (alrededor de 1989, bajo la alcaldía de Federico en San Martín de Porres), programó sistemas de control por voz orientados a la seguridad (con comandos de voz como "control rojo" y "control azul").
+* **Interacción y Canales de Preferencia:**
+    * **Preferencia por el control de voz:** Aboga fuertemente por que los dispositivos de asistencia funcionen mediante **comandos de voz** en lugar del movimiento físico o el uso de los dedos, considerándolo el método más inclusivo y adaptable para personas con movilidad nula en sus extremidades.
+    * **Domótica rústica:** Abre las puertas y ventanas empujándolas mecánicamente con sus muletas. Aunque conoce el potencial de la domótica para encender luces mediante el celular, no lo ha implementado por limitaciones económicas y por haber creído inicialmente que él mismo debía diseñar y soldar todo el circuito, enterándose tarde de que ya existían soluciones comerciales.
+* **Marcas e Influencias de Diseño:**
+    * Gerardo tiene una gran influencia de la **tecnología alemana**, la cual considera de estándar superior. Admira la marca de tecnología de movilidad alemana **Albert Efix**, destacando que sus sillas de ruedas electrónicas están programadas con la calidad de un automóvil e incorporan lectores para medir con exactitud el nivel de batería.
+    * En contraste, rechaza los productos de procedencia **china** por considerarlos "primitivos" y carentes de medidores de energía, lo que limita la verdadera independencia de traslado.
+ </td>
+    </tr>
+</table>
+
+<br>
+
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #2</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
+        <td>Vanessa Ingrid</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Torres Vilca</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>44 años</td>
+    </tr>
+    <tr>
+        <td><strong>Rol</strong></td>
+        <td>Persona con discapacidad motora severa (postrada)</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="">Enlace a la grabación</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+
+
+# **Informe de Caracterización de Usuario: Resumen de Entrevista**
+
+### **Identificación de la Sesión**
+* **Segmento Objetivo:** Persona con discapacidad motora.
+* **Entrevistada:** Vanessa Torres.
+
+---
+
+### **1. Características Objetivas**
+* **Edad y Diagnóstico:** Vanessa nació en el año **1982**. Fue diagnosticada con **esclerosis múltiple** hace más de 10 años y perdió el control de sus extremidades inferiores 5 años después de recibir dicho diagnóstico.
+* **Condición Física:** Carece de control corporal y equilibrio en las piernas. Debido a su condición y a su baja estatura al estar sentada en la silla de ruedas, se le dificulta alcanzar interruptores o controles situados a cierta altura.
+* **Insumos Médicos:** Utiliza **pañal** para realizar sus necesidades fisiológicas.
+* **Red de Apoyo y Asistencia:** Su **mamá y su tía** son quienes le brindan asistencia constante. Requiere ayuda con **bastante frecuencia** para sus actividades cotidianas.
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Puntos de Dolor y Frustración:**
+  * **Dependencia para acostarse:** Le resulta frustrante depender de sus familiares para irse a la cama a dormir cuando tiene sueño, requiriendo que la trasladen en la silla de ruedas o la carguen.
+  * **Anhelo de movilidad e independencia:** Su principal meta física es poder pararse, controlar su cuerpo y recuperar el equilibrio para no depender de otros al ir al baño o desplazarse.
+* **Dinámica en Ausencia de Cuidadores:** Cuando su mamá o su tía salen de casa, la dejan reposando en la cama o en el sillón viendo televisión; en esos momentos realiza sus necesidades en el pañal al no poder movilizarse sola.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivo de Uso Habitual:** El **celular** es el dispositivo tecnológico que más utiliza en su día a día.
+* **Canales de Interacción Interna:** A pesar de contar con celular, **no utiliza el teléfono para comunicarse con sus familiares dentro del hogar**. Su canal de interacción es **verbal (hablado)** o mediante **llamados a viva voz** en caso de emergencia (como una caída), aprovechando la cercanía física de sus cuidadoras.
+* *Nota sobre vacíos de información:* No se mencionaron marcas específicas de dispositivos, navegadores web (browsers) ni experiencias previas con herramientas de domótica.
+
+---
+
+### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Experiencia Previa:** **Nunca** ha utilizado un dispositivo o sistema tecnológico de asistencia.
+* **Disposición al Cambio:** Muestra una disposición **total e inmediata** ("Por supuesto que sí") para probar un dispositivo que le permita realizar actividades por sí misma.
+* **Actividades Prioritarias a Automatizar:** Le gustaría poder gestionar de manera independiente acciones como acostarse, encender la luz o cerrar la puerta de su habitación sin solicitar ayuda física.
+
+---
+</td>
+    </tr>
+</table>
+
+<br>
+
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #3</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
+        <td>Jaime</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Ramos García</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>65 años</td>
+    </tr>
+    <tr>
+        <td><strong>Rol</strong></td>
+        <td>Persona con discapacidad motora </td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="https://imgur.com/U2Zsvng.png" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="">Enlace a la grabación</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+
+### **1. Características Objetivas (Perfil Demográfico y de Contexto)**
+* **Edad y Ubicación:** Jaime tiene **65 años** de edad y vive en la urbanización Ingeniería (5ta etapa), en el distrito de **San Martín de Porres, Lima**.
+* **Origen y Evolución de la Discapacidad:** Presenta una discapacidad motora desde hace **20 años**; anteriormente caminaba con total normalidad. Para desplazarse utiliza una **silla de ruedas**.
+* **Seguro Médico:** Cuenta con cobertura de **seguro social(Essalud)**.
+* **Entorno Familiar y Red de Apoyo:** Vive únicamente con su **padre, quien tiene casi 90 años**. Sus hermanos viven cada uno por su lado.
+* **Capacidad Física:** A pesar de la inmovilidad en sus piernas, mantiene mucha fuerza en los brazos y manifiesta que sus brazos son prácticamente "sus piernas".
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Nivel de Autonomía:** Trata de valerse por sí mismo acomodándose en la cama como puede. Reporta pedir ayuda con una frecuencia mínima ("casi nada"), salvo en ocasiones puntuales para el baño o la ducha.
+* **Anhelo Principal:** La actividad que más le gustaría volver a hacer por sí mismo es **caminar** y salir a pasear de forma independiente.
+* **Dinámica en Ausencia de Cuidadores:** Cuando requiere ayuda y no hay nadie en casa, se queda recostado en la cama o sentado hasta que alguien llega o se comunica mediante llamadas telefónicas.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivo en Uso:** El único dispositivo tecnológico que utiliza en su vida diaria es el **teléfono celular**.
+* **Canales de Comunicación:** Se comunica con sus familiares utilizando **llamadas telefónicas y WhatsApp**.
+* **Interacción con el Entorno Físico:** Utiliza la misma silla de ruedas como punto de apoyo físico para abrir las puertas de su casa.
+* **Limitación Física Específica:** Le resulta **imposible abrir las ventanas** de su hogar debido a que son duras, no puede ponerse de pie y no tiene de dónde apoyarse.
+
+---
+
+### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Experiencia Previa:** **Nunca** ha utilizado un dispositivo tecnológico de asistencia para abrir ventanas o ponerse de pie.
+* **Disposición al Cambio:** Muestra una disposición clara para utilizar un dispositivo que le permita controlar la apertura y cierre de ventanas por sí mismo.
+* **Requerimientos:** Considera que le sería de gran utilidad un mecanismo de apoyo (como adaptarse con un bastón o un control autónomo) para gestionar sus ventanas sin depender de terceros. 
+     </td>
+    </tr>
+</table>
+
+**Segmento 2: Nombre del segmento 2**
+
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #1</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
+        <td>Manuel Alejandroo</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Molina Vázquez</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>23 años</td>
+    </tr>
+    <tr>
+        <td><strong>Rol</strong></td>
+        <td>Familiar o cuidador de persona con discapacidad</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="https://imgur.com/lZd0SaE.png" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="Imagen de la entrevista">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="">Enlace a la grabación</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+
+### **Comportamiento, Desgaste y Dolores**
+* **Desgaste Físico Extremo:** Manuel experimenta un **desgaste físico en todas las actividades diarias** debido a la necesidad constante de cargarlo, movilizarlo y empujar su **silla de ruedas**.
+* **Preocupación por la Desatención:** Uno de sus mayores temores y puntos de dolor es que, en su ausencia, su tío tenga necesidades fisiológicas y **no haya nadie cerca para asistirle o darle de comer**.
+* **Personalidad y Actitud:** Se muestra como un joven **responsable, protector y cauteloso**. Valora enormemente la integridad de su familiar, declarando firmemente que **no confiaría el cuidado de su tío a "cualquier cosa o a cualquier persona"**, exigiendo un nivel de seguridad absoluto en cualquier alternativa de soporte.
+
+---
+
+### **Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivos y Canales Actuales:** Manuel utiliza un **teléfono inteligente (smartphone)** como herramienta principal de comunicación. El único canal tecnológico de interacción mencionado en la entrevista es **WhatsApp**, el cual es el medio por el que su tío suele enviarle **mensajes de audio**.
+* **Uso del Celular en Exteriores:** Manuel **siempre lleva consigo el celular cuando sale a la calle**, lo que consolida al smartphone como su canal de interacción omnipresente en el día a día.
+* **Limitaciones Tecnológicas Detectadas:** La comunicación actual mediante WhatsApp es ineficaz cuando Manuel está fuera de casa, ya que a menudo **no se percata de las llamadas o de las notificaciones de urgencia**.
+* **Hábitos e Influencia del Entorno:** Al ser un estudiante que asiste activamente a la **universidad** o transita por la **calle**, el ruido ambiental o las normas de las aulas le impiden escuchar los audios que le envía su tío.
+---
+
+### **Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Disposición al Cambio:** Manuel muestra una **excelente disposición** a adoptar un sistema automatizado. Califica como **"demasiado factible" y "práctico"** delegar tareas a un sistema tecnológico, ya que esto le liberaría tiempo para concentrarse en sus responsabilidades personales y académicas una vez cumplidos los deberes críticos de la mañana.
+* **Requisitos del Sistema para el Arquetipo:**
+    1. **Monitoreo en tiempo real:** Es sumamente importante para él saber qué le pasa a su tío en todo momento.
+    2. **Notificaciones de Texto Tipo Pop-Up:** El sistema debe notificar los incidentes o necesidades en **tiempo real utilizando texto escrito en pantalla en lugar de audio**, facilitando una lectura rápida, discreta y eficiente mientras él se encuentra en clases o en la vía pública.
+
+       </td>
+    </tr>
+</table>
+
+<br>
+
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #2</th>
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
@@ -260,7 +591,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Rol</strong></td>
-        <td>Rol o puesto del entrevistado</td>
+        <td>Familiar o cuidador de persona con discapacidad</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
@@ -275,15 +606,15 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="https://bit.ly/41kf54H">https://bit.ly/41kf54H</a></td>
+        <td><a href="">Enlace a la grabación</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:08 min</td>
+        <td>00:00 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>04:31 min</td>
+        <td>00:00 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
@@ -293,7 +624,58 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
 </table>
 
-**Segmento 2: Nombre del segmento 2**
+<br>
+
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #3</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
+        <td>Nombre del entrevistado</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Apellidos del entrevistado</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>XX años</td>
+    </tr>
+    <tr>
+        <td><strong>Rol</strong></td>
+        <td>Familiar o cuidador de persona con discapacidad</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="">Enlace a la grabación</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+        Resumen de la entrevista
+        </td>
+    </tr>
+</table>
 
 ### 2.2.3. Análisis de entrevistas
 
@@ -447,12 +829,68 @@ Podemos concluir que la experiencia de los cuidadores y familiares de personas c
 
 <table>
     <tr>
-        <th> Término </th>
+        <th> Term (English / Español) </th>
         <th> Definición </th>
     </tr>
     <tr>
-        <td> Version </td>
-        <td> 02/04/26 </td>
+        <td> Disabled person (Persona discapacitada) </td>
+        <td> Persona adulta con movilidad muy limitada o nula en las extremidades, que puede requerir apoyo para realizar actividades básicas dentro de su hogar.</td>
+    </tr>
+    <tr>
+        <td> Caregiver (Cuidador) </td>
+        <td> Familiar o profesional responsable de brindar apoyo, supervisión y cuidado cotidiano a una persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <td> Household (Hogar) </td>
+        <td> Entorno físico donde vive la persona con discapacidad y donde se realizan las actividades cotidianas que pueden requerir asistencia.</td>
+    </tr>
+    <tr>
+        <td> Autonomy (Autonomía) </td>
+        <td> Capacidad de la persona con discapacidad para decidir y realizar una actividad cotidiana sin depender de la intervención directa de otra persona.</td>
+    </tr>
+    <tr>
+        <td> Independence (Independencia) </td>
+        <td> Condición en la que la persona con discapacidad puede desenvolverse en su hogar con menor necesidad de apoyo de familiares o cuidadores.</td>
+    </tr>
+    <tr>
+        <td> Dependency (Dependencia) </td>
+        <td> Necesidad de recibir ayuda de otra persona para iniciar, ejecutar o completar una actividad cotidiana.</td>
+    </tr>
+    <tr>
+        <td> Daily living activity (Actividad de la vida diaria) </td>
+        <td> Acción necesaria para desenvolverse en el hogar, como encender una luz, abrir una puerta, mover una persiana o solicitar ayuda.</td>
+    </tr>
+    <tr>
+        <td> Assistance (Asistencia) </td>
+        <td> Apoyo físico, verbal o tecnológico que permite a la persona con discapacidad realizar una actividad que no puede completar por sí sola.</td>
+    </tr>
+    <tr>
+        <td> Care routine (Rutina de cuidado) </td>
+        <td> Conjunto de actividades de apoyo que el cuidador realiza de manera recurrente para atender las necesidades de la persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <td> Caregiver intervention (Intervención del cuidador) </td>
+        <td> Participación directa del cuidador para realizar o completar una actividad en representación de la persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <td> Request for assistance (Solicitud de asistencia) </td>
+        <td> Petición mediante la cual la persona con discapacidad comunica que necesita apoyo de su cuidador para atender una necesidad o realizar una actividad.</td>
+    </tr>
+    <tr>
+        <td> Voice instruction (Instrucción de voz) </td>
+        <td> Expresión verbal que la persona con discapacidad utiliza para comunicar una necesidad o indicar que desea realizar una actividad en su hogar.</td>
+    </tr>
+    <tr>
+        <td> Accessibility need (Necesidad de accesibilidad) </td>
+        <td> Condición o requerimiento específico que debe considerarse para que la persona con discapacidad pueda interactuar con su entorno y realizar actividades de forma segura y comprensible.</td>
+    </tr>
+    <tr>
+        <td> Perceived autonomy (Autonomía percibida) </td>
+        <td> Grado en que la persona con discapacidad siente que controla sus actividades y decisiones cotidianas sin depender de otra persona.</td>
+    </tr>
+    <tr>
+        <td> Safety (Seguridad) </td>
+        <td> Condición en la que la persona con discapacidad puede realizar una actividad sin exponerse a un riesgo innecesario y el cuidador puede confiar en que sus necesidades serán atendidas.</td>
     </tr>
 </table>
 
