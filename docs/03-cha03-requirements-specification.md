@@ -2,7 +2,7 @@
 
 ## 3.1. To-Be Scenario Mapping
 
-El To-Be Scenario Map representa cómo cambiaría el día a día del usuario una vez que cuenta con Resolum. Se construye a partir del As-Is Scenario Map y sirve para identificar, fase por fase, qué cambia realmente con la solución propuesta.
+El To-Be Scenario Map representa cómo cambiaría el día a día del usuario una vez que cuenta con Aliva. Se construye a partir del As-Is Scenario Map y sirve para identificar, fase por fase, qué cambia realmente con la solución propuesta.
 
 Para armarlo, el equipo siguió un proceso en Miro. Primero se revisó el As-Is de cada segmento para tener frescos los puntos de dolor y las fases ya definidas. Luego cada integrante propuso, por su cuenta, posibles mejoras frente a cada pain point identificado. Después se hizo una revisión en grupo para descartar ideas que no aportaban y quedarnos con las más relevantes. Con eso ya definido, se armaron las columnas replicando la estructura del As-Is, pero adaptando el contenido de cada etapa al nuevo flujo con el sistema ya integrado. Las fases también se renombraron, dejando de describir el problema para reflejar la nueva experiencia del usuario. Por último, se comparó el resultado con el As-Is para dejar en claro qué cambia en cada fase, tanto en lo que la persona hace (Doing) como en lo que piensa (Thinking) y siente (Feeling).
 
