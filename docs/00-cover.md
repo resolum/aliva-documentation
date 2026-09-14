@@ -725,6 +725,36 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> github-actions[bot] </td>
         <td> Update version log [skip ci] </td>
     </tr>
+    <tr>
+        <td> 1.138 </td>
+        <td> 10/09/26 </td>
+        <td> Far14z </td>
+        <td> Update section titles for clarity in requirements elicitation and analysis. </td>
+    </tr>
+    <tr>
+        <td> 1.139 </td>
+        <td> 11/09/26 </td>
+        <td> Far14z </td>
+        <td> Add empathy map analysis for disabled person. </td>
+    </tr>
+    <tr>
+        <td> 1.140 </td>
+        <td> 11/09/26 </td>
+        <td> Far14z </td>
+        <td> Refine empathy map analysis. </td>
+    </tr>
+    <tr>
+        <td> 1.141 </td>
+        <td> 14/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.142 </td>
+        <td> 14/09/26 </td>
+        <td> Far14z </td>
+        <td> Expand empathy map analysis for caregiver perspective. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
