@@ -823,7 +823,7 @@ A partir del User Task Matrix elaborado, se identifican los siguientes hallazgos
 
 ![Empathy Map - Persona con discapacidad motora severa](https://i.imgur.com/4ZlwuLB.png)
 
-**Análisis del Empathy Map: Sebastián Sánchez:**
+**Análisis del Empathy Map: Sebastián Sánchez**
 
 **Tensión entre lo que piensa/siente y lo que hace:** existe una brecha marcada entre el deseo de autonomía de Sebastián ("ser más independiente y tener mayor control de su entorno") y su comportamiento actual, que sigue centrado en esperar la disponibilidad de su cuidador para acciones tan básicas como abrir una puerta o encender una luz. Esto confirma que la solución no debe limitarse a facilitar la comunicación de necesidades, sino a permitirle ejecutar directamente esas acciones sin intermediarios.
 
@@ -836,6 +836,28 @@ A partir del User Task Matrix elaborado, se identifican los siguientes hallazgos
 **El teléfono/smartphone como único canal de mediación actual:** en "What do they DO" se observa que su único recurso ante la ausencia de ayuda es el teléfono, ya sea para pedir asistencia o llamar en emergencias. Esto lo posiciona como el canal más natural sobre el cual construir la interacción con la solución tecnológica, dado que ya es su herramienta de referencia.
 
 **Un dolor de baja frecuencia pero alto impacto:** aunque no se repite tanto como los otros, el punto "anhelo de poder moverse o actuar sobre su entorno sin restricciones" conecta con la tarea de "solicitar ayuda ante una situación urgente" del Task Matrix (frecuencia Low, importancia High), reforzando que los mecanismos de emergencia deben estar garantizados incluso si se usan con poca frecuencia.
+
+
+**Segmento Objetivo 2: Familiar o cuidador de persona con discapacidad**:
+
+![Empathy Map - Persona cuidadora de persona con discapacidad](https://i.imgur.com/GVANd8e.png)
+
+**Análisis del Empathy Map: Mariano Díaz**
+
+**Tensión entre el cuidado y sus responsabilidades personales:** Mariano desea proteger y asistir a su familiar, pero también necesita estudiar y realizar sus propias actividades. Aunque organiza las tareas principales antes de salir, continúa preocupado durante su ausencia, evidenciando la necesidad de mantenerse informado sin abandonar sus responsabilidades.
+
+**La falta de información como principal fuente de ansiedad:** en “What do they THINK and FEEL” y “PAINS” se repite el temor de que su familiar necesite alimentación, asistencia o atención fisiológica cuando nadie esté disponible. Esto confirma que conocer oportunamente lo que sucede en casa es fundamental para reducir su incertidumbre.
+
+**La comunicación actual no garantiza una respuesta oportuna:** Mariano recibe llamadas y audios de WhatsApp, pero puede no advertirlos cuando está en clases o en la calle. Por ello, necesita información escrita, clara y discreta que le permita identificar rápidamente las necesidades importantes.
+
+**El cuidado genera desgaste físico y emocional:** cargar, movilizar y empujar la silla de ruedas de su familiar produce cansancio físico, mientras que mantenerse constantemente pendiente provoca agotamiento mental. La solución debe reducir las intervenciones innecesarias sin reemplazar las actividades que requieren cuidado humano.
+
+**La autonomía del familiar también beneficia al cuidador:** si su familiar puede controlar luces, puertas y ventanas por sí mismo, Mariano puede dedicar su esfuerzo a tareas de mayor importancia. Esto favorecería tanto la independencia de la persona asistida como la disponibilidad de tiempo del cuidador.
+
+**El smartphone como canal natural y confiable:** Mariano siempre lleva su celular y lo utiliza como principal medio de comunicación. Esto lo convierte en el canal más adecuado para mantenerlo informado, aunque la adopción dependerá de que la solución le transmita seguridad, confianza y control.
+
+
+
 
 ### 2.3.4. As-Is Scenario Mapping
 
