@@ -713,7 +713,9 @@ En conclusión, el User Persona de este segmento objetivo sintetiza el perfil de
 
 **User Persona 2: Familiar o cuidador de persona con discapacidad**
 
-![]()
+![Descripción de información del segmento de cuidadores de personas con discapacidad](https://i.imgur.com/HxXZbeH.png)
+
+En conclusión, el User Persona de este segmento objetivo evidencia que el problema no se limita a las dificultades físicas que presenta su familiar para realizar actividades básicas del hogar, sino que también genera una carga constante de cuidado sobre sí mismo, quien debe permanecer atento a su bienestar, ayudarlo con tareas como abrir puertas, ventanas o encender luces y preocuparse cuando necesita salir y no hay otra persona que pueda asistirlo. Sus objetivos y motivaciones muestran que busca que su familiar alcance una mayor autonomía en actividades mínimas del hogar, al mismo tiempo que desea disponer de tiempo para cumplir con sus propios deberes y descansar, mientras que sus principales frustraciones son la preocupación por dejarlo solo, la falta de alguien que pueda sustituirlo y el agotamiento físico y mental producido por compatibilizar el cuidado con sus responsabilidades. Asimismo, el uso de smartphone Android, teléfono, WhatsApp, comunicación presencial y su vinculación con el cuidador y el horario laboral evidencian que la solución debe considerar tanto al familiar con discapacidad como al cuidador como actores relevantes. En consecuencia, el problema identificado comprende una doble necesidad de autonomía y apoyo: la persona con discapacidad requiere mecanismos accesibles que le permitan realizar determinadas actividades del hogar de forma independiente, mientras que Mariano necesita contar con mayor seguridad, conocimiento del estado de su familiar y capacidad de recibir alertas o solicitudes de asistencia cuando realmente sean necesarias. Esta información permite orientar la recopilación de requisitos hacia funcionalidades como el control autónomo de elementos del hogar, la confirmación de acciones, la supervisión o consulta remota del estado y la comunicación de alertas al cuidador, procurando que la solución reduzca la dependencia cotidiana sin eliminar la posibilidad de intervención humana cuando sea necesaria.
 
 ### 2.3.2. User Task Matrix
 
@@ -837,7 +839,7 @@ A partir del User Task Matrix elaborado, se identifican los siguientes hallazgos
 
 ### 2.3.4. As-Is Scenario Mapping
 
-El As-Is Scenario Mapping es una herramienta que permite visualizar el estado actual de un proceso o experiencia desde la perspectiva del usuario. En este caso, se ha utilizado para mapear la experiencia de personas con discapacidad motora o visual en su interacción con el hogar y los dispositivos de domótica existentes y familiares o cuidadores que los asisten.
+El As-Is Scenario Mapping es una herramienta que permite visualizar el estado actual de un proceso o experiencia desde la perspectiva del usuario. En este caso, se ha utilizado para mapear la experiencia de personas con discapacidad motora en su interacción con el hogar y los dispositivos de domótica existentes y familiares o cuidadores que los asisten.
 
 **Segmento Objetivo 1: Persona con discapacidad motora severa**: El As-Is Scenario Mapping revela que estas personas enfrentan dificultades significativas al intentar que los cuidadores o familiares comprendan sus necesidades y preferencias en el hogar. La falta de comunicación efectiva y la dependencia de otros para realizar tareas básicas genera frustración y limita su autonomía.
 
