@@ -259,8 +259,8 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
         <td>61 años</td>
     </tr>
     <tr>
-        <td><strong>Rol</strong></td>
-        <td>Persona con discapacidad motora</td>
+        <td><strong>distrito</strong></td>
+        <td>San Martin de Porres</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
@@ -344,9 +344,9 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
         <td><strong>Edad</strong></td>
         <td>44 años</td>
     </tr>
-    <tr>
-        <td><strong>Rol</strong></td>
-        <td>Persona con discapacidad motora severa (postrada)</td>
+   <tr>
+        <td><strong>distrito</strong></td>
+        <td>San Martin de Porres</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
@@ -436,8 +436,8 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
         <td>65 años</td>
     </tr>
     <tr>
-        <td><strong>Rol</strong></td>
-        <td>Persona con discapacidad motora </td>
+        <td><strong>distrito</strong></td>
+        <td>San Martin de Porres</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
@@ -498,7 +498,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
 </table>
 
-**Segmento 2: Nombre del segmento 2**
+**Segmento 2: Familiares o cuidadores de la persona con discapacidad**
 
 <table>
     <tr>
@@ -516,9 +516,9 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
         <td><strong>Edad</strong></td>
         <td>23 años</td>
     </tr>
-    <tr>
-        <td><strong>Rol</strong></td>
-        <td>Familiar o cuidador de persona con discapacidad</td>
+   <tr>
+        <td><strong>distrito</strong></td>
+        <td>Los olivos</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
@@ -579,26 +579,26 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
-        <td>Nombre del entrevistado</td>
+        <td>Jenny Lourdes</td>
     </tr>
     <tr>
         <td><strong>Apellidos</strong></td>
-        <td>Apellidos del entrevistado</td>
+        <td>Yalan Igreda</td>
     </tr>
     <tr>
         <td><strong>Edad</strong></td>
-        <td>XX años</td>
+        <td>62 años</td>
     </tr>
     <tr>
-        <td><strong>Rol</strong></td>
-        <td>Familiar o cuidador de persona con discapacidad</td>
+        <td><strong>distrito</strong></td>
+        <td>San Martin de Porres</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
         <td>
         <div align="center">
             <img 
-                src="" 
+                src="https://imgur.com/9klfdpI.png" 
                 style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
                 alt="">
         </div>
@@ -619,8 +619,43 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     <tr>
         <td><strong>Resumen</strong></td>
         <td>
-        Resumen de la entrevista
-        </td>
+
+### **1. Características Objetivas**
+**Ubicación y convivencia:** Actualmente, reside en el distrito de **San Martín de Porres, Lima**, donde vive en el mismo hogar que su padre, debido a que este requiere atención y cuidados frecuentes por sus necesidades médicas y físicas.
+* **Persona a su Cargo:** Su **padre**, quien se encuentra en un estadio de salud donde es considerado un **paciente dependiente total** en todas las actividades de la vida diaria (alimentación, higiene, vestido y traslado). Describe su estado de dependencia integral como el equivalente al de un recién nacido.
+* **Red de Apoyo y Turnos de Cuidado:** Comparten la responsabilidad de cuidado entre hermanos y personal de apoyo:
+  * **Turno Mañana (Jenny):** Inicia la rutina entre las 5:30 a. m. y las 6:00 a. m., encargándose del aseo personal, cambio , alimentación y administración de medicamentos.
+  * **Turno Tarde (Hermana):** Se encarga del desayuno posterior y el almuerzo.
+  * **Turno Noche (Jenny):** Retoma el cuidado en la noche.
+  * **Personal de Apoyo:** Cuentan con una persona vigilante en casa para atender contingencias mientras los familiares trabajan o están fuera.
+* **Servicios de Salud:** Su padre está afiliado a **EsSalud**. Adicionalmente, recurren a consultas médicas particulares cuando requieren una atención rápida ante emergencias.
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Frustración y Puntos de Dolor:**
+  * Sentir la preocupación constante por el bienestar de su padre mientras realiza sus actividades fuera del hogar.
+  * Cuando no hay nadie disponible para sustituirla temporalmente, deben dejar al paciente recostado en cama hasta que ella o algún hermano pueda regresar a atenderlo.
+* **Necesidad Emocional:** Requiere tener la certeza de que su padre cuenta con el apoyo o las alertas necesarias para poder realizar sus tareas laborales y personales con tranquilidad.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivos en Uso:** Utiliza de forma habitual un **iPad** y un **teléfono celular (smartphone)**.
+* **Canales de Comunicación:** La persona de apoyo en el hogar se comunica con ella a través de **llamadas telefónicas** para informarle sobre las necesidades o estado de su padre.
+* **Preferencias Tecnológicas:** Usa android y de browser Google Chrome. No tiene experiencia con dispositivos de asistencia tecnológica, pero considera que un sistema de monitoreo y control remoto sería muy útil para su situación.
+---
+
+### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Experiencia Previa:** No conoce actualmente dispositivos tecnológicos diseñados para este tipo de asistencia o monitoreo.
+* **Disposición al Cambio:** Muestra una excelente disposición para adquirir un dispositivo si este permite que su padre se valga por sí solo en tareas mínimas.
+* **Requerimientos Clave:**
+  1. **Sistema de Alerta / Voz de Alarma:** Que el sistema le permita al adulto mayor emitir una señal de auxilio o aviso rápido cuando necesite ayuda.
+  2. **Monitoreo de Actividades:** Considera excelente contar con la capacidad de monitorear lo que ocurre con su familiar en tiempo real.
+  3. **Control Básico del Entorno:** Le gustaría que la solución tecnológica contemple funciones simples como abrir la puerta o realizar una llamada directa de asistencia.
+
+---
+ </td>
     </tr>
 </table>
 
