@@ -713,6 +713,18 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Nicolas Juarez Leon </td>
         <td> Add image and findings about the second target segment. </td>
     </tr>
+    <tr>
+        <td> 1.136 </td>
+        <td> 12/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update images and remove mention of visual disabilities in scenario mapping </td>
+    </tr>
+    <tr>
+        <td> 1.137 </td>
+        <td> 14/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
