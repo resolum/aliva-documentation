@@ -617,6 +617,102 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Addicted2you </td>
         <td> Enhance As-Is Scenario Mapping with conclusions on user experiences and needs </td>
     </tr>
+    <tr>
+        <td> 1.120 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.121 </td>
+        <td> 10/09/26 </td>
+        <td> Far14z </td>
+        <td> Add user task matrix analysis for target segments to enhance understanding of user needs. </td>
+    </tr>
+    <tr>
+        <td> 1.122 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add ubiquitous language definitions for accessibility context </td>
+    </tr>
+    <tr>
+        <td> 1.123 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Remove outdated version information from requirements document </td>
+    </tr>
+    <tr>
+        <td> 1.124 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.125 </td>
+        <td> 10/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update terminology for clarity in requirements document </td>
+    </tr>
+    <tr>
+        <td> 1.126 </td>
+        <td> 08/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-26 update interview records and demographic details for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.127 </td>
+        <td> 09/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-26 update interview summaries and demographic details for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.128 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.129 </td>
+        <td> 10/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add image and findings of the first target segment. </td>
+    </tr>
+    <tr>
+        <td> 1.130 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.131 </td>
+        <td> 10/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add segment 1 interview analysis with supporting chart </td>
+    </tr>
+    <tr>
+        <td> 1.132 </td>
+        <td> 10/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Correct wheelchair/crutches inconsistency and simplify chart. </td>
+    </tr>
+    <tr>
+        <td> 1.133 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.134 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.135 </td>
+        <td> 14/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add image and findings about the second target segment. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
