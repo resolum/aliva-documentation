@@ -755,6 +755,36 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Far14z </td>
         <td> Expand empathy map analysis for caregiver perspective. </td>
     </tr>
+    <tr>
+        <td> 1.143 </td>
+        <td> 14/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.144 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Add definitions for key terms related to disability support. </td>
+    </tr>
+    <tr>
+        <td> 1.145 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Remove outdated competitive analysis and interview sections for clarity. </td>
+    </tr>
+    <tr>
+        <td> 1.146 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Remove redundant header for clarity in requirements document. </td>
+    </tr>
+    <tr>
+        <td> 1.147 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Remove unnecessary page break elements for improved document flow </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
