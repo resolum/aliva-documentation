@@ -879,7 +879,6 @@ Podemos concluir que la experiencia de los cuidadores y familiares de personas c
 
 <table>
     <tr>
-        <th> Término </th>
         <th> Term (English / Español) </th>
         <th> Definición </th>
     </tr>
