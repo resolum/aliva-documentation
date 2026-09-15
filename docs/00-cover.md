@@ -785,6 +785,36 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Far14z </td>
         <td> Remove unnecessary page break elements for improved document flow </td>
     </tr>
+    <tr>
+        <td> 1.148 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.149 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.150 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.151 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.152 </td>
+        <td> 15/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
