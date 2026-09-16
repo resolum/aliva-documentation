@@ -39,6 +39,16 @@ Comparando ambos mapas se nota una reducción importante en la carga mental y f�
 
 ## 3.3. Impact Mapping
 
+Para esta parte se desarrolló un Mapa de Impacto para Alivia en UXPressia teniendo en cuenta las cartas de la Persona del Usuario ya diseñadas para las dos personas, Sebastián Sánchez y Mariano Díaz. Se formularon dos Business Goals medibles aplicando el enfoque SMART: (1) Hacer posible que 500 personas con trastornos motores significativos puedan administrar de forma independiente la iluminación, las puertas y las ventanas de sus hogares usando Alivia dentro de los 12 meses desde el lanzamiento del producto y (2) Reducir en un 65% la necesidad de las intervenciones diarias de los cuidadores en las tareas del hogar durante los primeros seis meses de uso.
+
+Para cada uno de estos Business Goals se especifica la lista de los Actors que van a contribuir a su realización (Sebastián y Mariano) y los Impacts o cambios de comportamiento esperados. Para Sebastián el Impact será que él adopte los comandos de voz como la herramienta principal para administrar los dispositivos del hogar y pueda manejar algunos problemas por sí mismo sin ayuda, contactando a su cuidador solo cuando sea necesario. Para Mariano el Impact será que él configure correctamente el perfil y la red de cuidado antes de dejar que Sebastián empiece a trabajar con el sistema por sí mismo, confirme el funcionamiento de la instalación y preste atención solo a las solicitudes más importantes evitando repeticiones.
+
+Basándose en estos Impacts se pueden especificar los Deliverables, es decir el conjunto de cosas que el negocio puede construir para alcanzar este objetivo: comandos de voz con retroalimentación para luces, puertas y ventanas; procesamiento de datos local que permita el control activo de los dispositivos sin conexión a Internet; flujos de registro de usuario para el perfil y la red de cuidado; el procedimiento de instalación y de prueba de los dispositivos; notificaciones priorizadas y un panel de supervisión remota con el historial de eventos. Cada Deliverable se descompuso en User Stories con el formato "As a... I want... so that...".
+
+![Impact Mapping de Alivia en UXPressia](https://imgur.com/RwOvcXw.png)
+
+En esta captura se pueden observar cómo, a partir de los dos Business Goals, el árbol se desarrolla en los dos Actors del proyecto: Sebastián y Mariano. De cada uno de estos actores surgen sus Impacts, es decir, el cambio de comportamiento que queremos provocar en ellos, y de cada Impact surgen dos Deliverables junto con sus respectivas User Stories. La simetría de esta estructura permite entender que ninguna de las funcionalidades del Backlog queda sola, ya que cada una responde a un comportamiento particular que buscamos provocar en Sebastián o Mariano, y que está relacionado con uno de los dos Business Goals que nos planteamos.
+
 ## 3.4. Product Backlog
 
 <table>
