@@ -224,6 +224,8 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
 
 #### 4.1.2.4. Architectural Concerns
 
+Una preocupación arquitectónica es una petición o expectativa por parte de los stakeholders frente a la arquitectura de software del sistema que deben ser consideradas durante el diseño. Por ejemplo, una preocupación puede estar relacionada a la seguridad de la plataforma; al cumplimiento de normas de regulación de privacidad de los datos; gestión de errores. Además, no necesariamente se relacionan con alguna funcionalidad, pues su alcance es hasta transversal, es decir, atraviesa varias funciones del sistema. A continuación, se presenta la tabla con las preocupaciones identificadas para el diseño de la arquitectura de software:
+
 <table>
     <tr>
         <th> Concern ID </th>
@@ -231,9 +233,54 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <th> Descripción </th>
     </tr>
     <tr>
-        <td> EP001 </td>
-        <td> Si Va a Salir </td>
-        <td> Concern ID </td>
+        <td> AC001 </td>
+        <td> Autonomía de la persona discapacitada </td>
+        <td> La solución debe facilitar que la persona pueda realizar actividades cotidianas dentro del hogar con la menor dependencia posible del cuidador, mediante mecanismos de interacción accesibles y control de dispositivos IoT. </td>
+    </tr>
+    <tr>
+        <td> AC002 </td>
+        <td> Seguridad y privacidad de los datos </td>
+        <td> La arquitectura debe permitir que el sistema proteja la información personal, credenciales, solicitudes de asistencia, estados de los dispositivos y demás datos generados durante la interacción entre la persona, el cuidador y la plataforma. </td>
+    </tr>
+    <tr>
+        <td> AC003 </td>
+        <td> Seguridad ante fallos del modelo </td>
+        <td> La arquitectura debe contemplar qué hacer cuando el modelo de aprendizaje no pueda interpretar un comando con suficiente confianza, evitando que una predicción incierta se convierta automáticamente en una acción física. </td>
+    </tr>
+    <tr>
+        <td> AC004 </td>
+        <td> Costo y disponibilidad de infraestructura </td>
+        <td> Las decisiones arquitectónicas deben considerar los recursos económicos y tecnológicos disponibles para implementar y mantener sensores, dispositivos Edge, servicios de nube y aplicaciones cliente. </td>
+    </tr>
+    <tr>
+        <td> AC005 </td>
+        <td> Gestión de datos y telemetría </td>
+        <td> La arquitectura debe permitir almacenar y gestionar adecuadamente los datos generados por sensores, dispositivos, comandos y eventos, considerando sus diferentes volúmenes, estructuras y frecuencias de generación. </td>
+    </tr>
+    <tr>
+        <td> AC006 </td>
+        <td> Mantenibilidad y evolución del modelo de aprendizaje </td>
+        <td> La arquitectura debe permitir actualizar, evaluar y reemplazar el modelo de aprendizaje sin afectar innecesariamente el resto de los componentes de la solución. </td>
+    </tr>
+    <tr>
+        <td> AC007 </td>
+        <td> Privacidad en Edge Computing </td>
+        <td> El procesamiento de comandos de voz y otros datos sensibles debería realizarse en el borde cuando sea viable, reduciendo la necesidad de transmitir información personal hacia servicios externos. </td>
+    </tr>
+    <tr>
+        <td> AC008 </td>
+        <td> Comunicación cuidador–persona </td>
+        <td> La arquitectura debe facilitar el intercambio oportuno de solicitudes, confirmaciones, alertas y estados entre la persona con discapacidad y su cuidador. </td>
+    </tr>
+    <tr>
+        <td> AC009 </td>
+        <td> Seguridad de las acciones físicas </td>
+        <td> Las acciones ejecutadas sobre dispositivos del hogar deben evitar comportamientos no deseados y contemplar mecanismos que impidan ejecutar comandos ambiguos o de baja confianza. </td>
+    </tr>
+    <tr>
+        <td> AC010 </td>
+        <td> Escalabilidad del entorno IoT </td>
+        <td> La arquitectura debe permitir incorporar nuevos dispositivos, sensores, actuadores y funcionalidades sin requerir modificaciones extensas en los componentes existentes. </td>
     </tr>
 </table>
 
