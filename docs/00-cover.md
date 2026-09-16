@@ -893,6 +893,54 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Nicolas Juarez Leon </td>
         <td> Add list of architectural concerns. </td>
     </tr>
+    <tr>
+        <td> 1.166 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Add functional and non-functional requirements for alivia system. </td>
+    </tr>
+    <tr>
+        <td> 1.167 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Streamline functional requirements for alivia system. </td>
+    </tr>
+    <tr>
+        <td> 1.168 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Reorganize functional requirements for clarity and consistency. </td>
+    </tr>
+    <tr>
+        <td> 1.169 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Update non-functional requirements for improved clarity and completeness. </td>
+    </tr>
+    <tr>
+        <td> 1.170 </td>
+        <td> 16/09/26 </td>
+        <td> Far14z </td>
+        <td> Enhance non-functional requirements for availability, performance, usability, and security. </td>
+    </tr>
+    <tr>
+        <td> 1.171 </td>
+        <td> 16/09/26 </td>
+        <td> Far14z </td>
+        <td> Update non-functional requirements for improved clarity and completeness. </td>
+    </tr>
+    <tr>
+        <td> 1.172 </td>
+        <td> 16/09/26 </td>
+        <td> Far14z </td>
+        <td> Update implementation restrictions for application data handling. </td>
+    </tr>
+    <tr>
+        <td> 1.173 </td>
+        <td> 16/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
