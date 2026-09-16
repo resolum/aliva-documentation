@@ -885,6 +885,8 @@ Durante esta fase el equipo participó en una sesión de lluvia de ideas para id
 
 ![Big Picture Event Storming - Fase 1](https://i.imgur.com/YAdOTVX.png)
 
+En esta captura se observan los eventos identificados durante la sesión de lluvia de ideas, representados con bloques de color naranja sin ningún orden ni jerarquía establecida. Entre ellos se distinguen eventos protagonizados por la persona con discapacidad, como su despertar, sus solicitudes de ayuda para acomodarse o comer, y sus llamados al cuidador para encender luces o abrir puertas; así como eventos protagonizados por el cuidador, como revisar a su familiar, preparar la medicación, atender solicitudes de asistencia o coordinar con otros cuidadores ante una ausencia. Esta variedad de eventos, sin estructurar aún, sirvió como insumo para la posterior organización en flujos durante el Paso 2.
+
 Paso 2: Structured Organization
 
 Después de la exploración abierta se ordenan los eventos cronológicamente y se organizan en flujos vinculados a las actividades diarias en el hogar. Se identifican roles importantes (la persona con discapacidad, el cuidador principal y a veces un cuidador secundario) para definir los roles y las interacciones dentro de cada flujo. Al mismo tiempo han surgido hotspots los cuales resaltan preguntas operativas y casos límite incluidos en la rutina diaria: ¿Qué pasará si el cuidador no reacciona lo suficientemente rápido al llamado de ayuda de la persona con discapacidad? ¿Qué pasará si no hay nadie que asista a la persona con discapacidad y qué pasará si el cuidador secundario no sustituye al cuidador principal al momento del cambio de turno? De esta manera el modelo se extiende más allá del caso óptimo del flujo e identifica las excepciones reales que necesitan ser cubiertas por el software.
@@ -893,11 +895,19 @@ Debido al segundo paso se han identificado doce flujos los cuales abarcan todas 
 
 ![Big Picture Event Storming - Fase 2](https://i.imgur.com/54aSJp2.png)
 
+En esta segunda captura se observan el Flujo 1 (inicio y preparación de la jornada) y el Flujo 2 (solicitud y atención de asistencia), además del inicio del Flujo 3 (traslado dentro del domicilio). Aquí se aprecia cómo la persona con discapacidad despierta y solicita ayuda para acomodarse, mientras que el cuidador atiende dicha solicitud a lo largo de las distintas actividades del día, como encender las luces, abrir la puerta o acercar un objeto solicitado. En estos flujos aparecen los primeros hotspots identificados por el equipo, referidos a qué pasa cuando el cuidador no atiende el llamado de ayuda a tiempo, o cuando no hay nadie más disponible para asistir a la persona con discapacidad.
+
 ![Big Picture Event Storming - Fase 2.1](https://i.imgur.com/ujxsZCh.png)
+
+En esta tercera captura se muestran el Flujo 4 (asistencia durante la alimentación), el Flujo 5 (gestión de medicación) y el Flujo 6 (asistencia en la higiene personal). Estos flujos representan actividades cotidianas en las que la persona con discapacidad requiere apoyo directo del cuidador, como el desayuno, la administración de medicamentos según lo indicado en la receta médica y el baño diario. En el Flujo 5 se identifica un hotspot relacionado a qué ocurre si no hay nadie disponible para ayudar a la persona con discapacidad a tomar su medicación, mientras que en el Flujo 6 se cuestiona qué pasa si el cuidador no escucha o no es capaz de atender el pedido de asistencia para bañarse.
 
 ![Big Picture Event Storming - Fase 2.2](https://i.imgur.com/LEtYbxu.png)
 
+En esta cuarta captura se presentan el Flujo 7 (acompañamiento y actividades recreativas), el Flujo 8 (escalamiento de una solicitud de asistencia) y el inicio del Flujo 9 (coordinación y distribución del cuidado). El Flujo 7 recoge momentos de esparcimiento como pasear o conversar con la persona con discapacidad, mientras que el Flujo 8 evidencia un escenario más crítico: qué sucede cuando el cuidador principal no responde a los mensajes o llamadas, obligando a contactar a un cuidador alternativo. Aquí se identifican dos hotspots consecutivos, el primero relacionado a la incapacidad del cuidador de atender el pedido y el segundo a qué pasa si la necesidad de contactar a otro cuidador resulta urgente.
+
 ![Big Picture Event Storming - Fase 2.3](https://i.imgur.com/0klWaWM.png)
+
+Por ultimo en esta captura se muestra la continuación del Flujo 9, junto con el Flujo 10 (transferencia y finalización del turno de cuidado), el Flujo 11 (jornada diaria del cuidador) y el Flujo 12 (gestión y reporte de incidentes). En estos flujos se identifica cómo los cuidadores coordinan y transfieren responsabilidades entre ellos, así como el cierre de su jornada laboral. Destacan hotspots como qué pasa si el cuidador alternativo no está disponible al momento de la transferencia de turno, si el cuidador no puede descansar por seguir atendiendo a la persona con discapacidad, o si ocurre un incidente fuera de la presencia de cualquier cuidador.
 
 ## 2.5. Ubiquitous Language
 
