@@ -755,6 +755,84 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Far14z </td>
         <td> Expand empathy map analysis for caregiver perspective. </td>
     </tr>
+    <tr>
+        <td> 1.143 </td>
+        <td> 14/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.144 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Add definitions for key terms related to disability support. </td>
+    </tr>
+    <tr>
+        <td> 1.145 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Remove outdated competitive analysis and interview sections for clarity. </td>
+    </tr>
+    <tr>
+        <td> 1.146 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Remove redundant header for clarity in requirements document. </td>
+    </tr>
+    <tr>
+        <td> 1.147 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Remove unnecessary page break elements for improved document flow </td>
+    </tr>
+    <tr>
+        <td> 1.148 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.149 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.150 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.151 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.152 </td>
+        <td> 15/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.153 </td>
+        <td> 15/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.154 </td>
+        <td> 15/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Define design purpose driver for the solution. </td>
+    </tr>
+    <tr>
+        <td> 1.155 </td>
+        <td> 15/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add sync component description in design purpose. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
