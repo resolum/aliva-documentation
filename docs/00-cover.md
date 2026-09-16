@@ -815,6 +815,24 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> github-actions[bot] </td>
         <td> Update version log [skip ci] </td>
     </tr>
+    <tr>
+        <td> 1.153 </td>
+        <td> 15/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.154 </td>
+        <td> 15/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Define design purpose driver for the solution. </td>
+    </tr>
+    <tr>
+        <td> 1.155 </td>
+        <td> 15/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add sync component description in design purpose. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
