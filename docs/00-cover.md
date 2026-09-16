@@ -863,6 +863,36 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Matias Diaz </td>
         <td> Expand big picture event storming with event flow details. </td>
     </tr>
+    <tr>
+        <td> 1.161 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Change section structure. </td>
+    </tr>
+    <tr>
+        <td> 1.162 </td>
+        <td> 16/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.163 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add quality attribute scenarios. </td>
+    </tr>
+    <tr>
+        <td> 1.164 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add tactics definition related to quality attributes. </td>
+    </tr>
+    <tr>
+        <td> 1.165 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add list of architectural concerns. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
