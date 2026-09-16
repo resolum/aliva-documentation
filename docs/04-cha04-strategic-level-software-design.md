@@ -4,6 +4,8 @@
 
 ### 4.1.1. Design Purpose
 
+El propósito del diseño del proyecto es definir la arquitectura de una solución basada en Internet de las Cosas, un modelo de aprendizaje automático y computación en el borde que facilite a las personas con discapacidad motora la realización autónoma de actividades cotidianas dentro del hogar, tales como abrir puertas y ventanas; y encender luces, mediante comandos de voz interpretados por un modelo de aprendizaje automático ejecutado en el borde. Asimismo, la solución busca proporcionar a los cuidadores mecanismos de comunicación y supervisión que les permitan recibir llamadas de ayuda, atender solicitudes de asistencia y verificar de manera remota el estado y las actividades de su familiar. La arquitectura deberá integrar las capacidades de sensorización y actuación propias del entorno IoT con el procesamiento inteligente en el borde, permitiendo responder oportunamente a las necesidades de la persona con discapacidad, así como mantener una comunicación efectiva entre esta y su cuidador.
+
 ### 4.1.2. Tactics
 
 <table>
