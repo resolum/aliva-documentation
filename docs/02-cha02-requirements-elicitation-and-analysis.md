@@ -875,7 +875,41 @@ Podemos conluir que la experiencia de las personas con discapacidad motora sever
 
 Podemos concluir que la experiencia de los cuidadores y familiares de personas con discapacidad es frustrante y agotadora ya que deben estar al pendiente de las necesidades de la persona con discapacidad, lo que puede generar estrés y ansiedad. Esto resalta la necesidad de soluciones que faciliten la comunicación y la comprensión mutua entre cuidadores y personas con discapacidad, mejorando así la calidad de vida de ambos.
 
-## 2.4. Ubiquitous Language
+## 2.4. Big Picture Event Storming
+
+El Big Picture Event Storming nos ayuda a explorar los eventos relacionados a la vida diaria de una persona con discapacidad motora severa en su hogar. Se empezó colocando eventos de dominio relacionados sin importar el orden. Luego, se formaron líneas de tiempo que ayuden a denotar una secuencia de eventos de dominio que posea coherencia con el dominio y sus relaciones con otros eventos. Finalmente, se identificaron los actores que interactúan en el dominio y los pain points. A continuación, se adjuntan las capturas de pantalla de cada paso realizado para diagramar el Big Picture Event Storming del proyecto:
+
+Fase 1: Free Exploration
+
+Durante esta fase el equipo participó en una sesión de lluvia de ideas para identificar todos los eventos críticos en el dominio sin ser influenciados por la jerarquía y las consideraciones del cronograma. El objetivo principal fue identificar las operaciones de la vida real en la existencia diaria de la persona con discapacidad y el cuidador sin hacer uso de ningún requisito técnico o de software. Durante esta fase se han identificado y representado con bloques de color naranja los eventos como el despertar de la persona con discapacidad, las peticiones de ayuda para diferentes actividades realizadas por la persona con discapacidad y las acciones tomadas por el cuidador durante el día.
+
+![Big Picture Event Storming - Fase 1](https://i.imgur.com/YAdOTVX.png)
+
+En esta captura se observan los eventos identificados durante la sesión de lluvia de ideas, representados con bloques de color naranja sin ningún orden ni jerarquía establecida. Entre ellos se distinguen eventos protagonizados por la persona con discapacidad, como su despertar, sus solicitudes de ayuda para acomodarse o comer, y sus llamados al cuidador para encender luces o abrir puertas; así como eventos protagonizados por el cuidador, como revisar a su familiar, preparar la medicación, atender solicitudes de asistencia o coordinar con otros cuidadores ante una ausencia. Esta variedad de eventos, sin estructurar aún, sirvió como insumo para la posterior organización en flujos durante el Paso 2.
+
+Paso 2: Structured Organization
+
+Después de la exploración abierta se ordenan los eventos cronológicamente y se organizan en flujos vinculados a las actividades diarias en el hogar. Se identifican roles importantes (la persona con discapacidad, el cuidador principal y a veces un cuidador secundario) para definir los roles y las interacciones dentro de cada flujo. Al mismo tiempo han surgido hotspots los cuales resaltan preguntas operativas y casos límite incluidos en la rutina diaria: ¿Qué pasará si el cuidador no reacciona lo suficientemente rápido al llamado de ayuda de la persona con discapacidad? ¿Qué pasará si no hay nadie que asista a la persona con discapacidad y qué pasará si el cuidador secundario no sustituye al cuidador principal al momento del cambio de turno? De esta manera el modelo se extiende más allá del caso óptimo del flujo e identifica las excepciones reales que necesitan ser cubiertas por el software.
+
+Debido al segundo paso se han identificado doce flujos los cuales abarcan todas las etapas de la experiencia del cuidado en el hogar: el comienzo y la preparación para el día, la solicitud y la provisión de asistencia, el transporte dentro de la casa, la asistencia durante las comidas, la administración de medicamentos, la asistencia con la higiene personal, el acompañamiento y el entretenimiento, la escalada de la solicitud de asistencia, la coordinación y la distribución de los cuidados, el traslado y la finalización del cambio de turno de cuidado, el horario del cuidador para el día y la gestión y el reporte de los incidentes. Para cada uno de los flujos se han identificado los actores responsables de cada evento los cuales realizan una secuencia de acciones; por ejemplo en el flujo de solicitud y provisión de asistencia existe una clara diferenciación entre el momento en el cual la persona con discapacidad pide ayuda y el momento en el cual el cuidador realiza la acción relacionada. Finalmente se han identificado hotspots en esos puntos donde el flujo habitual de los eventos se interrumpe o cuando no está claro qué se debe hacer a continuación, analizando cada horario desde la perspectiva de ambas partes e identificando lo que los molesta o los frustra. De esta manera estos hotspots forman la base de los pain points sobre los cuales Alivia debe plantear su propuesta de solución.
+
+![Big Picture Event Storming - Fase 2](https://i.imgur.com/54aSJp2.png)
+
+En esta segunda captura se observan el Flujo 1 (inicio y preparación de la jornada) y el Flujo 2 (solicitud y atención de asistencia), además del inicio del Flujo 3 (traslado dentro del domicilio). Aquí se aprecia cómo la persona con discapacidad despierta y solicita ayuda para acomodarse, mientras que el cuidador atiende dicha solicitud a lo largo de las distintas actividades del día, como encender las luces, abrir la puerta o acercar un objeto solicitado. En estos flujos aparecen los primeros hotspots identificados por el equipo, referidos a qué pasa cuando el cuidador no atiende el llamado de ayuda a tiempo, o cuando no hay nadie más disponible para asistir a la persona con discapacidad.
+
+![Big Picture Event Storming - Fase 2.1](https://i.imgur.com/ujxsZCh.png)
+
+En esta tercera captura se muestran el Flujo 4 (asistencia durante la alimentación), el Flujo 5 (gestión de medicación) y el Flujo 6 (asistencia en la higiene personal). Estos flujos representan actividades cotidianas en las que la persona con discapacidad requiere apoyo directo del cuidador, como el desayuno, la administración de medicamentos según lo indicado en la receta médica y el baño diario. En el Flujo 5 se identifica un hotspot relacionado a qué ocurre si no hay nadie disponible para ayudar a la persona con discapacidad a tomar su medicación, mientras que en el Flujo 6 se cuestiona qué pasa si el cuidador no escucha o no es capaz de atender el pedido de asistencia para bañarse.
+
+![Big Picture Event Storming - Fase 2.2](https://i.imgur.com/LEtYbxu.png)
+
+En esta cuarta captura se presentan el Flujo 7 (acompañamiento y actividades recreativas), el Flujo 8 (escalamiento de una solicitud de asistencia) y el inicio del Flujo 9 (coordinación y distribución del cuidado). El Flujo 7 recoge momentos de esparcimiento como pasear o conversar con la persona con discapacidad, mientras que el Flujo 8 evidencia un escenario más crítico: qué sucede cuando el cuidador principal no responde a los mensajes o llamadas, obligando a contactar a un cuidador alternativo. Aquí se identifican dos hotspots consecutivos, el primero relacionado a la incapacidad del cuidador de atender el pedido y el segundo a qué pasa si la necesidad de contactar a otro cuidador resulta urgente.
+
+![Big Picture Event Storming - Fase 2.3](https://i.imgur.com/0klWaWM.png)
+
+Por ultimo en esta captura se muestra la continuación del Flujo 9, junto con el Flujo 10 (transferencia y finalización del turno de cuidado), el Flujo 11 (jornada diaria del cuidador) y el Flujo 12 (gestión y reporte de incidentes). En estos flujos se identifica cómo los cuidadores coordinan y transfieren responsabilidades entre ellos, así como el cierre de su jornada laboral. Destacan hotspots como qué pasa si el cuidador alternativo no está disponible al momento de la transferencia de turno, si el cuidador no puede descansar por seguir atendiendo a la persona con discapacidad, o si ocurre un incidente fuera de la presencia de cualquier cuidador.
+
+## 2.5. Ubiquitous Language
 
 <table>
     <tr>
