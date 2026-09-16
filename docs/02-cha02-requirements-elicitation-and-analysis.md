@@ -875,7 +875,29 @@ Podemos conluir que la experiencia de las personas con discapacidad motora sever
 
 Podemos concluir que la experiencia de los cuidadores y familiares de personas con discapacidad es frustrante y agotadora ya que deben estar al pendiente de las necesidades de la persona con discapacidad, lo que puede generar estrés y ansiedad. Esto resalta la necesidad de soluciones que faciliten la comunicación y la comprensión mutua entre cuidadores y personas con discapacidad, mejorando así la calidad de vida de ambos.
 
-## 2.4. Ubiquitous Language
+## 2.4. Big Picture Event Storming
+
+Antes de construir una solución sólida, es indispensable comprender la operación completa desde una perspectiva de negocio, dejando de lado los tecnicismos. Mediante el Big Picture Event Storming, el equipo mapea colaborativamente cada suceso dentro de la residencia para adultos mayores; al estructurarlos en una secuencia lógica y temporal, se revelan con claridad los procesos clave, así como los cuellos de botella o pérdidas de datos en la comunicación diaria.
+
+Fase 1: Free Exploration
+
+Durante esta fase inicial, el equipo participó en un brainstorming para registrar cualquier suceso importante del negocio, sin filtros de jerarquía ni secuencia temporal. La meta central fue plasmar la realidad operativa del día a día, manteniéndose completamente al margen de herramientas de software o requerimientos técnicos.
+
+![Big Picture Event Storming - Fase 1](https://i.imgur.com/YAdOTVX.png)
+
+Paso 2: Structured Organization
+
+Concluida la exploración abierta, los eventos se alinearon temporalmente y se segmentaron en flujos coherentes con la rutina de la residencia (como preingreso, valoración médica o control de fármacos). Se incorporaron los roles clave (administración, equipo médico, enfermería y familiares) para delimitar responsabilidades e interacciones. Paralelamente, surgieron los hotspots —indicados con rombos morados— que evidenciaron dudas operativas y casos límite: ingresos urgentes sin acompañantes, bajas imprevistas de personal o negativa reiterada a recibir medicación crítica. Así, el modelo va más allá del flujo ideal y transparenta las excepciones reales que el software debe soportar.
+
+![Big Picture Event Storming - Fase 2](https://i.imgur.com/54aSJp2.png)
+
+![Big Picture Event Storming - Fase 2.1](https://i.imgur.com/ujxsZCh.png)
+
+![Big Picture Event Storming - Fase 2.2](https://i.imgur.com/LEtYbxu.png)
+
+![Big Picture Event Storming - Fase 2.3](https://i.imgur.com/0klWaWM.png)
+
+## 2.5. Ubiquitous Language
 
 <table>
     <tr>
