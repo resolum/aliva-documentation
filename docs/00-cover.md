@@ -941,6 +941,36 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> github-actions[bot] </td>
         <td> Update version log [skip ci] </td>
     </tr>
+    <tr>
+        <td> 1.174 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Add page break for improved document formatting. </td>
+    </tr>
+    <tr>
+        <td> 1.175 </td>
+        <td> 16/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add imapct mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.176 </td>
+        <td> 16/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Revise impact mapping and deliverables sections </td>
+    </tr>
+    <tr>
+        <td> 1.177 </td>
+        <td> 16/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.178 </td>
+        <td> 16/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Refine impact mapping deliverable description </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
