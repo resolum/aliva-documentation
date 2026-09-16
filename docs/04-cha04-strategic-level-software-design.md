@@ -27,6 +27,8 @@
 
 #### 4.1.2.2. Quality Attribute Scenarios
 
+Los escenarios de atributos de calidad son descripciones que se enfocan en el detalle y medición de cómo debería ser el comportamiento del sistema frente a los posibles estímulos que pueda recibir en un entorno dado. Para ello, se eligen los atributos de calidad primero y, luego, se asocian escenarios para verificar el comportamiento del sistema asociado al atributo elegido. De esta forma, se facilita la elección de tácticas para cumplir con estos escenarios. A continuación, se muestra la tabla con los escenarios descritos para Alivia:
+
 <table>
     <tr>
         <th> Atributo </th>
@@ -237,7 +239,7 @@
 
 ### 4.1.3. Tactics
 
-Las tácticas son decisiones de diseño de arquitectura de software que logran modificar la respuesta de la solución frente a estímulos para mejorar los atributos de calidad. A continuación, se define la lista de atributos de calidad identificados para la solución y las tácticas a emplear para satisfacer los escenarios de atributos de calidad que se definen luego.
+Las tácticas son decisiones de diseño de arquitectura de software que logran modificar la respuesta de la solución frente a estímulos para mejorar los atributos de calidad. A continuación, se define la lista de atributos de calidad identificados para la solución y las tácticas a emplear para satisfacer los escenarios de atributos de calidad que se definen para guiar la arquitectura de software.
 
 <table>
     <tr>
@@ -246,13 +248,87 @@ Las tácticas son decisiones de diseño de arquitectura de software que logran m
         <th> Descripción </th>
     </tr>
     <tr>
-        <td rowspan="2"> Availability </td>
-        <td> Si Va a Salir </td>
-        <td> Si Va a Salir </td>
+        <td rowspan="3"> Availability </td>
+        <td> Failover </td>
+        <td> Define la estrategia para cambiar el componente de comunicación a uno secundario en caso que el principal falle para que el sistema esté disponible para ejecutar acciones para la persona discapacitada. </td>
     </tr>
     <tr>
-        <td> Si Va a Salir </td>
-        <td> Si Va a Salir </td>
+        <td> Store-and-forward </td>
+        <td> Define que la información se guarde temporalmente en un componente intermedio entre la aplicación cliente y el servicio en la nube en escenarios con conexión limitada y transmita la información cuando el escenario de red sea el óptimo. </td>
+    </tr>
+    <tr>
+        <td> Exception Handling </td>
+        <td> Define que el sistema deba ser capaz de manejar errores internos y externos para prevalecer la continuidad operativa de la plataforma. </td>
+    </tr>
+    <tr>
+        <td rowspan="3"> Security </td>
+        <td> Encrypt Data </td>
+        <td> Define el método de almacenamiento de las contraseñas para que el acceso de las cuentas sea seguro y evite incidencias de accesos no identificados. </td>
+    </tr>
+    <tr>
+        <td> Authenticate Autors </td>
+        <td> Define el método de identificación de los usuarios al acceder al sistema para evitar accesos de usuarios anónimos. </td>
+    </tr>
+    <tr>
+        <td> Authorize Autors </td>
+        <td> Define que el sistema deba verificar el alcance de funcionalidades de los usuarios según su rol y qué acciones pueden ejecutar en el sistema para evitar accesos no autorizados. </td>
+    </tr>
+    <tr>
+        <td rowspan="3"> Performance </td>
+        <td> Introduce Concurrency </td>
+        <td> Define que el sistema debe procesar peticiones de forma paralela al procesamiento de otros recursos. </td>
+    </tr>
+    <tr>
+        <td> Increase Resource Efficiency </td>
+        <td> Define que se debe proporcionar una mayor capacidad de potencia computacional para el procesamiento de los comandos o hacer que una operación consuma una menor cantidad de recursos. </td>
+    </tr>
+    <tr>
+        <td> Manage Resources </td>
+        <td> Define que el sistema debe administrar eficientemente el uso de recursos como memoria, CPU y red. </td>
+    </tr>
+    <tr>
+        <td rowspan="2"> Interoperability </td>
+        <td> Use a Standard Protocol </td>
+        <td> Define que el sistema debe utilizar un protocolo de comunicación estándar para transmitir información a los servicios externos. </td>
+    </tr>
+    <tr>
+        <td> Use a Standard Data Model </td>
+        <td> Define que se deben utilizar modelos internos estandarizados para la transferencia de datos entre el sistema y los servicios externos. </td>
+    </tr>
+    <tr>
+        <td rowspan="4"> Usability </td>
+        <td> Provide Feedback </td>
+        <td> Define que el sistema debe informar al usuario sobre el estado de la ejecución de las acciones. </td>
+    </tr>
+    <tr>
+        <td> Intuitive Interfaces </td>
+        <td> Define que las interfaces de información deben presentar la información de forma clara, estructura y de fácil lectura para los usuarios. </td>
+    </tr>
+    <tr>
+        <td> Maintain User Model </td>
+        <td> Define el uso de frases clave para asociarlas a acciones que el usuario requiera ejecutar para cumplir una necesidad determinada. </td>
+    </tr>
+    <tr>
+        <td> Support User Initiative </td>
+        <td> Permite que el usuario pueda accionar los comandos cuando los necesite y que el sistema responda a esta iniciativa. </td>
+    </tr>
+    <tr>
+        <td rowspan="2"> Reliability </td>
+        <td> Confidence Threshold </td>
+        <td> Define que el sistema debe calcular valores de confianza a sus respuestas antes de informar el resultado, lo que se traduce en la toma de decisiones si el sistema interpreta correctamente los comandos del usuario. </td>
+    </tr>
+    <tr>
+        <td> Input Validation </td>
+        <td> Define que el sistema debe presentar reglas para valida las entradas de información al sistema para mantenerlo seguro y confiable en sus respuestas. </td>
+    </tr>
+    <tr>
+        <td rowspan="2"> Observability </td>
+        <td> Maintain Audit Trail </td>
+        <td> Define que el sistema debe dejar rastro de lo que ocurre en el sistema, ya sean eventos o acciones que el usuario realice en la plataforma. </td>
+    </tr>
+    <tr>
+        <td> Heartbeat </td>
+        <td> Adaptación de la táctica de disponibilidad, pero en este caso el sistema envía pulsos con información actual de los estados de los dispositivos IoT. </td>
     </tr>
 </table>
 
