@@ -833,6 +833,36 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Nicolas Juarez Leon </td>
         <td> Add sync component description in design purpose. </td>
     </tr>
+    <tr>
+        <td> 1.156 </td>
+        <td> 15/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add Big Picture Event Storming section to enhance understanding of operational processes </td>
+    </tr>
+    <tr>
+        <td> 1.157 </td>
+        <td> 15/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Remove redundant wording in the Big Picture Event Storming section for clarity </td>
+    </tr>
+    <tr>
+        <td> 1.158 </td>
+        <td> 15/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Revise big picture event storming section for clarity. </td>
+    </tr>
+    <tr>
+        <td> 1.159 </td>
+        <td> 16/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.160 </td>
+        <td> 16/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Expand big picture event storming with event flow details. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
