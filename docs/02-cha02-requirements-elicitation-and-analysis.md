@@ -887,7 +887,7 @@ Durante esta fase inicial, el equipo participó en un brainstorming para registr
 
 Paso 2: Structured Organization
 
-Concluida la exploración abierta, los eventos se alinearon temporalmente y se segmentaron en flujos coherentes con la rutina de la residencia (como preingreso, valoración médica o control de fármacos). Se incorporaron los roles clave (administración, equipo médico, enfermería y familiares) para delimitar responsabilidades e interacciones. Paralelamente, surgieron los hotspots —indicados con rombos morados— que evidenciaron dudas operativas y casos límite: ingresos urgentes sin acompañantes, bajas imprevistas de personal o negativa reiterada a recibir medicación crítica. Así, el modelo va más allá del flujo ideal y transparenta las excepciones reales que el software debe soportar.
+Concluida la exploración abierta, los eventos se alinearon temporalmente y se segmentaron en flujos coherentes con la rutina de la residencia (como preingreso, valoración médica o control de fármacos). Se incorporaron los roles clave (administración, equipo médico, enfermería y familiares) para delimitar responsabilidades e interacciones. Paralelamente, surgieron los hotspots que evidenciaron dudas operativas y casos límite: ingresos urgentes sin acompañantes, bajas imprevistas de personal o negativa reiterada a recibir medicación crítica. Así, el modelo va más allá del flujo ideal y transparenta las excepciones reales que el software debe soportar.
 
 ![Big Picture Event Storming - Fase 2](https://i.imgur.com/54aSJp2.png)
 
