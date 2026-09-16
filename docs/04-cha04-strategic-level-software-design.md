@@ -4,22 +4,9 @@
 
 ### 4.1.1. Design Purpose
 
-### 4.1.2. Tactics
+### 4.1.2. Attribute-Driven Design Inputs
 
-<table>
-    <tr>
-        <th> Atributo de Calidad </th>
-        <th> Táctica </th>
-    </tr>
-    <tr>
-        <td> EP001 </td>
-        <td> Si Va a Salir </td>
-    </tr>
-</table>
-
-### 4.1.3. Attribute-Driven Design Inputs
-
-#### 4.1.3.1. Primary Functionality (Primary User Stories)
+#### 4.1.2.1. Primary Functionality (Primary User Stories)
 
 <table>
     <tr>
@@ -38,7 +25,7 @@
     </tr>
 </table>
 
-#### 4.1.3.2. Quality Attribute Scenarios
+#### 4.1.2.2. Quality Attribute Scenarios
 
 <table>
     <tr>
@@ -61,7 +48,7 @@
     </tr>
 </table>
 
-#### 4.1.3.3. Constraints
+#### 4.1.2.3. Constraints
 
 <table>
     <tr>
@@ -76,6 +63,39 @@
         <td> Si Va a Salir </td>
         <td> Si Va a Salir </td>
         <td> Si Va a Salir </td>
+        <td> Si Va a Salir </td>
+    </tr>
+</table>
+
+#### 4.1.2.4. Architectural Concerns
+
+<table>
+    <tr>
+        <th> Concern ID </th>
+        <th> Título </th>
+        <th> Descripción </th>
+    </tr>
+    <tr>
+        <td> EP001 </td>
+        <td> Si Va a Salir </td>
+        <td> Concern ID </td>
+    </tr>
+</table>
+
+### 4.1.3. Tactics
+
+Las tácticas son decisiones de diseño de arquitectura de software que logran modificar la respuesta de la solución frente a estímulos para mejorar los atributos de calidad. A continuación, se define la lista de atributos de calidad identificados para la solución y las tácticas a emplear para satisfacer los escenarios de atributos de calidad que se definen luego.
+
+<table>
+    <tr>
+        <th> Atributo de Calidad </th>
+        <th> Táctica </th>
+    </tr>
+    <tr>
+        <td rowspan="2"> Availability </td>
+        <td> Si Va a Salir </td>
+    </tr>
+    <tr>
         <td> Si Va a Salir </td>
     </tr>
 </table>
