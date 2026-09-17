@@ -383,6 +383,10 @@ Las tácticas son decisiones de diseño de arquitectura de software que logran m
 
 ### 4.1.4. Architectural Drivers Backlog
 
+El Backlog de drivers de arquitectura fue conformado y priorizado tomando como base para juicio el Problem Statement de la solución descrito en el proceso Lean UX; los arquetipos formados a partir de información clave de los segmentos objetivos; los mapas de empatía y los mapas de impacto. A partir de estos recursos, se desarrolló el Quality Attribute Workshop para determinar cuáles son los drivers que deben ser tomados en cuenta para el diseño de la arquitectura de la solución. Para ello, se toman en cuenta los Functional Drivers que son capaces de modificar la arquitectura para su implementación; los Quality Attribute Drivers, los Constraints que limitan las decisiones de diseño y los Concerns que contemplan expectativas de los stakeholders.
+
+Por otro lado, para la priorización del backlog, se tomaron en cuenta dos criterios: la importancia para los stakeholders y el impacto que el driver puede generar en la complejidad de la arquitectura. Para dar mayor sentido a la priorización, se colocaron en la parte superior de la tabla los drivers con mayor valor entregado a los stakeholders y los que mayor impacto generen en la toma de decisiones de diseño asociadas al entorno de Internet de las Cosas, procesamiento de comandos, sincronización en la nube y funciones de gestión del cuidado de la persona discapacitada. A continuación, se muestra la tabla priorizada de los drivers arquitectónicos.
+
 <table>
     <tr>
         <th> Driver ID </th>
@@ -392,7 +396,7 @@ Las tácticas son decisiones de diseño de arquitectura de software que logran m
         <th> Impacto en Architecture Technical Complexity (High, Medium, Low) </th>
     </tr>
     <tr>
-        <td> EP001 </td>
+        <td> AD001 </td>
         <td> Si Va a Salir </td>
         <td> Si Va a Salir </td>
         <td> Si Va a Salir </td>
