@@ -279,11 +279,11 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>04:26 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>14:42 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
@@ -365,11 +365,11 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>19:10 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>05:33 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
@@ -460,7 +460,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>04:26 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
@@ -537,11 +537,11 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>24:46 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>03:02 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
@@ -610,11 +610,11 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>27:55 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>05:20 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
@@ -698,17 +698,17 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>33:16 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>04:00 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
         <td>
 
-### **1. Características Objetivas **
+### **1. Características Objetivas**
 * **Relación de Cuidado:** Es el **hijo** de la persona dependiente a su cargo (un adulto mayor).
 * **Esquema de Asistencia y Turnos:**
   * Compartía la responsabilidad de cuidado con su **hermano**, pero debido a que este se encuentra actualmente fuera del país, él ha asumido la responsabilidad principal.
