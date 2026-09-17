@@ -353,8 +353,8 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
         <td>
         <div align="center">
             <img 
-                src="" 
-                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                src="https://imgur.com/DQCThLK.png" 
+                style="width:100%; max-width:420px; height:600px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
                 alt="">
         </div>
         </td>
@@ -667,26 +667,26 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
-        <td>Nombre del entrevistado</td>
+        <td> Renzo Alfonso </td>
     </tr>
     <tr>
         <td><strong>Apellidos</strong></td>
-        <td>Apellidos del entrevistado</td>
+        <td>Navarrete</td>
     </tr>
     <tr>
         <td><strong>Edad</strong></td>
-        <td>XX años</td>
+        <td>34 años</td>
     </tr>
     <tr>
-        <td><strong>Rol</strong></td>
-        <td>Familiar o cuidador de persona con discapacidad</td>
+        <td><strong>distrito</strong></td>
+        <td>Los Olivos</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
         <td>
         <div align="center">
             <img 
-                src="" 
+                src="https://imgur.com/9C6hMqd.png" 
                 style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
                 alt="">
         </div>
@@ -707,8 +707,38 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     <tr>
         <td><strong>Resumen</strong></td>
         <td>
-        Resumen de la entrevista
-        </td>
+
+### **1. Características Objetivas **
+* **Relación de Cuidado:** Es el **hijo** de la persona dependiente a su cargo (un adulto mayor).
+* **Esquema de Asistencia y Turnos:**
+  * Compartía la responsabilidad de cuidado con su **hermano**, pero debido a que este se encuentra actualmente fuera del país, él ha asumido la responsabilidad principal.
+  * Asiste personalmente a su familiar todos los días en dos momentos clave: en la **madrugada** (antes de salir a su centro laboral) y por la **noche**.
+  * **Personal de Apoyo:** Para los horarios en los que él trabaja, cuentan con una persona contratada en el hogar que atiende al familiar bajo sus indicaciones directas.
+* **Actividades de Soporte Diario:** Lo apoya principalmente en su **desplazamiento diario** y en la **provisión de sus alimentos**.
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Preocupación Constante y Puntos de Dolor:** Su mayor punto de dolor y temor es que ocurra una desgracia imprevista en cualquier momento (como **caídas, atragantamientos u otros accidentes** comunes en adultos mayores) mientras él no se encuentra presente.
+* **Actitud y Exigencia de Seguridad:** Se muestra como un cuidador sumamente **precavido y vigilante**. Enfatiza que para adoptar cualquier solución tecnológica debe contar con una **garantía de seguridad absoluta**, asegurando que el dispositivo no vaya a provocar un accidente a su familiar.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivos en Uso:** Utiliza el **teléfono celular (smartphone)** como su dispositivo principal diario, además de una **laptop** y una **tablet**.
+* **Aplicaciones Frecuentes:** Usa intensivamente **WhatsApp** (para mantenerse comunicado), **Yape** (para transacciones/pagos), aplicaciones de investigación y una **aplicación móvil de cámaras de seguridad**.
+* **Canal de Monitoreo Instalado:** Tiene instaladas **cámaras de vigilancia en su vivienda sincronizadas con una app en su celular**, lo que le permite supervisar en tiempo real tanto el estado de su familiar como el desempeño de la persona contratada para su cuidado.
+
+---
+
+### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Disposición al Cambio:** Está **totalmente dispuesto** a implementar un sistema que permita a su familiar ganar autonomía en tareas del hogar (como **abrir las puertas del cuarto o de la casa, encender las luces**, etc.).
+* **Requerimientos Clave para el Arquetipo:**
+  1. **Monitoreo de Funciones Vitales:** Le gustaría que la plataforma no solo registre el desplazamiento y la actividad diaria, sino que también mida **funciones vitales en tiempo real**.
+  2. **Sistema de Alertas por Alteraciones:** Desea recibir alertas automáticas si el sistema detecta alguna alteración de salud o anomalía en la rutina de su familiar.
+  3. **Control de Accesos e Iluminación:** Considera de gran utilidad la automatización de accesos (puertas) e iluminación para reducir el riesgo de caídas.
+
+</td>
     </tr>
 </table>
 
