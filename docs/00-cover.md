@@ -971,6 +971,24 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Matias Diaz </td>
         <td> Refine impact mapping deliverable description </td>
     </tr>
+    <tr>
+        <td> 1.179 </td>
+        <td> 16/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.180 </td>
+        <td> 16/09/26 </td>
+        <td> Far14z </td>
+        <td> Add primary user stories. </td>
+    </tr>
+    <tr>
+        <td> 1.181 </td>
+        <td> 16/09/26 </td>
+        <td> Far14z </td>
+        <td> Update alert user story for improved clarity and readability. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
