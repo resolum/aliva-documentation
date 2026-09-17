@@ -248,6 +248,84 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
+        <td>Jaime</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Ramos García</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>65 años</td>
+    </tr>
+    <tr>
+        <td><strong>distrito</strong></td>
+        <td>San Martin de Porres</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="https://imgur.com/U2Zsvng.png" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>04:26 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+
+### **1. Características Objetivas (Perfil Demográfico y de Contexto)**
+* **Edad y Ubicación:** Jaime tiene **65 años** de edad y vive en la urbanización Ingeniería (5ta etapa), en el distrito de **San Martín de Porres, Lima**.
+* **Origen y Evolución de la Discapacidad:** Presenta una discapacidad motora desde hace **20 años**; anteriormente caminaba con total normalidad. Para desplazarse utiliza una **silla de ruedas**.
+* **Seguro Médico:** Cuenta con cobertura de **seguro social(Essalud)**.
+* **Entorno Familiar y Red de Apoyo:** Vive únicamente con su **padre, quien tiene casi 90 años**. Sus hermanos viven cada uno por su lado.
+* **Capacidad Física:** A pesar de la inmovilidad en sus piernas, mantiene mucha fuerza en los brazos y manifiesta que sus brazos son prácticamente "sus piernas".
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Nivel de Autonomía:** Trata de valerse por sí mismo acomodándose en la cama como puede. Reporta pedir ayuda con una frecuencia mínima ("casi nada"), salvo en ocasiones puntuales para el baño o la ducha.
+* **Anhelo Principal:** La actividad que más le gustaría volver a hacer por sí mismo es **caminar** y salir a pasear de forma independiente.
+* **Dinámica en Ausencia de Cuidadores:** Cuando requiere ayuda y no hay nadie en casa, se queda recostado en la cama o sentado hasta que alguien llega o se comunica mediante llamadas telefónicas.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivo en Uso:** El único dispositivo tecnológico que utiliza en su vida diaria es el **teléfono celular**.
+* **Canales de Comunicación:** Se comunica con sus familiares utilizando **llamadas telefónicas y WhatsApp**.
+* **Interacción con el Entorno Físico:** Utiliza la misma silla de ruedas como punto de apoyo físico para abrir las puertas de su casa.
+* **Limitación Física Específica:** Le resulta **imposible abrir las ventanas** de su hogar debido a que son duras, no puede ponerse de pie y no tiene de dónde apoyarse.
+
+---
+
+### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Experiencia Previa:** **Nunca** ha utilizado un dispositivo tecnológico de asistencia para abrir ventanas o ponerse de pie.
+* **Disposición al Cambio:** Muestra una disposición clara para utilizar un dispositivo que le permita controlar la apertura y cierre de ventanas por sí mismo.
+* **Requerimientos:** Considera que le sería de gran utilidad un mecanismo de apoyo (como adaptarse con un bastón o un control autónomo) para gestionar sus ventanas sin depender de terceros.
+     </td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #2</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
         <td> Gerardo Alfredo</td>
     </tr>
     <tr>
@@ -330,7 +408,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 <table>
     <tr>
-        <th colspan="2" style="text-align:center;">Entrevista #2</th>
+        <th colspan="2" style="text-align:center;">Entrevista #3</th>
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
@@ -417,86 +495,6 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
 </table>
 
-<br>
-
-<table>
-    <tr>
-        <th colspan="2" style="text-align:center;">Entrevista #3</th>
-    </tr>
-    <tr>
-        <td><strong>Nombre</strong></td>
-        <td>Jaime</td>
-    </tr>
-    <tr>
-        <td><strong>Apellidos</strong></td>
-        <td>Ramos García</td>
-    </tr>
-    <tr>
-        <td><strong>Edad</strong></td>
-        <td>65 años</td>
-    </tr>
-    <tr>
-        <td><strong>distrito</strong></td>
-        <td>San Martin de Porres</td>
-    </tr>
-    <tr>
-        <td><strong>Evidencia</strong></td>
-        <td>
-        <div align="center">
-            <img 
-                src="https://imgur.com/U2Zsvng.png" 
-                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
-                alt="">
-        </div>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Link</strong></td>
-        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
-    </tr>
-    <tr>
-        <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
-    </tr>
-    <tr>
-        <td><strong>Duración de la entrevista</strong></td>
-        <td>04:26 min</td>
-    </tr>
-    <tr>
-        <td><strong>Resumen</strong></td>
-        <td>
-
-### **1. Características Objetivas (Perfil Demográfico y de Contexto)**
-* **Edad y Ubicación:** Jaime tiene **65 años** de edad y vive en la urbanización Ingeniería (5ta etapa), en el distrito de **San Martín de Porres, Lima**.
-* **Origen y Evolución de la Discapacidad:** Presenta una discapacidad motora desde hace **20 años**; anteriormente caminaba con total normalidad. Para desplazarse utiliza una **silla de ruedas**.
-* **Seguro Médico:** Cuenta con cobertura de **seguro social(Essalud)**.
-* **Entorno Familiar y Red de Apoyo:** Vive únicamente con su **padre, quien tiene casi 90 años**. Sus hermanos viven cada uno por su lado.
-* **Capacidad Física:** A pesar de la inmovilidad en sus piernas, mantiene mucha fuerza en los brazos y manifiesta que sus brazos son prácticamente "sus piernas".
-
----
-
-### **2. Comportamiento, Dolores y Aspectos Subjetivos**
-* **Nivel de Autonomía:** Trata de valerse por sí mismo acomodándose en la cama como puede. Reporta pedir ayuda con una frecuencia mínima ("casi nada"), salvo en ocasiones puntuales para el baño o la ducha.
-* **Anhelo Principal:** La actividad que más le gustaría volver a hacer por sí mismo es **caminar** y salir a pasear de forma independiente.
-* **Dinámica en Ausencia de Cuidadores:** Cuando requiere ayuda y no hay nadie en casa, se queda recostado en la cama o sentado hasta que alguien llega o se comunica mediante llamadas telefónicas.
-
----
-
-### **3. Tecnología, Dispositivos y Canales de Interacción**
-* **Dispositivo en Uso:** El único dispositivo tecnológico que utiliza en su vida diaria es el **teléfono celular**.
-* **Canales de Comunicación:** Se comunica con sus familiares utilizando **llamadas telefónicas y WhatsApp**.
-* **Interacción con el Entorno Físico:** Utiliza la misma silla de ruedas como punto de apoyo físico para abrir las puertas de su casa.
-* **Limitación Física Específica:** Le resulta **imposible abrir las ventanas** de su hogar debido a que son duras, no puede ponerse de pie y no tiene de dónde apoyarse.
-
----
-
-### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
-* **Experiencia Previa:** **Nunca** ha utilizado un dispositivo tecnológico de asistencia para abrir ventanas o ponerse de pie.
-* **Disposición al Cambio:** Muestra una disposición clara para utilizar un dispositivo que le permita controlar la apertura y cierre de ventanas por sí mismo.
-* **Requerimientos:** Considera que le sería de gran utilidad un mecanismo de apoyo (como adaptarse con un bastón o un control autónomo) para gestionar sus ventanas sin depender de terceros. 
-     </td>
-    </tr>
-</table>
 
 **Segmento 2: Familiares o cuidadores de la persona con discapacidad**
 
