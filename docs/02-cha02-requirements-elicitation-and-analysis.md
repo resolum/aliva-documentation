@@ -714,9 +714,43 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 ### 2.2.3. Análisis de entrevistas
 
+Después de realizar entrevistas con nuestros segmentos objetivo, es momento de interpretar nuestros hallazgos. En esta parte vamos a separar los elementos objetivos y subjetivos de los datos recolectados en las entrevistas, con el fin de determinar patrones de comportamiento y necesidades insatisfechas, como se muestra en los gráficos estadísticos que siguen.
+
+---
+
+#### Segmento 1: Persona con discapacidad motora severa
+
+**Análisis de Características Objetivas y Subjetivas:**
+
+Las entrevistas indican que una persona con discapacidades motoras severas depende de un familiar directo para realizar las tareas básicas del hogar sin ningún tipo de asistencia tecnológica. El 100% de los entrevistados tienen una discapacidad motora de diversos orígenes (parálisis cerebral en la Entrevista 1, esclerosis múltiple en la Entrevista 2 y las secuelas de una caída en la Entrevista 3). Asimismo, el 100% de los entrevistados afirman que utilizan una silla de ruedas y necesitan pedir ayuda a un familiar directo (padre, madre, tía) para realizar sus actividades diarias.
+
+En cuanto al uso de la tecnología el 100% de los entrevistados usan un teléfono celular como dispositivo principal principalmente para las llamadas y WhatsApp en caso de emergencia. Sin embargo el 67% (Entrevistas 2 y 3) nunca han usado un dispositivo o un sistema de asistencia tecnológica en sus hogares lo cual indica una evidente brecha en el acceso a estas tecnologías. El 33% (Entrevista 1) es una persona con experiencia previa en programación y familiaridad con sistemas de control de voz, quien no pudo implementar el sistema de automatización del hogar porque desconocía las soluciones comerciales del problema y debido a limitaciones económicas.
+
+En cuanto a las actividades más difíciles el 100% de los entrevistados indicaron tener problemas para controlar la luz, la puerta y la ventana de su habitación sin ayuda. En la segunda entrevista la entrevistada enfatizó que la silla de ruedas no le permite usar los interruptores, mientras que en la primera entrevista el entrevistado indicó que se apoya con sus muletas para empujar puertas y ventanas.
+
+Desde la perspectiva subjetiva el 100% de los entrevistados indicaron una actitud favorable al usar el sistema que les permita controlar estos objetos en su hogar. Además el 33% (Entrevista 1) indicaron una preferencia por el control de voz sobre el control de gestos o movimiento basado en la experiencia previa con sistemas de reconocimiento de voz ya que este modo parece ser más inclusivo para aquellos que no tienen movilidad en sus extremidades. Un aspecto emocional de este tema también se vuelve evidente en las tres entrevistas: la falta de independencia se la describen como una experiencia de frustración que influye en su bienestar emocional y en la sensación de control sobre su vida.
+
+![Gráfico Estadístico Persona con Discapacidad Motora Severa](https://imgur.com/ikIAYeN.png)
+
+En resumen se puede afirmar que una persona con discapacidad motora severa quiere ser independiente de la asistencia para controlar los objetos básicos en la proximidad inmediata (luz, puerta o ventana), pero necesita que la solución sea accesible, económica y que priorice el comando de voz como canal principal de interacción.
+
 ## 2.3. Needfinding
 
 ### 2.3.1. User Persona
+
+Para entender mejor los deseos de los segmentos objetivo, se diseña un User Persona para cada uno, tomando como base información clave tras haber analizado profundamente las entrevistas. Estos User Persona son represtaciones ficticias que ayudan al equipo a desarrollar un proceso de Needfinding que permita detectar e identificar las necesidades clave de cada segmento objetivo para el desarrollo de la solución.
+
+**User Persona 1: Personas con discapacidad motora severa**
+
+![Descripción de información del segmento de personas con discapacidad motora severa](https://i.imgur.com/gdtslYN.png)
+
+En conclusión, el User Persona de este segmento objetivo sintetiza el perfil de una persona adulta con discapacidad motora que presenta importantes limitaciones para movilizarse y manipular elementos físicos. Esta situación condiciona su capacidad para realizar actividades cotidianas dentro del hogar. Por otro lado, sus principales objetivos y motivaciones se concentran en alcanzar mayor autonomía, tener control sobre su entorno, realizar actividades de manera más rápida y segura y reducir la dependencia de su cuidador, mientras que sus principales frustraciones surgen precisamente de tener que depender de otras personas, adaptar su rutina a su disponibilidad y no poder realizar actividades como abrir puertas, ventanas o encender luces por sí mismo. En este contexto, el problema principal identificado es la dificultad para interactuar de forma autónoma con elementos básicos del hogar debido a sus limitaciones motoras, generando dependencia y reduciendo su capacidad de decidir cuándo y cómo realizar sus actividades. Por ello, sus necesidades principales se orientan hacia contar con un mecanismo de interacción accesible y adaptado a sus capacidades, que le permita controlar elementos del hogar de forma independiente, recibir confirmación de las acciones realizadas y solicitar asistencia cuando una situación requiera la intervención de otra persona.
+
+**User Persona 2: Familiar o cuidador de persona con discapacidad**
+
+![Descripción de información del segmento de cuidadores de personas con discapacidad](https://i.imgur.com/HxXZbeH.png)
+
+En conclusión, el User Persona de este segmento objetivo evidencia que el problema no se limita a las dificultades físicas que presenta su familiar para realizar actividades básicas del hogar, sino que también genera una carga constante de cuidado sobre sí mismo, quien debe permanecer atento a su bienestar, ayudarlo con tareas como abrir puertas, ventanas o encender luces y preocuparse cuando necesita salir y no hay otra persona que pueda asistirlo. Sus objetivos y motivaciones muestran que busca que su familiar alcance una mayor autonomía en actividades mínimas del hogar, al mismo tiempo que desea disponer de tiempo para cumplir con sus propios deberes y descansar, mientras que sus principales frustraciones son la preocupación por dejarlo solo, la falta de alguien que pueda sustituirlo y el agotamiento físico y mental producido por compatibilizar el cuidado con sus responsabilidades. Asimismo, el uso de smartphone Android, teléfono, WhatsApp, comunicación presencial y su vinculación con el cuidador y el horario laboral evidencian que la solución debe considerar tanto al familiar con discapacidad como al cuidador como actores relevantes. En consecuencia, el problema identificado comprende una doble necesidad de autonomía y apoyo: la persona con discapacidad requiere mecanismos accesibles que le permitan realizar determinadas actividades del hogar de forma independiente, mientras que Mariano necesita contar con mayor seguridad, conocimiento del estado de su familiar y capacidad de recibir alertas o solicitudes de asistencia cuando realmente sean necesarias. Esta información permite orientar la recopilación de requisitos hacia funcionalidades como el control autónomo de elementos del hogar, la confirmación de acciones, la supervisión o consulta remota del estado y la comunicación de alertas al cuidador, procurando que la solución reduzca la dependencia cotidiana sin eliminar la posibilidad de intervención humana cuando sea necesaria.
 
 ### 2.3.2. User Task Matrix
 
@@ -818,13 +852,51 @@ A partir del User Task Matrix elaborado, se identifican los siguientes hallazgos
 
 **Coincidencias relevantes:** Contactar a otra persona/coordinar con otro familiar o cuidador y Solicitar/atender ayuda durante la noche comparten frecuencia Medium e importancia High en ambos segmentos, lo que indica que, aunque no ocurren todos los días, su correcta atención es determinante para la continuidad del cuidado. De forma más marcada, Solicitar/atender ayuda ante una situación urgente presenta frecuencia Low pero importancia High para ambos User Personas, confirmando que, pese a su baja recurrencia, la atención oportuna ante emergencias es un requisito crítico que la solución debe garantizar con prioridad absoluta.
 
-### 2.3.3. User Journey Mapping
+### 2.3.3. Empathy Mapping
 
-### 2.3.4. Empathy Mapping
+**Segmento Objetivo 1: Persona con discapacidad motora severa**
 
-### 2.3.5. As-Is Scenario Mapping
+![Empathy Map - Persona con discapacidad motora severa](https://i.imgur.com/4ZlwuLB.png)
 
-El As-Is Scenario Mapping es una herramienta que permite visualizar el estado actual de un proceso o experiencia desde la perspectiva del usuario. En este caso, se ha utilizado para mapear la experiencia de personas con discapacidad motora o visual en su interacción con el hogar y los dispositivos de domótica existentes y familiares o cuidadores que los asisten.
+**Análisis del Empathy Map: Sebastián Sánchez**
+
+**Tensión entre lo que piensa/siente y lo que hace:** existe una brecha marcada entre el deseo de autonomía de Sebastián ("ser más independiente y tener mayor control de su entorno") y su comportamiento actual, que sigue centrado en esperar la disponibilidad de su cuidador para acciones tan básicas como abrir una puerta o encender una luz. Esto confirma que la solución no debe limitarse a facilitar la comunicación de necesidades, sino a permitirle ejecutar directamente esas acciones sin intermediarios.
+
+**El entorno físico como principal fuente de frustración:** tanto en "What do they SEE" como en "PAINS" se repite el mismo obstáculo — interruptores, picaportes y mecanismos que no puede alcanzar o accionar sin esfuerzo. Esto valida que el foco del producto debe estar en el control remoto o automatizado de elementos del hogar (luces, puertas, ventanas), más que en otros aspectos secundarios de su vida diaria.
+
+**La dependencia genera un costo emocional, no solo funcional:** los bloques de PAINS y de pensamientos/sentimientos coinciden en frustración, ansiedad e inseguridad ante la ausencia de su cuidador. Esto indica que el valor de la solución no es solo práctico (resolver una tarea), sino también emocional: reducir la ansiedad de sentirse desatendido en momentos sin compañía.
+
+**Consistencia entre lo que dice y lo que espera lograr (GAINS):** las citas textuales de Sebastián ("quisiera poder abrir las ventanas, las puertas y encender la iluminación...") se alinean directamente con sus GAINS (independencia, seguridad, rapidez). Esta coherencia discurso-expectativa fortalece la validez del insight y reduce el riesgo de que sea un deseo aislado o poco representativo.
+
+**El teléfono/smartphone como único canal de mediación actual:** en "What do they DO" se observa que su único recurso ante la ausencia de ayuda es el teléfono, ya sea para pedir asistencia o llamar en emergencias. Esto lo posiciona como el canal más natural sobre el cual construir la interacción con la solución tecnológica, dado que ya es su herramienta de referencia.
+
+**Un dolor de baja frecuencia pero alto impacto:** aunque no se repite tanto como los otros, el punto "anhelo de poder moverse o actuar sobre su entorno sin restricciones" conecta con la tarea de "solicitar ayuda ante una situación urgente" del Task Matrix (frecuencia Low, importancia High), reforzando que los mecanismos de emergencia deben estar garantizados incluso si se usan con poca frecuencia.
+
+
+**Segmento Objetivo 2: Familiar o cuidador de persona con discapacidad**:
+
+![Empathy Map - Persona cuidadora de persona con discapacidad](https://i.imgur.com/GVANd8e.png)
+
+**Análisis del Empathy Map: Mariano Díaz**
+
+**Tensión entre el cuidado y sus responsabilidades personales:** Mariano desea proteger y asistir a su familiar, pero también necesita estudiar y realizar sus propias actividades. Aunque organiza las tareas principales antes de salir, continúa preocupado durante su ausencia, evidenciando la necesidad de mantenerse informado sin abandonar sus responsabilidades.
+
+**La falta de información como principal fuente de ansiedad:** en “What do they THINK and FEEL” y “PAINS” se repite el temor de que su familiar necesite alimentación, asistencia o atención fisiológica cuando nadie esté disponible. Esto confirma que conocer oportunamente lo que sucede en casa es fundamental para reducir su incertidumbre.
+
+**La comunicación actual no garantiza una respuesta oportuna:** Mariano recibe llamadas y audios de WhatsApp, pero puede no advertirlos cuando está en clases o en la calle. Por ello, necesita información escrita, clara y discreta que le permita identificar rápidamente las necesidades importantes.
+
+**El cuidado genera desgaste físico y emocional:** cargar, movilizar y empujar la silla de ruedas de su familiar produce cansancio físico, mientras que mantenerse constantemente pendiente provoca agotamiento mental. La solución debe reducir las intervenciones innecesarias sin reemplazar las actividades que requieren cuidado humano.
+
+**La autonomía del familiar también beneficia al cuidador:** si su familiar puede controlar luces, puertas y ventanas por sí mismo, Mariano puede dedicar su esfuerzo a tareas de mayor importancia. Esto favorecería tanto la independencia de la persona asistida como la disponibilidad de tiempo del cuidador.
+
+**El smartphone como canal natural y confiable:** Mariano siempre lleva su celular y lo utiliza como principal medio de comunicación. Esto lo convierte en el canal más adecuado para mantenerlo informado, aunque la adopción dependerá de que la solución le transmita seguridad, confianza y control.
+
+
+
+
+### 2.3.4. As-Is Scenario Mapping
+
+El As-Is Scenario Mapping es una herramienta que permite visualizar el estado actual de un proceso o experiencia desde la perspectiva del usuario. En este caso, se ha utilizado para mapear la experiencia de personas con discapacidad motora en su interacción con el hogar y los dispositivos de domótica existentes y familiares o cuidadores que los asisten.
 
 **Segmento Objetivo 1: Persona con discapacidad motora severa**: El As-Is Scenario Mapping revela que estas personas enfrentan dificultades significativas al intentar que los cuidadores o familiares comprendan sus necesidades y preferencias en el hogar. La falta de comunicación efectiva y la dependencia de otros para realizar tareas básicas genera frustración y limita su autonomía.
 
@@ -838,7 +910,39 @@ Podemos conluir que la experiencia de las personas con discapacidad motora sever
 
 Podemos concluir que la experiencia de los cuidadores y familiares de personas con discapacidad es frustrante y agotadora ya que deben estar al pendiente de las necesidades de la persona con discapacidad, lo que puede generar estrés y ansiedad. Esto resalta la necesidad de soluciones que faciliten la comunicación y la comprensión mutua entre cuidadores y personas con discapacidad, mejorando así la calidad de vida de ambos.
 
-## 2.4. Big Picture Eventstorming
+## 2.4. Big Picture Event Storming
+
+El Big Picture Event Storming nos ayuda a explorar los eventos relacionados a la vida diaria de una persona con discapacidad motora severa en su hogar. Se empezó colocando eventos de dominio relacionados sin importar el orden. Luego, se formaron líneas de tiempo que ayuden a denotar una secuencia de eventos de dominio que posea coherencia con el dominio y sus relaciones con otros eventos. Finalmente, se identificaron los actores que interactúan en el dominio y los pain points. A continuación, se adjuntan las capturas de pantalla de cada paso realizado para diagramar el Big Picture Event Storming del proyecto:
+
+Fase 1: Free Exploration
+
+Durante esta fase el equipo participó en una sesión de lluvia de ideas para identificar todos los eventos críticos en el dominio sin ser influenciados por la jerarquía y las consideraciones del cronograma. El objetivo principal fue identificar las operaciones de la vida real en la existencia diaria de la persona con discapacidad y el cuidador sin hacer uso de ningún requisito técnico o de software. Durante esta fase se han identificado y representado con bloques de color naranja los eventos como el despertar de la persona con discapacidad, las peticiones de ayuda para diferentes actividades realizadas por la persona con discapacidad y las acciones tomadas por el cuidador durante el día.
+
+![Big Picture Event Storming - Fase 1](https://i.imgur.com/YAdOTVX.png)
+
+En esta captura se observan los eventos identificados durante la sesión de lluvia de ideas, representados con bloques de color naranja sin ningún orden ni jerarquía establecida. Entre ellos se distinguen eventos protagonizados por la persona con discapacidad, como su despertar, sus solicitudes de ayuda para acomodarse o comer, y sus llamados al cuidador para encender luces o abrir puertas; así como eventos protagonizados por el cuidador, como revisar a su familiar, preparar la medicación, atender solicitudes de asistencia o coordinar con otros cuidadores ante una ausencia. Esta variedad de eventos, sin estructurar aún, sirvió como insumo para la posterior organización en flujos durante el Paso 2.
+
+Paso 2: Structured Organization
+
+Después de la exploración abierta se ordenan los eventos cronológicamente y se organizan en flujos vinculados a las actividades diarias en el hogar. Se identifican roles importantes (la persona con discapacidad, el cuidador principal y a veces un cuidador secundario) para definir los roles y las interacciones dentro de cada flujo. Al mismo tiempo han surgido hotspots los cuales resaltan preguntas operativas y casos límite incluidos en la rutina diaria: ¿Qué pasará si el cuidador no reacciona lo suficientemente rápido al llamado de ayuda de la persona con discapacidad? ¿Qué pasará si no hay nadie que asista a la persona con discapacidad y qué pasará si el cuidador secundario no sustituye al cuidador principal al momento del cambio de turno? De esta manera el modelo se extiende más allá del caso óptimo del flujo e identifica las excepciones reales que necesitan ser cubiertas por el software.
+
+Debido al segundo paso se han identificado doce flujos los cuales abarcan todas las etapas de la experiencia del cuidado en el hogar: el comienzo y la preparación para el día, la solicitud y la provisión de asistencia, el transporte dentro de la casa, la asistencia durante las comidas, la administración de medicamentos, la asistencia con la higiene personal, el acompañamiento y el entretenimiento, la escalada de la solicitud de asistencia, la coordinación y la distribución de los cuidados, el traslado y la finalización del cambio de turno de cuidado, el horario del cuidador para el día y la gestión y el reporte de los incidentes. Para cada uno de los flujos se han identificado los actores responsables de cada evento los cuales realizan una secuencia de acciones; por ejemplo en el flujo de solicitud y provisión de asistencia existe una clara diferenciación entre el momento en el cual la persona con discapacidad pide ayuda y el momento en el cual el cuidador realiza la acción relacionada. Finalmente se han identificado hotspots en esos puntos donde el flujo habitual de los eventos se interrumpe o cuando no está claro qué se debe hacer a continuación, analizando cada horario desde la perspectiva de ambas partes e identificando lo que los molesta o los frustra. De esta manera estos hotspots forman la base de los pain points sobre los cuales Alivia debe plantear su propuesta de solución.
+
+![Big Picture Event Storming - Fase 2](https://i.imgur.com/54aSJp2.png)
+
+En esta segunda captura se observan el Flujo 1 (inicio y preparación de la jornada) y el Flujo 2 (solicitud y atención de asistencia), además del inicio del Flujo 3 (traslado dentro del domicilio). Aquí se aprecia cómo la persona con discapacidad despierta y solicita ayuda para acomodarse, mientras que el cuidador atiende dicha solicitud a lo largo de las distintas actividades del día, como encender las luces, abrir la puerta o acercar un objeto solicitado. En estos flujos aparecen los primeros hotspots identificados por el equipo, referidos a qué pasa cuando el cuidador no atiende el llamado de ayuda a tiempo, o cuando no hay nadie más disponible para asistir a la persona con discapacidad.
+
+![Big Picture Event Storming - Fase 2.1](https://i.imgur.com/ujxsZCh.png)
+
+En esta tercera captura se muestran el Flujo 4 (asistencia durante la alimentación), el Flujo 5 (gestión de medicación) y el Flujo 6 (asistencia en la higiene personal). Estos flujos representan actividades cotidianas en las que la persona con discapacidad requiere apoyo directo del cuidador, como el desayuno, la administración de medicamentos según lo indicado en la receta médica y el baño diario. En el Flujo 5 se identifica un hotspot relacionado a qué ocurre si no hay nadie disponible para ayudar a la persona con discapacidad a tomar su medicación, mientras que en el Flujo 6 se cuestiona qué pasa si el cuidador no escucha o no es capaz de atender el pedido de asistencia para bañarse.
+
+![Big Picture Event Storming - Fase 2.2](https://i.imgur.com/LEtYbxu.png)
+
+En esta cuarta captura se presentan el Flujo 7 (acompañamiento y actividades recreativas), el Flujo 8 (escalamiento de una solicitud de asistencia) y el inicio del Flujo 9 (coordinación y distribución del cuidado). El Flujo 7 recoge momentos de esparcimiento como pasear o conversar con la persona con discapacidad, mientras que el Flujo 8 evidencia un escenario más crítico: qué sucede cuando el cuidador principal no responde a los mensajes o llamadas, obligando a contactar a un cuidador alternativo. Aquí se identifican dos hotspots consecutivos, el primero relacionado a la incapacidad del cuidador de atender el pedido y el segundo a qué pasa si la necesidad de contactar a otro cuidador resulta urgente.
+
+![Big Picture Event Storming - Fase 2.3](https://i.imgur.com/0klWaWM.png)
+
+Por ultimo en esta captura se muestra la continuación del Flujo 9, junto con el Flujo 10 (transferencia y finalización del turno de cuidado), el Flujo 11 (jornada diaria del cuidador) y el Flujo 12 (gestión y reporte de incidentes). En estos flujos se identifica cómo los cuidadores coordinan y transfieren responsabilidades entre ellos, así como el cierre de su jornada laboral. Destacan hotspots como qué pasa si el cuidador alternativo no está disponible al momento de la transferencia de turno, si el cuidador no puede descansar por seguir atendiendo a la persona con discapacidad, o si ocurre un incidente fuera de la presencia de cualquier cuidador.
 
 ## 2.5. Ubiquitous Language
 
@@ -848,7 +952,7 @@ Podemos concluir que la experiencia de los cuidadores y familiares de personas c
         <th> Definición </th>
     </tr>
     <tr>
-        <td> Disabled person (Persona discapacitada) </td>
+        <td> Person with severe motor disability (Persona con discapacidad motora severa) </td>
         <td> Persona adulta con movilidad muy limitada o nula en las extremidades, que puede requerir apoyo para realizar actividades básicas dentro de su hogar.</td>
     </tr>
     <tr>
@@ -910,3 +1014,4 @@ Podemos concluir que la experiencia de los cuidadores y familiares de personas c
 </table>
 
 <div style="page-break-after: always;"></div>
+

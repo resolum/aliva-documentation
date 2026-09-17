@@ -653,6 +653,342 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Addicted2you </td>
         <td> Update terminology for clarity in requirements document </td>
     </tr>
+    <tr>
+        <td> 1.126 </td>
+        <td> 08/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-26 update interview records and demographic details for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.127 </td>
+        <td> 09/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-26 update interview summaries and demographic details for individuals with severe motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.128 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.129 </td>
+        <td> 10/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add image and findings of the first target segment. </td>
+    </tr>
+    <tr>
+        <td> 1.130 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.131 </td>
+        <td> 10/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add segment 1 interview analysis with supporting chart </td>
+    </tr>
+    <tr>
+        <td> 1.132 </td>
+        <td> 10/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Correct wheelchair/crutches inconsistency and simplify chart. </td>
+    </tr>
+    <tr>
+        <td> 1.133 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.134 </td>
+        <td> 11/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.135 </td>
+        <td> 14/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add image and findings about the second target segment. </td>
+    </tr>
+    <tr>
+        <td> 1.136 </td>
+        <td> 12/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update images and remove mention of visual disabilities in scenario mapping </td>
+    </tr>
+    <tr>
+        <td> 1.137 </td>
+        <td> 14/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.138 </td>
+        <td> 10/09/26 </td>
+        <td> Far14z </td>
+        <td> Update section titles for clarity in requirements elicitation and analysis. </td>
+    </tr>
+    <tr>
+        <td> 1.139 </td>
+        <td> 11/09/26 </td>
+        <td> Far14z </td>
+        <td> Add empathy map analysis for disabled person. </td>
+    </tr>
+    <tr>
+        <td> 1.140 </td>
+        <td> 11/09/26 </td>
+        <td> Far14z </td>
+        <td> Refine empathy map analysis. </td>
+    </tr>
+    <tr>
+        <td> 1.141 </td>
+        <td> 14/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.142 </td>
+        <td> 14/09/26 </td>
+        <td> Far14z </td>
+        <td> Expand empathy map analysis for caregiver perspective. </td>
+    </tr>
+    <tr>
+        <td> 1.143 </td>
+        <td> 14/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.144 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Add definitions for key terms related to disability support. </td>
+    </tr>
+    <tr>
+        <td> 1.145 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Remove outdated competitive analysis and interview sections for clarity. </td>
+    </tr>
+    <tr>
+        <td> 1.146 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Remove redundant header for clarity in requirements document. </td>
+    </tr>
+    <tr>
+        <td> 1.147 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Remove unnecessary page break elements for improved document flow </td>
+    </tr>
+    <tr>
+        <td> 1.148 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.149 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.150 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.151 </td>
+        <td> 14/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add to-be scenario mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.152 </td>
+        <td> 15/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.153 </td>
+        <td> 15/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.154 </td>
+        <td> 15/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Define design purpose driver for the solution. </td>
+    </tr>
+    <tr>
+        <td> 1.155 </td>
+        <td> 15/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add sync component description in design purpose. </td>
+    </tr>
+    <tr>
+        <td> 1.156 </td>
+        <td> 15/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Add Big Picture Event Storming section to enhance understanding of operational processes </td>
+    </tr>
+    <tr>
+        <td> 1.157 </td>
+        <td> 15/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Remove redundant wording in the Big Picture Event Storming section for clarity </td>
+    </tr>
+    <tr>
+        <td> 1.158 </td>
+        <td> 15/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Revise big picture event storming section for clarity. </td>
+    </tr>
+    <tr>
+        <td> 1.159 </td>
+        <td> 16/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.160 </td>
+        <td> 16/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Expand big picture event storming with event flow details. </td>
+    </tr>
+    <tr>
+        <td> 1.161 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Change section structure. </td>
+    </tr>
+    <tr>
+        <td> 1.162 </td>
+        <td> 16/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.163 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add quality attribute scenarios. </td>
+    </tr>
+    <tr>
+        <td> 1.164 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add tactics definition related to quality attributes. </td>
+    </tr>
+    <tr>
+        <td> 1.165 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add list of architectural concerns. </td>
+    </tr>
+    <tr>
+        <td> 1.166 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Add functional and non-functional requirements for alivia system. </td>
+    </tr>
+    <tr>
+        <td> 1.167 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Streamline functional requirements for alivia system. </td>
+    </tr>
+    <tr>
+        <td> 1.168 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Reorganize functional requirements for clarity and consistency. </td>
+    </tr>
+    <tr>
+        <td> 1.169 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Update non-functional requirements for improved clarity and completeness. </td>
+    </tr>
+    <tr>
+        <td> 1.170 </td>
+        <td> 16/09/26 </td>
+        <td> Far14z </td>
+        <td> Enhance non-functional requirements for availability, performance, usability, and security. </td>
+    </tr>
+    <tr>
+        <td> 1.171 </td>
+        <td> 16/09/26 </td>
+        <td> Far14z </td>
+        <td> Update non-functional requirements for improved clarity and completeness. </td>
+    </tr>
+    <tr>
+        <td> 1.172 </td>
+        <td> 16/09/26 </td>
+        <td> Far14z </td>
+        <td> Update implementation restrictions for application data handling. </td>
+    </tr>
+    <tr>
+        <td> 1.173 </td>
+        <td> 16/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.174 </td>
+        <td> 15/09/26 </td>
+        <td> Far14z </td>
+        <td> Add page break for improved document formatting. </td>
+    </tr>
+    <tr>
+        <td> 1.175 </td>
+        <td> 16/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add imapct mapping section. </td>
+    </tr>
+    <tr>
+        <td> 1.176 </td>
+        <td> 16/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Revise impact mapping and deliverables sections </td>
+    </tr>
+    <tr>
+        <td> 1.177 </td>
+        <td> 16/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.178 </td>
+        <td> 16/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Refine impact mapping deliverable description </td>
+    </tr>
+    <tr>
+        <td> 1.179 </td>
+        <td> 16/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.180 </td>
+        <td> 16/09/26 </td>
+        <td> Far14z </td>
+        <td> Add primary user stories. </td>
+    </tr>
+    <tr>
+        <td> 1.181 </td>
+        <td> 16/09/26 </td>
+        <td> Far14z </td>
+        <td> Update alert user story for improved clarity and readability. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
