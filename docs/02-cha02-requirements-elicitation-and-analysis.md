@@ -275,7 +275,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
@@ -361,7 +361,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
@@ -452,7 +452,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
@@ -533,7 +533,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
@@ -606,7 +606,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
@@ -694,7 +694,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
