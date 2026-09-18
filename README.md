@@ -51,6 +51,7 @@ Antes de integrar una rama, cada integrante debe verificar que:
 
 | Código     | Integrante                         |
 |------------|------------------------------------|
+| U20211G192 | Armas Sánchez, Oscar Javier        |
 | u202217053 | Calvo Yalan, Renato Guillermo      |
 | u202312508 | Coronel Espinoza, Farid Sebastian  |
 | u202311938 | Diaz Quispe, Matias Sebastian      |
