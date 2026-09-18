@@ -62,6 +62,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Tiempo de failover ≤ 0.5s & 100% acciones ejecutadas sin conexión a red </td>
     </tr>
     <tr>
+        <td colspan="7"> Cuando se produzca una pérdida o degradación de la conexión Wi-Fi con el dispositivo IoT durante una operación normal, el módulo principal deberá detectar la falla y restablecer la comunicación con el dispositivo en un tiempo máximo de 500 milisegundos, permitiendo ejecutar el 100% de las acciones esenciales delegadas al sistema. </td>
+    </tr>
+    <tr>
         <td> Availability </td>
         <td> Dispositivo móvil del usuario </td>
         <td> Pérdida temporal de conexión con el servicio en la nube </td>
@@ -69,6 +72,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Operación normal </td>
         <td> Detectar la pérdida, restablecer la comunicación y sincronizar los cambios locales pendientes </td>
         <td> Reconexión y sincronización en ≤ 5 s; 0% de pérdida de datos </td>
+    </tr>
+    <tr>
+        <td colspan="7"> Cuando el dispositivo móvil del usuario pierda temporalmente la conexión con el servicio en la nube durante una operación normal, el módulo de sincronización deberá detectar la pérdida de conectividad, restablecer la comunicación con el servicio y sincronizar los cambios locales pendientes en un tiempo máximo de 5 segundos, sin pérdida de datos. </td>
     </tr>
     <tr>
         <td> Availability </td>
@@ -80,6 +86,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> 100% de las acciones esenciales que no dependen del servicio afectado se siguen ejecutando </td>
     </tr>
     <tr>
+        <td colspan="7"> Cuando alguno de los servicios externos integrados al sistema deje de estar disponible durante una operación normal, el módulo de integración deberá detectar la falla y permitir que el sistema continúe ejecutando el 100% de las acciones esenciales que no dependan directamente del servicio afectado. </td>
+    </tr>
+    <tr>
         <td> Security </td>
         <td> Usuario visitante </td>
         <td> Crear una cuenta nueva </td>
@@ -87,6 +96,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Operación normal </td>
         <td> Aplicar derivación de clave a la contraseña antes de almacenarla </td>
         <td> 100% de contraseñas almacenadas mediante el mecanismo establecido </td>
+    </tr>
+    <tr>
+        <td colspan="7"> Cuando un usuario visitante cree una nueva cuenta en la plataforma durante una operación normal, el módulo de IAM deberá almacenar la contraseña mediante una función de derivación de claves resistente a ataques de fuerza bruta, utilizando los parámetros establecidos por la política de seguridad de la plataforma y sin almacenar la contraseña en texto plano. </td>
     </tr>
     <tr>
         <td> Security </td>
@@ -98,6 +110,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Token con vigencia ≤ 30 minutos </td>
     </tr>
     <tr>
+        <td colspan="7"> Cuando un cuidador de una persona con discapacidad motora inicie sesión con credenciales válidas durante una operación normal, el módulo de IAM deberá autenticar al usuario y emitir un token de acceso temporal asociado a su rol, que permita acceder únicamente a los recursos autorizados y tenga una vigencia máxima de 30 minutos. </td>
+    </tr>
+    <tr>
         <td> Security </td>
         <td> Cuidador de persona con discapacidad motora </td>
         <td> Realizar acción en la plataforma </td>
@@ -105,6 +120,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Operación normal </td>
         <td> Validar token de acceso antes de autorizar la acción </td>
         <td> Rechazo del 100% de acciones no autorizadas </td>
+    </tr>
+    <tr>
+        <td colspan="7"> Cuando un cuidador de una persona con discapacidad motora realice una acción en la plataforma durante una operación normal, el módulo de IAM deberá validar la vigencia y los permisos asociados al token de acceso antes de autorizar la acción, garantizando que el 100% de las acciones no autorizadas sean rechazadas. </td>
     </tr>
     <tr>
         <td> Performance </td>
@@ -116,6 +134,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Sincronización completada ≤ 1.0s </td>
     </tr>
     <tr>
+        <td colspan="7"> Cuando el dispositivo móvil del usuario recupere la conectividad con el servicio en la nube durante una operación normal, el módulo de sincronización deberá procesar y enviar los cambios locales pendientes al servicio, completando la sincronización en un tiempo máximo de 1 segundo. </td>
+    </tr>
+    <tr>
         <td> Performance </td>
         <td> Persona con discapacidad motora </td>
         <td> Solicitar ejecución de acción física </td>
@@ -123,6 +144,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Operación normal </td>
         <td> Procesar el comando y delegarlo al dispositivo correspondiente </td>
         <td> Latencia de ejecución ≤ 1.5s </td>
+    </tr>
+    <tr>
+        <td colspan="7"> Cuando una persona con discapacidad motora solicite la ejecución de una acción física durante una operación normal, el módulo de control y comunicación deberá procesar el comando y delegar su ejecución al dispositivo IoT correspondiente con una latencia máxima de 1,5 segundos. </td>
     </tr>
     <tr>
         <td> Performance </td>
@@ -134,6 +158,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Latencia punto a punto ≤ 1.0s </td>
     </tr>
     <tr>
+        <td colspan="7"> Cuando el sistema detecte un evento crítico durante una operación normal, el módulo de alertas y notificaciones deberá transmitir la alerta al servicio externo de notificaciones con una latencia máxima de punto a punto de 1,0 segundo. </td>
+    </tr>
+    <tr>
         <td> Performance </td>
         <td> Dispositivo IoT </td>
         <td> Envío de telemetría </td>
@@ -141,6 +168,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Operación normal </td>
         <td> Almacenar los registros asociados sin afectar las operaciones transaccionales y de sincronización </td>
         <td> Tiempo de persistencia ≤ 1.0s </td>
+    </tr>
+    <tr>
+        <td colspan="7"> Cuando el sistema reciba datos de telemetría provenientes de los dispositivos IoT durante una operación normal, el módulo de persistencia deberá almacenar los registros de telemetría sin afectar las operaciones transaccionales y de sincronización, manteniendo un tiempo de procesamiento de almacenamiento inferior a 1.0 segundo. </td>
     </tr>
     <tr>
         <td> Interoperability </td>
@@ -152,6 +182,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> 100% de las interfaces de integración operativas se mantengan con formato y protocolos establecidos </td>
     </tr>
     <tr>
+        <td colspan="7"> Cuando alguno de los servicios externos integrados al sistema presente una falla de comunicación durante una operación normal, la interfaz de integración deberá identificar la incompatibilidad o error de comunicación y gestionar la interacción con el servicio externo sin afectar el intercambio de información con los demás servicios integrados, logrando que el 100% de las interfaces de integración operativas mantengan el formato y protocolo de comunicación establecido. </td>
+    </tr>
+    <tr>
         <td> Usability </td>
         <td> Persona con discapacidad motora </td>
         <td> Solicitar la ejecución de una acción física </td>
@@ -159,6 +192,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Operación normal </td>
         <td> Ejecutar el comando y proporcionar una confirmación por voz de la acción realizada </td>
         <td> Confirmación en el 100% de las ejecuciones de comandos </td>
+    </tr>
+    <tr>
+        <td colspan="7"> Cuando una persona con discapacidad motora solicite la ejecución de una acción física durante una operación normal, el módulo de control y comunicación deberá ejecutar el comando y proporcionar una confirmación por voz de la acción realizada en el 100% de las ocasiones. </td>
     </tr>
     <tr>
         <td> Usability </td>
@@ -170,6 +206,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> 100% de las acciones ejecutadas se solicitan mediante comandos de voz </td>
     </tr>
     <tr>
+        <td colspan="7"> Cuando una persona con discapacidad motora solicite la ejecución de una acción física mediante un comando de voz durante una operación normal, el módulo de control y comunicación deberá permitir activar la acción asociada mediante una frase clave previamente definida, de modo que el 100% de las acciones esenciales puedan ser solicitadas mediante comandos de voz. </td>
+    </tr>
+    <tr>
         <td> Usability </td>
         <td> Persona con discapacidad motora </td>
         <td> Requerir asistencia de un cuidador </td>
@@ -177,6 +216,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Operación normal </td>
         <td> Detectar la solicitud, priorizarla y activar el flujo de comunicación </td>
         <td> Procesar el flujo de comunicación el 100% de los escenarios de llamada de asistencia por necesidad </td>
+    </tr>
+    <tr>
+        <td colspan="7"> Cuando una persona con discapacidad motora requiera la asistencia de un cuidador durante una operación normal, el módulo de control y comunicación deberá detectar la solicitud de asistencia, priorizarla y activar el flujo de comunicación con el cuidador en el 100% de las ocasiones en que se genere este tipo de solicitud. </td>
     </tr>
     <tr>
         <td> Usability </td>
@@ -188,6 +230,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Lograr identificar y responder a la solicitud el 100% de las ocasiones </td>
     </tr>
     <tr>
+        <td colspan="7"> Cuando un cuidador reciba una solicitud de asistencia proveniente de una persona con discapacidad motora durante una operación normal, la aplicación del cuidador deberá presentar de forma clara la información de la solicitud, indicando la persona que requiere asistencia, el tipo de ayuda solicitada y su nivel de prioridad, permitiendo al cuidador identificar y responder a la solicitud en el 100% de las ocasiones. </td>
+    </tr>
+    <tr>
         <td> Reliability </td>
         <td> Persona con discapacidad motora </td>
         <td> Emitir un comando de voz para solicitar la ejecución de una acción física </td>
@@ -195,6 +240,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Operación normal </td>
         <td> Interpretar el comando y delegar su ejecución </td>
         <td> Comandos interpretados correctamente ≥ 85% & 0% de comandos ejecutados cuando la confianza del resultado no supera el umbral establecido </td>
+    </tr>
+    <tr>
+        <td colspan="7"> Cuando una persona con discapacidad motora emita un comando de voz para solicitar la ejecución de una acción física durante una operación normal, el módulo de control y comunicación deberá interpretar el comando y delegar su ejecución cuando la confianza de la predicción sea suficiente, o abstenerse de ejecutarlo cuando no alcance el umbral establecido, alcanzando al menos un 85% de comandos interpretados correctamente. </td>
     </tr>
     <tr>
         <td> Observability </td>
@@ -206,6 +254,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> 100% de los eventos internos detectados se muestran con fecha, hora, dispositivo asociado, severidad y resultado </td>
     </tr>
     <tr>
+        <td colspan="7"> Cuando el sistema registre un evento interno, como un cambio de conexión, nivel de batería, detección de un comando o ejecución de una acción, durante una operación normal, la sección de estado del sistema de las aplicaciones cliente deberá mostrar la información correspondiente al evento, incluyendo fecha, hora, dispositivo asociado, severidad y resultado, en el 100% de los eventos registrados. </td>
+    </tr>
+    <tr>
         <td> Observability </td>
         <td> Sistema </td>
         <td> Cambio de estado de los dispositivos de control </td>
@@ -213,6 +264,9 @@ Los escenarios de atributos de calidad son descripciones que se enfocan en el de
         <td> Operación normal </td>
         <td> Mostrar el estado actual de los dispositivos </td>
         <td> 100% de los eventos de cambio de estado deben ser notificados </td>
+    </tr>
+    <tr>
+        <td colspan="7"> Cuando el sistema registre un cambio de estado de un dispositivo de control durante una operación normal, la sección de estado del sistema deberá mostrar su estado actual, indicando si se encuentra operativo o presenta una falla, y registrar el 100% de los cambios de estado detectados, generando una notificación asociada. </td>
     </tr>
 </table>
 
