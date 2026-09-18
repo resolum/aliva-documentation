@@ -535,36 +535,350 @@ Por otro lado, para la priorización del backlog, se tomaron en cuenta dos crite
 | TS-06     | Preautorización de pago                      | El backend debe disponer de servicios para iniciar y consultar la preautorización de una contratación, gestionando retenciones temporales y evitando contrataciones duplicadas.                                                                                                                                                       | Low                           | Medium                                       |
 | TS-07     | Captura o liberación del importe             | El backend debe gestionar el resultado económico posterior a la evaluación técnica, capturando, ajustando o liberando el importe según el resultado de la evaluación.                                                                                                                                                                 | Low                           | Medium                                       |
 
-El Backlog solo incluye los elementos que pueden afectar algunas de las decisiones importantes sobre la arquitectura de la solución. Para los stakeholders, los principales drivers son la disponibilidad, la seguridad, el rendimiento, la interoperabilidad, la usabilidad, la confiabilidad y la observabilidad, ya que para cumplir con estos requerimientos es necesario establecer algunas decisiones arquitectónicas especiales, por ejemplo, la computación de borde, el failover para los errores de conectividad, la sincronización de datos, la autenticación y autorización, la integración con servicios de terceros, la persistencia diferenciada y el monitoreo de dispositivos y eventos. Lo mismo ocurre con las preocupaciones arquitectónicas que afectan las decisiones arquitectónicas y que fueron incluidas en el Backlog, las cuales incluyen la autonomía de la persona con discapacidad, la privacidad de los datos, la seguridad de las acciones físicas, la comunicación con el cuidador y la evolución del modelo de Aprendizaje Automático. Las restricciones también son parte integral del Backlog ya que las tecnologías y condiciones como Android, Spring Boot, Azure, BLE, PostgreSQL, MongoDB, Python/Flask y el alcance del hardware restringen las alternativas disponibles para guiar el diseño de la arquitectura. En cuanto a las historias de usuario, solo se han incluido las que requieren de decisiones arquitectónicas, particularmente las relacionadas con la funcionalidad fuera de línea, el control de dispositivos, el monitoreo remoto, las alertas, la solicitud de ayuda, la trazabilidad y el manejo del estado de los dispositivos. Las historias de usuario que pueden ser manejadas dentro de los componentes existentes y sin tener que afectar la arquitectura del sistema no se consideran drivers de la arquitectura. Es por eso que la estructura del Backlog intenta incluir solamente aquellos aspectos que impactan la arquitectura del sistema y no toda la funcionalidad del producto.
+El Backlog solo incluye los elementos que pueden afectar algunas de las decisiones importantes sobre la arquitectura de la solución. Para los stakeholders, los principales drivers son la disponibilidad, la seguridad, el rendimiento, la interoperabilidad, la usabilidad, la confiabilidad y la observabilidad, ya que para cumplir con estos requerimientos es necesario establecer algunas decisiones arquitectónicas especiales, por ejemplo, la computación de borde, el failover para los errores de conectividad, la sincronización de datos, la autenticación y autorización, la integración con servicios de terceros, la persistencia diferenciada y el monitoreo de dispositivos y eventos. Lo mismo ocurre con las preocupaciones arquitectónicas que afectan las decisiones arquitectónicas y que fueron incluidas en el Backlog, las cuales incluyen la autonomía de la persona con discapacidad, la privacidad de los datos, la seguridad de las acciones físicas, la comunicación con el cuidador y la evolución del modelo de Aprendizaje Automático. 
+
+Por otro lado, las restricciones también son parte integral del Backlog ya que las tecnologías y condiciones como Android, Spring Boot, Azure, BLE, PostgreSQL, MongoDB, Python/Flask y el alcance del hardware restringen las alternativas disponibles para guiar el diseño de la arquitectura. En cuanto a las historias de usuario, solo se han incluido las que requieren de decisiones arquitectónicas, particularmente las relacionadas con la funcionalidad fuera de línea, el control de dispositivos, el monitoreo remoto, las alertas, la solicitud de ayuda, la trazabilidad y el manejo del estado de los dispositivos. Las historias de usuario que pueden ser manejadas dentro de los componentes existentes y sin tener que afectar la arquitectura del sistema no se consideran drivers de la arquitectura. Es por eso que la estructura del Backlog intenta incluir solamente aquellos aspectos que impactan la arquitectura del sistema y no toda la funcionalidad del producto.
 
 ### 4.1.5. Architectural Design Decisions
 
+A continuación, se resume las decisiones tomadas por el equipo para el diseño de la arquitectura de software tras desarrollar el método de Attribute-Driven Design tomando en cuenta el Backlog de drivers arquitectónicos. De esta forma, se asociaron las decisiones a los drivers identificados para la solución tomando varios candidatos para evaluar el nivel de relación y satisfacción respecto del driver. Luego, para cada candidato, se registró un pro y un contra de modo que facilitó al análisis y la decisión final del patrón a usar para cada driver.
+
 <table>
     <tr>
-        <td colspan="2">  </td>
-        <th colspan="2"> Pattern 1 </th>
-        <th colspan="2"> Pattern 2 </th>
-        <th colspan="2"> Pattern 3 </th>
+        <td colspan="2"></td>
+        <th colspan="2">Pattern 1 — Seleccionado</th>
+        <th colspan="2">Pattern 2 — Alternativa</th>
+        <th colspan="2">Pattern 3 — Alternativa</th>
     </tr>
     <tr>
-        <th> Driver ID </th>
-        <th> Título de Driver </th>
-        <td> Pro </td>
-        <td> Con </td>
-        <td> Pro </td>
-        <td> Con </td>
-        <td> Pro </td>
-        <td> Con </td>
+        <th>Driver ID</th>
+        <th>Título de Driver</th>
+        <td>Pro</td>
+        <td>Con</td>
+        <td>Pro</td>
+        <td>Con</td>
+        <td>Pro</td>
+        <td>Con</td>
     </tr>
     <tr>
-        <td> DRV001 </td>
-        <td> Si Va a Salir </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
+        <td>AD-QA-01</td>
+        <td>Continuidad de las acciones esenciales ante pérdida de Wi-Fi</td>
+        <td><strong>Edge Computing + control local</strong> — Permite ejecutar acciones esenciales sin depender de Internet y reduce la latencia.</td>
+        <td>Requiere procesamiento y lógica de control en el Edge.</td>
+        <td><strong>Store-and-Forward</strong> — Conserva operaciones pendientes para ejecutarlas o sincronizarlas posteriormente.</td>
+        <td>No garantiza por sí mismo la ejecución inmediata de acciones.</td>
+        <td><strong>Failover Wi-Fi/BLE</strong> — Proporciona un canal alternativo de comunicación ante una falla.</td>
+        <td>Incrementa la infraestructura, configuración y complejidad de comunicación.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-02</td>
+        <td>Recuperación y sincronización después de una desconexión</td>
+        <td><strong>Store-and-Forward</strong> — Conserva localmente los cambios hasta recuperar conectividad y evita pérdida de información.</td>
+        <td>Requiere almacenamiento temporal y mecanismos de sincronización.</td>
+        <td><strong>Retry con Backoff</strong> — Reduce intentos repetitivos durante una interrupción de comunicación.</td>
+        <td>No garantiza la conservación de todos los cambios pendientes.</td>
+        <td><strong>Idempotency Key</strong> — Evita duplicaciones cuando una operación es reenviada.</td>
+        <td>No resuelve por sí sola el almacenamiento temporal de cambios.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-03</td>
+        <td>Aislamiento ante fallos de servicios externos</td>
+        <td><strong>Circuit Breaker</strong> — Evita llamadas repetitivas hacia un servicio externo que presenta fallas y protege al sistema interno.</td>
+        <td>Requiere configurar estados, umbrales y políticas de recuperación.</td>
+        <td><strong>Retry Controlado</strong> — Permite recuperar fallos temporales de comunicación.</td>
+        <td>Puede aumentar la latencia si el servicio permanece caído.</td>
+        <td><strong>Fallback</strong> — Permite continuar mediante una funcionalidad alternativa.</td>
+        <td>Requiere definir y mantener comportamientos alternativos.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-04</td>
+        <td>Respuesta rápida para la ejecución de acciones físicas</td>
+        <td><strong>Control local en Edge</strong> — Reduce la dependencia de la red y permite procesar comandos cerca del actuador.</td>
+        <td>Requiere capacidad computacional y lógica de control local.</td>
+        <td><strong>Bounded Execution Time</strong> — Establece límites temporales para las operaciones.</td>
+        <td>Controla el tiempo máximo, pero no reduce necesariamente la latencia.</td>
+        <td><strong>Procesamiento en Cloud</strong> — Centraliza la capacidad de procesamiento y simplifica su administración.</td>
+        <td>La comunicación con la nube introduce latencia y dependencia de conectividad.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-05</td>
+        <td>Sincronización rápida de cambios pendientes</td>
+        <td><strong>Procesamiento asíncrono</strong> — Permite sincronizar información sin bloquear las operaciones principales.</td>
+        <td>Requiere controlar estados pendientes y errores.</td>
+        <td><strong>Batch Processing</strong> — Agrupa múltiples cambios y reduce el número de comunicaciones.</td>
+        <td>Puede disminuir el consumo de recursos de comunicación.</td>
+        <td><strong>Connection Pooling</strong> — Reduce el costo de establecer conexiones repetidamente.</td>
+        <td>Aumenta la configuración y administración de conexiones.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-06</td>
+        <td>Entrega oportuna de alertas críticas</td>
+        <td><strong>Message Queue</strong> — Desacopla la generación y entrega de alertas y permite gestionar mensajes pendientes.</td>
+        <td>Introduce infraestructura y administración adicional.</td>
+        <td><strong>Priority Queue</strong> — Permite procesar primero las alertas de mayor criticidad.</td>
+        <td>Requiere definir reglas de prioridad y mecanismos de gestión.</td>
+        <td><strong>Comunicación síncrona</strong> — Permite implementar un flujo directo de solicitud y respuesta.</td>
+        <td>Genera mayor acoplamiento y puede bloquear al emisor.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-07</td>
+        <td>Persistencia de telemetría sin afectar operaciones transaccionales</td>
+        <td><strong>Persistencia asíncrona</strong> — Evita que el almacenamiento de telemetría bloquee las operaciones críticas.</td>
+        <td>Requiere controlar datos pendientes y posibles fallos de persistencia.</td>
+        <td><strong>Buffer de telemetría</strong> — Absorbe temporalmente grandes cantidades de datos.</td>
+        <td>Requiere controlar capacidad, saturación y recuperación.</td>
+        <td><strong>Persistencia síncrona</strong> — Garantiza que el dato sea almacenado antes de continuar.</td>
+        <td>Puede incrementar la latencia de las operaciones principales.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-08</td>
+        <td>Protección de credenciales de usuarios</td>
+        <td><strong>Password Hashing mediante KDF + Salt</strong> — Protege las contraseñas mediante una función resistente a ataques de fuerza bruta.</td>
+        <td>Requiere seleccionar y configurar adecuadamente el KDF.</td>
+        <td><strong>IAM centralizado</strong> — Centraliza autenticación, identidad y políticas de acceso.</td>
+        <td>Introduce dependencia de un componente o servicio de identidad.</td>
+        <td><strong>Cifrado reversible</strong> — Permite recuperar el valor original cuando es necesario.</td>
+        <td>No es apropiado para almacenar contraseñas.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-09</td>
+        <td>Autenticación segura y emisión de credenciales temporales</td>
+        <td><strong>JWT con expiración</strong> — Permite emitir credenciales con tiempo de vida limitado.</td>
+        <td>La revocación inmediata requiere mecanismos complementarios.</td>
+        <td><strong>Access Token + Refresh Token</strong> — Permite mantener sesiones prolongadas sin renovar constantemente la autenticación.</td>
+        <td>Aumenta la complejidad de gestión de tokens.</td>
+        <td><strong>Sesiones server-side</strong> — Permite controlar centralmente las sesiones activas.</td>
+        <td>Requiere mantener estado en el servidor.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-10</td>
+        <td>Control de acceso según rol del cuidador</td>
+        <td><strong>RBAC</strong> — Permite asociar permisos a roles definidos y controlar el acceso de manera estructurada.</td>
+        <td>Requiere definir y mantener correctamente los roles.</td>
+        <td><strong>Policy Enforcement Point</strong> — Centraliza la aplicación de políticas de autorización.</td>
+        <td>Requiere definir una infraestructura específica de políticas.</td>
+        <td><strong>Least Privilege</strong> — Limita cada usuario a los permisos estrictamente necesarios.</td>
+        <td>Es un principio de seguridad y necesita complementarse con un mecanismo de autorización.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-11</td>
+        <td>Interoperabilidad con servicios externos</td>
+        <td><strong>Adapter</strong> — Aísla las interfaces externas y traduce sus estructuras al modelo interno.</td>
+        <td>Introduce una capa adicional de adaptación.</td>
+        <td><strong>Standard Protocol</strong> — Facilita la comunicación entre sistemas compatibles con estándares comunes.</td>
+        <td>No resuelve por sí mismo diferencias semánticas entre sistemas.</td>
+        <td><strong>Common Data Model</strong> — Establece una representación común para los datos intercambiados.</td>
+        <td>Requiere acordar y mantener un modelo de datos común.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-12</td>
+        <td>Aislamiento de fallos en integraciones externas</td>
+        <td><strong>Anti-Corruption Layer</strong> — Protege el modelo interno frente a cambios o particularidades del sistema externo.</td>
+        <td>Agrega una capa de traducción y mantenimiento.</td>
+        <td><strong>Circuit Breaker</strong> — Evita que las llamadas a un servicio externo fallido se propaguen al sistema.</td>
+        <td>No resuelve diferencias estructurales o semánticas.</td>
+        <td><strong>Facade</strong> — Simplifica y centraliza el acceso a una integración.</td>
+        <td>No necesariamente protege el modelo interno frente a cambios externos.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-13</td>
+        <td>Interpretación confiable de comandos de voz</td>
+        <td><strong>Confidence Threshold + Abstención</strong> — Evita ejecutar acciones cuando la confianza está por debajo del umbral establecido.</td>
+        <td>Requiere calibrar el umbral y gestionar comandos no reconocidos.</td>
+        <td><strong>Fallback Model</strong> — Permite recurrir a un segundo modelo ante determinados fallos.</td>
+        <td>Requiere entrenar, validar y mantener otro modelo.</td>
+        <td><strong>Human-in-the-Loop</strong> — Permite intervención humana ante casos ambiguos.</td>
+        <td>No siempre es viable para acciones inmediatas en el hogar.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-14</td>
+        <td>Evolución y mantenimiento del modelo de Machine Learning</td>
+        <td><strong>Model Versioning</strong> — Permite identificar, comparar y recuperar versiones específicas del modelo.</td>
+        <td>Requiere administrar versiones y metadatos.</td>
+        <td><strong>Canary Deployment</strong> — Permite introducir una nueva versión gradualmente.</td>
+        <td>Incrementa la complejidad del despliegue.</td>
+        <td><strong>Rollback</strong> — Permite regresar rápidamente a una versión previamente validada.</td>
+        <td>Necesita disponer de versiones anteriores correctamente gestionadas.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-15</td>
+        <td>Confirmación de ejecución de acciones mediante voz</td>
+        <td><strong>Voice Feedback</strong> — Informa directamente al usuario que la acción solicitada fue ejecutada.</td>
+        <td>Requiere gestionar mensajes y respuestas de voz.</td>
+        <td><strong>Visual Feedback</strong> — Presenta información sobre el resultado de la operación en la interfaz.</td>
+        <td>Puede no ser accesible cuando el usuario no está observando la interfaz.</td>
+        <td><strong>Haptic Feedback</strong> — Utiliza señales físicas para comunicar el resultado.</td>
+        <td>Requiere hardware compatible.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-16</td>
+        <td>Interacción mediante frases de voz asociadas a acciones</td>
+        <td><strong>Intent Mapping</strong> — Relaciona las intenciones reconocidas con acciones específicas.</td>
+        <td>Requiere mantener las relaciones entre intenciones y acciones.</td>
+        <td><strong>Task Model</strong> — Representa las tareas que el usuario puede realizar.</td>
+        <td>No resuelve por sí mismo la interpretación del lenguaje.</td>
+        <td><strong>Support User Initiative</strong> — Permite que el usuario inicie espontáneamente una interacción.</td>
+        <td>No garantiza que el comando sea interpretado correctamente.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-17</td>
+        <td>Gestión de solicitudes de auxilio</td>
+        <td><strong>Event-Driven Communication</strong> — Propaga solicitudes sin acoplar directamente al emisor y receptor.</td>
+        <td>Requiere infraestructura y gestión de eventos.</td>
+        <td><strong>Priority Queue</strong> — Permite atender primero las solicitudes de mayor criticidad.</td>
+        <td>Requiere establecer criterios de prioridad.</td>
+        <td><strong>Comunicación síncrona</strong> — Permite realizar comunicación directa entre componentes.</td>
+        <td>Genera mayor acoplamiento y dependencia temporal.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-18</td>
+        <td>Presentación clara de alertas al cuidador</td>
+        <td><strong>Task-Oriented UI</strong> — Organiza la información de acuerdo con las acciones que debe realizar el cuidador.</td>
+        <td>Requiere diseñar la interfaz considerando las tareas prioritarias.</td>
+        <td><strong>Notification Prioritization</strong> — Ordena las alertas según su criticidad.</td>
+        <td>No define por sí sola la estructura completa de la interfaz.</td>
+        <td><strong>Support User Initiative</strong> — Permite al cuidador responder o interactuar cuando lo considere necesario.</td>
+        <td>No garantiza una presentación clara y jerarquizada.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-19</td>
+        <td>Trazabilidad de eventos y operaciones</td>
+        <td><strong>Structured Logging</strong> — Registra eventos con atributos uniformes que facilitan búsqueda y análisis.</td>
+        <td>Requiere definir una estructura de logs consistente.</td>
+        <td><strong>Event Store</strong> — Conserva eventos para reconstruir operaciones.</td>
+        <td>Introduce mayores requerimientos de almacenamiento.</td>
+        <td><strong>Correlation ID</strong> — Relaciona eventos pertenecientes a una misma operación.</td>
+        <td>No proporciona por sí mismo persistencia ni visualización.</td>
+    </tr>
+    <tr>
+        <td>AD-QA-20</td>
+        <td>Visualización del estado actual de dispositivos IoT</td>
+        <td><strong>Device State Registry</strong> — Mantiene una representación centralizada del estado actual de los dispositivos.</td>
+        <td>Requiere mantener actualizado el registro.</td>
+        <td><strong>Heartbeat</strong> — Permite detectar periódicamente si un dispositivo continúa disponible.</td>
+        <td>No representa necesariamente todos los estados funcionales.</td>
+        <td><strong>Event Notification</strong> — Notifica inmediatamente los cambios de estado.</td>
+        <td>Requiere mecanismos adicionales para obtener el estado actual.</td>
+    </tr>
+    <tr>
+        <td>AD-AC-01</td>
+        <td>Autonomía de la persona con discapacidad</td>
+        <td><strong>Edge-First Architecture</strong> — Prioriza capacidades locales y reduce la dependencia de servicios externos.</td>
+        <td>Requiere distribuir parte de la lógica hacia el Edge.</td>
+        <td><strong>Offline-First</strong> — Diseña las funcionalidades considerando la ausencia de conectividad.</td>
+        <td>Incrementa la complejidad de sincronización.</td>
+        <td><strong>Cloud-First</strong> — Centraliza procesamiento y administración de recursos.</td>
+        <td>Aumenta la dependencia de Internet.</td>
+    </tr>
+    <tr>
+        <td>AD-AC-02</td>
+        <td>Privacidad de información procesada en el Edge</td>
+        <td><strong>Local Processing</strong> — Permite procesar información sensible dentro del entorno local.</td>
+        <td>Requiere capacidad de procesamiento local.</td>
+        <td><strong>Data Minimization</strong> — Reduce la cantidad de información recopilada y almacenada.</td>
+        <td>Requiere determinar qué datos son realmente necesarios.</td>
+        <td><strong>Encryption in Transit</strong> — Protege los datos durante su transmisión.</td>
+        <td>No evita que los datos tengan que salir del entorno local.</td>
+    </tr>
+    <tr>
+        <td>AD-AC-03</td>
+        <td>Seguridad ante errores del modelo de Machine Learning</td>
+        <td><strong>Safe Default</strong> — Ante incertidumbre o fallo, adopta un comportamiento que evita acciones potencialmente peligrosas.</td>
+        <td>Requiere definir explícitamente el comportamiento seguro para cada acción.</td>
+        <td><strong>Confidence Threshold</strong> — Impide ejecutar comandos con confianza inferior al umbral.</td>
+        <td>Requiere calibración adecuada del umbral.</td>
+        <td><strong>Human-in-the-Loop</strong> — Permite validar manualmente situaciones ambiguas.</td>
+        <td>Puede introducir demoras y depender de disponibilidad humana.</td>
+    </tr>
+    <tr>
+        <td>AD-AC-04</td>
+        <td>Escalabilidad del entorno IoT</td>
+        <td><strong>Gateway Pattern</strong> — Centraliza comunicación y administración de múltiples dispositivos IoT.</td>
+        <td>El gateway puede convertirse en un punto adicional de dependencia.</td>
+        <td><strong>Device Registry</strong> — Facilita registrar, identificar y administrar dispositivos.</td>
+        <td>No resuelve por sí solo la comunicación entre dispositivos.</td>
+        <td><strong>Event-Driven Architecture</strong> — Desacopla productores y consumidores de eventos.</td>
+        <td>Incrementa la complejidad operacional.</td>
+    </tr>
+    <tr>
+        <td>AD-AC-05</td>
+        <td>Gestión de datos y telemetría</td>
+        <td><strong>Polyglot Persistence</strong> — Permite utilizar PostgreSQL para transacciones y MongoDB para telemetría.</td>
+        <td>Requiere administrar más de una tecnología de persistencia.</td>
+        <td><strong>Data Pipeline</strong> — Facilita transportar y transformar grandes volúmenes de telemetría.</td>
+        <td>Introduce componentes adicionales.</td>
+        <td><strong>Schema Evolution</strong> — Permite adaptar las estructuras de datos a nuevas necesidades.</td>
+        <td>No define por sí misma dónde ni cómo se almacenarán los datos.</td>
+    </tr>
+    <tr>
+        <td>AD-C-17</td>
+        <td>Spring Boot como framework backend sin costo de licenciamiento</td>
+        <td><strong>Spring Boot</strong> — Cumple directamente la restricción tecnológica y proporciona soporte para APIs backend.</td>
+        <td>Requiere experiencia en el ecosistema Java/Spring.</td>
+        <td><strong>Quarkus</strong> — Ofrece buen rendimiento y bajo consumo de recursos.</td>
+        <td>No corresponde al framework establecido para el backend.</td>
+        <td><strong>Node.js</strong> — Permite desarrollar APIs rápidamente mediante JavaScript/TypeScript.</td>
+        <td>Implicaría modificar el stack tecnológico establecido.</td>
+    </tr>
+    <tr>
+        <td>AD-C-20</td>
+        <td>Operación offline y cobertura Bluetooth para actuadores</td>
+        <td><strong>Edge + Bluetooth Local</strong> — Permite controlar actuadores localmente sin conexión a Internet.</td>
+        <td>Requiere administrar comunicación y emparejamiento Bluetooth.</td>
+        <td><strong>Wi-Fi Local</strong> — Permite conectar múltiples dispositivos dentro de la red doméstica.</td>
+        <td>Puede depender de la disponibilidad de la red Wi-Fi.</td>
+        <td><strong>Gateway IoT</strong> — Centraliza la comunicación con los dispositivos físicos.</td>
+        <td>Introduce un componente adicional que debe mantenerse operativo.</td>
+    </tr>
+    <tr>
+        <td>AD-C-21</td>
+        <td>Hardware limitado a un prototipo funcional IoT</td>
+        <td><strong>Arquitectura modular IoT</strong> — Permite desarrollar el prototipo manteniendo interfaces para futuras ampliaciones.</td>
+        <td>Requiere definir interfaces y responsabilidades desde etapas tempranas.</td>
+        <td><strong>Arquitectura monolítica IoT</strong> — Reduce la cantidad inicial de componentes.</td>
+        <td>Dificulta la sustitución y evolución de componentes.</td>
+        <td><strong>Hardware heterogéneo</strong> — Permite experimentar con diferentes dispositivos y tecnologías.</td>
+        <td>Aumenta la complejidad de integración y pruebas.</td>
+    </tr>
+    <tr>
+        <td>AD-C-22</td>
+        <td>Reconocimiento de voz calibrado para un espacio acústicamente controlado</td>
+        <td><strong>Modelo de voz optimizado localmente</strong> — Permite ajustar el reconocimiento a las condiciones acústicas previstas.</td>
+        <td>Puede perder precisión fuera del entorno para el cual fue calibrado.</td>
+        <td><strong>Modelo generalista</strong> — Puede adaptarse a una mayor variedad de ambientes.</td>
+        <td>Puede requerir más recursos computacionales.</td>
+        <td><strong>Cancelación de ruido</strong> — Mejora la calidad de la señal de audio antes del reconocimiento.</td>
+        <td>Introduce procesamiento adicional y puede requerir calibración.</td>
+    </tr>
+    <tr>
+        <td>AD-C-23</td>
+        <td>Persistencia transaccional relacional en PostgreSQL</td>
+        <td><strong>PostgreSQL</strong> — Cumple la restricción y proporciona soporte para consistencia y transacciones relacionales.</td>
+        <td>Requiere modelado y administración de estructuras relacionales.</td>
+        <td><strong>MySQL</strong> — Ofrece capacidades relacionales y transaccionales maduras.</td>
+        <td>No corresponde a la tecnología definida para la solución.</td>
+        <td><strong>MongoDB</strong> — Proporciona flexibilidad para estructuras de datos variables.</td>
+        <td>No es la alternativa establecida para operaciones transaccionales relacionales.</td>
+    </tr>
+    <tr>
+        <td>AD-C-24</td>
+        <td>Persistencia de telemetría y datos no estructurados en MongoDB</td>
+        <td><strong>MongoDB</strong> — Se adapta a estructuras variables y datos de telemetría generados por dispositivos IoT.</td>
+        <td>Requiere definir adecuadamente índices y estrategias de almacenamiento.</td>
+        <td><strong>PostgreSQL JSONB</strong> — Permite almacenar datos semiestructurados dentro de la misma tecnología relacional.</td>
+        <td>Reduce la cantidad de tecnologías de persistencia.</td>
+        <td><strong>Time-Series Database</strong> — Está optimizada para datos asociados temporalmente.</td>
+        <td>Introduce una tecnología adicional al ecosistema.</td>
+    </tr>
+    <tr>
+        <td>AD-C-25</td>
+        <td>Reconocimiento local de comandos de voz mediante Python/Flask</td>
+        <td><strong>Microservicio Python/Flask en Edge</strong> — Permite encapsular el modelo y ejecutarlo localmente cerca de la fuente de datos.</td>
+        <td>Agrega un servicio independiente que debe desplegarse y mantenerse.</td>
+        <td><strong>Integración directa en Spring Boot</strong> — Reduce la cantidad de servicios independientes.</td>
+        <td>Mezcla responsabilidades y tecnologías dentro del backend.</td>
+        <td><strong>Servicio cloud de reconocimiento</strong> — Reduce los recursos computacionales requeridos localmente.</td>
+        <td>Depende de Internet y contradice el requisito de procesamiento local.</td>
     </tr>
 </table>
 
