@@ -1073,6 +1073,18 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Addicted2you </td>
         <td> Update constraints </td>
     </tr>
+    <tr>
+        <td> 1.196 </td>
+        <td> 17/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add interview analysis for segment 2 </td>
+    </tr>
+    <tr>
+        <td> 1.197 </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
