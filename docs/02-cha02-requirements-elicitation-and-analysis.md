@@ -248,6 +248,84 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
+        <td>Jaime</td>
+    </tr>
+    <tr>
+        <td><strong>Apellidos</strong></td>
+        <td>Ramos García</td>
+    </tr>
+    <tr>
+        <td><strong>Edad</strong></td>
+        <td>65 años</td>
+    </tr>
+    <tr>
+        <td><strong>distrito</strong></td>
+        <td>San Martin de Porres</td>
+    </tr>
+    <tr>
+        <td><strong>Evidencia</strong></td>
+        <td>
+        <div align="center">
+            <img 
+                src="https://imgur.com/U2Zsvng.png" 
+                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                alt="">
+        </div>
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Link</strong></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
+    </tr>
+    <tr>
+        <td><strong>Timing donde inicia la entrevista</strong></td>
+        <td>00:00 min</td>
+    </tr>
+    <tr>
+        <td><strong>Duración de la entrevista</strong></td>
+        <td>04:26 min</td>
+    </tr>
+    <tr>
+        <td><strong>Resumen</strong></td>
+        <td>
+
+### **1. Características Objetivas (Perfil Demográfico y de Contexto)**
+* **Edad y Ubicación:** Jaime tiene **65 años** de edad y vive en la urbanización Ingeniería (5ta etapa), en el distrito de **San Martín de Porres, Lima**.
+* **Origen y Evolución de la Discapacidad:** Presenta una discapacidad motora desde hace **20 años**; anteriormente caminaba con total normalidad. Para desplazarse utiliza una **silla de ruedas**.
+* **Seguro Médico:** Cuenta con cobertura de **seguro social(Essalud)**.
+* **Entorno Familiar y Red de Apoyo:** Vive únicamente con su **padre, quien tiene casi 90 años**. Sus hermanos viven cada uno por su lado.
+* **Capacidad Física:** A pesar de la inmovilidad en sus piernas, mantiene mucha fuerza en los brazos y manifiesta que sus brazos son prácticamente "sus piernas".
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Nivel de Autonomía:** Trata de valerse por sí mismo acomodándose en la cama como puede. Reporta pedir ayuda con una frecuencia mínima ("casi nada"), salvo en ocasiones puntuales para el baño o la ducha.
+* **Anhelo Principal:** La actividad que más le gustaría volver a hacer por sí mismo es **caminar** y salir a pasear de forma independiente.
+* **Dinámica en Ausencia de Cuidadores:** Cuando requiere ayuda y no hay nadie en casa, se queda recostado en la cama o sentado hasta que alguien llega o se comunica mediante llamadas telefónicas.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivo en Uso:** El único dispositivo tecnológico que utiliza en su vida diaria es el **teléfono celular**.
+* **Canales de Comunicación:** Se comunica con sus familiares utilizando **llamadas telefónicas y WhatsApp**.
+* **Interacción con el Entorno Físico:** Utiliza la misma silla de ruedas como punto de apoyo físico para abrir las puertas de su casa.
+* **Limitación Física Específica:** Le resulta **imposible abrir las ventanas** de su hogar debido a que son duras, no puede ponerse de pie y no tiene de dónde apoyarse.
+
+---
+
+### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Experiencia Previa:** **Nunca** ha utilizado un dispositivo tecnológico de asistencia para abrir ventanas o ponerse de pie.
+* **Disposición al Cambio:** Muestra una disposición clara para utilizar un dispositivo que le permita controlar la apertura y cierre de ventanas por sí mismo.
+* **Requerimientos:** Considera que le sería de gran utilidad un mecanismo de apoyo (como adaptarse con un bastón o un control autónomo) para gestionar sus ventanas sin depender de terceros.
+     </td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <th colspan="2" style="text-align:center;">Entrevista #2</th>
+    </tr>
+    <tr>
+        <td><strong>Nombre</strong></td>
         <td> Gerardo Alfredo</td>
     </tr>
     <tr>
@@ -259,8 +337,8 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
         <td>61 años</td>
     </tr>
     <tr>
-        <td><strong>Rol</strong></td>
-        <td>Persona con discapacidad motora</td>
+        <td><strong>distrito</strong></td>
+        <td>San Martin de Porres</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
@@ -275,15 +353,15 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>04:26 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>14:42 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
@@ -330,7 +408,7 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
 
 <table>
     <tr>
-        <th colspan="2" style="text-align:center;">Entrevista #2</th>
+        <th colspan="2" style="text-align:center;">Entrevista #3</th>
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
@@ -344,32 +422,32 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
         <td><strong>Edad</strong></td>
         <td>44 años</td>
     </tr>
-    <tr>
-        <td><strong>Rol</strong></td>
-        <td>Persona con discapacidad motora severa (postrada)</td>
+   <tr>
+        <td><strong>distrito</strong></td>
+        <td>San Martin de Porres</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
         <td>
         <div align="center">
             <img 
-                src="" 
-                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
+                src="https://imgur.com/DQCThLK.png" 
+                style="width:100%; max-width:420px; height:600px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
                 alt="">
         </div>
         </td>
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>19:10 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>05:33 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
@@ -417,88 +495,8 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
 </table>
 
-<br>
 
-<table>
-    <tr>
-        <th colspan="2" style="text-align:center;">Entrevista #3</th>
-    </tr>
-    <tr>
-        <td><strong>Nombre</strong></td>
-        <td>Jaime</td>
-    </tr>
-    <tr>
-        <td><strong>Apellidos</strong></td>
-        <td>Ramos García</td>
-    </tr>
-    <tr>
-        <td><strong>Edad</strong></td>
-        <td>65 años</td>
-    </tr>
-    <tr>
-        <td><strong>Rol</strong></td>
-        <td>Persona con discapacidad motora </td>
-    </tr>
-    <tr>
-        <td><strong>Evidencia</strong></td>
-        <td>
-        <div align="center">
-            <img 
-                src="https://imgur.com/U2Zsvng.png" 
-                style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
-                alt="">
-        </div>
-        </td>
-    </tr>
-    <tr>
-        <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
-    </tr>
-    <tr>
-        <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
-    </tr>
-    <tr>
-        <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
-    </tr>
-    <tr>
-        <td><strong>Resumen</strong></td>
-        <td>
-
-### **1. Características Objetivas (Perfil Demográfico y de Contexto)**
-* **Edad y Ubicación:** Jaime tiene **65 años** de edad y vive en la urbanización Ingeniería (5ta etapa), en el distrito de **San Martín de Porres, Lima**.
-* **Origen y Evolución de la Discapacidad:** Presenta una discapacidad motora desde hace **20 años**; anteriormente caminaba con total normalidad. Para desplazarse utiliza una **silla de ruedas**.
-* **Seguro Médico:** Cuenta con cobertura de **seguro social(Essalud)**.
-* **Entorno Familiar y Red de Apoyo:** Vive únicamente con su **padre, quien tiene casi 90 años**. Sus hermanos viven cada uno por su lado.
-* **Capacidad Física:** A pesar de la inmovilidad en sus piernas, mantiene mucha fuerza en los brazos y manifiesta que sus brazos son prácticamente "sus piernas".
-
----
-
-### **2. Comportamiento, Dolores y Aspectos Subjetivos**
-* **Nivel de Autonomía:** Trata de valerse por sí mismo acomodándose en la cama como puede. Reporta pedir ayuda con una frecuencia mínima ("casi nada"), salvo en ocasiones puntuales para el baño o la ducha.
-* **Anhelo Principal:** La actividad que más le gustaría volver a hacer por sí mismo es **caminar** y salir a pasear de forma independiente.
-* **Dinámica en Ausencia de Cuidadores:** Cuando requiere ayuda y no hay nadie en casa, se queda recostado en la cama o sentado hasta que alguien llega o se comunica mediante llamadas telefónicas.
-
----
-
-### **3. Tecnología, Dispositivos y Canales de Interacción**
-* **Dispositivo en Uso:** El único dispositivo tecnológico que utiliza en su vida diaria es el **teléfono celular**.
-* **Canales de Comunicación:** Se comunica con sus familiares utilizando **llamadas telefónicas y WhatsApp**.
-* **Interacción con el Entorno Físico:** Utiliza la misma silla de ruedas como punto de apoyo físico para abrir las puertas de su casa.
-* **Limitación Física Específica:** Le resulta **imposible abrir las ventanas** de su hogar debido a que son duras, no puede ponerse de pie y no tiene de dónde apoyarse.
-
----
-
-### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
-* **Experiencia Previa:** **Nunca** ha utilizado un dispositivo tecnológico de asistencia para abrir ventanas o ponerse de pie.
-* **Disposición al Cambio:** Muestra una disposición clara para utilizar un dispositivo que le permita controlar la apertura y cierre de ventanas por sí mismo.
-* **Requerimientos:** Considera que le sería de gran utilidad un mecanismo de apoyo (como adaptarse con un bastón o un control autónomo) para gestionar sus ventanas sin depender de terceros. 
-     </td>
-    </tr>
-</table>
-
-**Segmento 2: Nombre del segmento 2**
+**Segmento 2: Familiares o cuidadores de la persona con discapacidad**
 
 <table>
     <tr>
@@ -516,9 +514,9 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
         <td><strong>Edad</strong></td>
         <td>23 años</td>
     </tr>
-    <tr>
-        <td><strong>Rol</strong></td>
-        <td>Familiar o cuidador de persona con discapacidad</td>
+   <tr>
+        <td><strong>distrito</strong></td>
+        <td>Los olivos</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
@@ -533,15 +531,15 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>24:46 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>03:02 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
@@ -579,26 +577,26 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
-        <td>Nombre del entrevistado</td>
+        <td>Jenny Lourdes</td>
     </tr>
     <tr>
         <td><strong>Apellidos</strong></td>
-        <td>Apellidos del entrevistado</td>
+        <td>Yalan Igreda</td>
     </tr>
     <tr>
         <td><strong>Edad</strong></td>
-        <td>XX años</td>
+        <td>62 años</td>
     </tr>
     <tr>
-        <td><strong>Rol</strong></td>
-        <td>Familiar o cuidador de persona con discapacidad</td>
+        <td><strong>distrito</strong></td>
+        <td>San Martin de Porres</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
         <td>
         <div align="center">
             <img 
-                src="" 
+                src="https://imgur.com/9klfdpI.png" 
                 style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
                 alt="">
         </div>
@@ -606,21 +604,56 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>27:55 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>05:20 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
         <td>
-        Resumen de la entrevista
-        </td>
+
+### **1. Características Objetivas**
+**Ubicación y convivencia:** Actualmente, reside en el distrito de **San Martín de Porres, Lima**, donde vive en el mismo hogar que su padre, debido a que este requiere atención y cuidados frecuentes por sus necesidades médicas y físicas.
+* **Persona a su Cargo:** Su **padre**, quien se encuentra en un estadio de salud donde es considerado un **paciente dependiente total** en todas las actividades de la vida diaria (alimentación, higiene, vestido y traslado). Describe su estado de dependencia integral como el equivalente al de un recién nacido.
+* **Red de Apoyo y Turnos de Cuidado:** Comparten la responsabilidad de cuidado entre hermanos y personal de apoyo:
+  * **Turno Mañana (Jenny):** Inicia la rutina entre las 5:30 a. m. y las 6:00 a. m., encargándose del aseo personal, cambio , alimentación y administración de medicamentos.
+  * **Turno Tarde (Hermana):** Se encarga del desayuno posterior y el almuerzo.
+  * **Turno Noche (Jenny):** Retoma el cuidado en la noche.
+  * **Personal de Apoyo:** Cuentan con una persona vigilante en casa para atender contingencias mientras los familiares trabajan o están fuera.
+* **Servicios de Salud:** Su padre está afiliado a **EsSalud**. Adicionalmente, recurren a consultas médicas particulares cuando requieren una atención rápida ante emergencias.
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Frustración y Puntos de Dolor:**
+  * Sentir la preocupación constante por el bienestar de su padre mientras realiza sus actividades fuera del hogar.
+  * Cuando no hay nadie disponible para sustituirla temporalmente, deben dejar al paciente recostado en cama hasta que ella o algún hermano pueda regresar a atenderlo.
+* **Necesidad Emocional:** Requiere tener la certeza de que su padre cuenta con el apoyo o las alertas necesarias para poder realizar sus tareas laborales y personales con tranquilidad.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivos en Uso:** Utiliza de forma habitual un **iPad** y un **teléfono celular (smartphone)**.
+* **Canales de Comunicación:** La persona de apoyo en el hogar se comunica con ella a través de **llamadas telefónicas** para informarle sobre las necesidades o estado de su padre.
+* **Preferencias Tecnológicas:** Usa android y de browser Google Chrome. No tiene experiencia con dispositivos de asistencia tecnológica, pero considera que un sistema de monitoreo y control remoto sería muy útil para su situación.
+---
+
+### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Experiencia Previa:** No conoce actualmente dispositivos tecnológicos diseñados para este tipo de asistencia o monitoreo.
+* **Disposición al Cambio:** Muestra una excelente disposición para adquirir un dispositivo si este permite que su padre se valga por sí solo en tareas mínimas.
+* **Requerimientos Clave:**
+  1. **Sistema de Alerta / Voz de Alarma:** Que el sistema le permita al adulto mayor emitir una señal de auxilio o aviso rápido cuando necesite ayuda.
+  2. **Monitoreo de Actividades:** Considera excelente contar con la capacidad de monitorear lo que ocurre con su familiar en tiempo real.
+  3. **Control Básico del Entorno:** Le gustaría que la solución tecnológica contemple funciones simples como abrir la puerta o realizar una llamada directa de asistencia.
+
+---
+ </td>
     </tr>
 </table>
 
@@ -632,26 +665,26 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Nombre</strong></td>
-        <td>Nombre del entrevistado</td>
+        <td> Renzo Alfonso </td>
     </tr>
     <tr>
         <td><strong>Apellidos</strong></td>
-        <td>Apellidos del entrevistado</td>
+        <td>Navarrete</td>
     </tr>
     <tr>
         <td><strong>Edad</strong></td>
-        <td>XX años</td>
+        <td>34 años</td>
     </tr>
     <tr>
-        <td><strong>Rol</strong></td>
-        <td>Familiar o cuidador de persona con discapacidad</td>
+        <td><strong>distrito</strong></td>
+        <td>Los Olivos</td>
     </tr>
     <tr>
         <td><strong>Evidencia</strong></td>
         <td>
         <div align="center">
             <img 
-                src="" 
+                src="https://imgur.com/9C6hMqd.png" 
                 style="width:100%; max-width:720px; height:500px; object-fit:cover; object-position:center; display:block; margin:0 auto;"
                 alt="">
         </div>
@@ -659,21 +692,51 @@ Alivia está pensado para convertirse en la primera opción de las personas que 
     </tr>
     <tr>
         <td><strong>Link</strong></td>
-        <td><a href="">Enlace a la grabación</a></td>
+        <td><a href="https://bit.ly/4hwVtD3">https://bit.ly/4hwVtD3</a></td>
     </tr>
     <tr>
         <td><strong>Timing donde inicia la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>33:16 min</td>
     </tr>
     <tr>
         <td><strong>Duración de la entrevista</strong></td>
-        <td>00:00 min</td>
+        <td>04:00 min</td>
     </tr>
     <tr>
         <td><strong>Resumen</strong></td>
         <td>
-        Resumen de la entrevista
-        </td>
+
+### **1. Características Objetivas**
+* **Relación de Cuidado:** Es el **hijo** de la persona dependiente a su cargo (un adulto mayor).
+* **Esquema de Asistencia y Turnos:**
+  * Compartía la responsabilidad de cuidado con su **hermano**, pero debido a que este se encuentra actualmente fuera del país, él ha asumido la responsabilidad principal.
+  * Asiste personalmente a su familiar todos los días en dos momentos clave: en la **madrugada** (antes de salir a su centro laboral) y por la **noche**.
+  * **Personal de Apoyo:** Para los horarios en los que él trabaja, cuentan con una persona contratada en el hogar que atiende al familiar bajo sus indicaciones directas.
+* **Actividades de Soporte Diario:** Lo apoya principalmente en su **desplazamiento diario** y en la **provisión de sus alimentos**.
+
+---
+
+### **2. Comportamiento, Dolores y Aspectos Subjetivos**
+* **Preocupación Constante y Puntos de Dolor:** Su mayor punto de dolor y temor es que ocurra una desgracia imprevista en cualquier momento (como **caídas, atragantamientos u otros accidentes** comunes en adultos mayores) mientras él no se encuentra presente.
+* **Actitud y Exigencia de Seguridad:** Se muestra como un cuidador sumamente **precavido y vigilante**. Enfatiza que para adoptar cualquier solución tecnológica debe contar con una **garantía de seguridad absoluta**, asegurando que el dispositivo no vaya a provocar un accidente a su familiar.
+
+---
+
+### **3. Tecnología, Dispositivos y Canales de Interacción**
+* **Dispositivos en Uso:** Utiliza el **teléfono celular (smartphone)** como su dispositivo principal diario, además de una **laptop** y una **tablet**.
+* **Aplicaciones Frecuentes:** Usa intensivamente **WhatsApp** (para mantenerse comunicado), **Yape** (para transacciones/pagos), aplicaciones de investigación y una **aplicación móvil de cámaras de seguridad**.
+* **Canal de Monitoreo Instalado:** Tiene instaladas **cámaras de vigilancia en su vivienda sincronizadas con una app en su celular**, lo que le permite supervisar en tiempo real tanto el estado de su familiar como el desempeño de la persona contratada para su cuidado.
+
+---
+
+### **4. Expectativas y Requerimientos para el Sistema de Asistencia**
+* **Disposición al Cambio:** Está **totalmente dispuesto** a implementar un sistema que permita a su familiar ganar autonomía en tareas del hogar (como **abrir las puertas del cuarto o de la casa, encender las luces**, etc.).
+* **Requerimientos Clave para el Arquetipo:**
+  1. **Monitoreo de Funciones Vitales:** Le gustaría que la plataforma no solo registre el desplazamiento y la actividad diaria, sino que también mida **funciones vitales en tiempo real**.
+  2. **Sistema de Alertas por Alteraciones:** Desea recibir alertas automáticas si el sistema detecta alguna alteración de salud o anomalía en la rutina de su familiar.
+  3. **Control de Accesos e Iluminación:** Considera de gran utilidad la automatización de accesos (puertas) e iluminación para reducir el riesgo de caídas.
+
+</td>
     </tr>
 </table>
 
@@ -687,11 +750,11 @@ Después de realizar entrevistas con nuestros segmentos objetivo, es momento de 
 
 **Análisis de Características Objetivas y Subjetivas:**
 
-Las entrevistas indican que una persona con discapacidades motoras severas depende de un familiar directo para realizar las tareas básicas del hogar sin ningún tipo de asistencia tecnológica. El 100% de los entrevistados tienen una discapacidad motora de diversos orígenes (parálisis cerebral en la Entrevista 1, esclerosis múltiple en la Entrevista 2 y las secuelas de una caída en la Entrevista 3). Asimismo, el 100% de los entrevistados afirman que utilizan una silla de ruedas y necesitan pedir ayuda a un familiar directo (padre, madre, tía) para realizar sus actividades diarias.
+Las entrevistas indican que una persona con discapacidades motoras severas depende de un familiar directo para realizar las tareas básicas del hogar sin ningún tipo de asistencia tecnológica. El 100% de los entrevistados tienen una discapacidad motora de diversos orígenes (parálisis cerebral en la Entrevista 1, esclerosis múltiple en la Entrevista 2 y las secuelas de una caída en la Entrevista 3). Asimismo, el 100% de los entrevistados afirman que utilizan una silla de ruedas como su principal medio de desplazamiento y necesitan pedir ayuda a un familiar directo (padre, madre, tía) para realizar sus actividades diarias.
 
 En cuanto al uso de la tecnología el 100% de los entrevistados usan un teléfono celular como dispositivo principal principalmente para las llamadas y WhatsApp en caso de emergencia. Sin embargo el 67% (Entrevistas 2 y 3) nunca han usado un dispositivo o un sistema de asistencia tecnológica en sus hogares lo cual indica una evidente brecha en el acceso a estas tecnologías. El 33% (Entrevista 1) es una persona con experiencia previa en programación y familiaridad con sistemas de control de voz, quien no pudo implementar el sistema de automatización del hogar porque desconocía las soluciones comerciales del problema y debido a limitaciones económicas.
 
-En cuanto a las actividades más difíciles el 100% de los entrevistados indicaron tener problemas para controlar la luz, la puerta y la ventana de su habitación sin ayuda. En la segunda entrevista la entrevistada enfatizó que la silla de ruedas no le permite usar los interruptores, mientras que en la primera entrevista el entrevistado indicó que se apoya con sus muletas para empujar puertas y ventanas.
+En cuanto a las actividades más difíciles el 100% de los entrevistados indicaron tener problemas para controlar la luz, la puerta y la ventana de su habitación sin ayuda. En la segunda entrevista la entrevistada enfatizó que la silla de ruedas no le permite usar los interruptores, mientras que en la primera entrevista el entrevistado indicó que, pese a depender de la silla de ruedas para desplazarse, aún conserva sus antiguas muletas como apoyo puntual para empujar puertas y ventanas.
 
 Desde la perspectiva subjetiva el 100% de los entrevistados indicaron una actitud favorable al usar el sistema que les permita controlar estos objetos en su hogar. Además el 33% (Entrevista 1) indicaron una preferencia por el control de voz sobre el control de gestos o movimiento basado en la experiencia previa con sistemas de reconocimiento de voz ya que este modo parece ser más inclusivo para aquellos que no tienen movilidad en sus extremidades. Un aspecto emocional de este tema también se vuelve evidente en las tres entrevistas: la falta de independencia se la describen como una experiencia de frustración que influye en su bienestar emocional y en la sensación de control sobre su vida.
 
