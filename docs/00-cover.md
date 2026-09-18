@@ -1037,6 +1037,18 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> RenatoCY </td>
         <td> AR-51 add system landscape diagram and DSL model for Alivia Platform </td>
     </tr>
+    <tr>
+        <td> 1.190 </td>
+        <td> 11/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Clarify wheelchair and crutches usage to avoid perceived contradiction. </td>
+    </tr>
+    <tr>
+        <td> 1.191 </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
