@@ -989,6 +989,54 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Far14z </td>
         <td> Update alert user story for improved clarity and readability. </td>
     </tr>
+    <tr>
+        <td> 1.182 </td>
+        <td> 14/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-26 update interview details and add caregiver insights for individuals with severe disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.183 </td>
+        <td> 17/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.184 </td>
+        <td> 17/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-26 update interview details and insights for caregiver support </td>
+    </tr>
+    <tr>
+        <td> 1.185 </td>
+        <td> 17/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-26 update interview links and add configuration files </td>
+    </tr>
+    <tr>
+        <td> 1.186 </td>
+        <td> 17/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR+26 update interview timings and durations in requirements document </td>
+    </tr>
+    <tr>
+        <td> 1.187 </td>
+        <td> 17/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-26 add detailed interview data and insights for individuals with motor disabilities </td>
+    </tr>
+    <tr>
+        <td> 1.188 </td>
+        <td> 17/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.189 </td>
+        <td> 17/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-51 add system landscape diagram and DSL model for Alivia Platform </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 

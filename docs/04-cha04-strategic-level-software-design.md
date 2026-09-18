@@ -524,7 +524,9 @@ Las tácticas son decisiones de diseño de arquitectura de software que logran m
 ## 4.3. Software Architecture
 
 ### 4.3.1. Software Architecture System Landscape Diagram
+A continuación se presenta el diagrama de la vista general del sistema, que muestra la relacion entre el sistema y los usuarios,visitantes y trabajadores de la plataforma, asi como los dispositivos Iot y servicios externos que interactuan con el sistema.
 
+![System Landscape Diagram](../images/diagrams/img/alivia-landscape.svg)
 ### 4.3.2. Software Architecture Context Level Diagram
 
 ### 4.3.3. Software Architecture Container Level Diagram
