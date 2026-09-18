@@ -49,8 +49,8 @@ Ofrecemos soluciones accesibles para personas con discapacidades motoras severas
     </tr>
     <tr>
         <td> Armas Sánchez, Oscar Javier (u20211G192) </td>
-        <td> <img src="https://imgur.com/7WPnnzU.png" alt="Oscar Javier Armas Sánchez" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
-        <td>  </td>
+        <td> <img src="https://imgur.com/KAkQatq.png" alt="Oscar Javier Armas Sánchez" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
+        <td> Soy estudiante de Ingeniería de Software, con interés en el desarrollo de software y la arquitectura de sistemas. Me gusta involucrarme en distintas etapas de un proyecto, desde el análisis de requisitos hasta la implementación de soluciones, y disfruto trabajar en equipo compartiendo conocimientos y aprendiendo de mis compañeros. Busco seguir fortaleciendo mis habilidades técnicas y aportar una visión práctica y organizada que ayude al equipo a alcanzar los objetivos del proyecto. </td>
     </tr>
     <tr>
         <td> Calvo Yalan, Renato Guillermo (u202217053) </td>
