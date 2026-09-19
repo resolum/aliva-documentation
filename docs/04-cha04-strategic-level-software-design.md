@@ -378,11 +378,11 @@ Las tácticas son decisiones de diseño de arquitectura de software que logran m
     <tr>
         <td rowspan="3"> Availability </td>
         <td> Failover </td>
-        <td> Define la estrategia para cambiar el componente de comunicación principal (WiFi) a uno secundario (BLE) en caso de que el principal falle de modo que el sistema siempre esté disponible para ejecutar acciones para la persona con discapacidad motora severa. </td>
+        <td> Define la estrategia para cambiar el componente de comunicación principal (Wi-Fi) a uno secundario (BLE) en caso de que el principal falle de modo que el sistema siempre esté disponible para ejecutar acciones para la persona con discapacidad motora severa. </td>
     </tr>
     <tr>
         <td> Store-and-forward </td>
-        <td> Define que los datos o eventos se guarden temporalmente de manera local en la aplicación móvil y en el nodo Edge en escenarios con conexión limitada y transmita la información hacia el servicio en la nube cuando se recupere la conexión. </td>
+        <td> Define que los datos o eventos se guarden temporalmente de manera local en la aplicación móvil y en el nodo Edge en escenarios con conexión limitada y transmitir la información hacia el servicio en la nube cuando se recupere la conexión. </td>
     </tr>
     <tr>
         <td> Exception Handling </td>
@@ -391,7 +391,7 @@ Las tácticas son decisiones de diseño de arquitectura de software que logran m
     <tr>
         <td rowspan="3"> Security </td>
         <td> Password Hashing </td>
-        <td> Define el método de encriptación de las contraseñas de las cuentas usando Password Hashing mediante KDF y Salt. </td>
+        <td> Define el método de encriptación de las contraseñas de las cuentas usando KDF y Salt. </td>
     </tr>
     <tr>
         <td> Authenticate Users </td>
@@ -434,7 +434,7 @@ Las tácticas son decisiones de diseño de arquitectura de software que logran m
     </tr>
     <tr>
         <td> Task-Oriented Information Presentation </td>
-        <td> Define que las interfaces de información deben presentar la información de forma clara, estructura y de fácil lectura para los usuarios. </td>
+        <td> Define que las interfaces de información deben presentar la información de forma clara, estructurada y de fácil lectura para los usuarios. </td>
     </tr>
     <tr>
         <td> Intent Mapping </td>
@@ -451,11 +451,11 @@ Las tácticas son decisiones de diseño de arquitectura de software que logran m
     </tr>
     <tr>
         <td> Input Validation </td>
-        <td> Define que el sistema debe presentar reglas para valida las entradas de información al sistema para mantenerlo seguro y confiable en sus respuestas. </td>
+        <td> Define que el sistema debe presentar reglas para validar las entradas de información al sistema para mantenerlo seguro y confiable en sus respuestas. </td>
     </tr>
     <tr>
         <td> Safe Default & Abstention </td>
-        <td> Define que el sistema debe abstenerse de ejecutar una acción físico cuando el comando sea ambiguo, no alcance el umbral de confianza o no exista confirmación del actuador, solicitando al usuario repetir la instrucción. </td>
+        <td> Define que el sistema debe abstenerse de ejecutar una acción física cuando el comando sea ambiguo, no alcance el umbral de confianza o no exista confirmación del actuador, solicitando al usuario repetir la instrucción. </td>
     </tr>
     <tr>
         <td rowspan="2"> Observability </td>
@@ -571,7 +571,7 @@ A continuación, se resume las decisiones tomadas por el equipo para el diseño 
     <tr>
         <td>AD-QA-01</td>
         <td>Continuidad de las acciones esenciales ante pérdida de Wi-Fi</td>
-        <td><strong>Edge Computing + control local</strong> — Permite ejecutar acciones esenciales sin depender de Internet y reduce la latencia. Además, se tomó como decisión incluir failover para prevalecer el funcionamiento del sistema.</td>
+        <td><strong>Edge Computing + control local</strong> — Permite ejecutar acciones esenciales sin depender de Internet y reduce la latencia. Además, se tomó como decisión incluir failover para preservar la continuidad del funcionamiento del sistema.</td>
         <td>Requiere procesamiento y lógica de control en el Edge.</td>
         <td><strong>Store-and-Forward</strong> — Conserva operaciones pendientes para ejecutarlas o sincronizarlas posteriormente.</td>
         <td>No garantiza por sí mismo la ejecución inmediata de acciones.</td>
