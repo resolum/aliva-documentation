@@ -1115,6 +1115,42 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Nicolas Juarez Leon </td>
         <td> Update scores for importance and complexity. </td>
     </tr>
+    <tr>
+        <td> 1.203 </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.204 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add architectural design records from output of attribute-driven design. </td>
+    </tr>
+    <tr>
+        <td> 1.205 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Fix metrics and reprioritize the drivers backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.206 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update decisions backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.207 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Change wrong use of words in drivers. </td>
+    </tr>
+    <tr>
+        <td> 1.208 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update tactics to be more clear. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
