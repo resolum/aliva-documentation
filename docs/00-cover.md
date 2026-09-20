@@ -29,6 +29,8 @@
 
 <strong> INTEGRANTES: </strong>
 
+Armas Sánchez, Oscar Javier (U20211g192)
+
 Calvo Yalan, Renato Guillermo (u202217053)
 
 Coronel Espinoza, Farid Sebastian (u202312508)
