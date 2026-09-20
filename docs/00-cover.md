@@ -1085,6 +1085,72 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> github-actions[bot] </td>
         <td> Update version log [skip ci] </td>
     </tr>
+    <tr>
+        <td> 1.198 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add process description for architectural drivers backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.199 </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.200 </td>
+        <td> 17/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Combine elements and form scenario sentences. </td>
+    </tr>
+    <tr>
+        <td> 1.201 </td>
+        <td> 17/09/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Define architectural driver backlog and analysis. </td>
+    </tr>
+    <tr>
+        <td> 1.202 </td>
+        <td> 17/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update scores for importance and complexity. </td>
+    </tr>
+    <tr>
+        <td> 1.203 </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.204 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add architectural design records from output of attribute-driven design. </td>
+    </tr>
+    <tr>
+        <td> 1.205 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Fix metrics and reprioritize the drivers backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.206 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update decisions backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.207 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Change wrong use of words in drivers. </td>
+    </tr>
+    <tr>
+        <td> 1.208 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update tactics to be more clear. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
