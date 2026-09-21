@@ -1235,6 +1235,24 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Matias Diaz </td>
         <td> Add per-image descriptions to design-level event storming </td>
     </tr>
+    <tr>
+        <td> 1.223 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.224 </td>
+        <td> 20/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add new photo for matias diaz member profile </td>
+    </tr>
+    <tr>
+        <td> 1.225 </td>
+        <td> 21/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add new photo for matias diaz member profile </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
