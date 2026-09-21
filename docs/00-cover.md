@@ -492,7 +492,9 @@ fix(AR-45): fix issue description for notification scenario.
 
 **Analíticos de colaboración – GitHub Insights:**
 
-![Contributors AV1](https://imgur.com/B1UwDXM.png)
+![Contributors AV1](https://imgur.com/dC8Chkb.png)
+
+![Contributors AV1](https://imgur.com/kI6FG82.png)
 
 *Figura: Aporte de cada integrante durante el AV1*
 
