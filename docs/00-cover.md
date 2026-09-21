@@ -409,6 +409,42 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Nicolas Juarez </td>
         <td> Se agregó la sección de Conclusiones, Bibliografía y Anexos. </td>
     </tr>
+    <tr>
+        <td> 1.233 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.234 </td>
+        <td> 21/09/26 </td>
+        <td> Far14z </td>
+        <td> Add new bibliography entries for disability-related resources. </td>
+    </tr>
+    <tr>
+        <td> 1.235 </td>
+        <td> 21/09/26 </td>
+        <td> Far14z </td>
+        <td> Add new team member profiles and update image for Matias Diaz Quispe. </td>
+    </tr>
+    <tr>
+        <td> 1.236 </td>
+        <td> 21/09/26 </td>
+        <td> Far14z </td>
+        <td> Expand conclusions and recommendations based on user research findings. </td>
+    </tr>
+    <tr>
+        <td> 1.237 </td>
+        <td> 21/09/26 </td>
+        <td> Far14z </td>
+        <td> Update Matias Diaz Quispe's profile image in the introduction section. </td>
+    </tr>
+    <tr>
+        <td> 1.238 </td>
+        <td> 21/09/26 </td>
+        <td> Far14z </td>
+        <td> Add function to compact table rows in version log. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
