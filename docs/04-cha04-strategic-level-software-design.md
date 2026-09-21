@@ -1308,6 +1308,13 @@ Consolida y expone las métricas del sistema (globales, de ventas/suscripciones 
 
 ![bc analiticas](https://i.imgur.com/qMSTi8P.jpeg)
 
+
+**Gestión de Bienes - Canvas**
+
+Gestiona el ciclo de vida de los dispositivos del hogar vinculados a Alivia (dispositivos de voz, accionadores como puertas, ventanas y luces), permitiendo que la persona con discapacidad emita comandos de voz para accionar el hogar de forma autónoma, mientras los cuidadores registran, configuran y desactivan los dispositivos.
+
+![bc gestión de bienes](https://i.imgur.com/dTePkWS.jpeg)
+
 ### 4.2.5. Context Mapping
 
 ## 4.3. Software Architecture
