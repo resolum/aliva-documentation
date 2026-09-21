@@ -1187,6 +1187,18 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> github-actions[bot] </td>
         <td> Update version log [skip ci] </td>
     </tr>
+    <tr>
+        <td> 1.215 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.216 </td>
+        <td> 20/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-52 add context level diagram and actor interactions for Alivia system </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
