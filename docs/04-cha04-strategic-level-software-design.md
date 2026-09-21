@@ -1336,6 +1336,13 @@ Gestiona el perfil de la persona asistida y su relación con los cuidadores: cre
 
 ![bc perfiles](https://i.imgur.com/Xxl8fUw.jpeg)
 
+
+**Suscripciones y Pagos - Canvas**
+
+Gestiona la selección de planes de suscripción, el proceso de pago (preautorización, cobro y liberación de fondos vía Stripe), la activación de la cuenta del cuidador, y el ajuste o adaptación de planes cuando las condiciones del usuario cambian.
+
+![bc subscripciones y pagos](https://i.imgur.com/tWCnJRO.jpeg)
+
 ### 4.2.5. Context Mapping
 
 ## 4.3. Software Architecture
