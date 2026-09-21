@@ -1163,6 +1163,18 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Farid Coronel </td>
         <td> Add product backlog. </td>
     </tr>
+    <tr>
+        <td> 1.211 </td>
+        <td> 20/09/26 </td>
+        <td> Farid Coronel </td>
+        <td> Add user stories. </td>
+    </tr>
+    <tr>
+        <td> 1.212 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
