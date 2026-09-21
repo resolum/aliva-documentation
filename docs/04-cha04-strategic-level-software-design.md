@@ -1295,6 +1295,29 @@ A continuación se presenta el diagrama de la vista general del sistema, que mue
 
 ![System Landscape Diagram](../images/diagrams/img/alivia-landscape.svg)
 ### 4.3.2. Software Architecture Context Level Diagram
+El diagrama de contexto muestra una vista de alto nivel de las relaciones entre los diferentes contextos delimitados y otros sistemas externos. Este diagrama ayuda a comprender cómo los diferentes contextos interactúan entre sí y con el mundo exterior, proporcionando una visión general de la arquitectura del sistema.
+
+![Context Level Diagram](../images/diagrams/img/alivia-context-diagram.svg)
+
+**Resumen del diagrama de contexto**
+
+El diagrama de contexto representa al **Sistema Alivia** como una caja negra, mostrando quiénes interactúan con él y con qué sistemas externos se comunica, sin entrar en el detalle de su arquitectura interna.
+
+**Actores:**
+- **Visitante**: usuario anónimo interesado en conocer la plataforma antes de registrarse.
+- **Persona con discapacidad**: usuario final con discapacidad motora que interactúa con el sistema principalmente mediante comandos de voz.
+- **Familiar o cuidador** :responsable del cuidado de la persona con discapacidad; monitorea el sistema desde la app móvil y web.
+- **Técnico de la empresa** :encargado de instalar los dispositivos en el hogar y verificar que cumpla los requisitos técnicos.
+- **Administrador del negocio**: gestiona dispositivos, personal y suscripciones desde la plataforma web empresarial.
+
+**Sistemas externos:**
+- **Firebase** :notificaciones push (batería baja, fallas de dispositivo).
+- **Stripe** :procesamiento de pagos de las suscripciones.
+- **Cloudinary** :almacenamiento de fotos y videos.
+- **SendGrid** :envío de correos de confirmación y verificación.
+- **Google Maps** :ubicación geográfica de la vivienda.
+- **Microphone device** :dispositivo IoT que capta comandos de voz de la persona con discapacidad.
+- **Hardware de los Actuadores** :hardware físico controlado (puertas, luces, etc.).
 
 ### 4.3.3. Software Architecture Container Level Diagram
 
