@@ -1315,6 +1315,13 @@ Gestiona el ciclo de vida de los dispositivos del hogar vinculados a Alivia (dis
 
 ![bc gestión de bienes](https://i.imgur.com/dTePkWS.jpeg)
 
+
+**Comunicaciones - Canvas**
+
+Gestiona la generación, priorización y envío de notificaciones y alertas hacia el cuidador principal, asegurando que los eventos relevantes (incluyendo alertas críticas) se comuniquen a tiempo, se registre su confirmación y se reenvíen o escalen si no son atendidos dentro del plazo esperado.
+
+![bc comunicaciones](https://i.imgur.com/2b7oQBi.jpeg)
+
 ### 4.2.5. Context Mapping
 
 ## 4.3. Software Architecture
