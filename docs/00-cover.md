@@ -496,6 +496,22 @@ fix(AR-45): fix issue description for notification scenario.
 
 *Figura: Aporte de cada integrante durante el AV1*
 
+**Tráfico del repositorio – Git clones:**
+
+![Git clones AV1](https://imgur.com/cSHhEU5.png)
+
+*Figura: Clones del repositorio durante el AV1*
+
+El gráfico muestra la cantidad de veces que el repositorio fue clonado por los miembros del equipo. Cada punto representa un día, y su altura indica cuántos clones se realizaron en esa fecha, lo que permite ver los periodos de mayor actividad de trabajo local sobre el informe.
+
+**Manejo de ramas – Network graph:**
+
+![Ramificación GitFlow AV1](https://imgur.com/kfxDoKl.png)
+
+*Figura: Network graph del repositorio del informe del proyecto*
+
+El gráfico muestra la estructura de ramas del repositorio a lo largo del tiempo. Se observa la rama principal (`main`), la rama de integración (`develop`) y las ramas de funcionalidad (`feature/<sección>`), que parten de `develop`, acumulan los commits de cada integrante y se reincorporan mediante merge. Esto evidencia el trabajo en paralelo y la integración ordenada de los cambios, en línea con la estrategia de ramas adoptada por el equipo.
+
 <div style="page-break-after: always;"></div>
 
 # Contenido
