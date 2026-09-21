@@ -452,7 +452,49 @@ Rios Piñan, Dayro Richard (u202315283)
 
 # Percepciones de Colaboración del Equipo sobre el Informe
 
-*[Equipo: completar con una reflexión grupal real (3-5 líneas) sobre cómo trabajaron juntos en la elaboración de este informe — qué herramientas usaron para coordinarse (Miro, Git, reuniones), cómo se dividieron los capítulos entre los integrantes, y qué aprendieron sobre trabajar en equipo de forma asíncrona a lo largo del curso.]*
+Para desarrollar el **Informe del proyecto**, el equipo trabaja en un repositorio alojado dentro de la organización en GitHub. A continuación se presenta la evidencia de colaboración, consistente con el registro de versiones del informe.
+
+**Repositorio del informe del proyecto:** [https://acortar.link/sGEIvx](https://acortar.link/sGEIvx)
+
+**Total de commits:** 287
+
+**Autores que contribuyeron:**
+
+| Integrante                        | Usuario de GitHub      |
+| --------------------------------- | ---------------------- |
+| Calvo Yalan, Renato Guillermo     | `RenatoCY`             |
+| Coronel Espinoza, Farid Sebastian | `Far14z`               |
+| Diaz Quispe, Matías Sebastian     | `equinox-1092`         |
+| Juarez Leon, Nicolas Emilio Walter| `JuarezLn10`           |
+| Rios Piñan, Dayro Richard         | `Addicted2you`         |
+| Armas Sánchez, Oscar Javier       | `Racso24k`             |
+
+Para organizar el trabajo, el equipo adoptó una estrategia de **ramas por funcionalidad** (`feature/<sección>`). Cada integrante desarrolló su sección asignada en una rama independiente y, una vez terminada, incorporó sus cambios a `main` mediante *pull requests* sujetos a revisión cruzada entre compañeros. Además, los mensajes de commit siguen la convención **Conventional Commits**, con prefijos como `feat:`, `fix:` y `chore:`, lo que permite mantener un historial claro y fácil de rastrear a lo largo del proyecto.
+
+---
+
+## AV1 – Sprint Review – Semana 4
+
+En esta fase, el equipo desarrolló el **informe inicial**, que incluyó los siguientes entregables:
+
+- **Informe del proyecto**, con carátula, registro de versiones y tabla de contenidos.
+- **Capítulos I al IV**, que abarcan la introducción, la elicitación y análisis de requisitos, la especificación de requisitos y el diseño de software a nivel estratégico.
+- **Student Outcomes**, conclusiones preliminares, bibliografía y anexos.
+- **Keynote de exposición** y video de sustentación del avance.
+
+Cada sección se trabajó en una rama propia con el formato `feature/<sección>` (por ejemplo, `feature/AR-X-chapter-01` y `feature/AR-X-chapter-02`), y los commits respetaron la convención definida, tal como se muestra a continuación:
+
+```text
+feat(AR-31): expand empathy map analysis for caregiver perspective.
+chore(annexes): add supplementary files and bibliography
+fix(AR-45): fix issue description for notification scenario.
+```
+
+**Analíticos de colaboración – GitHub Insights:**
+
+![Contributors AV1](https://imgur.com/B1UwDXM.png)
+
+*Figura: Aporte de cada integrante durante el AV1*
 
 <div style="page-break-after: always;"></div>
 
