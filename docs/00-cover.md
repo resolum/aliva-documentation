@@ -1119,18 +1119,102 @@ Rios Piñan, Dayro Richard (u202315283)
     </tr>
     <tr>
         <td> 1.203 </td>
-        <td> 17/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add new member to members list. </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
     </tr>
     <tr>
         <td> 1.204 </td>
         <td> 18/09/26 </td>
         <td> Nicolas Juarez Leon </td>
-        <td> Add space for new member description. </td>
+        <td> Add architectural design records from output of attribute-driven design. </td>
     </tr>
     <tr>
         <td> 1.205 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Fix metrics and reprioritize the drivers backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.206 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update decisions backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.207 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Change wrong use of words in drivers. </td>
+    </tr>
+    <tr>
+        <td> 1.208 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update tactics to be more clear. </td>
+    </tr>
+    <tr>
+        <td> 1.209 </td>
+        <td> 19/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.210 </td>
+        <td> 20/09/26 </td>
+        <td> Farid Coronel </td>
+        <td> Add product backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.211 </td>
+        <td> 20/09/26 </td>
+        <td> Farid Coronel </td>
+        <td> Add user stories. </td>
+    </tr>
+    <tr>
+        <td> 1.212 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.213 </td>
+        <td> 20/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Add design-level eventstorming section. </td>
+    </tr>
+    <tr>
+        <td> 1.214 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.215 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.216 </td>
+        <td> 20/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-52 add context level diagram and actor interactions for Alivia system </td>
+    </tr>
+    <tr>
+        <td> 1.217 </td>
+        <td> 17/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add new member to members list. </td>
+    </tr>
+    <tr>
+        <td> 1.218 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add space for new member description. </td>
+    </tr>
+    <tr>
+        <td> 1.219 </td>
         <td> 20/09/26 </td>
         <td> Oscar Javier Armas Sánchez </td>
         <td> Add description and photo for oscar armas member profile. </td>
