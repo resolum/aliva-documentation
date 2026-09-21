@@ -1295,6 +1295,11 @@ Gestiona el ciclo completo de operaciones técnicas de campo: evalúa la viabili
 ![bc operaciones tecnicas](https://i.imgur.com/yHl8kI4.jpeg)
 
 
+**Actividades - Canvas**
+
+Gestiona la creación, programación y seguimiento de actividades y rutinas de cuidado (alimentación, medicación, higiene, etc.) para la persona asistida, permitiendo que los cuidadores asignen horarios y responsables, y den seguimiento al estado de cada actividad.
+
+![bc actividades](https://i.imgur.com/89vtkyl.jpeg)
 
 ### 4.2.5. Context Mapping
 
