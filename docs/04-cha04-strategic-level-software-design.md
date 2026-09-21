@@ -1194,7 +1194,7 @@ A continuación, se resume las decisiones tomadas por el equipo para el diseño 
     </tr>
     <tr>
         <th colspan="2" align="left">Issues</th>
-        <td>El mecanismo de notificación debe combinar baja latencia con persistencia y priorización para evitar pérdida de eventos críticos.</td>
+        <td>El mecanismo de notificación debe identificar prioridad de los mensajes para evitar pérdida de eventos críticos.</td>
     </tr>
 </table>
 
