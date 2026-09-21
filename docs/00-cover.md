@@ -1117,6 +1117,24 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Nicolas Juarez Leon </td>
         <td> Update scores for importance and complexity. </td>
     </tr>
+    <tr>
+        <td> 1.203 </td>
+        <td> 17/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add new member to members list. </td>
+    </tr>
+    <tr>
+        <td> 1.204 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add space for new member description. </td>
+    </tr>
+    <tr>
+        <td> 1.205 </td>
+        <td> 20/09/26 </td>
+        <td> Oscar Javier Armas Sánchez </td>
+        <td> Add description and photo for oscar armas member profile. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
@@ -1124,7 +1142,7 @@ Rios Piñan, Dayro Richard (u202315283)
 
 # Project Report Collaboration Insights
 
-Texto base
+*[Equipo: completar con una reflexión grupal real (3-5 líneas) sobre cómo trabajaron juntos en la elaboración de este informe — qué herramientas usaron para coordinarse (Miro, Git, reuniones), cómo se dividieron los capítulos entre los integrantes, y qué aprendieron sobre trabajar en equipo de forma asíncrona a lo largo del curso.]*
 
 <div style="page-break-after: always;"></div>
 
@@ -1259,34 +1277,39 @@ En el siguiente cuadro se describe las acciones realizadas y enunciados de concl
     <tr>
         <td> Comunica oralmente sus ideas y/o resultados con objetividad a público de diferentes especialidades y niveles jerárquicos, en el marco del desarrollo de un proyecto en ingeniería. </td>
         <td>
+            <strong>Armas Sánchez, Oscar Javier</strong><br>
+            <strong>AV1</strong><br>
+            <em>[Oscar: completar en 2-3 líneas a qué audiencia le comunicaste resultados del proyecto en este checkpoint (equipo, docente, cliente/stakeholder), en qué instancia lo hiciste (exposición, sprint review, entrevista) y qué mensaje clave transmitiste.]</em>
+            <br><br>
             <strong>Calvo Yalan, Renato Guillermo</strong><br>            
             <strong>AV1</strong><br>
-            Texto
+            <em>[Renato: completar en 2-3 líneas a qué audiencia le comunicaste resultados del proyecto en este checkpoint, en qué instancia lo hiciste y qué mensaje clave transmitiste.]</em>
             <br><br>
             <strong>Coronel Espinoza, Farid Sebastian</strong><br>            
             <strong>AV1</strong><br>
-            Texto
+            <em>[Farid: completar en 2-3 líneas a qué audiencia le comunicaste resultados del proyecto en este checkpoint, en qué instancia lo hiciste y qué mensaje clave transmitiste.]</em>
             <br><br>
             <strong>Diaz Quispe, Matias Diaz</strong><br>            
             <strong>AV1</strong><br>
-            Texto
+            <em>[Matías: completar en 2-3 líneas a qué audiencia le comunicaste resultados del proyecto en este checkpoint, en qué instancia lo hiciste y qué mensaje clave transmitiste.]</em>
             <br><br>
             <strong>Juarez Leon, Nicolas Emilio Walter</strong><br>            
             <strong>AV1</strong><br>
-            Texto
+            <em>[Nicolás: completar en 2-3 líneas a qué audiencia le comunicaste resultados del proyecto en este checkpoint, en qué instancia lo hiciste y qué mensaje clave transmitiste.]</em>
             <br><br>
             <strong>Rios Piñan, Dayro Richard</strong><br>            
             <strong>AV1</strong><br>
-            Texto
+            <em>[Dayro: completar en 2-3 líneas a qué audiencia le comunicaste resultados del proyecto en este checkpoint, en qué instancia lo hiciste y qué mensaje clave transmitiste.]</em>
         </td>
         <td>
-            <strong>AV1</strong>
+            <strong>AV1</strong><br>
+            <em>[Completar con la conclusión grupal sobre el logro del Student Outcome 3 en este checkpoint: qué evidencia respalda que el equipo comunicó sus resultados efectivamente a la audiencia correspondiente.]</em>
             <br><br>
-            <strong>TB1</strong>
+            <strong>TB1</strong> <em>(pendiente — se completa en el checkpoint correspondiente)</em>
             <br><br>
-            <strong>AV2</strong>
+            <strong>AV2</strong> <em>(pendiente — se completa en el checkpoint correspondiente)</em>
             <br><br>
-            <strong>TB2</strong>
+            <strong>TB2</strong> <em>(pendiente — se completa en el checkpoint correspondiente)</em>
         </td>
     </tr>
 </table>

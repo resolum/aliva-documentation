@@ -30,6 +30,8 @@
 
 #### 7.2.1.8. Team Collaboration Insights during Sprint 1
 
+*[Completar con una reflexión real del equipo sobre la Sprint 1: cómo se organizaron las tareas entre los integrantes, qué ceremonias usaron para coordinarse (Daily, Sprint Planning, Sprint Review), qué dificultades de colaboración surgieron y cómo las resolvieron, y qué mejorarían para el siguiente sprint.]*
+
 ## 7.3. Validation Interviews
 
 ### 7.3.1. Diseño de entrevistas de validación
