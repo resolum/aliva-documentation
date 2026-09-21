@@ -1785,5 +1785,38 @@ Todo empieza con el visitante, que entra a la Landing Page para conocer la plata
 En cuanto a los servicios externos, todos pasan por la API central, que es el único punto de salida del sistema: Firebase para notificaciones push, Stripe para pagos, Cloudinary para fotos y videos, SendGrid para correos, y Google Maps para ubicación. La única excepción son los dos hardwares embebidos (micrófono y actuadores), que no pasan por la API porque su comunicación es directa con el hardware físico correspondiente, ya que necesitan responder en tiempo real sin depender de la nube.
 
 ### 4.3.4. Software Architecture Deployment Diagram
+El diagrama de despliegue describe cómo los contenedores de software se distribuyen en la infraestructura física y en la nube. Muestra los entornos de ejecución, los servicios de oracle utilizados y las relaciones de red entre los componentes desplegados, permitiendo comprender las decisiones de infraestructura adoptadas para la plataforma Alivia.
+
+![deployment  Diagram](../images/diagrams/img/alivia-deployment-diagram.svg)
+
+
+**Tabla de despliegue — Sistema Alivia**
+
+| Proveedor / Nodo                               | Contenedor(es) desplegados           | Tipo de servicio                          | Detalle                                                            |
+|------------------------------------------------|--------------------------------------|-------------------------------------------|--------------------------------------------------------------------|
+| Cloudflare Pages - Landing                     | Landing Page                         | Static Hosting                            | Sirve el sitio estático (Astro, TypeScript) a los visitantes       |
+| Cloudflare Pages - Web Usuarios                | Web Server (usuarios)                | Static Hosting                            | Entrega el bundle de React a familiares/cuidadores                 |
+| Cloudflare Pages - Web Empresa                 | Web Server Empresa                   | Static Hosting                            | Entrega el bundle de Angular a administradores/técnicos            |
+| Oracle OCI Compute - API Instance              | alivia API                           | PaaS - Compute auto-escalable             | Corre el backend en Java + Spring Boot                             |
+| Oracle OCI Compute - Nginx Instance            | nginx                                | PaaS - Compute auto-escalable             | Balanceador de carga hacia la API                                  |
+| Oracle Autonomous Database                     | PostgreSQL                           | Managed Relational Database               | Base de datos del negocio (perfiles, devices, suscripciones)       |
+| MongoDB Atlas                                  | MongoDB                              | Managed NoSQL Cloud Service               | Almacena las peticiones enviadas por los devices                   |
+| Computadora Local (Fog Layer) - Edge Actuador  | edge Actuador + sqlite edge actuador | Proceso local                             | Ejecuta acciones (Python/Flask) y guarda permisos localmente       |
+| Computadora Local (Fog Layer) - Edge Micrófono | edge Micrófono + sqlite edge devices | Proceso local                             | Transcribe audio con IA (Python/Flask) y valida devices permitidos |
+| Computadora Local (Fog Layer) - Broker         | message broker                       | Proceso local                             | Conecta ambos edges sin depender de internet                       |
+| Microphone IoT Device                          | Embebido del micrófono               | Embedded Hardware                         | Firmware en C++ que captura el audio físico                        |
+| Actuator Hardware Device                       | Embebido de los actuadores           | Embedded Hardware                         | Firmware en C++ que controla el hardware físico (puerta, luz)      |
+| User Device - Mobile OS                        | App móvil + SQLite móvil             | iOS / Android Runtime                     | App nativa con persistencia local offline                          |
+| User Device - Web Browser                      | Web usuarios + Web empresa           | Navegador (Chrome, Firefox, Safari, Edge) | Renderiza los SPA de React y Angular descargados desde Cloudflare  |
+
+**Resumen por proveedor:**
+
+| Proveedor                     | Responsabilidad principal                                                              |
+|-------------------------------|----------------------------------------------------------------------------------------|
+| Cloudflare                    | Hosting estático de landing page y los dos frontends                                   |
+| Oracle Cloud                  | Cómputo del backend + base de datos relacional                                         |
+| MongoDB Atlas                 | Base de datos NoSQL administrada                                                       |
+| Infraestructura local (hogar) | Fog Layer: edges, broker y hardware embebido, todo funcionando sin depender de la nube |
+| Dispositivo del usuario       | Ejecuta la app móvil y el navegador donde corren los frontends                         |
 
 <div style="page-break-after: always;"></div>
