@@ -1733,21 +1733,21 @@ Gestiona el ciclo completo de operaciones técnicas de campo: evalúa la viabili
 
 Gestiona la creación, programación y seguimiento de actividades y rutinas de cuidado (alimentación, medicación, higiene, etc.) para la persona asistida, permitiendo que los cuidadores asignen horarios y responsables, y den seguimiento al estado de cada actividad.
 
-![bc actividades](https://i.imgur.com/89vtkyl.jpeg)
+![bc actividades](https://i.imgur.com/sD9pBBC.jpeg)
 
 
 **Analíticas - Canvas**
 
 Consolida y expone las métricas del sistema (globales, de ventas/suscripciones y de telemetría de dispositivos) a través de un dashboard principal, permitiendo que administradores, gestores de suscripciones y cuidadores consulten los indicadores relevantes según su rol.
 
-![bc analiticas](https://i.imgur.com/qMSTi8P.jpeg)
+![bc analiticas](https://i.imgur.com/1kclJ9B.jpeg)
 
 
 **Gestión de Bienes - Canvas**
 
 Gestiona el ciclo de vida de los dispositivos del hogar vinculados a Alivia (dispositivos de voz, accionadores como puertas, ventanas y luces), permitiendo que la persona con discapacidad emita comandos de voz para accionar el hogar de forma autónoma, mientras los cuidadores registran, configuran y desactivan los dispositivos.
 
-![bc gestión de bienes](https://i.imgur.com/dTePkWS.jpeg)
+![bc gestión de bienes](https://i.imgur.com/JlBZmqo.jpeg)
 
 
 **Telemetría - Canvas**
@@ -1761,21 +1761,21 @@ Monitorea en tiempo real el estado y las fallas de los dispositivos del hogar, i
 
 Gestiona la generación, priorización y envío de notificaciones y alertas hacia el cuidador principal, asegurando que los eventos relevantes (incluyendo alertas críticas) se comuniquen a tiempo, se registre su confirmación y se reenvíen o escalen si no son atendidos dentro del plazo esperado.
 
-![bc comunicaciones](https://i.imgur.com/2b7oQBi.jpeg)
+![bc comunicaciones](https://i.imgur.com/qp6Ogfe.jpeg)
 
 
 **IAM (Gestión de Identidad y Acceso) - Canvas**
 
 Gestiona el ciclo de vida de identidades y el control de acceso de los usuarios de Alivia: registro de cuentas, autenticación con segundo factor, recuperación de contraseña y asignación de roles/accesos, garantizando que solo usuarios verificados y autorizados operen el resto de la plataforma.
 
-![bc iam](https://i.imgur.com/YA6VrVx.jpeg)
+![bc iam](https://i.imgur.com/pc2iO1K.jpeg)
 
 
 **Perfiles - Canvas**
 
 Gestiona el perfil de la persona asistida y su relación con los cuidadores: creación y actualización de datos personales, foto y preferencias de comunicación, así como la invitación, vinculación y desvinculación de cuidadores principales y adicionales.
 
-![bc perfiles](https://i.imgur.com/Xxl8fUw.jpeg)
+![bc perfiles](https://i.imgur.com/1I5rDnq.jpeg)
 
 
 **Suscripciones y Pagos - Canvas**
