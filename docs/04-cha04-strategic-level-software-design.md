@@ -1301,6 +1301,13 @@ Gestiona la creación, programación y seguimiento de actividades y rutinas de c
 
 ![bc actividades](https://i.imgur.com/89vtkyl.jpeg)
 
+
+**Analíticas - Canvas**
+
+Consolida y expone las métricas del sistema (globales, de ventas/suscripciones y de telemetría de dispositivos) a través de un dashboard principal, permitiendo que administradores, gestores de suscripciones y cuidadores consulten los indicadores relevantes según su rol.
+
+![bc analiticas](https://i.imgur.com/qMSTi8P.jpeg)
+
 ### 4.2.5. Context Mapping
 
 ## 4.3. Software Architecture
