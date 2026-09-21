@@ -1221,18 +1221,36 @@ Rios Piñan, Dayro Richard (u202315283)
     </tr>
     <tr>
         <td> 1.220 </td>
+        <td> 20/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Add per-image descriptions to design-level event storming </td>
+    </tr>
+    <tr>
+        <td> 1.221 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.222 </td>
+        <td> 20/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add per-image descriptions to design-level event storming </td>
+    </tr>
+    <tr>
+        <td> 1.223 </td>
         <td> 17/09/26 </td>
         <td> Nicolas Juarez Leon </td>
         <td> Add new member to members list. </td>
     </tr>
     <tr>
-        <td> 1.221 </td>
+        <td> 1.224 </td>
         <td> 18/09/26 </td>
         <td> Nicolas Juarez Leon </td>
         <td> Add space for new member description. </td>
     </tr>
     <tr>
-        <td> 1.222 </td>
+        <td> 1.225 </td>
         <td> 20/09/26 </td>
         <td> Oscar Javier Armas Sánchez </td>
         <td> Add description and photo for oscar armas member profile. </td>
