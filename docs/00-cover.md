@@ -1253,6 +1253,48 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Matias Diaz </td>
         <td> Add new photo for matias diaz member profile </td>
     </tr>
+    <tr>
+        <td> 1.226 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.227 </td>
+        <td> 21/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-53 add   Software Architecture Deployment Diagram </td>
+    </tr>
+    <tr>
+        <td> 1.228 </td>
+        <td> 20/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add scenario refinements after qaw. </td>
+    </tr>
+    <tr>
+        <td> 1.229 </td>
+        <td> 21/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Fix issue description for notification scenario. </td>
+    </tr>
+    <tr>
+        <td> 1.230 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.231 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.232 </td>
+        <td> 21/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add context map and decisions summary. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
