@@ -1010,7 +1010,7 @@ Con el fin de mantener la consistencia y facilitar la interpretación del modelo
 
 Con el fin de mantener la consistencia y facilitar la interpretación del modelo, el equipo definió una convención de colores para los post-its utilizados durante la tercera fase del Design-Level Event Storming. Esta convención permitió identificar de manera visual los distintos elementos del dominio, tales como eventos, comandos, actores, políticas, modelos de lectura y sistemas externos, facilitando la comprensión de las relaciones y flujos dentro del sistema.
 
-#### Paso 1: Event
+#### Paso 1: Eventos(Event)
 
 El primer paso consistió en la identificación de los eventos de dominio del sistema. Un evento de dominio representa un hecho relevante que ya ocurrió dentro del negocio y se expresa en tiempo pasado. En esta técnica los eventos se representan con tarjetas de color naranja.
 
@@ -1034,7 +1034,7 @@ Adicionalmente, se incorporaron eventos de lectura en los bounded contexts donde
 
 Los eventos de telemetría incluyen explícitamente el registro del nivel de batería, el estado de conectividad y el estado del sensor de cada dispositivo (luz, puerta, ventana, micrófono) como variables monitoreadas por el nodo Edge, dado que el sistema no solo ejecuta las acciones solicitadas por voz, sino que también supervisa continuamente la condición operativa de los dispositivos IoT instalados en el hogar.
 
-#### Paso 2: Timelines
+#### Paso 2: Líneas de tiempo(Timelines)
 
 El segundo paso consistió en organizar los eventos de dominio dentro de líneas de tiempo por cada bounded context del sistema. El objetivo fue establecer el orden cronológico natural en que los hechos ocurren dentro de cada flujo.
 
@@ -1118,7 +1118,7 @@ En **Analíticas**, el flujo de métricas registra los eventos `Métricas global
 
 En **Gestión de operaciones técnicas**, se distinguen tres flujos. En Evaluación: `Dirección de evaluación registrada` → `Evaluación técnica solicitada` → `Visita técnica programada` → `Técnico asignado` → `Instalación eléctrica evaluada` → `Puerta evaluada` → `Iluminación evaluada` → `Compatibilidad de dispositivos determinada`, tras lo cual el flujo se bifurca en tres resultados posibles: `Vivienda declarada viable`, `Vivienda declarada parcialmente viable` o `Vivienda declarada no viable`. En Instalación, posterior a una vivienda viable: `Instalación programada` → `Instalación iniciada` → `Dispositivos instalados` → `Dispositivo registrado` → `Dispositivo asignado a la vivienda` → `Instalación completada`. En Incidencia: `Dispositivo objetivo identificado` → `Dispositivo clasificado` → `Alerta técnica generada` → `Incidencia de soporte creada` → `Mantenimiento programado` → `Diagnóstico técnico realizado` → `Dispositivo reparado` → `Servicio restablecido`; y, para el informe técnico, `Evidencias técnicas registradas` → `Informe técnico generado` → `Evaluación técnica completada`.
 
-#### Paso 3: Pain Points
+#### Paso 3: 	Puntos de dolor(Pain Points)
 
 El tercer paso incorporó la identificación de los pain points dentro de los flujos ya organizados. Los pain points se representan con tarjetas en forma de rombo de color morado y señalan fricciones, dudas o decisiones de diseño pendientes que el equipo detectó al revisar las líneas de tiempo.
 
@@ -1212,7 +1212,7 @@ Se identificaron catorce pain points distribuidos en los bounded contexts con ma
 - **"Si se genera una alerta de auxilio, ¿el cuidador podrá visualizar la alerta?"** en Tracking. Señala el riesgo de que, sin conexión, la alerta generada no llegue al cuidador.
 - **"¿Qué pasa si se pierde la conexión por mucho tiempo?"** en Tracking. Plantea los límites del almacenamiento local y de la sincronización posterior tras una desconexión prolongada.
 
-#### Paso 4: Pivotal Points
+#### Paso 4: Puntos de inflexión(Pivotal Points)
 
 El cuarto paso incorporó la identificación de los pivotal points, representados como líneas verticales dentro de los flujos de cada bounded context. Estos puntos señalan los momentos de transición más relevantes en el recorrido del sistema, donde el flujo cambia de fase, de resultado o de responsabilidad.
 
@@ -1285,7 +1285,7 @@ El equipo reconoció pivotal points en los siguientes momentos:
 
 En los contextos de **Perfiles**, **Seguimiento**, **Comunicaciones**, **Activos/Bienes** y **Gestión de operaciones técnicas** no se marcaron pivotal points en las capturas, ya que sus flujos mantienen una secuencia continua o se bifurcan en resultados alternativos (por ejemplo, la viabilidad de la vivienda o el reconocimiento del comando de voz) sin un cambio de contexto o de responsabilidad que justificara una separación explícita.
 
-#### Paso 5: Comandos
+#### Paso 5: Comandos(Comandos)
 
 El quinto paso consistió en identificar los comandos del sistema. Un comando representa la intención de un actor de provocar un cambio de estado en el dominio. Los comandos se representan con tarjetas de color azul y se ubican antes del evento de dominio que producen.
 
@@ -1366,7 +1366,7 @@ El equipo incorporó los comandos en cada línea de tiempo de la siguiente maner
 - En **Activos/Bienes** se definieron: Emitir comando de voz y Accionar dispositivo por voz.
 - En **Gestión de operaciones técnicas** se definieron: Solicitar y evaluar vivienda, Instalar dispositivos, Atender incidencia técnica y Generar informe técnico.
 
-#### Paso 6: Policies and Actors
+#### Paso 6: Políticas y actores(Policies and Actors)
 
 El sexto paso incorporó al modelo los actores y las políticas del sistema. Los actores se representan con tarjetas pequeñas de color amarillo y son quienes emiten los comandos dentro de cada flujo. Las políticas son reglas de negocio automáticas que, ante la ocurrencia de un evento, disparan un nuevo comando o acción sin intervención humana directa, y se representan con tarjetas de color lila.
 
@@ -1474,7 +1474,7 @@ En los contextos de **IAM**, **Seguimiento**, **Actividades**, **Comunicaciones*
 
 Luego de identificar los eventos, flujos, comandos y políticas del dominio, el equipo avanzó con la detección de contextos candidatos. Esta fase les permitió organizar los elementos vinculados de acuerdo con su cohesión funcional y las reglas de negocio que compartían, lo que facilitó la definición de los futuros Bounded Contexts. De este modo, el equipo logro modelar el dominio de Aliva en contextos con responsabilidades claramente separadas.
 
-#### Paso 7: Read models
+#### Paso 7: Modelos de lectura(Read models)
 
 El séptimo paso consistió en identificar los modelos de lectura del sistema. Los read models se representan con tarjetas de color verde y corresponden a las vistas o pantallas que los actores necesitan consultar antes de emitir un comando.
 
@@ -1545,7 +1545,7 @@ El equipo incorporó los read models en los siguientes bounded contexts:
 
 En el contexto de **Activos/Bienes** no se identificaron read models, ya que la Persona con discapacidad interactúa exclusivamente mediante comandos de voz, sin consultar vistas previas para emitir sus comandos.
 
-#### Paso 8: External Systems
+#### Paso 8: Sistemas externos(External Systems)
 
 El octavo paso consistió en incorporar al modelo los sistemas externos. Los sistemas externos se representan con tarjetas de color rojo y corresponden a servicios ajenos al dominio propio de Alivia que participan en los flujos de negocio.
 
@@ -1620,7 +1620,7 @@ El equipo identificó cuatro sistemas externos y dos dispositivos físicos que i
 
 En los contextos de **Actividades**, **Gestión de operaciones técnicas** y **Operación sin conexión** no se identificaron sistemas externos, ya que sus flujos se resuelven íntegramente dentro del dominio de Alivia.
 
-#### Paso 9: Add Aggregates
+#### Paso 9: Identificación de agregados(Add Aggregates)
 
 El noveno paso consistió en identificar los agregados del dominio y agrupar en torno a ellos los comandos, eventos, políticas y read models correspondientes. Los agregados se representan con tarjetas de color amarillo de mayor tamaño y constituyen la unidad de consistencia del dominio.
 
