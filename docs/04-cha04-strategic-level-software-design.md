@@ -1729,8 +1729,60 @@ A continuación se presenta el diagrama de la vista general del sistema, que mue
 
 ![System Landscape Diagram](../images/diagrams/img/alivia-landscape.svg)
 ### 4.3.2. Software Architecture Context Level Diagram
+El diagrama de contexto muestra una vista de alto nivel de las relaciones entre los diferentes contextos delimitados y otros sistemas externos. Este diagrama ayuda a comprender cómo los diferentes contextos interactúan entre sí y con el mundo exterior, proporcionando una visión general de la arquitectura del sistema.
+
+![Context Level Diagram](../images/diagrams/img/alivia-context-diagram.svg)
+
+**Resumen del diagrama de contexto**
+
+El diagrama de contexto representa al **Sistema Alivia** como una caja negra, mostrando quiénes interactúan con él y con qué sistemas externos se comunica, sin entrar en el detalle de su arquitectura interna.
+
+**Actores:**
+- **Visitante**: usuario anónimo interesado en conocer la plataforma antes de registrarse.
+- **Persona con discapacidad**: usuario final con discapacidad motora que interactúa con el sistema principalmente mediante comandos de voz.
+- **Familiar o cuidador** :responsable del cuidado de la persona con discapacidad; monitorea el sistema desde la app móvil y web.
+- **Técnico de la empresa** :encargado de instalar los dispositivos en el hogar y verificar que cumpla los requisitos técnicos.
+- **Administrador del negocio**: gestiona dispositivos, personal y suscripciones desde la plataforma web empresarial.
+
+**Sistemas externos:**
+- **Firebase** :notificaciones push (batería baja, fallas de dispositivo).
+- **Stripe** :procesamiento de pagos de las suscripciones.
+- **Cloudinary** :almacenamiento de fotos y videos.
+- **SendGrid** :envío de correos de confirmación y verificación.
+- **Google Maps** :ubicación geográfica de la vivienda.
+- **Microphone device** :dispositivo IoT que capta comandos de voz de la persona con discapacidad.
+- **Hardware de los Actuadores** :hardware físico controlado (puertas, luces, etc.).
 
 ### 4.3.3. Software Architecture Container Level Diagram
+El diagrama de contenedores muestra los principales contenedores de software dentro de cada contexto delimitado, como aplicaciones, servicios, bases de datos, etc. Este diagrama ayuda a visualizar la estructura interna de cada contexto y cómo los diferentes contenedores interactúan entre sí.
+
+![Container Level Diagram](../images/diagrams/img/alivia-container-diagram.svg)
+
+**Tabla de interacciones — Sistema Alivia**
+
+| Actor / Sistema externo | Interactúa con | Tipo de interacción |
+|---|---|---|
+| Visitante | Landing Page | Explora la plataforma sin estar registrado |
+| Visitante | Familiar o cuidador | Se convierte en este rol al registrarse |
+| Familiar o cuidador | Landing Page | Consulta planes e información |
+| Familiar o cuidador | App móvil | Monitorea los dispositivos del hogar |
+| Persona con discapacidad | Microphone device | Da comandos de voz (no usa web ni móvil directamente) |
+| Técnico de la empresa | Web empresarial | Gestiona visitas de instalación |
+| Técnico de la empresa | App móvil | Registra la instalación de dispositivos en campo |
+| Administrador del negocio | Web empresarial | Administra dispositivos, personal y suscripciones |
+| Firebase | API (Alivia) | Recibe notificaciones push (batería baja, fallas) |
+| Stripe | API (Alivia) | Procesa pagos de suscripciones |
+| Cloudinary | API (Alivia) | Almacena fotos y videos subidos |
+| SendGrid | API (Alivia) | Envía correos de confirmación y verificación |
+| Google Maps | API (Alivia) | Resuelve la ubicación de la vivienda |
+| Microphone device | Embebido del micrófono | Envía el audio captado directamente (sin pasar por la API) |
+| Hardware de actuadores | Embebido de los actuadores | Recibe y ejecuta la acción física directamente (sin pasar por la API) |
+
+**Resumen**
+
+Todo empieza con el visitante, que entra a la Landing Page para conocer la plataforma sin estar registrado y luego se convierte en familiar o cuidador, el rol que le da seguimiento diario a la persona con discapacidad desde la web (para ver información) o desde la app móvil (para monitorear dispositivos). La persona con discapacidad no usa web ni móvil: se comunica dando comandos de voz al dispositivo de micrófono. Del lado operativo, el técnico gestiona instalaciones tanto desde la web empresarial como desde el móvil en campo, y el administrador del negocio trabaja únicamente desde la web empresarial para manejar dispositivos, personal y suscripciones.
+
+En cuanto a los servicios externos, todos pasan por la API central, que es el único punto de salida del sistema: Firebase para notificaciones push, Stripe para pagos, Cloudinary para fotos y videos, SendGrid para correos, y Google Maps para ubicación. La única excepción son los dos hardwares embebidos (micrófono y actuadores), que no pasan por la API porque su comunicación es directa con el hardware físico correspondiente, ya que necesitan responder en tiempo real sin depender de la nube.
 
 ### 4.3.4. Software Architecture Deployment Diagram
 
