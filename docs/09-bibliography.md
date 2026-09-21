@@ -4,11 +4,11 @@
 
 https://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S1132-12962017000200011
 
-**Fuente (Business Outcome 1 & 2 & 4 & 5):** "Perú: Caracterización de las Condiciones de Vida de la Población con Discapacidad, 2024"
+"Perú: Caracterización de las Condiciones de Vida de la Población con Discapacidad, 2024"
 
 https://www.gob.pe/es/institucion/inei/informes-publicaciones/7505952-peru-characterization-of-living-conditions-of-the-population-with-disabilities-2024
 
-**Fuente (Business Outcome 6):** "Tecnologías de asistencia contribuyen a la autonomía de las personas con discapacidad"
+"Tecnologías de asistencia contribuyen a la autonomía de las personas con discapacidad"
 
 https://www.gob.pe/institucion/conadis/noticias/1404861-tecnologias-de-asistencia-contribuyen-a-la-autonomia-de-las-personas-con-discapacidad
 

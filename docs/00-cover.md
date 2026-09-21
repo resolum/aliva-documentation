@@ -1203,18 +1203,36 @@ Rios Piñan, Dayro Richard (u202315283)
     </tr>
     <tr>
         <td> 1.217 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.218 </td>
+        <td> 20/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-53 add C4 model and container diagram for Alivia system </td>
+    </tr>
+    <tr>
+        <td> 1.219 </td>
+        <td> 20/09/26 </td>
+        <td> RenatoCY </td>
+        <td> AR-53 add paragraph for container diagram </td>
+    </tr>
+    <tr>
+        <td> 1.220 </td>
         <td> 17/09/26 </td>
         <td> Nicolas Juarez Leon </td>
         <td> Add new member to members list. </td>
     </tr>
     <tr>
-        <td> 1.218 </td>
+        <td> 1.221 </td>
         <td> 18/09/26 </td>
         <td> Nicolas Juarez Leon </td>
         <td> Add space for new member description. </td>
     </tr>
     <tr>
-        <td> 1.219 </td>
+        <td> 1.222 </td>
         <td> 20/09/26 </td>
         <td> Oscar Javier Armas Sánchez </td>
         <td> Add description and photo for oscar armas member profile. </td>
@@ -1363,7 +1381,7 @@ En el siguiente cuadro se describe las acciones realizadas y enunciados de concl
         <td>
             <strong>Armas Sánchez, Oscar Javier</strong><br>
             <strong>AV1</strong><br>
-            <em>[Oscar: completar en 2-3 líneas a qué audiencia le comunicaste resultados del proyecto en este checkpoint (equipo, docente, cliente/stakeholder), en qué instancia lo hiciste (exposición, sprint review, entrevista) y qué mensaje clave transmitiste.]</em>
+            Al incorporarse al equipo, coordinó oralmente con sus compañeros los puntos técnicos pendientes de la aplicación web y de la aplicación móvil, alineando su aporte con el estado actual del proyecto antes de sumar sus contribuciones al informe.
             <br><br>
             <strong>Calvo Yalan, Renato Guillermo</strong><br>            
             <strong>AV1</strong><br>
