@@ -1037,6 +1037,144 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> RenatoCY </td>
         <td> AR-51 add system landscape diagram and DSL model for Alivia Platform </td>
     </tr>
+    <tr>
+        <td> 1.190 </td>
+        <td> 11/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Clarify wheelchair and crutches usage to avoid perceived contradiction. </td>
+    </tr>
+    <tr>
+        <td> 1.191 </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.192 </td>
+        <td> 17/09/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Add constraints table. </td>
+    </tr>
+    <tr>
+        <td> 1.193 </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.194 </td>
+        <td> 17/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Change epic id to a correct one. </td>
+    </tr>
+    <tr>
+        <td> 1.195 </td>
+        <td> 17/09/26 </td>
+        <td> Addicted2you </td>
+        <td> Update constraints </td>
+    </tr>
+    <tr>
+        <td> 1.196 </td>
+        <td> 17/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add interview analysis for segment 2 </td>
+    </tr>
+    <tr>
+        <td> 1.197 </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.198 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add process description for architectural drivers backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.199 </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.200 </td>
+        <td> 17/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Combine elements and form scenario sentences. </td>
+    </tr>
+    <tr>
+        <td> 1.201 </td>
+        <td> 17/09/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Define architectural driver backlog and analysis. </td>
+    </tr>
+    <tr>
+        <td> 1.202 </td>
+        <td> 17/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update scores for importance and complexity. </td>
+    </tr>
+    <tr>
+        <td> 1.203 </td>
+        <td> 18/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.204 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add architectural design records from output of attribute-driven design. </td>
+    </tr>
+    <tr>
+        <td> 1.205 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Fix metrics and reprioritize the drivers backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.206 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update decisions backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.207 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Change wrong use of words in drivers. </td>
+    </tr>
+    <tr>
+        <td> 1.208 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Update tactics to be more clear. </td>
+    </tr>
+    <tr>
+        <td> 1.209 </td>
+        <td> 19/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.210 </td>
+        <td> 20/09/26 </td>
+        <td> Farid Coronel </td>
+        <td> Add product backlog. </td>
+    </tr>
+    <tr>
+        <td> 1.211 </td>
+        <td> 20/09/26 </td>
+        <td> Farid Coronel </td>
+        <td> Add user stories. </td>
+    </tr>
+    <tr>
+        <td> 1.212 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
