@@ -1316,6 +1316,13 @@ Gestiona el ciclo de vida de los dispositivos del hogar vinculados a Alivia (dis
 ![bc gestión de bienes](https://i.imgur.com/dTePkWS.jpeg)
 
 
+**Telemetría - Canvas**
+
+Monitorea en tiempo real el estado y las fallas de los dispositivos del hogar, informa ese estado a cuidadores y técnicos, y garantiza la continuidad del servicio cuando se pierde la conexión a internet mediante el almacenamiento local y la sincronización posterior de eventos.
+
+![bc telemtría](https://i.imgur.com/kv6nG7A.jpeg)
+
+
 **Comunicaciones - Canvas**
 
 Gestiona la generación, priorización y envío de notificaciones y alertas hacia el cuidador principal, asegurando que los eventos relevantes (incluyendo alertas críticas) se comuniquen a tiempo, se registre su confirmación y se reenvíen o escalen si no son atendidos dentro del plazo esperado.
