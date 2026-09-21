@@ -1217,6 +1217,24 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> RenatoCY </td>
         <td> AR-53 add paragraph for container diagram </td>
     </tr>
+    <tr>
+        <td> 1.220 </td>
+        <td> 20/09/26 </td>
+        <td> equinox-1092 </td>
+        <td> Add per-image descriptions to design-level event storming </td>
+    </tr>
+    <tr>
+        <td> 1.221 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.222 </td>
+        <td> 20/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add per-image descriptions to design-level event storming </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
