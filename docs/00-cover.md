@@ -1151,6 +1151,18 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Nicolas Juarez Leon </td>
         <td> Update tactics to be more clear. </td>
     </tr>
+    <tr>
+        <td> 1.209 </td>
+        <td> 19/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.210 </td>
+        <td> 20/09/26 </td>
+        <td> Farid Coronel </td>
+        <td> Add product backlog. </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
