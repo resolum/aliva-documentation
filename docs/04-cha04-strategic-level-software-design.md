@@ -894,52 +894,919 @@ A continuación, se resume las decisiones tomadas por el equipo para el diseño 
 
 <table>
     <tr>
-        <th colspan="3" align="left"> Scenario Refinement for Scenario N </th>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 1</th>
     </tr>
     <tr>
-        <th colspan="2" align="left"> Scenario(s) </th>
-        <td> </td>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>Pérdida o degradación de la conexión Wi-Fi con el dispositivo IoT durante una operación normal.</td>
     </tr>
     <tr>
-        <th colspan="2" align="left"> Business Goals </th>
-        <td> </td>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Lograr que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan utilizando el sistema para completar sus actividades diarias.<br><br>Incrementar en 70% la proporción de actividades básicas del hogar que pueda realizar la persona discapacitada sin requerir asistencia de terceros.</td>
     </tr>
     <tr>
-        <th colspan="2" align="left"> Relevant Quality Attributes </th>
-        <td> </td>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Disponibilidad, Confiabilidad y Rendimiento.</td>
     </tr>
     <tr>
-        <th rowspan="6" align="left"> Scenario Components </th>
-        <th align="left"> Stimulus </th>
-        <td> </td>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Se pierde o degrada la conexión Wi-Fi necesaria para comunicarse con los dispositivos IoT.</td>
     </tr>
     <tr>
-        <th align="left"> Stimulus Source </th>
-        <td> </td>
+        <th align="left">Stimulus Source</th>
+        <td>Red Wi-Fi o infraestructura de conectividad externa.</td>
     </tr>
     <tr>
-        <th align="left"> Environment </th>
-        <td> </td>
+        <th align="left">Environment</th>
+        <td>Operación normal del sistema en una vivienda, con ausencia temporal de conectividad Wi-Fi o Internet.</td>
     </tr>
     <tr>
-        <th align="left"> Artifact (If known) </th>
-        <td> </td>
+        <th align="left">Artifact (If known)</th>
+        <td>Módulo Edge de control y comunicación, dispositivos IoT y enlace Bluetooth Low Energy.</td>
     </tr>
     <tr>
-        <th align="left"> Response </th>
-        <td> </td>
+        <th align="left">Response</th>
+        <td>El sistema detecta la pérdida de conectividad Wi-Fi y cambia a comunicación local mediante BLE para continuar ejecutando las acciones esenciales.</td>
     </tr>
     <tr>
-        <th align="left"> Response Measure </th>
-        <td> </td>
+        <th align="left">Response Measure</th>
+        <td>La conmutación hacia BLE debe completarse en un máximo de 500 ms y las acciones esenciales deben permanecer disponibles durante la pérdida de conectividad externa.</td>
     </tr>
     <tr>
-        <th colspan="2" align="left"> Questions </th>
-        <td> </td>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Cómo se detectará la pérdida de conectividad? ¿Qué acciones se consideran esenciales durante una interrupción? ¿Qué información debe permanecer disponible localmente?</td>
     </tr>
     <tr>
-        <th colspan="2" align="left"> Issues </th>
-        <td> </td>
+        <th colspan="2" align="left">Issues</th>
+        <td>Se debe definir el mecanismo de detección de falla, la estrategia de conmutación Wi-Fi/BLE y la sincronización del estado local con la nube después de recuperar la conexión.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 2</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>Recuperación de la conexión del dispositivo móvil o servicio después de una desconexión temporal.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Lograr que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan utilizando el sistema para completar sus actividades diarias.<br><br>Reducir en 60% el tiempo promedio requerido para que la persona discapacitada pueda completar una actividad básica del hogar.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Disponibilidad, Rendimiento y Confiabilidad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Se recupera la conexión entre el dispositivo móvil y el servicio en la nube después de una interrupción temporal.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Infraestructura de conectividad y dispositivo móvil.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal posterior a una pérdida temporal de conectividad, con cambios locales pendientes de sincronización.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Módulo de sincronización del dispositivo móvil y servicio backend.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema detecta la reconexión, recupera los cambios locales pendientes y los sincroniza con el servicio en la nube sin perder ni duplicar información.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>La sincronización debe completarse en un máximo de 5 segundos, sin pérdida ni duplicación de datos.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Cómo se identificarán los cambios pendientes? ¿Cómo se resolverán conflictos entre información local y remota? ¿Cómo se garantizará la idempotencia de las operaciones?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La arquitectura requiere persistencia temporal local, identificación de cambios, control de duplicados y una estrategia para resolver conflictos durante la sincronización.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 3</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>Un servicio externo integrado presenta una falla, indisponibilidad o respuesta inválida durante una operación normal.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Lograr que el 100% de las personas discapacitadas que no cuenten con Internet o experimenten una caída de la red sigan utilizando el sistema para completar sus actividades diarias.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Disponibilidad, Interoperabilidad y Seguridad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Un servicio externo deja de responder, excede el tiempo de espera o devuelve una respuesta inválida.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Servicio externo integrado con la solución.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal con una dependencia externa temporalmente indisponible.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Interfaz de integración y componente encargado de consumir el servicio externo.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema detecta la falla, evita que esta se propague hacia otros componentes y rechaza o deriva la operación afectada según la estrategia definida.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de las acciones esenciales que no dependan del servicio afectado deben permanecer disponibles.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Qué servicios externos son críticos? ¿Qué operaciones pueden continuar sin ellos? ¿Cuándo debe reintentarse una solicitud y cuándo debe aplicarse un mecanismo alternativo?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>Las dependencias externas pueden convertirse en puntos únicos de falla si no se aíslan mediante mecanismos de detección, reintento controlado y fallback.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 4</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>La persona con discapacidad solicita mediante voz la ejecución de una acción física sobre un dispositivo del hogar.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Reducir en 60% el tiempo promedio requerido para que la persona discapacitada pueda completar una actividad básica del hogar.<br><br>Incrementar en 70% la proporción de actividades básicas del hogar que pueda realizar sin requerir asistencia de terceros.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Rendimiento y Usabilidad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>La persona emite un comando de voz válido para ejecutar una acción física.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Persona con discapacidad motora.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal del sistema con conectividad local disponible.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Modelo de ML, módulo Edge de control y comunicación y actuador IoT.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema interpreta el comando y delega la acción al dispositivo físico correspondiente.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>La delegación de la acción debe completarse en un máximo de 1,5 segundos desde la recepción del comando válido.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿El límite de 1,5 segundos incluye únicamente la delegación o también la activación física? ¿Qué componente aporta mayor latencia al flujo de ejecución?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>Una dependencia innecesaria de servicios cloud puede incrementar la latencia; por ello, debe determinarse qué procesamiento puede realizarse localmente.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 5</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>Después de recuperar la conectividad, el sistema procesa los cambios almacenados localmente y los envía al backend.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Reducir en 60% el tiempo promedio requerido para completar una actividad básica del hogar.<br><br>Lograr continuidad del sistema durante interrupciones de conectividad.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Rendimiento, Disponibilidad y Confiabilidad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>El dispositivo recupera la conectividad y dispone de operaciones locales pendientes de sincronización.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Módulo de conectividad y almacenamiento local.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Reconexión después de una interrupción temporal.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Módulo de sincronización, almacenamiento local y backend.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema procesa y envía los cambios pendientes de manera asíncrona sin bloquear las operaciones principales.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El procesamiento y envío de cambios pendientes debe completarse en un máximo de 1 segundo para el volumen definido de operaciones.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Cuántos cambios pendientes deben procesarse dentro del límite? ¿El procesamiento debe ejecutarse en paralelo? ¿Cómo se evita bloquear operaciones transaccionales?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La sincronización puede competir por recursos con las operaciones normales si no se desacopla mediante procesamiento asíncrono.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 6</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>El sistema detecta un evento crítico que requiere notificación a un cuidador.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Reducir en 65% el número de intervenciones de familiares o cuidadores requeridas.<br><br>Reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación de la persona discapacitada.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Rendimiento, Disponibilidad y Usabilidad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Se detecta un evento crítico que requiere la atención del cuidador.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Módulo de detección de eventos de la solución.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal con disponibilidad del canal de comunicación externo.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Módulo de alertas, cola de mensajes y servicio externo de notificaciones.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema genera una alerta priorizada y la entrega al servicio externo de notificaciones para su distribución al cuidador.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>La entrega al servicio externo debe completarse en un máximo de 2 segundos desde la generación del evento.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Qué eventos deben considerarse críticos? ¿Cómo se priorizan las alertas? ¿Qué ocurre si el servicio externo no está disponible?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>El mecanismo de notificación debe combinar baja latencia con persistencia y priorización para evitar pérdida de eventos críticos.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 7</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>Un nuevo usuario registra una cuenta proporcionando una contraseña.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Garantizar la protección de las cuentas utilizadas para la supervisión y coordinación del cuidado.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Seguridad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>El usuario proporciona una contraseña durante el registro.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Usuario que registra una nueva cuenta.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Proceso normal de registro de usuarios.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Módulo IAM y almacenamiento de credenciales.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema procesa la contraseña mediante una función de derivación de claves resistente a ataques de fuerza bruta y almacena únicamente el resultado correspondiente.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de las contraseñas debe almacenarse mediante el mecanismo definido y ninguna contraseña debe conservarse en texto plano.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Qué algoritmo y parámetros se utilizarán? ¿Cómo se gestionarán los valores salt? ¿Dónde se almacenarán los parámetros de seguridad?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La selección y configuración de la función de derivación de claves afecta directamente al diseño del componente de autenticación y persistencia.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 8</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>Un cuidador proporciona credenciales válidas para acceder a la plataforma.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Permitir la supervisión y coordinación remota del cuidado mediante un acceso controlado.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Seguridad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Solicitud de inicio de sesión con credenciales válidas.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Cuidador de una persona con discapacidad motora.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal de la plataforma.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Módulo IAM y servicio de autenticación.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema autentica al cuidador y emite un token temporal asociado a su identidad y permisos.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El token debe tener una vigencia máxima de 30 minutos y permitir únicamente el acceso correspondiente al rol autorizado.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Qué información debe contener el token? ¿Cómo se revocará antes de su expiración? ¿Cómo se gestionará su renovación?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La arquitectura debe diferenciar autenticación, emisión de credenciales y autorización para limitar la exposición de los recursos.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 9</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>Un cuidador autenticado intenta ejecutar una acción o acceder a un recurso de la plataforma.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Permitir que los cuidadores gestionen las actividades correspondientes a sus responsabilidades sin acceder a recursos no autorizados.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Seguridad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Solicitud de acceso o ejecución de una acción sobre un recurso protegido.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Cuidador autenticado.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal de los servicios protegidos.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Módulo IAM y servicios que exponen recursos protegidos.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema valida el token y los permisos asociados al rol antes de permitir la operación solicitada.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de las solicitudes no autorizadas deben ser rechazadas y deben existir 0 acciones no autorizadas ejecutadas exitosamente.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Qué roles existirán? ¿Qué recursos puede consultar o modificar cada rol? ¿Dónde se aplicará la política de autorización?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La autorización debe aplicarse consistentemente para evitar diferencias de seguridad entre los distintos servicios de la solución.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 10</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>La solución necesita intercambiar información con servicios externos para completar una funcionalidad.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Mantener la capacidad de integrar servicios externos sin comprometer la continuidad de las funciones esenciales del sistema.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Interoperabilidad, Modificabilidad y Disponibilidad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Un componente interno solicita o envía información a un servicio externo.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Componente interno de la solución.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal con disponibilidad del servicio externo.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Adaptador o interfaz de integración con el servicio externo.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El adaptador transforma y transmite la información utilizando el protocolo y formato requerido por el servicio externo.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de las integraciones deben utilizar interfaces y formatos definidos que permitan intercambiar correctamente la información requerida.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Qué protocolos y formatos utilizará cada integración? ¿Cómo se aislarán los cambios del proveedor externo? ¿Cómo se gestionarán versiones incompatibles?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>Las dependencias directas con proveedores externos pueden incrementar el acoplamiento y dificultar la sustitución o evolución de servicios.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 11</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>Una integración externa presenta una respuesta inválida o deja de estar disponible durante una operación.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Lograr continuidad de las funciones esenciales ante fallos de servicios externos.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Interoperabilidad, Disponibilidad y Modificabilidad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>La integración recibe un timeout, error de comunicación o respuesta incompatible.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Servicio externo.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal con indisponibilidad o comportamiento inesperado del servicio externo.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Adaptador de integración y componente consumidor.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema aísla la falla del servicio externo y evita que el error se propague hacia componentes internos no relacionados.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de los fallos de la integración deben quedar contenidos en el límite definido para dicha dependencia.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Qué componente será responsable de detectar y aislar el fallo? ¿Qué comportamiento alternativo se ejecutará? ¿Cuándo se permitirá nuevamente la comunicación?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>Se requiere desacoplar las dependencias externas y controlar la propagación de errores mediante mecanismos de aislamiento.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 12</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>El modelo de Machine Learning utilizado para interpretar comandos requiere una actualización debido a cambios en datos, desempeño o necesidades funcionales.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Incrementar en 70% la proporción de actividades básicas del hogar que pueda realizar la persona discapacitada sin requerir asistencia de terceros.<br><br>Incrementar en 60% el nivel de autonomía percibida por las personas discapacitadas.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Confiabilidad, Modificabilidad y Mantenibilidad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Se dispone de una nueva versión del modelo de Machine Learning.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Proceso de entrenamiento y mantenimiento del modelo ML.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Entorno de mantenimiento y actualización del sistema.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Modelo ML desplegado en el servicio de inferencia Edge.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema registra la nueva versión, permite validarla y sustituir la versión activa de manera controlada.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>Cada versión desplegada debe estar identificada y asociada a su configuración y métricas de validación correspondientes.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Cómo se identificará cada versión? ¿Qué criterios deben cumplirse antes del despliegue? ¿Cómo se recuperará una versión anterior?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La evolución del modelo requiere mecanismos de versionado, validación y recuperación que eviten sustituir una versión funcional por otra degradada.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 13</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>La persona con discapacidad solicita una acción física y necesita conocer mediante voz si esta fue ejecutada correctamente.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Incrementar en 60% el nivel de autonomía percibida por las personas discapacitadas.<br><br>Incrementar en 70% la proporción de actividades básicas realizadas sin asistencia.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Usabilidad y Confiabilidad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Se recibe y ejecuta correctamente un comando de voz válido.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Persona con discapacidad motora.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal del sistema dentro de la vivienda.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Módulo de control, actuador y mecanismo de salida de voz.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema proporciona una confirmación audible que informa el resultado de la acción solicitada.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de las acciones ejecutadas correctamente deben generar una confirmación mediante voz.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿La confirmación debe indicar solamente que la orden fue recibida o que la acción física terminó correctamente? ¿Cómo se comunicarán los errores?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La confirmación debe basarse en el resultado real de la acción y no únicamente en la recepción del comando.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 14</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>La persona con discapacidad utiliza una frase de voz para solicitar una acción del sistema.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Incrementar en 70% la proporción de actividades básicas del hogar que pueda realizar la persona discapacitada sin requerir asistencia de terceros.<br><br>Incrementar en 60% el nivel de autonomía percibida.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Usabilidad, Confiabilidad y Rendimiento.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>El usuario pronuncia una frase clave asociada a una acción disponible.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Persona con discapacidad motora.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal dentro de un espacio acústicamente controlado.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Servicio de reconocimiento de voz y componente de mapeo de intenciones.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema identifica la intención asociada a la frase y genera el comando correspondiente.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de las categorías esenciales definidas debe contar con una frase válida asociada a una acción.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Qué frases se consideran válidas? ¿Cómo se gestionarán variaciones de pronunciación? ¿Cómo se diferenciarán frases similares con intenciones distintas?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>El diseño debe limitar la ambigüedad de las frases y establecer reglas de mapeo entre intención, comando y acción física.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 15</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>La persona con discapacidad necesita asistencia y solicita auxilio mediante un comando de voz.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Reducir en 65% el número de intervenciones de familiares o cuidadores requeridas.<br><br>Reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Usabilidad, Disponibilidad y Rendimiento.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>La persona emite un comando de voz correspondiente a una solicitud de auxilio.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Persona con discapacidad motora.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal dentro de la vivienda.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Modelo de ML, módulo de comunicación y servicio de alertas.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema identifica la solicitud, genera una alerta prioritaria y activa el flujo de comunicación con el cuidador correspondiente.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de los escenarios de solicitud de auxilio definidos deben activar correctamente el flujo de comunicación correspondiente.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Cómo se diferenciará una solicitud de auxilio de una orden normal? ¿Qué prioridad tendrá? ¿Qué sucede si el cuidador no responde?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La solicitud de auxilio debe tener un flujo diferenciado y priorizado para evitar que sea tratada como una operación ordinaria.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 16</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>El cuidador recibe una solicitud de asistencia generada por la persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Reducir en 65% el número de intervenciones de familiares o cuidadores requeridas.<br><br>Reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente en representación de la persona discapacitada.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Usabilidad y Rendimiento.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>El cuidador recibe una alerta relacionada con una solicitud de asistencia.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Sistema de alertas generado por la persona con discapacidad.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal de la aplicación móvil del cuidador.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Aplicación móvil del cuidador y componente de presentación de alertas.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>La aplicación presenta la alerta de forma clara, legible y estructurada, permitiendo al cuidador identificar la situación y responder.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de las alertas recibidas correctamente deben presentar la información necesaria para identificar y responder a la solicitud.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Qué información debe mostrarse primero? ¿Cómo se diferenciarán las alertas críticas de las informativas? ¿Qué acciones podrá realizar el cuidador directamente desde la alerta?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La interfaz debe priorizar la información necesaria para la toma de acción sin sobrecargar al cuidador con información secundaria.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 17</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>Se produce un evento o cambio relevante dentro de la operación del sistema.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Reducir en 65% el número de intervenciones de familiares o cuidadores requeridas mediante una mejor supervisión del sistema.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Observabilidad, Confiabilidad y Seguridad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Se genera un evento interno relacionado con un dispositivo, usuario, comando, alerta o cambio de estado.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Dispositivos IoT y componentes internos de la solución.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal o durante la ocurrencia de una condición excepcional.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Mecanismo de logging estructurado y almacenamiento de eventos.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema registra el evento con información suficiente para reconstruir y consultar la operación realizada.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de los eventos relevantes debe registrar fecha, hora, dispositivo, severidad y resultado de la operación.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Qué eventos requieren trazabilidad? ¿Qué información mínima debe almacenarse? ¿Cómo se relacionarán eventos generados por distintos componentes?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La solución necesita una estructura de eventos consistente para relacionar operaciones distribuidas y facilitar la supervisión y diagnóstico.</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <th colspan="3" align="left">Scenario Refinement for Scenario 18</th>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Scenario(s)</th>
+        <td>Se produce un cambio de estado en un dispositivo IoT y el cuidador necesita conocer su condición actual.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Business Goals</th>
+        <td>Reducir en 65% el número de intervenciones de familiares o cuidadores requeridas.<br><br>Reducir en 75% la cantidad de tareas rutinarias que familiares o cuidadores deben realizar directamente.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Relevant Quality Attributes</th>
+        <td>Observabilidad, Disponibilidad y Usabilidad.</td>
+    </tr>
+    <tr>
+        <th rowspan="6" align="left">Scenario Components</th>
+        <th align="left">Stimulus</th>
+        <td>Un dispositivo IoT cambia de estado operativo o deja de reportar información.</td>
+    </tr>
+    <tr>
+        <th align="left">Stimulus Source</th>
+        <td>Dispositivo IoT o mecanismo de monitoreo de conectividad.</td>
+    </tr>
+    <tr>
+        <th align="left">Environment</th>
+        <td>Operación normal, incluyendo posibles interrupciones temporales de comunicación.</td>
+    </tr>
+    <tr>
+        <th align="left">Artifact (If known)</th>
+        <td>Registro de estado de dispositivos y aplicación de supervisión del cuidador.</td>
+    </tr>
+    <tr>
+        <th align="left">Response</th>
+        <td>El sistema actualiza el estado del dispositivo y permite visualizar si se encuentra operativo, en falla o temporalmente no disponible.</td>
+    </tr>
+    <tr>
+        <th align="left">Response Measure</th>
+        <td>El 100% de los cambios de estado detectados debe reflejarse en el registro correspondiente y notificarse cuando la condición requiera atención.</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Questions</th>
+        <td>¿Cómo se determinará que un dispositivo continúa operativo cuando está temporalmente desconectado? ¿Cuál será el intervalo máximo permitido para considerar un estado como vigente?</td>
+    </tr>
+    <tr>
+        <th colspan="2" align="left">Issues</th>
+        <td>La arquitectura debe distinguir entre estado actual, último estado conocido y estado desconocido para evitar presentar información desactualizada como si fuera actual.</td>
     </tr>
 </table>
 
