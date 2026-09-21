@@ -1016,8 +1016,15 @@ El primer paso consistió en la identificación de los eventos de dominio del si
 
 <div style="display: flex; align-items: center;">
   <img src="https://imgur.com/ECRkMwd.png" alt="event storming paso 1 event">
+</div>
+
+En esta captura se observa la primera sesión de identificación de eventos, donde las tarjetas naranjas aparecen distribuidas en columnas sin un orden cronológico. Se distinguen eventos de identidad y acceso (`Cuenta creada`, `Sesión iniciada`, `Segundo factor de autenticación validado`), de suscripción y pago (`Plan seleccionado`, `Cobro confirmado`, `Cobro rechazado`, `Suscripción activada`), de evaluación e instalación (`Vivienda declarada viable`, `Instalación completada`, `Dispositivo registrado`), de control por voz (`Comando de voz capturado`, `Luz encendida`, `Puerta abierta`, `Solicitud de auxilio pronunciada`), de cuidado (`Cuidador principal asignado`, `Turno de cuidado creado`, `Rutina de alimentación programada`) y de telemetría (`Batería baja detectada`, `Falla del micrófono registrada`, `Conexión a Internet perdida`, `Evento almacenado localmente`).
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/6n6Pcam.png" alt="event storming paso 1 event">
 </div>
+
+En esta captura se muestra un segundo grupo de eventos que complementa al anterior. Incluye eventos de seguridad y sesión (`Sesión vencida`, `Intento no autorizado registrado`, `Nueva autorización solicitada`), de alertas (`Alerta enviada`, `Alerta cerrada`, `Prioridad de alerta asignada`, `Historial de alertas actualizado`), de rutinas de cuidado (`Rutina creada`, `Rutina completada`, `Rutina eliminada`, `Rutina de higiene programada`, `Rutina de movilización programada`), de dispositivos (`Nivel de batería actualizado`, `Estado del dispositivo actualizado`, `Dispositivos reservados`, `Dispositivo clasificado`) y de sincronización (`Pérdida de comunicación detectada`, `Sincronización completada`).
 
 El equipo identificó los eventos de dominio agrupados por columnas, representando los distintos flujos del sistema. Entre los eventos identificados se encuentran: `Cuenta creada`, `Sesión iniciada`, `Plan seleccionado`, `Cobro confirmado`, `Suscripción activada`, `Vivienda declarada viable`, `Instalación completada`, `Dispositivo registrado`, `Comando de voz capturado`, `Luz encendida`, `Puerta abierta`, `Solicitud de auxilio pronunciada`, `Alerta generada`, `Alerta enviada al cuidador principal`, `Conexión a Internet perdida`, `Evento almacenado localmente`, `Sincronización completada`, `Cuidador principal asignado`, `Turno de cuidado creado`, `Rutina de alimentación programada`, `Batería baja detectada`, `Falla de puerta registrada`, `Mantenimiento programado`, `Servicio restablecido`, entre otros.
 
@@ -1031,18 +1038,65 @@ Los eventos de telemetría incluyen explícitamente el registro del nivel de bat
 
 El segundo paso consistió en organizar los eventos de dominio dentro de líneas de tiempo por cada bounded context del sistema. El objetivo fue establecer el orden cronológico natural en que los hechos ocurren dentro de cada flujo.
 
-<div style="display: flex; align-items: center; flex-wrap: wrap;">
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/uCZanHV.png" alt="event storming paso 2 time-line">
+</div>
+
+En esta captura se muestra la línea de tiempo de Gestión de Identidad y Acceso (IAM) para el registro de cuenta y el inicio de sesión. El registro sigue la secuencia `Datos de contacto registrados` → `Consentimiento de tratamiento de datos registrado` → `Correo de verificación enviado` → `Correo verificado` → `Persona asistida registrada` → `Cuenta creada`. El inicio de sesión sigue `Credenciales validadas` → `Segundo factor de autenticación validado` → `Sesión iniciada`, con las derivaciones `Acceso rechazado` y `Código de verificación vencido`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/QC6BGxJ.png" alt="event storming paso 2 time-line">
+</div>
+
+En esta captura se observa la línea de tiempo de Pagos y Suscripciones. El flujo de suscripción avanza desde `Plan comparado`, `Plan seleccionado` y `Cuenta bancaria seleccionada` hasta `Importe autorizado temporalmente`, con la derivación `Preautorización de pago rechazada`. El flujo de pago se bifurca en `Cobro confirmado` → `Suscripción activada` → `Cuenta habilitada`, o `Cobro rechazado` → `Importe retenido liberado`, y contempla además `Adaptación del plan propuesta` → `Plan adaptado aceptado`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/P7FbInR.png" alt="event storming paso 2 time-line">
+</div>
+
+En esta captura se presentan dos líneas de tiempo. La de ajuste del plan registra `Plan e importes ajustados` → `Cambios aceptados`. La de operación sin conexión, propia de Seguimiento, recorre `Conexión a Internet perdida` → `Pérdida de comunicación detectada` → `Evento almacenado localmente` y, una vez recuperada la red, `Conexión restablecida` → `Sincronización iniciada` → `Eventos sincronizados` → `Sincronización completada`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/w4YOo00.png" alt="event storming paso 2 time-line">
+</div>
+
+En esta captura se muestran las líneas de tiempo de IAM correspondientes al registro y recuperación de acceso, la asignación de roles y la invitación de cuidadores. El primer flujo va de `Correo ingresado` a `Contraseña ingresada`, `Correo de bienvenida enviado` y `Cuenta creada`, con la derivación `Correo de recuperación enviado`. El segundo registra `Rol asignado`, `Administrador creado` y `Empleado asignado`. El tercero recorre `Responsabilidades de cuidador asignadas` → `Cuidador invitado` → `Correo enviado`, con `Invitación aceptada` → `Cuidador adicional vinculado` o `Invitación rechazada`, además de `Cuidador desvinculado` y `Cuidador principal reemplazado`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/INbQV7L.png" alt="event storming paso 2 time-line">
+</div>
+
+En esta captura se observa la línea de tiempo de Perfiles. El flujo de perfil ordena `Datos personales ingresados` → `Perfil de usuario creado` → `Cuidador principal asignado` → `Preferencias de comunicación registradas` → `Perfil actualizado`, mientras que el flujo de recuperación de contraseña registra `Recuperación de contraseña solicitada` → `Contraseña restablecida`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/yXFxeO3.png" alt="event storming paso 2 time-line">
+</div>
+
+En esta captura se presenta la línea de tiempo de Activos/Bienes para el control por voz. El flujo principal es `Comando de voz capturado` → `Comando de voz procesado` → `Acción confirmada por voz`, con las derivaciones `Dispositivo desconectado` y `Comando de voz no reconocido`. A partir de la acción confirmada se registran los eventos sobre la vivienda (`Ventana cerrada`, `Ventana abierta`, `Puerta abierta`, `Luz encendida`) y el flujo de emergencia `Solicitud de auxilio pronunciada` → `Solicitud de auxilio reconocida`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/ndQoQpH.png" alt="event storming paso 2 time-line">
+</div>
+
+En esta captura se muestra la línea de tiempo de Actividades. El flujo de planificación avanza desde `Horario creado`, `Actividad programada` y `Rutina creada` hasta `Cuidador asignado`, de donde se derivan `Rutina de alimentación programada`, `Recordatorio de medicamento generado`, `Administración de medicamento confirmada` y `Rutina de higiene programada`, además de `Superposición de turnos detectada`. El ciclo de vida continúa con `Actividad marcada como pendiente`, que puede concluir en `Actividad completada`, `Actividad vencida` o `Actividad eliminada`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/395Hawv.png" alt="event storming paso 2 time-line">
+</div>
+
+En esta captura se presentan las líneas de tiempo de Gestión de operaciones técnicas para la incidencia y el informe técnico, y de Comunicaciones para las notificaciones. La incidencia recorre `Alerta técnica generada` → `Incidencia de soporte creada` → `Mantenimiento programado` → `Diagnóstico técnico realizado` → `Dispositivo reparado` → `Servicio restablecido`, y el informe sigue `Evidencias técnicas registradas` → `Informe técnico generado` → `Evaluación técnica completada`. En Comunicaciones, tras `Alerta generada` y `Recordatorio generado`, se registran `Notificación enviada al cuidador principal`, `Prioridad de notificación asignada`, `Notificación repetida`, `Notificación marcada pendiente crítica`, `Notificación confirmada por el cuidador`, `Notificación cerrada` e `Historial de notificaciones actualizado`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/Je4D3Q9.png" alt="event storming paso 2 time-line">
+</div>
+
+En esta captura se observa la línea de tiempo de Evaluación e Instalación dentro de Gestión de operaciones técnicas. La evaluación va desde `Contratación iniciada desde la app web` y `Dirección de evaluación registrada` hasta `Compatibilidad de dispositivos determinada`, pasando por `Visita técnica programada`, `Técnico asignado`, `Instalación eléctrica evaluada`, `Puerta evaluada` e `Iluminación evaluada`. Luego se bifurca en `Vivienda declarada no viable`, `Vivienda declarada viable` o `Vivienda declarada parcialmente viable`. Tras una vivienda viable, la instalación recorre `Instalación programada` → `Instalación iniciada` → `Dispositivos instalados` → `Dispositivo registrado` → `Dispositivo asignado a la vivienda` → `Instalación completada`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/v4zMqFg.png" alt="event storming paso 2 time-line">
 </div>
+
+En esta captura se muestra la línea de tiempo de Telemetría dentro de Seguimiento. Tras `Dispositivo objetivo identificado` y `Dispositivo clasificado`, el flujo se abre en las fallas y condiciones detectadas (`Falla de puerta registrada`, `Falla de iluminación registrada`, `Falla del micrófono registrada`, `Batería baja detectada` y `Falla de ventana registrada`), que convergen en `Estado del dispositivo actualizado` → `Estado del dispositivo informado`.
 
 El equipo organizó los eventos en secuencias horizontales ordenadas bajo los bounded contexts identificados: Gestión de Identidad y Acceso (IAM), Pagos y Suscripciones, Perfiles, Seguimiento, Actividades, Comunicaciones, Activos/Bienes, Analíticas y Gestión de operaciones técnicas.
 
@@ -1068,20 +1122,78 @@ En **Gestión de operaciones técnicas**, se distinguen tres flujos. En Evaluaci
 
 El tercer paso incorporó la identificación de los pain points dentro de los flujos ya organizados. Los pain points se representan con tarjetas en forma de rombo de color morado y señalan fricciones, dudas o decisiones de diseño pendientes que el equipo detectó al revisar las líneas de tiempo.
 
-<div style="display: flex; align-items: center; flex-wrap: wrap;">
-  <img src="https://imgur.com/71INAkG.png" alt="event storming paso 3 pain-point">
-  <img src="https://imgur.com/BnEvcKi.png" alt="event storming paso 3 pain-point">
-  <img src="https://imgur.com/dYdQfms.png" alt="event storming paso 3 pain-point">
-  <img src="https://imgur.com/sKc3DEk.png" alt="event storming paso 3 pain-point">
-  <img src="https://imgur.com/6VVsydk.png" alt="event storming paso 3 pain-point">
-  <img src="https://imgur.com/LVXgDfx.png" alt="event storming paso 3 pain-point">
-  <img src="https://imgur.com/ujGKige.png" alt="event storming paso 3 pain-point">
-  <img src="https://imgur.com/3dIBIoj.png" alt="event storming paso 3 pain-point">
-  <img src="https://imgur.com/faK6zXV.png" alt="event storming paso 3 pain-point">
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/fKvr8D1.png" alt="event storming paso 3 pain-point">
+</div>
+
+En esta captura se observan los flujos de registro de cuenta e inicio de sesión de IAM, junto con los eventos de asignación de rol y acceso. El pain point aparece bajo `Segundo factor de autenticación validado` y cuestiona si la autenticación de dos pasos es obligatoria.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/BnEvcKi.png" alt="event storming paso 3 pain-point">
+</div>
+
+En esta captura se observa la línea de tiempo de Pagos y Suscripciones con dos pain points. El primero aparece tras `Preautorización de pago rechazada` y cuestiona si existe un evento de reintento o de notificación al usuario, o si el flujo termina sin salida. El segundo aparece tras `Adaptación del plan propuesta` y plantea qué ocurre si el cliente rechaza la adaptación.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/dYdQfms.png" alt="event storming paso 3 pain-point">
+</div>
+
+En esta captura se muestra el flujo de ajuste del plan, con los eventos `Plan e importes ajustados` y `Cambios aceptados`. En este flujo no se identificaron pain points.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/sKc3DEk.png" alt="event storming paso 3 pain-point">
+</div>
+
+En esta captura se presenta el flujo de operación sin conexión con dos pain points. El primero, ubicado bajo `Pérdida de comunicación detectada`, cuestiona si el cuidador podrá visualizar una alerta de auxilio generada sin conexión. El segundo, bajo `Evento almacenado localmente`, plantea qué sucede si la conexión se pierde por mucho tiempo.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/6VVsydk.png" alt="event storming paso 3 pain-point">
+</div>
+
+En esta captura se observa el flujo de Perfiles, que va de `Datos personales ingresados` a `Perfil actualizado` e incluye la recuperación de contraseña. En este flujo no se identificaron pain points.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/LVXgDfx.png" alt="event storming paso 3 pain-point">
+</div>
+
+En esta captura se muestra el flujo de Actividades, donde el pain point aparece junto a `Medicamento previamente indicado registrado` y cuestiona si el recordatorio de medicamento debe coincidir con el horario del medicamento, respetando que el sistema solo coordina la administración y no modifica el tratamiento.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/ujGKige.png" alt="event storming paso 3 pain-point">
+</div>
+
+En esta captura se presenta el flujo de control por voz en Activos/Bienes. El pain point aparece tras `Comando de voz no reconocido` y cuestiona si se reintenta la captura, se notifica al cuidador o el flujo simplemente termina.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/3dIBIoj.png" alt="event storming paso 3 pain-point">
+</div>
+
+En esta captura se observa el flujo de registro y recuperación de acceso, desde `Correo ingresado` hasta `Cuenta creada`, con la derivación `Correo de recuperación enviado`. En este flujo no se identificaron pain points.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/faK6zXV.png" alt="event storming paso 3 pain-point">
+</div>
+
+En esta captura se muestran los flujos de asignación de roles e invitación de cuidadores. En el segundo, el pain point aparece junto a `Cuidador adicional vinculado`, `Cuidador desvinculado` y `Cuidador principal reemplazado`, y plantea qué ocurre con las responsabilidades del cuidador desvinculado.
+
+<div style="display: flex; align-items: center;">
+<img src="https://imgur.com/71INAkG.png" alt="event storming paso 3 pain-point">
+  
+</div>
+
+En esta captura se presentan los flujos de incidencia técnica y de notificaciones con tres pain points. En la incidencia, uno cuestiona para quién es el informe técnico. En las notificaciones, uno cuestiona qué convierte una notificación en una alerta pendiente crítica y otro qué pasa si el cuidador no responde a tiempo.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/6csj9oE.png" alt="event storming paso 3 pain-point">
+</div>
+
+En esta captura se observa el flujo de evaluación e instalación con tres pain points. Uno cuestiona el criterio para el veredicto de viabilidad de la vivienda, otro qué pasa cuando se declara no viable, y otro qué significa que sea parcialmente viable y que la contratación no se cancele.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/qCpVkr3.png" alt="event storming paso 3 pain-point">
 </div>
+
+En esta captura se muestra el flujo de telemetría, desde `Dispositivo objetivo identificado` hasta `Estado del dispositivo informado`. En este flujo no se identificaron pain points.
 
 Se identificaron catorce pain points distribuidos en los bounded contexts con mayor ambigüedad de diseño. Cada uno señala una decisión pendiente que deberá resolverse durante el Design-Level EventStorming:
 
@@ -1104,18 +1216,66 @@ Se identificaron catorce pain points distribuidos en los bounded contexts con ma
 
 El cuarto paso incorporó la identificación de los pivotal points, representados como líneas verticales dentro de los flujos de cada bounded context. Estos puntos señalan los momentos de transición más relevantes en el recorrido del sistema, donde el flujo cambia de fase, de resultado o de responsabilidad.
 
-<div style="display: flex; align-items: center; flex-wrap: wrap;">
-  <img src="https://imgur.com/oZKZJzi.png" alt="event storming paso 4 pivotal-point">
-  <img src="https://imgur.com/Jf41Zjs.png" alt="event storming paso 4 pivotal-point">
-  <img src="https://imgur.com/vR0YXug.png" alt="event storming paso 4 pivotal-point">
-  <img src="https://imgur.com/pMmWx8U.png" alt="event storming paso 4 pivotal-point">
-  <img src="https://imgur.com/h9GQPOR.png" alt="event storming paso 4 pivotal-point">
-  <img src="https://imgur.com/4BCyeSB.png" alt="event storming paso 4 pivotal-point">
-  <img src="https://imgur.com/k6bECqT.png" alt="event storming paso 4 pivotal-point">
-  <img src="https://imgur.com/kSO0ITz.png" alt="event storming paso 4 pivotal-point">
-  <img src="https://imgur.com/6vTJgrc.png" alt="event storming paso 4 pivotal-point">
-  <img src="https://imgur.com/vfABacP.png" alt="event storming paso 4 pivotal-point">
+<div style="display: flex; align-items: center;">
+    <img src="https://imgur.com/WBeWOtK.png" alt="event storming paso 4 pivotal-point">
 </div>
+
+En esta captura se observan los flujos de registro de cuenta e inicio de sesión de IAM. El pivotal point se ubica en `Cuenta creada`, que marca el cambio entre el flujo de registro (`Datos de contacto registrados`, `Consentimiento de tratamiento de datos registrado`, `Correo verificado`, `Correo de verificación enviado` y `Persona asistida registrada`) y el flujo de autenticación (`Credenciales validadas`, `Segundo factor de autenticación validado`, `Sesión iniciada`, `Acceso rechazado` y `Código de verificación vencido`).
+
+<div style="display: flex; align-items: center;">
+<img src="https://imgur.com/t9X2CPd.png" alt="event storming paso 4 pivotal-point">
+
+</div>
+
+En esta captura se muestra el flujo de Pagos y Suscripciones. El pivotal point se ubica en `Cuenta habilitada`, que marca el cierre del proceso de contratación tras `Cobro confirmado` y `Suscripción activada`, o tras `Plan adaptado aceptado`.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/2MaTBZx.png" alt="event storming paso 4 pivotal-point">
+</div>
+
+En esta captura se presenta el flujo de Actividades. El pivotal point se ubica antes de `Actividad completada`, `Actividad vencida` y `Actividad eliminada`, que cierran el ciclo de vida de la actividad iniciado en `Horario creado` y `Rutina creada`.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/xtwQ1Qb.png" alt="event storming paso 4 pivotal-point">
+</div>
+
+En esta captura se observa el flujo de operación sin conexión de Seguimiento, desde `Conexión a Internet perdida` hasta `Sincronización completada`. El flujo avanza de forma continua, sin un pivotal point que cambie de fase o de responsabilidad.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/PSL7IhR.png" alt="event storming paso 4 pivotal-point">
+</div>
+
+En esta captura se muestran el flujo de ajuste del plan y el de registro y recuperación de acceso. Ambos avanzan de forma continua, sin pivotal points.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/kXkMbYh.png" alt="event storming paso 4 pivotal-point">
+</div>
+
+En esta captura se presenta el flujo de Perfiles, desde `Datos personales ingresados` hasta `Perfil actualizado`, junto con la recuperación de contraseña. Ambos avanzan de forma continua, sin pivotal points.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/zBTJfp6.png" alt="event storming paso 4 pivotal-point">
+</div>
+
+En esta captura se observa el flujo de control por voz de Activos/Bienes. Se bifurca en resultados alternativos, como `Comando de voz no reconocido` o las acciones sobre puertas, ventanas y luces, sin un pivotal point que cambie de contexto o de responsabilidad.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/krM3qaY.png" alt="event storming paso 4 pivotal-point">
+</div>
+
+En esta captura se muestran los flujos de incidencia técnica y de notificaciones. Ambos avanzan de forma continua o se bifurcan en resultados alternativos, sin pivotal points.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/PHaWX3h.png" alt="event storming paso 4 pivotal-point">
+</div>
+
+En esta captura se observa el flujo de evaluación e instalación de Gestión de operaciones técnicas. La evaluación se bifurca en `Vivienda declarada no viable`, `Vivienda declarada viable` y `Vivienda declarada parcialmente viable`, sin un pivotal point que separe responsabilidades.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/7nWp3NY.png" alt="event storming paso 4 pivotal-point">
+</div>
+
+En esta captura se muestra el flujo de telemetría de Seguimiento, desde `Dispositivo objetivo identificado` y `Dispositivo clasificado` hasta `Estado del dispositivo actualizado` y `Estado del dispositivo informado`, pasando por las fallas de puerta, iluminación, micrófono y ventana y la batería baja. El flujo se abre en múltiples condiciones detectadas que convergen en un mismo resultado, sin un pivotal point que cambie de fase o de responsabilidad.
 
 El equipo reconoció pivotal points en los siguientes momentos:
 
@@ -1129,19 +1289,71 @@ En los contextos de **Perfiles**, **Seguimiento**, **Comunicaciones**, **Activos
 
 El quinto paso consistió en identificar los comandos del sistema. Un comando representa la intención de un actor de provocar un cambio de estado en el dominio. Los comandos se representan con tarjetas de color azul y se ubican antes del evento de dominio que producen.
 
-<div style="display: flex; align-items: center; flex-wrap: wrap;">
-  <img src="https://imgur.com/mZBL6Zr.png" alt="event storming paso 5 comandos">">
-  <img src="https://imgur.com/OGea3to.png" alt="event storming paso 5 comandos">
-  <img src="https://imgur.com/LqsadhC.png" alt="event storming paso 5 comandos">
-  <img src="https://imgur.com/eC8HB1W.png" alt="event storming paso 5 comandos">
-  <img src="https://imgur.com/KFR1sp2.png" alt="event storming paso 5 comandos">
-  <img src="https://imgur.com/yht1GXF.png" alt="event storming paso 5 comandos">
-  <img src="https://imgur.com/N2MiPbJ.png" alt="event storming paso 5 comandos">
-  <img src="https://imgur.com/Rusp0oC.png" alt="event storming paso 5 comandos">
-  <img src="https://imgur.com/Wk76dnC.png" alt="event storming paso 5 comandos">
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/zeIyPsA.png" alt="event storming paso 5 comandos">
+</div>
+
+En esta captura se observan los flujos de registro de cuenta e inicio de sesión de IAM. El comando Registrar cuenta da inicio a la secuencia `Datos de contacto registrados`, `Consentimiento de tratamiento de datos registrado`, `Correo verificado`, `Correo de verificación enviado`, `Persona asistida registrada` y `Cuenta creada`. El comando Iniciar sesión da inicio a `Credenciales validadas` y `Segundo factor de autenticación validado`, que derivan en `Sesión iniciada`, `Acceso rechazado` o `Código de verificación vencido`.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/OGea3to.png" alt="event storming paso 5 comandos">
+</div>
+
+En esta captura se muestra el flujo de contratación de suscripción de Pagos y Suscripciones. El comando Contratar suscripción precede a `Plan comparado`, `Plan seleccionado` y `Cuenta bancaria seleccionada`, mientras que el comando Confirmar contratación precede a los resultados del pago: `Cobro confirmado`, `Suscripción activada` y `Cuenta habilitada`, o `Cobro rechazado` e `Importe retenido liberado`, además de la adaptación del plan propuesta.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/LqsadhC.png" alt="event storming paso 5 comandos">
+</div>
+
+En esta captura se presenta el flujo de ajuste del plan. El comando Ajustar plan produce los eventos `Plan e importes ajustados` y `Cambios aceptados`.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/eC8HB1W.png" alt="event storming paso 5 comandos">
+</div>
+
+En esta captura se observa el flujo de operación sin conexión de Seguimiento. El comando Operar sin conexión precede a `Conexión a Internet perdida` y da lugar a la detección de la pérdida de comunicación, el almacenamiento local del evento, el restablecimiento de la conexión y la sincronización de los eventos.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/KFR1sp2.png" alt="event storming paso 5 comandos">
+</div>
+
+En esta captura se muestran tres flujos de IAM. El comando Registrar y recuperar acceso precede a `Correo ingresado`, `Contraseña ingresada`, `Correo de bienvenida enviado` y `Cuenta creada`, con la derivación `Correo de recuperación enviado`. El comando Asignar rol y acceso produce `Rol asignado`, `Empleado creado` y `Acceso asignado`. Los comandos Invitar cuidador y Gestionar cuidador dan lugar al flujo de invitación (`Responsabilidades de cuidador asignadas`, `Cuidador invitado`, `Correo enviado`, `Invitación aceptada` o `Invitación rechazada`) y a la gestión posterior (`Cuidador adicional vinculado`, `Cuidador desvinculado` y `Cuidador principal reemplazado`).
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/yht1GXF.png" alt="event storming paso 5 comandos">
+</div>
+
+En esta captura se presentan los flujos de Perfiles. El comando Crear perfil de usuario precede a `Datos personales ingresados`, `Perfil de usuario creado`, `Cuidador principal asignado`, `Preferencias de comunicación registradas` y `Perfil actualizado`. El comando Recuperar contraseña produce `Recuperación de contraseña solicitada` y `Contraseña restablecida`.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/N2MiPbJ.png" alt="event storming paso 5 comandos">
+</div>
+
+En esta captura se observa el flujo de Actividades. Los comandos Crear horario, Crear actividad y Programar rutina producen `Horario creado`, `Actividad programada` y `Rutina creada`, seguidos de `Cuidador asignado` y las rutinas de alimentación, medicamento e higiene. El comando Gestionar actividades da lugar a `Superposición de turnos detectada`, `Medicamento previamente indicado registrado` y `Actividad marcada como pendiente`, que concluyen en `Actividad completada`, `Actividad vencida` o `Actividad eliminada`.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/Rusp0oC.png" alt="event storming paso 5 comandos">
+</div>
+
+En esta captura se muestra el flujo de control por voz de Activos/Bienes. El comando Emitir comando de voz precede a `Comando de voz capturado`, `Comando de voz procesado`, `Dispositivo objetivo identificado` y `Acción confirmada por voz`, con la derivación `Comando de voz no reconocido`. El comando Accionar dispositivo por voz se asocia a `Dispositivo desconectado` y a las acciones resultantes sobre ventanas, puertas y luces, además de la solicitud de auxilio.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/Wk76dnC.png" alt="event storming paso 5 comandos">
+</div>
+
+En esta captura se presentan los flujos de incidencia técnica y de notificaciones. El comando Atender incidencia técnica precede a `Alerta técnica generada`, `Incidencia de soporte creada`, `Mantenimiento programado`, `Diagnóstico técnico realizado`, `Dispositivo reparado` y `Servicio restablecido`, y el comando Generar informe técnico produce `Evidencias técnicas registradas`, `Informe técnico generado` y `Evaluación técnica completada`. En las notificaciones, el comando Generar notificación da lugar a `Alerta generada`, `Recordatorio generado`, `Notificación enviada al cuidador principal` y `Prioridad de notificación asignada`, mientras que el comando Confirmar notificación conduce a `Notificación atendida`, `Notificación confirmada por el cuidador`, `Notificación cerrada` e `Historial de notificaciones actualizado`.
+
+<div style="display: flex; align-items: center;">
+    <img src="https://imgur.com/mZBL6Zr.png" alt="event storming paso 5 comandos">
+</div>
+
+En esta captura se observa el flujo de evaluación e instalación de Gestión de operaciones técnicas. El comando Solicitar y evaluar vivienda precede a la secuencia que va de `Contratación iniciada desde la app web` hasta `Compatibilidad de dispositivos determinada`, y se bifurca en los resultados de viabilidad. Tras `Vivienda declarada viable`, el comando Instalar dispositivos produce `Instalación programada`, `Instalación iniciada`, `Dispositivos instalados`, `Dispositivo registrado`, `Dispositivo asignado a la vivienda` e `Instalación completada`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/ZvBOki3.png" alt="event storming paso 5 comandos">
 </div>
+
+En esta captura se muestran los flujos de telemetría de Seguimiento. El comando Monitorear dispositivo precede al registro de fallas de puerta, iluminación, micrófono y ventana y a la detección de batería baja, mientras que el comando Reportar dispositivo precede a `Dispositivo objetivo identificado` y `Dispositivo clasificado`. Ambos flujos convergen en `Estado del dispositivo actualizado` y `Estado del dispositivo informado`.
 
 El equipo incorporó los comandos en cada línea de tiempo de la siguiente manera:
 
@@ -1158,23 +1370,95 @@ El equipo incorporó los comandos en cada línea de tiempo de la siguiente maner
 
 El sexto paso incorporó al modelo los actores y las políticas del sistema. Los actores se representan con tarjetas pequeñas de color amarillo y son quienes emiten los comandos dentro de cada flujo. Las políticas son reglas de negocio automáticas que, ante la ocurrencia de un evento, disparan un nuevo comando o acción sin intervención humana directa, y se representan con tarjetas de color lila.
 
-<div style="display: flex; align-items: center; flex-wrap: wrap;">
-  <img src="https://imgur.com/xjUf3za.png" alt="event storming paso 6 policies-actors">
-  <img src="https://imgur.com/0iqb253.png" alt="event storming paso 6 policies-actors">
-  <img src="https://imgur.com/nbydbMJ.png" alt="event storming paso 6 policies-actors">
-  <img src="https://imgur.com/nGuDmjj.png" alt="event storming paso 6 policies-actors">
-  <img src="https://imgur.com/Te3VbCt.png" alt="event storming paso 6 policies-actors">
-  <img src="https://imgur.com/pphXNG7.png" alt="event storming paso 6 policies-actors">
-  <img src="https://imgur.com/dwDzOJ9.png" alt="event storming paso 6 policies-actors">
-  <img src="https://imgur.com/C3VHat9.png" alt="event storming paso 6 policies-actors">
-  <img src="https://imgur.com/wNZm90h.png" alt="event storming paso 6 policies-actors">
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/AjsvCiu.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se presentan los flujos de registro de cuenta e inicio de sesión. El actor Cuidador emite el comando Registrar cuenta, mientras que los actores Administrador, Cuidador y Empleado emiten el comando Iniciar sesión. Los flujos cubren la verificación del correo, la creación de la cuenta, la validación de credenciales, el segundo factor de autenticación y el resultado de la sesión. En estos flujos no se identificaron políticas.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/0iqb253.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se observa el flujo de contratación de suscripción y pago, donde el actor Cuidador emite los comandos Contratar suscripción y Confirmar contratación. Aquí se identificó la política *Stripe retiene el pago*, disparada tras `Importe autorizado temporalmente`, de modo que la retención temporal del importe se ejecuta automáticamente en el proveedor de pagos sin activar todavía la suscripción ni el cobro definitivo.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/nbydbMJ.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se muestra el flujo de operación sin conexión, iniciado por el comando Operar sin conexión a partir del evento `Conexión a Internet perdida`. El flujo recorre la detección de la pérdida de comunicación, el almacenamiento local del evento, el restablecimiento de la conexión y la sincronización. Este flujo no es iniciado por un actor humano y no se identificaron políticas, por lo que sus pain points se resolverán en los pasos posteriores.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/nGuDmjj.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se presenta el flujo de ajuste del plan, donde el actor Gestor de suscripciones emite el comando Ajustar plan. Este comando produce los eventos `Plan e importes ajustados` y `Cambios aceptados`. En este flujo no se identificaron políticas.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/Te3VbCt.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se observan los flujos de creación de perfil y de recuperación de contraseña, donde el actor Cuidador emite los comandos Crear perfil de usuario y Recuperar contraseña. El primero deriva en `Datos personales ingresados`, `Perfil de usuario creado`, `Cuidador principal asignado`, `Preferencias de comunicación registradas` y `Perfil actualizado`; el segundo, en `Recuperación de contraseña solicitada` y `Contraseña restablecida`. En estos flujos no se identificaron políticas.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/pphXNG7.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se muestra el flujo de registro y recuperación de acceso, donde el actor Cuidador emite el comando Registrar y recuperar acceso. A partir de él se generan los eventos `Correo ingresado`, `Contraseña ingresada`, `Correo de bienvenida enviado`, `Correo de recuperación enviado` y `Cuenta creada`. En este flujo no se identificaron políticas.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/dwDzOJ9.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se presenta el flujo de asignación de roles y accesos, donde el actor Administrador emite el comando Asignar rol y acceso. Este comando produce los eventos `Rol asignado`, `Empleado creado` y `Acceso asignado`. En este flujo no se identificaron políticas.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/C3VHat9.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se observa el flujo de gestión de turnos y horarios, donde el actor Cuidador emite el comando Gestionar turnos y horarios a partir de `Horario creado`. Este comando da lugar a la creación del turno de cuidado, el establecimiento de la relación de cuidador, la aprobación o cancelación del turno y la asignación de indicaciones de medicamentos y rutinas. En este flujo no se identificaron políticas.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/wNZm90h.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se muestra el flujo de creación de horarios, actividades y rutinas, donde el actor Cuidador emite los comandos Crear horario, Crear actividad y Programar rutina. Tras los eventos `Rutina creada` y `Cuidador asignado` se derivan la rutina de alimentación, el recordatorio de medicamento, la administración de medicamento confirmada y la rutina de higiene. En este flujo no se identificaron políticas.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/xjUf3za.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se observa el flujo de gestión de actividades, donde el actor Cuidador emite el comando Gestionar actividad. A partir de él se derivan los eventos `Superposición de turnos detectada`, `Medicamento previamente indicado registrado` y `Actividad marcada como pendiente`, que pueden concluir en `Actividad completada`, `Actividad vencida` o `Actividad eliminada`. En este flujo no se identificaron políticas.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/R9DebJM.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se observa el flujo de control por voz, donde el actor Persona con discapacidad emite los comandos Emitir comando de voz y Accionar dispositivo por voz. Estos comandos derivan en la captura, el procesamiento y la confirmación del comando, en las acciones sobre puertas, ventanas y luces, y en la solicitud de auxilio. En este flujo no se identificaron políticas.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/uLhmwuk.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se muestra el flujo de invitación y gestión de cuidadores, donde el actor Cuidador emite los comandos Invitar cuidador y Gestionar cuidador. Aquí se identificó la política *Se vincula el cuidador dentro de la misma cuenta*, disparada tras `Invitación aceptada`, para asociar automáticamente al cuidador invitado a la red de cuidado de la persona asistida y generar el evento `Cuidador adicional vinculado`.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/9WU9Mcd.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se presentan los flujos de atención de incidencias, informe técnico y notificaciones. El actor Técnico emite los comandos Atender incidencia técnica y Generar informe técnico, mientras que el actor Cuidador emite el comando Confirmar notificación y el comando Generar alerta da inicio al flujo de notificaciones. Aquí se identificó la política *Técnico toma notas del incidente*, disparada tras `Servicio restablecido`, para dejar registro de lo ocurrido antes de ejecutar el comando Generar informe técnico.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/bMUO6jE.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se observa el flujo de evaluación de vivienda e instalación, donde el actor Cuidador emite el comando Solicitar y evaluar vivienda. El flujo recorre la evaluación técnica hasta determinar la compatibilidad de dispositivos y, en este punto, se identificó la política *El técnico activa la cuenta*, disparada tras `Vivienda declarada viable`, que habilita el servicio y da paso al comando Instalar dispositivos.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/YBZwANB.png" alt="event storming paso 6 policies-actors">
 </div>
+
+En esta captura se muestran los flujos de monitoreo y reporte de dispositivos, donde el actor Técnico emite el comando Monitorear dispositivo y el actor Cuidador emite el comando Reportar dispositivo. Ambos derivan en el registro de fallas, la detección de batería baja y la actualización e información del estado del dispositivo. En estos flujos no se identificaron políticas.
 
 El equipo identificó como actor principal al **Cuidador**, presente en la mayoría de los bounded contexts: registro de cuenta, recuperación de acceso, creación de perfil, invitación y gestión de cuidadores, contratación de suscripción, gestión de turnos, horarios y actividades, confirmación de notificaciones, reporte de dispositivos y solicitud de evaluación de vivienda. El **Administrador** fue identificado en IAM, tanto en el flujo de asignación de roles y acceso como en el de inicio de sesión, donde también participa el actor **Empleado**. El **Técnico** fue identificado en Seguimiento (monitoreo de dispositivos) y en Gestión de operaciones técnicas (atención de incidencias y generación del informe técnico). El **Gestor de suscripciones** fue identificado en Pagos y Suscripciones para el ajuste de planes e importes. Finalmente, la **Persona con discapacidad** fue identificada en Activos/Bienes como emisora de los comandos de voz que accionan los dispositivos del hogar.
 
@@ -1194,19 +1478,60 @@ Luego de identificar los eventos, flujos, comandos y políticas del dominio, el 
 
 El séptimo paso consistió en identificar los modelos de lectura del sistema. Los read models se representan con tarjetas de color verde y corresponden a las vistas o pantallas que los actores necesitan consultar antes de emitir un comando.
 
-<div style="display: flex; align-items: center; flex-wrap: wrap;">
-  <img src="https://imgur.com/NNW1xFI.png" alt="event storming paso 7 read-models">
-  <img src="https://imgur.com/2yHw5eZ.png" alt="event storming paso 7 read-models">
-  <img src="https://imgur.com/4q7aOnO.png" alt="event storming paso 7 read-models">
-  <img src="https://imgur.com/IuBF2B6.png" alt="event storming paso 7 read-models">
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/C8ryEH4.png" alt="event storming paso 7 read-models">
+</div>
+
+En esta captura se observan los flujos de creación de perfil y recuperación de contraseña, donde el read model *Vista de perfil* es consultado por el Cuidador antes de emitir los comandos Crear perfil de usuario y Recuperar contraseña.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/IuBF2B6.png" alt="event storming paso 7 read-models">
+</div>
+
+En esta captura se muestran los flujos de monitoreo y reporte de dispositivos. El read model *Gestión de estado de dispositivo* es consultado por el Técnico antes de monitorear los dispositivos, y *Reportar incidencias* es consultado por el Cuidador antes de reportar un dispositivo.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/4q7aOnO.png" alt="event storming paso 7 read-models">
+</div>
+
+En esta captura se presentan los flujos de registro y recuperación de acceso, asignación de roles, invitación y gestión de cuidadores. Se identifican los read models *Recuperar contraseña*, consultado por el Cuidador al registrar o recuperar su acceso; *Gestión de empleados*, consultado por el Administrador al asignar roles y accesos; *Lista de cuidadores*, consultado antes de invitar a un cuidador; y *Gestión de cuidador*, consultado al desvincular o reemplazar a un cuidador.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/2yHw5eZ.png" alt="event storming paso 7 read-models">
+</div>
+
+En esta captura se observan el flujo de operación sin conexión y el de ajuste de plan. El flujo de operación sin conexión no requiere read models, mientras que el read model *Dashboard de gestión de suscripciones* es consultado por el Gestor de suscripciones antes de ajustar un plan.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/NNW1xFI.png" alt="event storming paso 7 read-models">
+</div>
+
+En esta captura se muestra el flujo de contratación de suscripción, donde el read model *Planes de suscripción* es consultado por el Cuidador antes de contratar, y *Detalle de pago* es consultado antes de confirmar la contratación.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/rJkRFeQ.png" alt="event storming paso 7 read-models">
-  <img src="https://imgur.com/wVze15F.png" alt="event storming paso 7 read-models">
-  <img src="https://imgur.com/A5vxLSb.png" alt="event storming paso 7 read-models">
-  <img src="https://imgur.com/q0oc2Sq.png" alt="event storming paso 7 read-models">
-  <img src="https://imgur.com/gUzmmgc.png" alt="event storming paso 7 read-models">
+</div>
+
+En esta captura se presentan los flujos de registro de cuenta e inicio de sesión. El read model *Vista de registro* es consultado por el Cuidador antes de registrar su cuenta, y *Vista de inicio de sesión* es consultado por el Cuidador, el Administrador y el Empleado antes de iniciar sesión.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/ikFD5xM.png" alt="event storming paso 7 read-models">
 </div>
+
+En esta captura se muestra el flujo de generación y confirmación de notificaciones, donde el read model *Notificación de alerta* es consultado por el Cuidador antes de emitir el comando Confirmar notificación.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/gUzmmgc.png" alt="event storming paso 7 read-models">
+</div>
+
+En esta captura se presentan los flujos de actividades e incidencias técnicas. Los read models *Gestor de horarios*, *Gestor de actividades* y *Edición de actividades* son consultados por el Cuidador al crear horarios, crear actividades, programar rutinas y gestionar actividades. Además, *Reportar incidencias* y *Formulario de incidente técnico* son consultados por el Técnico al atender una incidencia y generar el informe técnico.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/q0oc2Sq.png" alt="event storming paso 7 read-models">
+</div>
+
+En esta captura se observa el flujo de control por voz, donde la Persona con discapacidad emite los comandos Emitir comando de voz y Accionar dispositivo por voz. En este flujo no se identificaron read models.
 
 El equipo incorporó los read models en los siguientes bounded contexts:
 
@@ -1224,20 +1549,67 @@ En el contexto de **Activos/Bienes** no se identificaron read models, ya que la 
 
 El octavo paso consistió en incorporar al modelo los sistemas externos. Los sistemas externos se representan con tarjetas de color rojo y corresponden a servicios ajenos al dominio propio de Alivia que participan en los flujos de negocio.
 
-<div style="display: flex; align-items: center; flex-wrap: wrap;">
-  <img src="https://imgur.com/6U4gyYv.png" alt="event storming paso 8 external-systems">
-  <img src="https://imgur.com/PQiawBZ.png" alt="event storming paso 8 external-systems">
-  <img src="https://imgur.com/ktVvNnl.png" alt="event storming paso 8 external-systems">
-  <img src="https://imgur.com/rVQmDF5.png" alt="event storming paso 8 external-systems">
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/CVxA6RH.png" alt="event storming paso 8 external-systems">
+</div>
+
+En esta captura se observa el flujo de monitoreo y reporte de dispositivos. Se identifica **Firebase Cloud Messaging**, ubicado junto a las fallas registradas y antes de `Estado del dispositivo actualizado`, encargado de enviar la notificación push al cuidador sobre el estado del dispositivo.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/rVQmDF5.png" alt="event storming paso 8 external-systems">
+</div>
+
+En esta captura se muestran los flujos de registro y recuperación de acceso, asignación de roles e invitación de cuidadores. Se identifica **Sendgrid**, ubicado junto a `Invitación aceptada`, responsable del envío del correo de invitación al cuidador tras el evento `Correo enviado`.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/ktVvNnl.png" alt="event storming paso 8 external-systems">
+</div>
+
+En esta captura se presentan el flujo de operación sin conexión y el de ajuste de plan. En estos flujos no se identificaron sistemas externos, ya que se resuelven íntegramente dentro del dominio de Alivia.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/PQiawBZ.png" alt="event storming paso 8 external-systems">
+</div>
+
+En esta captura se observan los flujos de creación de perfil y recuperación de contraseña. Se identifica **Cloudinary API**, ubicada junto a `Datos personales ingresados`, utilizada para la carga y almacenamiento de la imagen del perfil de usuario.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/6U4gyYv.png" alt="event storming paso 8 external-systems">
+</div>
+
+En esta captura se muestra el flujo de contratación de suscripción y pago. Se identifica **Stripe**, asociado al comando Contratar suscripción y a la retención temporal del importe (`Importe autorizado temporalmente`), encargado de procesar la preautorización y el cobro de la suscripción.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/anKPXzU.png" alt="event storming paso 8 external-systems">
+</div>
+
+En esta captura se presentan los flujos de registro de cuenta e inicio de sesión. Se identifica **Sendgrid**, ubicado entre `Credenciales validadas` y `Segundo factor de autenticación validado`, responsable del envío del código del segundo factor de autenticación.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/div0ZjO.png" alt="event storming paso 8 external-systems">
-  <img src="https://imgur.com/Wy7eoDk.png" alt="event storming paso 8 external-systems">
-  <img src="https://imgur.com/bi1EBEP.png" alt="event storming paso 8 external-systems">
+</div>
+
+En esta captura se observa el flujo de evaluación de vivienda e instalación. En este flujo no se identificaron sistemas externos, ya que la evaluación, la instalación y la activación se resuelven dentro del dominio de Alivia.
+
+<div style="display: flex; align-items: center;">
   <img src="https://imgur.com/9xcpjfr.png" alt="event storming paso 8 external-systems">
 </div>
 
-El equipo identificó cinco sistemas externos y dos dispositivos físicos que interactúan con el dominio:
+En esta captura se muestran los flujos de atención de incidencias y de notificaciones. Se identifica **Firebase Cloud Messaging** en dos puntos del flujo de notificaciones: junto a `Recordatorio generado` y junto al actor Cuidador en el comando Confirmar notificación, para el envío de notificaciones push. El flujo de incidencias no requiere sistemas externos.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/bi1EBEP.png" alt="event storming paso 8 external-systems">
+</div>
+
+En esta captura se presentan los flujos de gestión de horarios, actividades y rutinas. En estos flujos no se identificaron sistemas externos.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/Wy7eoDk.png" alt="event storming paso 8 external-systems">
+</div>
+
+En esta captura se observa el flujo de control por voz. Se identifican dos dispositivos físicos: el **Dispositivo de micrófono y altavoz**, asociado al evento `Comando de voz capturado`, y el **Dispositivo con servos**, asociado al evento `Acción confirmada por voz`, que acciona físicamente las puertas y ventanas del hogar.
+
+El equipo identificó cuatro sistemas externos y dos dispositivos físicos que interactúan con el dominio:
 
 - **Stripe** presente en Pagos y Suscripciones, encargado de procesar la preautorización y el cobro de la suscripción. Aparece asociado al comando Contratar suscripción y a la retención temporal del importe (`Importe autorizado temporalmente`).
 - **Sendgrid** presente en Gestión de Identidad y Acceso (IAM), responsable del envío de correos electrónicos. Interviene en el flujo de inicio de sesión, para el envío del código del segundo factor de autenticación (junto a `Credenciales validadas` y `Segundo factor de autenticación validado`), y en el flujo de invitación de cuidadores, para el envío del correo de invitación tras el evento `Correo enviado`.
@@ -1252,21 +1624,83 @@ En los contextos de **Actividades**, **Gestión de operaciones técnicas** y **O
 
 El noveno paso consistió en identificar los agregados del dominio y agrupar en torno a ellos los comandos, eventos, políticas y read models correspondientes. Los agregados se representan con tarjetas de color amarillo de mayor tamaño y constituyen la unidad de consistencia del dominio.
 
-<div style="display: flex; align-items: center; flex-wrap: wrap;">
-  <img src="https://imgur.com/Kfa8EUv.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/R4xk7gP.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/uBnlqqG.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/C0JUfN8.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/9oPrujS.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/VUIkdQD.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/4oeHxrS.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/QSvesC6.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/vVW9J0i.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/xmwkCjC.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/LENhgOo.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/cycajgT.png" alt="event storming paso 9 aggregates" width="400px"><br>
-  <img src="https://imgur.com/4vImsyG.png" alt="event storming paso 9 aggregates" width="400px"><br>
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/VUIkdQD.png" alt="event storming paso 9 aggregates" width="400px">
 </div>
+
+En esta captura se observa el agregado **Dispositivos**, que agrupa los comandos de registro, configuración y desactivación de dispositivos emitidos por el Cuidador. Sus eventos cubren la asignación del dispositivo a la casa, el entrenamiento con la voz de la persona con discapacidad, la confirmación de la configuración y la desactivación de la telemetría, con el read model *Gestión del dispositivo*.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/9oPrujS.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se presenta el agregado **Métricas**, que agrupa los comandos de obtención de métricas globales por parte del Administrador, de ventas por parte del Gestor de suscripciones y de telemetría por parte del Cuidador, con los eventos `Métricas globales obtenidas`, `Venta concluida` y `Telemetría obtenida` y el read model *Dashboard principal*.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/C0JUfN8.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se muestra el agregado **Telemetría**, que centraliza el monitoreo de dispositivos por parte del Técnico y del Cuidador. Agrupa los eventos de falla de puerta, iluminación, micrófono y ventana, y de batería baja, que culminan en `Estado del dispositivo actualizado` y `Estado del dispositivo informado` mediante Firebase Cloud Messaging.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/uBnlqqG.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se observa el agregado **Invitación**, que agrupa los comandos Invitar cuidador y Gestionar cuidador. Sus eventos cubren la asignación de responsabilidades, el envío del correo mediante Sendgrid, la aceptación o rechazo de la invitación, la vinculación de un cuidador adicional, y la desvinculación o reemplazo del cuidador principal.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/R4xk7gP.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se presenta el agregado **Sincronización**, activado por el comando Operar sin conexión. Agrupa los eventos desde `Conexión a Internet perdida` y `Evento almacenado localmente` hasta `Conexión restablecida`, `Eventos sincronizados` y `Sincronización completada`, junto con los pain points asociados a la entrega de alertas y a las desconexiones prolongadas.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/Kfa8EUv.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se muestran los agregados **Suscripción** y **Pago**. El primero agrupa el comando Contratar suscripción y los eventos de comparación y selección del plan y de la cuenta bancaria, con integración a Stripe; el segundo agrupa el pago, la preautorización, la confirmación de la contratación, el cobro, la activación de la suscripción, el ajuste del plan y la habilitación de la cuenta.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/4oeHxrS.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se observa el agregado **Usuario**, que centraliza los comandos de registro de cuenta, inicio de sesión, recuperación de contraseña, asignación de rol y acceso, y registro y recuperación de acceso. Participan los actores Cuidador, Administrador y Empleado, con integración a Sendgrid para el envío de correos.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/cycajgT.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se presentan los agregados **Perfil**, **Dispositivo de voz** y **Dispositivo accionador**. El primero agrupa la creación y actualización del perfil, con carga de imágenes mediante Cloudinary API. El segundo agrupa la captura, el procesamiento y la confirmación del comando de voz, con los eventos alternativos `Dispositivo desconectado` y `Comando de voz no reconocido`. El tercero ejecuta las acciones físicas sobre puertas, ventanas y luces, y la solicitud de auxilio.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/LENhgOo.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se muestra el agregado **Instalación**, activado por la política *El técnico activa la cuenta* y el comando Instalar dispositivos. Agrupa los eventos desde `Instalación programada` hasta `Instalación completada`, y conserva los pain points sobre las viviendas no viables y parcialmente viables.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/xmwkCjC.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se observa el agregado **Incidencia**, que agrupa los comandos Atender incidencia técnica, Generar informe técnico y Reportar dispositivo. Sus eventos cubren la alerta técnica, el mantenimiento, el diagnóstico, la reparación, el restablecimiento del servicio y la generación del informe técnico, con los read models *Reportar incidencias* y *Formulario de incidente técnico*.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/vVW9J0i.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se presenta el agregado **Evaluación**, que agrupa el comando Solicitar y evaluar vivienda. Sus eventos abarcan desde el registro de la dirección y la visita técnica hasta la determinación de la compatibilidad de dispositivos y los tres resultados de viabilidad de la vivienda.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/QSvesC6.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se muestra el agregado **Notificación**, que agrupa los comandos Generar notificación y Confirmar notificación. Sus eventos cubren el envío al cuidador principal mediante Firebase Cloud Messaging, la asignación de prioridad, la atención, la repetición, la confirmación, el cierre y la actualización del historial.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/4vImsyG.png" alt="event storming paso 9 aggregates" width="400px">
+</div>
+
+En esta captura se observa el agregado **Actividades**, que agrupa los comandos Crear actividad y Gestionar actividades. Sus eventos cubren la programación de actividades y horarios, la asignación del cuidador, las rutinas de alimentación, medicación e higiene, y el ciclo de vida de la actividad (`Actividad completada`, `Actividad marcada como pendiente`, `Actividad vencida` y `Actividad eliminada`).
 
 El equipo identificó los agregados en cada bounded context de la siguiente manera:
 
