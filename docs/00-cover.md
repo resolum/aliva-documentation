@@ -1265,6 +1265,24 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> RenatoCY </td>
         <td> AR-53 add   Software Architecture Deployment Diagram </td>
     </tr>
+    <tr>
+        <td> 1.228 </td>
+        <td> 20/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add scenario refinements after qaw. </td>
+    </tr>
+    <tr>
+        <td> 1.229 </td>
+        <td> 21/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Fix issue description for notification scenario. </td>
+    </tr>
+    <tr>
+        <td> 1.230 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
