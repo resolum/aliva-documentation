@@ -1320,7 +1320,7 @@ El diagrama de contexto representa al **Sistema Alivia** como una caja negra, mo
 - **Hardware de los Actuadores** :hardware físico controlado (puertas, luces, etc.).
 
 ### 4.3.3. Software Architecture Container Level Diagram
-
+El diagrama de contenedores muestra los principales contenedores de software dentro de cada contexto delimitado, como aplicaciones, servicios, bases de datos, etc. Este diagrama ayuda a visualizar la estructura interna de cada contexto y cómo los diferentes contenedores interactúan entre sí.
 
 ![Container Level Diagram](../images/diagrams/img/alivia-container-diagram.svg)
 
