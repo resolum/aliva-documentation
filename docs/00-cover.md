@@ -445,6 +445,42 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> Far14z </td>
         <td> Add function to compact table rows in version log. </td>
     </tr>
+    <tr>
+        <td> 1.239 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.240 </td>
+        <td> 21/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add collaboration insights section </td>
+    </tr>
+    <tr>
+        <td> 1.241 </td>
+        <td> 21/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add collaboration insights section </td>
+    </tr>
+    <tr>
+        <td> 1.242 </td>
+        <td> 21/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Add collaboration insights section </td>
+    </tr>
+    <tr>
+        <td> 1.243 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add space for new member description. </td>
+    </tr>
+    <tr>
+        <td> 1.244 </td>
+        <td> 18/09/26 </td>
+        <td> Racso24k </td>
+        <td> Add description and photo for oscar armas member profile </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
