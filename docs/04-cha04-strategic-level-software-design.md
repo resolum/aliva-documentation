@@ -1322,6 +1322,13 @@ Gestiona la generación, priorización y envío de notificaciones y alertas haci
 
 ![bc comunicaciones](https://i.imgur.com/2b7oQBi.jpeg)
 
+
+**IAM (Gestión de Identidad y Acceso) - Canvas**
+
+Gestiona el ciclo de vida de identidades y el control de acceso de los usuarios de Alivia: registro de cuentas, autenticación con segundo factor, recuperación de contraseña y asignación de roles/accesos, garantizando que solo usuarios verificados y autorizados operen el resto de la plataforma.
+
+![bc iam](https://i.imgur.com/YA6VrVx.jpeg)
+
 ### 4.2.5. Context Mapping
 
 ## 4.3. Software Architecture
