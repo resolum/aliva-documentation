@@ -945,9 +945,342 @@ A continuación, se resume las decisiones tomadas por el equipo para el diseño 
 
 ## 4.2. Strategic-Level Domain-Driven Design (DDD)
 
+En esta sección se aborda el enfoque de Strategic-Level Domain-Driven Design (DDD), el cual permite definir una visión global del sistema a partir de la identificación y organización de los distintos dominios del negocio. A través de este enfoque, el equipo establece los bounded contexts, delimita responsabilidades y analiza las relaciones entre las diferentes áreas funcionales.
+
 ### 4.2.1. Design-Level Eventstorming
 
+En esta sección se presenta el Design-Level Event Storming, técnica utilizada para detallar el comportamiento del sistema mediante la identificación de eventos, comandos, actores, políticas, modelos de lectura, sistemas externos y agregados. Este enfoque permite profundizar en los bounded contexts definidos previamente y comprender con mayor precisión las interacciones dentro del dominio.
+
+A partir del Big Picture EventStorming, el equipo identificó los siguientes pain points distribuidos en los distintos flujos del negocio. Estos puntos de fricción representan situaciones sin resolver en la operación actual y constituyeron el punto de partida para el diseño detallado del sistema:
+
+**Flujo de registro y autenticación de cuenta:**
+
+- **"¿La autenticación de dos pasos es obligatoria?"**: Existía ambigüedad sobre si el segundo factor de verificación debía exigirse a todos los cuidadores o solo en ciertos casos. Este pain point evidenció la necesidad de modelar explícitamente el flujo de validación del segundo factor como parte del inicio de sesión.
+
+**Flujo de contratación y pago:**
+
+- **"Tras 'Preautorización de pago rechazada', ¿existe un evento de reintento o de notificación al usuario, o el flujo termina ahí sin salida?"**: No estaba definido el proceso a seguir cuando el proveedor de pagos rechaza la retención temporal del importe, dejando al cliente sin una vía clara para continuar la contratación.
+- **"¿Qué pasa si el cliente rechaza la adaptación propuesta?"**: El flujo de adaptación del plan tras una evaluación técnica parcialmente viable no contemplaba el escenario en que el cliente decide no aceptar el nuevo plan ofrecido.
+
+**Flujo de operación sin Internet:**
+
+- **"Si se genera una alerta de auxilio, ¿el cuidador podrá visualizarla?"**: No estaba resuelto cómo se garantiza la entrega de una alerta crítica generada durante una interrupción de conectividad, un escenario especialmente sensible dado que la solución exige respuesta inmediata ante solicitudes de auxilio.
+- **"¿Qué pasa si se pierde la conexión por mucho tiempo?"**: El flujo de sincronización no definía un comportamiento ante interrupciones prolongadas, más allá del reintento estándar contemplado para restablecer la comunicación.
+
+**Flujo de rutinas y medicación:**
+
+- **"¿El recordatorio de medicamento debe coincidir con el horario exacto del medicamento?"**: No estaba definido si el recordatorio se dispara en el mismo instante de la toma programada o con cierta antelación, lo cual afecta directamente el diseño del comando de programación de rutinas.
+
+**Flujo de mantenimiento y soporte técnico:**
+
+- **"¿Para quién es este informe técnico (cliente, startup, auditoría)?"**: El destinatario y nivel de detalle del informe técnico generado tras una evaluación no estaba definido, lo cual condiciona qué información debe exponer el modelo de lectura correspondiente.
+
+**Flujo de alertas y notificaciones:**
+
+- **"¿Qué convierte una notificación en una alerta pendiente crítica?"**: No existía un criterio explícito sobre el umbral o condición que escala una notificación regular a una alerta pendiente crítica, más allá del ciclo de repeticiones ya definido.
+- **"¿Qué pasa si el cuidador no responde la notificación a tiempo?"**: El flujo de escalamiento no contemplaba una acción posterior una vez agotado el ciclo de reintentos.
+
+**Flujo de control por voz:**
+
+- **"¿Si no reconoce la captura, se notifica al cuidador o el flujo simplemente termina ahí?"**: Ante un comando de voz no reconocido, no estaba definido si el sistema debía escalar la situación al cuidador o limitarse a solicitar la repetición del comando a la persona asistida.
+
+**Flujo de evaluación técnica e instalación:**
+
+- **"¿Cuál es el criterio para dar un veredicto de la viabilidad de la vivienda?"**: El umbral técnico exacto que determina si una vivienda es viable, parcialmente viable o no viable no estaba explícito más allá de la compatibilidad general de dispositivos.
+- **"¿Qué pasa cuando una vivienda se declara no viable?"**: No estaba resuelto si el cliente puede volver a solicitar una evaluación en el futuro o si el proceso de contratación queda cerrado definitivamente.
+- **"¿Qué significa exactamente 'parcialmente viable'?"**: No estaba claro si este veredicto implica excluir ciertos dispositivos del plan o si habilita una instalación reducida sujeta a una futura ampliación.
+
+Estos pain points del Big Picture evidenciaron las principales brechas operativas del negocio de Alivia y orientaron las decisiones de diseño del sistema. Aquellos directamente relacionados con la autonomía de la persona con discapacidad motora severa, el control confiable de dispositivos IoT mediante voz, la continuidad ante fallas de conectividad y la comunicación oportuna con el cuidador fueron priorizados en el Design-Level EventStorming, ya que constituyen el núcleo de valor de la solución Alivia. Los pain points relacionados con reglas comerciales o administrativas internas (como el destinatario final de un informe técnico o el criterio exacto para una vivienda parcialmente viable) fueron registrados como contexto del problema pero se resolvieron a nivel de política y modelo de lectura, sin requerir un rediseño estructural de los bounded contexts definidos.
+
+A partir de este análisis, el equipo avanzó con la construcción del modelo detallado identificando los siguientes pain points específicos para resolver dentro del Design-Level:
+
+- **"¿La autenticación de dos pasos es obligatoria?"**: Resuelto mediante el modelado del comando Validar segundo factor dentro del flujo de inicio de sesión en IAM.
+- **"¿Qué pasa si se pierde la conexión por mucho tiempo?"**: Resuelto estableciendo una política de conservación local de eventos y su sincronización diferida en el bounded context de Operación Offline / Edge.
+- **"¿Si no reconoce la captura, se notifica al cuidador o el flujo simplemente termina ahí?"**: Resuelto mediante una política de reintento de captura y el evento Comando de voz no reconocido en Control por Voz.
+- **"¿Qué convierte una notificación en una alerta pendiente crítica?"**: Resuelto mediante la política de escalamiento automático tras el ciclo de repeticiones en el bounded context de Alertas y Notificaciones.
+- **"¿Cuál es el criterio para dar un veredicto de la viabilidad de la vivienda?"**: Resuelto mediante el modelo de lectura de compatibilidad de dispositivos que el técnico consulta antes de emitir su dictamen, en el bounded context de Evaluación Técnica e Instalación.
+
+Con estos pain points identificados y priorizados, el equipo avanzó con la construcción del modelo completo siguiendo los nueve pasos del Design-Level Event Storming.
+
+Con el fin de mantener la consistencia y facilitar la interpretación del modelo, el equipo definió una convención de colores para los post-its utilizados:
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/9e4DRat.png" alt="event-storming-color-convention" width="500px">
+</div>
+
+Con el fin de mantener la consistencia y facilitar la interpretación del modelo, el equipo definió una convención de colores para los post-its utilizados durante la tercera fase del Design-Level Event Storming. Esta convención permitió identificar de manera visual los distintos elementos del dominio, tales como eventos, comandos, actores, políticas, modelos de lectura y sistemas externos, facilitando la comprensión de las relaciones y flujos dentro del sistema.
+
+#### Paso 1: Event
+
+El primer paso consistió en la identificación de los eventos de dominio del sistema. Un evento de dominio representa un hecho relevante que ya ocurrió dentro del negocio y se expresa en tiempo pasado. En esta técnica los eventos se representan con tarjetas de color naranja.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/ECRkMwd.png" alt="event storming paso 1 event">
+  <img src="https://imgur.com/6n6Pcam.png" alt="event storming paso 1 event">
+</div>
+
+El equipo identificó los eventos de dominio agrupados por columnas, representando los distintos flujos del sistema. Entre los eventos identificados se encuentran: `Cuenta creada`, `Sesión iniciada`, `Plan seleccionado`, `Cobro confirmado`, `Suscripción activada`, `Vivienda declarada viable`, `Instalación completada`, `Dispositivo registrado`, `Comando de voz capturado`, `Luz encendida`, `Puerta abierta`, `Solicitud de auxilio pronunciada`, `Alerta generada`, `Alerta enviada al cuidador principal`, `Conexión a Internet perdida`, `Evento almacenado localmente`, `Sincronización completada`, `Cuidador principal asignado`, `Turno de cuidado creado`, `Rutina de alimentación programada`, `Batería baja detectada`, `Falla de puerta registrada`, `Mantenimiento programado`, `Servicio restablecido`, entre otros.
+
+Se eliminaron los eventos de captura de campos individuales de formulario dado que no representan cambios de estado significativos en el dominio ni disparan políticas o comandos independientes. Este criterio aplica de forma transversal a todos los bounded contexts: en lugar de modelar `Nombre ingresado`, `Correo ingresado` o `Nombre de la vivienda ingresado` como eventos separados, se consolidan bajo un único evento que agrupa la captura del formulario completo (por ejemplo, `Datos de contacto registrados` o `Dirección de evaluación registrada`). Solo se conservan como eventos aquellos hechos que agrupan información capturada o que representan un cambio de estado observable en el dominio.
+
+Adicionalmente, se incorporaron eventos de lectura en los bounded contexts donde el actor consulta información antes de emitir un comando, siguiendo el principio de que toda interacción relevante con el sistema debe quedar registrada. Los eventos de lectura añadidos son: `Planes de suscripción consultados`, `Historial de alertas consultado`, `Estado del dispositivo consultado`, `Historial de actividades consultado` y `Trazabilidad de operación consultada`.
+
+Los eventos de telemetría incluyen explícitamente el registro del nivel de batería, el estado de conectividad y el estado del sensor de cada dispositivo (luz, puerta, ventana, micrófono) como variables monitoreadas por el nodo Edge, dado que el sistema no solo ejecuta las acciones solicitadas por voz, sino que también supervisa continuamente la condición operativa de los dispositivos IoT instalados en el hogar.
+
+#### Paso 2: Timelines
+
+El segundo paso consistió en organizar los eventos de dominio dentro de líneas de tiempo por cada bounded context del sistema. El objetivo fue establecer el orden cronológico natural en que los hechos ocurren dentro de cada flujo.
+
+<div style="display: flex; align-items: center; flex-wrap: wrap;">
+  <img src="https://imgur.com/uCZanHV.png" alt="event storming paso 2 time-line">
+  <img src="https://imgur.com/QC6BGxJ.png" alt="event storming paso 2 time-line">
+  <img src="https://imgur.com/P7FbInR.png" alt="event storming paso 2 time-line">
+  <img src="https://imgur.com/w4YOo00.png" alt="event storming paso 2 time-line">
+  <img src="https://imgur.com/INbQV7L.png" alt="event storming paso 2 time-line">
+  <img src="https://imgur.com/yXFxeO3.png" alt="event storming paso 2 time-line">
+  <img src="https://imgur.com/ndQoQpH.png" alt="event storming paso 2 time-line">
+  <img src="https://imgur.com/395Hawv.png" alt="event storming paso 2 time-line">
+  <img src="https://imgur.com/Je4D3Q9.png" alt="event storming paso 2 time-line">
+  <img src="https://imgur.com/v4zMqFg.png" alt="event storming paso 2 time-line">
+</div>
+
+El equipo organizó los eventos en secuencias horizontales ordenadas bajo los bounded contexts identificados: Gestión de Identidad y Acceso (IAM), Pagos y Suscripciones, Perfiles, Seguimiento, Actividades, Comunicaciones, Activos/Bienes, Analíticas y Gestión de operaciones técnicas.
+
+En **Gestión de Identidad y Acceso (IAM)**, el flujo de registro de cuenta: `Datos de contacto registrados` → `Consentimiento de tratamiento de datos registrado` → `Correo de verificación enviado` → `Correo verificado` → `Persona asistida registrada` → `Cuenta creada`. El flujo de inicio de sesión: `Credenciales validadas` → `Segundo factor de autenticación validado` → `Sesión iniciada`, con derivaciones posibles: `Acceso rechazado` o `Código de verificación vencido`; el flujo de cierre de sesión concluye con `Sesión cerrada`. El flujo de recuperación de contraseña: `Recuperación de contraseña solicitada` → `Contraseña restablecida`. El flujo de asignación de roles y acceso: `Rol asignado` → `Empleado creado` → `Acceso asignado`. El flujo de registro y recuperación de acceso por correo: `Correo ingresado` → `Contraseña ingresada` → `Correo de bienvenida enviado` → `Cuenta creada`, con la derivación `Correo de recuperación enviado`.
+
+En **Pagos y Suscripciones**, el flujo de suscripción: `Planes comparados` → `Plan seleccionado` → `Datos bancarios ingresados` → `Importe autorizado temporalmente`, con la derivación `Preautorización de pago rechazada`. El flujo de pago presenta caminos según el resultado: `Cobro confirmado` → `Suscripción activada` → `Cuenta habilitada`, o `Cobro rechazado` → `Importe retenido liberado`. El flujo de ajuste del plan, posterior a la `Verificación de viabilidad`: `Adaptación del plan propuesta` → `Plan adaptado aceptado`.
+
+En **Perfiles**, el flujo de perfil: `Datos personales ingresados` → `Foto agregada` → `Perfil de usuario creado` → `Cuidador principal asignado` → `Preferencias de comunicación registradas` → `Perfil actualizado`. El flujo de invitación de cuidadores: `Responsabilidades de cuidador asignadas` → `Cuidador invitado` → `Correo enviado`, con dos derivaciones: `Invitación aceptada` → `Cuidador adicional vinculado`, o `Invitación rechazada`. Además, la gestión de cuidadores contempla `Cuidador desvinculado` y `Cuidador principal reemplazado`.
+
+En **Seguimiento**, se distinguen dos flujos. En Telemetría: `Falla de puerta registrada`, `Falla de iluminación registrada`, `Falla del micrófono registrada`, `Batería baja detectada` o `Falla de ventana registrada`, seguidos de `Estado del dispositivo actualizado` → `Estado del dispositivo informado`; además, el cuidador identifica que el `Dispositivo presentó irregularidades`. En Sincronización, el flujo de operación sin conexión: `Conexión a Internet perdida` → `Pérdida de comunicación detectada` → `Evento almacenado localmente`. Una vez recuperada la red: `Conexión restablecida` → `Sincronización iniciada` → `Eventos sincronizados` → `Sincronización completada`.
+
+En **Actividades**, el flujo de planificación: `Actividad programada` → `Horario programado` → `Cuidador asignado`. A partir de la asignación se derivan actividades específicas: `Actividad de alimentación programada`, `Actividad de medicamento generado`, `Actividad de medicamento confirmada` y `Actividad de higiene programada`. El ciclo de vida de las actividades continúa con `Actividad marcada como pendiente`, que puede derivar en `Actividad completada`, `Actividad vencida` o `Actividad eliminada`.
+
+En **Comunicaciones**, el flujo de notificación: `Notificación generada` → `Notificación enviada al cuidador principal` → `Prioridad de notificación asignada`. A partir de aquí se presentan dos caminos: si el cuidador responde, `Notificación atendida` → `Notificación confirmada por el cuidador` → `Notificación cerrada`; si no responde a tiempo, `Notificación repetida`. El flujo concluye con `Historial de notificaciones actualizado`.
+
+En **Activos/Bienes**, se distinguen tres subflujos. En Dispositivo de voz: `Comando de voz capturado` → `Comando de voz procesado` → `Dispositivo objetivo identificado` → `Acción confirmada por voz`, con las derivaciones `Dispositivo desconectado` y `Comando de voz no reconocido`. En Dispositivo accionador, las acciones resultantes sobre la vivienda son: `Ventana cerrada`, `Ventana abierta`, `Puerta abierta`, `Puerta cerrada`, `Luz encendida` y `Luz apagada`; paralelamente, se contempla el flujo de emergencia: `Solicitud de auxilio pronunciada` → `Solicitud de auxilio reconocida`. En Dispositivos, la gestión del ciclo de vida: `Credenciales de autorización por dispositivo ingresado` → `Dispositivo asignado a casa`; `Dispositivo seleccionado` → `Dispositivo entrenado con voz del discapacitado` → `Configuración confirmada`; y `Dispositivo desasignado de la casa` → `Telemetría del dispositivo desactivada`.
+
+En **Analíticas**, el flujo de métricas registra los eventos `Métricas globales obtenidas`, `Venta concluida` y `Telemetría obtenida`, solicitados respectivamente por el administrador, el gestor de suscripciones y el cuidador.
+
+En **Gestión de operaciones técnicas**, se distinguen tres flujos. En Evaluación: `Dirección de evaluación registrada` → `Evaluación técnica solicitada` → `Visita técnica programada` → `Técnico asignado` → `Instalación eléctrica evaluada` → `Puerta evaluada` → `Iluminación evaluada` → `Compatibilidad de dispositivos determinada`, tras lo cual el flujo se bifurca en tres resultados posibles: `Vivienda declarada viable`, `Vivienda declarada parcialmente viable` o `Vivienda declarada no viable`. En Instalación, posterior a una vivienda viable: `Instalación programada` → `Instalación iniciada` → `Dispositivos instalados` → `Dispositivo registrado` → `Dispositivo asignado a la vivienda` → `Instalación completada`. En Incidencia: `Dispositivo objetivo identificado` → `Dispositivo clasificado` → `Alerta técnica generada` → `Incidencia de soporte creada` → `Mantenimiento programado` → `Diagnóstico técnico realizado` → `Dispositivo reparado` → `Servicio restablecido`; y, para el informe técnico, `Evidencias técnicas registradas` → `Informe técnico generado` → `Evaluación técnica completada`.
+
+#### Paso 3: Pain Points
+
+El tercer paso incorporó la identificación de los pain points dentro de los flujos ya organizados. Los pain points se representan con tarjetas en forma de rombo de color morado y señalan fricciones, dudas o decisiones de diseño pendientes que el equipo detectó al revisar las líneas de tiempo.
+
+<div style="display: flex; align-items: center; flex-wrap: wrap;">
+  <img src="https://imgur.com/71INAkG.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/BnEvcKi.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/dYdQfms.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/sKc3DEk.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/6VVsydk.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/LVXgDfx.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/ujGKige.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/3dIBIoj.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/faK6zXV.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/fKvr8D1.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/6csj9oE.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/qCpVkr3.png" alt="event storming paso 3 pain-point">
+</div>
+
+Se identificaron catorce pain points distribuidos en los bounded contexts con mayor ambigüedad de diseño. Cada uno señala una decisión pendiente que deberá resolverse durante el Design-Level EventStorming:
+
+- **"¿La autenticación de dos pasos es obligatoria?"** en IAM. Cuestiona si el `Segundo factor de autenticación validado` es un paso obligatorio dentro del flujo de inicio de sesión o si depende del rol o de la configuración del usuario.
+- **"¿Qué pasa con las responsabilidades del cuidador desvinculado?"** en Profiles. Plantea qué ocurre con las tareas y responsabilidades asignadas cuando se produce `Cuidador desvinculado` o `Cuidador principal reemplazado`.
+- **"Tras 'Preautorización de pago rechazada', ¿existe un evento de reintento o de notificación al usuario, o el flujo termina ahí sin salida?"** en Payment and Subscriptions. Identifica que el flujo de contratación carece de un camino de recuperación cuando la preautorización es rechazada.
+- **"¿Qué pasa si el cliente rechaza la adaptación propuesta?"** en Payment and Subscriptions. Señala la ausencia de un evento alternativo posterior a `Adaptación del plan propuesta` cuando el cliente no acepta los cambios.
+- **"¿Cuál es el criterio para dar un veredicto de la viabilidad de la vivienda?"** en Gestión de operaciones técnicas. Cuestiona qué reglas determinan que la vivienda sea declarada viable, parcialmente viable o no viable tras `Compatibilidad de dispositivos determinada`.
+- **"¿Qué pasa cuando la vivienda se declara no viable?"** en Gestión de operaciones técnicas. Plantea el destino del proceso de contratación, en particular su relación con la liberación del importe retenido.
+- **"¿Qué será parcialmente viable, qué significa que la contratación no se cancela?"** en Gestión de operaciones técnicas. Busca aclarar qué implica una vivienda parcialmente viable y cómo continúa la contratación en ese escenario.
+- **"¿Para quién es este informe (cliente, startup, Resolum, auditoría)?"** en Gestión de operaciones técnicas. Define el destinatario del `Informe técnico generado` y, con ello, su contenido y nivel de detalle.
+- **"¿Qué convierte una notificación en una alerta pendiente crítica?"** en Communications. Cuestiona la regla que determina cuándo una notificación pasa a `Notificación marcada pendiente crítica`.
+- **"¿Qué pasa si el cuidador no responde la notificación a tiempo?"** en Communications. Plantea el comportamiento esperado ante la falta de confirmación, relacionado con `Notificación repetida` y con la `Confirmación de notificación duplicada`.
+- **"¿Se reintenta la captura, se notifica al cuidador, o el flujo simplemente termina ahí?"** en Activos/Bienes. Identifica la falta de un camino de salida tras `Comando de voz no reconocido`.
+- **"¿Cómo se registra un medicamento indicado, sin recomendar cambios de dosis?"** en Actividades. Cuestiona cómo se modela `Medicamento previamente indicado registrado` respetando que el sistema solo coordina la administración y no modifica el tratamiento.
+- **"Si se genera una alerta de auxilio, ¿el cuidador podrá visualizar la alerta?"** en Tracking. Señala el riesgo de que, sin conexión, la alerta generada no llegue al cuidador.
+- **"¿Qué pasa si se pierde la conexión por mucho tiempo?"** en Tracking. Plantea los límites del almacenamiento local y de la sincronización posterior tras una desconexión prolongada.
+
+#### Paso 4: Pivotal Points
+
+El cuarto paso incorporó la identificación de los pivotal points, representados como líneas verticales dentro de los flujos de cada bounded context. Estos puntos señalan los momentos de transición más relevantes en el recorrido del sistema, donde el flujo cambia de fase, de resultado o de responsabilidad.
+
+<div style="display: flex; align-items: center; flex-wrap: wrap;">
+  <img src="https://imgur.com/oZKZJzi.png" alt="event storming paso 4 pivotal-point">
+  <img src="https://imgur.com/Jf41Zjs.png" alt="event storming paso 4 pivotal-point">
+  <img src="https://imgur.com/vR0YXug.png" alt="event storming paso 4 pivotal-point">
+  <img src="https://imgur.com/pMmWx8U.png" alt="event storming paso 4 pivotal-point">
+  <img src="https://imgur.com/h9GQPOR.png" alt="event storming paso 4 pivotal-point">
+  <img src="https://imgur.com/4BCyeSB.png" alt="event storming paso 4 pivotal-point">
+  <img src="https://imgur.com/k6bECqT.png" alt="event storming paso 4 pivotal-point">
+  <img src="https://imgur.com/kSO0ITz.png" alt="event storming paso 4 pivotal-point">
+  <img src="https://imgur.com/6vTJgrc.png" alt="event storming paso 4 pivotal-point">
+  <img src="https://imgur.com/vfABacP.png" alt="event storming paso 4 pivotal-point">
+</div>
+
+El equipo reconoció pivotal points en los siguientes momentos:
+
+- En **Gestión de Identidad y Acceso (IAM)**, la creación de la cuenta (`Cuenta creada`) marca el cambio entre el flujo de registro, protagonizado por un visitante, y los flujos de autenticación y asignación de acceso, protagonizados por un usuario ya registrado. Este evento representa el cambio de actor y de intención dentro del contexto.
+- En **Pagos y Suscripciones**, la habilitación de la cuenta (`Cuenta habilitada`) marca el cierre del proceso de contratación. A partir de este punto, el cliente deja de ser un prospecto en proceso de pago y pasa a contar con una suscripción activa y operativa.
+- En **Actividades**, la transición hacia `Actividad completada`, `Actividad vencida` y `Actividad eliminada` marca el cierre del ciclo de vida de una actividad. Es el momento en que el resultado de la atención queda definido y deja de estar pendiente para el cuidador.
+
+En los contextos de **Perfiles**, **Seguimiento**, **Comunicaciones**, **Activos/Bienes** y **Gestión de operaciones técnicas** no se marcaron pivotal points en las capturas, ya que sus flujos mantienen una secuencia continua o se bifurcan en resultados alternativos (por ejemplo, la viabilidad de la vivienda o el reconocimiento del comando de voz) sin un cambio de contexto o de responsabilidad que justificara una separación explícita.
+
+#### Paso 5: Comandos
+
+El quinto paso consistió en identificar los comandos del sistema. Un comando representa la intención de un actor de provocar un cambio de estado en el dominio. Los comandos se representan con tarjetas de color azul y se ubican antes del evento de dominio que producen.
+
+<div style="display: flex; align-items: center; flex-wrap: wrap;">
+  <img src="https://imgur.com/mZBL6Zr.png" alt="event storming paso 5 comandos">">
+  <img src="https://imgur.com/OGea3to.png" alt="event storming paso 5 comandos">
+  <img src="https://imgur.com/LqsadhC.png" alt="event storming paso 5 comandos">
+  <img src="https://imgur.com/eC8HB1W.png" alt="event storming paso 5 comandos">
+  <img src="https://imgur.com/KFR1sp2.png" alt="event storming paso 5 comandos">
+  <img src="https://imgur.com/yht1GXF.png" alt="event storming paso 5 comandos">
+  <img src="https://imgur.com/N2MiPbJ.png" alt="event storming paso 5 comandos">
+  <img src="https://imgur.com/Rusp0oC.png" alt="event storming paso 5 comandos">
+  <img src="https://imgur.com/Wk76dnC.png" alt="event storming paso 5 comandos">
+  <img src="https://imgur.com/zeIyPsA.png" alt="event storming paso 5 comandos">
+  <img src="https://imgur.com/ZvBOki3.png" alt="event storming paso 5 comandos">
+</div>
+
+El equipo incorporó los comandos en cada línea de tiempo de la siguiente manera:
+
+- En **Gestión de Identidad y Acceso (IAM)** se definieron: Registrar cuenta, Iniciar sesión, Registrar y recuperar acceso, Asignar rol y acceso, Invitar cuidador y Gestionar cuidador.
+- En **Perfiles** se definieron: Crear perfil de usuario y Recuperar contraseña.
+- En **Pagos y Suscripciones** se definieron: Contratar suscripción, Confirmar contratación y Ajustar plan.
+- En **Seguimiento** se definieron: Monitorear dispositivo, Reportar dispositivo y Operar sin conexión.
+- En **Actividades** se definieron: Crear horario, Crear actividad, Programar rutina y Gestionar actividades.
+- En **Comunicaciones** se definieron: Generar notificación y Confirmar notificación.
+- En **Activos/Bienes** se definieron: Emitir comando de voz y Accionar dispositivo por voz.
+- En **Gestión de operaciones técnicas** se definieron: Solicitar y evaluar vivienda, Instalar dispositivos, Atender incidencia técnica y Generar informe técnico.
+
+#### Paso 6: Policies and Actors
+
+El sexto paso incorporó al modelo los actores y las políticas del sistema. Los actores se representan con tarjetas pequeñas de color amarillo y son quienes emiten los comandos dentro de cada flujo. Las políticas son reglas de negocio automáticas que, ante la ocurrencia de un evento, disparan un nuevo comando o acción sin intervención humana directa, y se representan con tarjetas de color lila.
+
+<div style="display: flex; align-items: center; flex-wrap: wrap;">
+  <img src="https://imgur.com/xjUf3za.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/0iqb253.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/nbydbMJ.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/nGuDmjj.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/Te3VbCt.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/pphXNG7.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/dwDzOJ9.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/C3VHat9.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/wNZm90h.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/AjsvCiu.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/R9DebJM.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/uLhmwuk.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/9WU9Mcd.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/bMUO6jE.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/YBZwANB.png" alt="event storming paso 6 policies-actors">
+</div>
+
+El equipo identificó como actor principal al **Cuidador**, presente en la mayoría de los bounded contexts: registro de cuenta, recuperación de acceso, creación de perfil, invitación y gestión de cuidadores, contratación de suscripción, gestión de turnos, horarios y actividades, confirmación de notificaciones, reporte de dispositivos y solicitud de evaluación de vivienda. El **Administrador** fue identificado en IAM, tanto en el flujo de asignación de roles y acceso como en el de inicio de sesión, donde también participa el actor **Empleado**. El **Técnico** fue identificado en Seguimiento (monitoreo de dispositivos) y en Gestión de operaciones técnicas (atención de incidencias y generación del informe técnico). El **Gestor de suscripciones** fue identificado en Pagos y Suscripciones para el ajuste de planes e importes. Finalmente, la **Persona con discapacidad** fue identificada en Activos/Bienes como emisora de los comandos de voz que accionan los dispositivos del hogar.
+
+Las políticas identificadas por bounded context son las siguientes:
+
+- En **Pagos y Suscripciones:** *Stripe retiene el pago*, disparada tras `Importe autorizado temporalmente`, de modo que la retención temporal del importe se ejecuta automáticamente en el proveedor de pagos sin activar todavía la suscripción ni el cobro definitivo.
+- En **Perfiles:** *Se vincula el cuidador dentro de la misma cuenta*, disparada tras `Invitación aceptada`, para asociar automáticamente al cuidador invitado a la red de cuidado de la persona asistida y generar el evento `Cuidador adicional vinculado`.
+- En **Gestión de operaciones técnicas:** *El técnico activa la cuenta*, disparada tras `Vivienda declarada viable`, para habilitar el servicio y dar paso al comando `Instalar dispositivos`; y *Técnico toma notas del incidente*, disparada tras `Servicio restablecido`, para dejar registro de lo ocurrido antes de ejecutar el comando `Generar informe técnico`.
+
+En los contextos de **IAM**, **Seguimiento**, **Actividades**, **Comunicaciones** y **Activos/Bienes** no se identificaron políticas, ya que sus flujos son iniciados directamente por la intervención de un actor o por eventos de telemetría, sin reglas automáticas adicionales que dispararan nuevos comandos. Las reglas de reintento, escalamiento y conservación local de eventos que surgieron de los pain points se resolverán en los pasos posteriores del modelo.
+
 ### 4.2.2. Candidate Context Discovery
+
+Luego de identificar los eventos, flujos, comandos y políticas del dominio, el equipo avanzó con la detección de contextos candidatos. Esta fase les permitió organizar los elementos vinculados de acuerdo con su cohesión funcional y las reglas de negocio que compartían, lo que facilitó la definición de los futuros Bounded Contexts. De este modo, el equipo logro modelar el dominio de Aliva en contextos con responsabilidades claramente separadas.
+
+#### Paso 7: Read models
+
+El séptimo paso consistió en identificar los modelos de lectura del sistema. Los read models se representan con tarjetas de color verde y corresponden a las vistas o pantallas que los actores necesitan consultar antes de emitir un comando.
+
+<div style="display: flex; align-items: center; flex-wrap: wrap;">
+  <img src="https://imgur.com/NNW1xFI.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/2yHw5eZ.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/4q7aOnO.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/IuBF2B6.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/C8ryEH4.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/rJkRFeQ.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/wVze15F.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/A5vxLSb.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/q0oc2Sq.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/gUzmmgc.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/ikFD5xM.png" alt="event storming paso 7 read-models">
+</div>
+
+El equipo incorporó los read models en los siguientes bounded contexts:
+
+- En **Gestión de Identidad y Acceso (IAM):** *Vista de registro*, consultada por el Cuidador antes de registrar su cuenta; *Vista de inicio de sesión*, consultada por el Cuidador, el Administrador y el Empleado antes de iniciar sesión; *Recuperar contraseña*, consultada por el Cuidador al registrar o recuperar su acceso; *Gestión de empleados*, consultada por el Administrador al asignar roles y accesos; *Lista de cuidadores*, consultada por el Cuidador antes de invitar a un nuevo cuidador; y *Gestión de cuidador*, consultada al desvincular o reemplazar a un cuidador.
+- En **Perfiles:** *Vista de perfil*, consultada por el Cuidador al crear su perfil de usuario y al recuperar su contraseña.
+- En **Pagos y Suscripciones:** *Planes de suscripción*, consultada por el Cuidador antes de contratar una suscripción; *Detalle de pago*, consultada antes de confirmar la contratación; y *Dashboard de gestión de suscripciones*, consultada por el Gestor de suscripciones antes de ajustar un plan.
+- En **Seguimiento:** *Reportar incidencias*, consultada por el Cuidador al reportar un dispositivo; y *Gestión de estado de dispositivo*, consultada por el Técnico al monitorear los dispositivos instalados.
+- En **Actividades:** *Gestor de horarios*, consultada por el Cuidador al crear un horario y al programar una rutina; *Gestor de actividades*, consultada al crear una actividad; y *Edición de actividades*, consultada al gestionar actividades ya programadas.
+- En **Comunicaciones:** *Notificación de alerta*, consultada por el Cuidador antes de confirmar una notificación.
+- En **Gestión de operaciones técnicas:** *Orden de evaluación de vivienda*, consultada por el Cuidador al solicitar la evaluación de su vivienda; *Reportar incidencias*, consultada por el Técnico al atender una incidencia técnica; y *Formulario de incidente técnico*, consultada por el Técnico antes de generar el informe técnico.
+
+En el contexto de **Activos/Bienes** no se identificaron read models, ya que la Persona con discapacidad interactúa exclusivamente mediante comandos de voz, sin consultar vistas previas para emitir sus comandos.
+
+#### Paso 8: External Systems
+
+El octavo paso consistió en incorporar al modelo los sistemas externos. Los sistemas externos se representan con tarjetas de color rojo y corresponden a servicios ajenos al dominio propio de Alivia que participan en los flujos de negocio.
+
+<div style="display: flex; align-items: center; flex-wrap: wrap;">
+  <img src="https://imgur.com/6U4gyYv.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/PQiawBZ.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/ktVvNnl.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/rVQmDF5.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/CVxA6RH.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/anKPXzU.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/div0ZjO.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/Wy7eoDk.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/bi1EBEP.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/9xcpjfr.png" alt="event storming paso 8 external-systems">
+</div>
+
+El equipo identificó cinco sistemas externos y dos dispositivos físicos que interactúan con el dominio:
+
+- **Stripe** presente en Pagos y Suscripciones, encargado de procesar la preautorización y el cobro de la suscripción. Aparece asociado al comando Contratar suscripción y a la retención temporal del importe (`Importe autorizado temporalmente`).
+- **Sendgrid** presente en Gestión de Identidad y Acceso (IAM), responsable del envío de correos electrónicos. Interviene en el flujo de inicio de sesión, para el envío del código del segundo factor de autenticación (junto a `Credenciales validadas` y `Segundo factor de autenticación validado`), y en el flujo de invitación de cuidadores, para el envío del correo de invitación tras el evento `Correo enviado`.
+- **Cloudinary API** presente en Perfiles, utilizado para la carga y almacenamiento de las imágenes del perfil de usuario. Interviene en el flujo de creación del perfil, junto al evento `Datos personales ingresados`.
+- **Firebase Cloud Messaging** presente en Seguimiento y Comunicaciones, responsable de enviar notificaciones push al dispositivo del cuidador. En Seguimiento se activa tras las fallas y alertas de los dispositivos, antes de `Estado del dispositivo actualizado`. En Comunicaciones interviene al generar el `Recordatorio generado` y al confirmar una notificación por parte del cuidador.
+- **Dispositivo de micrófono y altavoz** presente en Activos/Bienes, encargado de capturar el comando de voz de la persona con discapacidad y de reproducir la confirmación audible. Se asocia al evento `Comando de voz capturado`.
+- **Dispositivo con servos** presente en Activos/Bienes, responsable de accionar físicamente las puertas y ventanas del hogar tras la confirmación del comando. Se asocia al evento `Acción confirmada por voz`, que da lugar a `Puerta abierta`, `Puerta cerrada`, `Ventana abierta` y `Ventana cerrada`.
+
+En los contextos de **Actividades**, **Gestión de operaciones técnicas** y **Operación sin conexión** no se identificaron sistemas externos, ya que sus flujos se resuelven íntegramente dentro del dominio de Alivia.
+
+#### Paso 9: Add Aggregates
+
+El noveno paso consistió en identificar los agregados del dominio y agrupar en torno a ellos los comandos, eventos, políticas y read models correspondientes. Los agregados se representan con tarjetas de color amarillo de mayor tamaño y constituyen la unidad de consistencia del dominio.
+
+<div style="display: flex; align-items: center; flex-wrap: wrap;">
+  <img src="https://imgur.com/Kfa8EUv.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/R4xk7gP.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/uBnlqqG.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/C0JUfN8.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/9oPrujS.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/VUIkdQD.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/4oeHxrS.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/QSvesC6.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/vVW9J0i.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/xmwkCjC.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/LENhgOo.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/cycajgT.png" alt="event storming paso 9 aggregates" width="400px"><br>
+  <img src="https://imgur.com/4vImsyG.png" alt="event storming paso 9 aggregates" width="400px"><br>
+</div>
+
+El equipo identificó los agregados en cada bounded context de la siguiente manera:
+
+- En **Gestión de Identidad y Acceso (IAM)** se identificaron dos agregados: **Usuario**, que centraliza los flujos de registro de cuenta, inicio de sesión, recuperación de contraseña, asignación de rol y acceso, y registro y recuperación de acceso, integrando el envío de correos mediante Sendgrid; e **Invitación**, que gestiona la invitación de cuidadores adicionales, la respuesta a la invitación (aceptada o rechazada) y la gestión posterior del cuidador, exponiendo los eventos `Responsabilidades de cuidador asignadas`, `Cuidador invitado`, `Correo enviado`, `Invitación aceptada`, `Invitación rechazada`, `Cuidador adicional vinculado`, `Cuidador desvinculado` y `Cuidador principal reemplazado`.
+- En **Pagos y Suscripciones** se identificaron dos agregados: **Suscripción**, que agrupa la comparación y selección de planes y la selección de la cuenta bancaria, con integración a Stripe, a través del comando Contratar suscripción; y **Pago**, que agrupa la realización del pago, la preautorización del importe, la confirmación de la contratación, el cobro, la activación de la suscripción y el ajuste del plan, exponiendo los eventos `Importe autorizado temporalmente`, `Preautorización de pago rechazada`, `Cobro confirmado`, `Cobro rechazado`, `Importe retenido liberado`, `Adaptación del plan propuesta`, `Plan adaptado aceptado`, `Suscripción activada` y `Cuenta habilitada`.
+- En **Perfiles** se identificó el agregado **Perfil**, que centraliza la creación del perfil de usuario, la asignación del cuidador principal, el registro de preferencias de comunicación y la actualización del perfil, incluyendo la carga de imágenes mediante Cloudinary API.
+- En **Seguimiento** se identificaron dos agregados: **Telemetría**, que centraliza el monitoreo de los dispositivos instalados y el registro de fallas (`Falla de puerta registrada`, `Falla de iluminación registrada`, `Falla del micrófono registrada`, `Batería baja detectada` y `Falla de ventana registrada`), culminando en `Estado del dispositivo actualizado` y `Estado del dispositivo informado` mediante Firebase Cloud Messaging; y **Sincronización**, que gestiona la operación sin conexión, desde `Conexión a Internet perdida` y `Evento almacenado localmente` hasta `Conexión restablecida`, `Eventos sincronizados` y `Sincronización completada`.
+- En **Actividades** se identificó el agregado **Actividades**, que centraliza la creación de horarios y actividades, la programación de rutinas de alimentación, medicación e higiene, la asignación del cuidador responsable y la gestión del ciclo de vida de las actividades (`Actividad completada`, `Actividad marcada como pendiente`, `Actividad vencida` y `Actividad eliminada`).
+- En **Comunicaciones** se identificó el agregado **Notificación**, que gestiona la generación de notificaciones y alertas, su envío al cuidador principal mediante Firebase Cloud Messaging, la asignación de prioridad, la confirmación por parte del cuidador y el cierre con la actualización del historial, incluyendo los eventos `Notificación repetida` y `Notificación marcada pendiente crítica`.
+- En **Activos/Bienes** se identificaron dos agregados y un agregado de gestión de ciclo de vida: **Dispositivo de voz**, que agrupa la captura y el procesamiento del comando de voz, la identificación del dispositivo objetivo y la confirmación audible de la acción, con apoyo del dispositivo de micrófono y altavoz, y los eventos alternativos `Dispositivo desconectado` y `Comando de voz no reconocido`; **Dispositivo accionador**, que ejecuta las acciones físicas sobre el hogar mediante el dispositivo con servos, exponiendo los eventos `Puerta abierta`, `Puerta cerrada`, `Ventana abierta`, `Ventana cerrada`, `Luz encendida`, `Luz apagada`, `Solicitud de auxilio pronunciada` y `Solicitud de auxilio reconocida`; y **Dispositivos**, que gestiona el registro, la configuración y la desactivación de los dispositivos de la vivienda, incluyendo la asignación a la casa, el entrenamiento con la voz de la persona con discapacidad y la desactivación de su telemetría.
+- En **Analíticas** se identificó el agregado **Métricas**, que agrupa la obtención de métricas globales por parte del Administrador, de ventas por parte del Gestor de suscripciones y de telemetría por parte del Cuidador, mediante los eventos `Métricas globales obtenidas`, `Venta concluida` y `Telemetría obtenida`.
+- En **Gestión de operaciones técnicas** se identificaron tres agregados: **Evaluación**, que gestiona la solicitud y evaluación técnica de la vivienda, desde `Dirección de evaluación registrada` y `Visita técnica programada` hasta `Compatibilidad de dispositivos determinada`, con los tres resultados posibles de viabilidad (`Vivienda declarada viable`, `Vivienda declarada parcialmente viable` y `Vivienda declarada no viable`); **Instalación**, que se activa mediante la política *El técnico activa la cuenta* y agrupa los eventos `Instalación programada`, `Instalación iniciada`, `Dispositivos instalados`, `Dispositivo registrado`, `Dispositivo asignado a la vivienda` e `Instalación completada`; e **Incidencia**, que centraliza la atención de incidencias técnicas, la generación del informe técnico y el reporte de dispositivos, exponiendo los eventos `Alerta técnica generada`, `Incidencia de soporte creada`, `Mantenimiento programado`, `Diagnóstico técnico realizado`, `Dispositivo reparado`, `Servicio restablecido`, `Evidencias técnicas registradas`, `Informe técnico generado`, `Evaluación técnica completada`, `Dispositivo objetivo identificado` y `Dispositivo clasificado`.
+
+A partir del Design-Level Event Storming, los agregados definidos delimitan la unidad de consistencia de cada flujo del dominio y sirven de base para la identificación de los bounded contexts candidatos de Alivia.
 
 ### 4.2.3. Domain Message Flow Modeling
 
