@@ -1,24 +1,20 @@
 # Bibliografía
 
-## Fuentes citadas en el sustento de Business Outcomes
-
 **Fuente:** "Discapacidad vs Dependencia: terminología diferencial y procedimiento para su reconocimiento"
 
-**URL:** https://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S1132-12962017000200011
+https://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S1132-12962017000200011
 
 **Fuente (Business Outcome 1 & 2 & 4 & 5):** "Perú: Caracterización de las Condiciones de Vida de la Población con Discapacidad, 2024"
 
-**URL:** https://www.gob.pe/es/institucion/inei/informes-publicaciones/7505952-peru-characterization-of-living-conditions-of-the-population-with-disabilities-2024
+https://www.gob.pe/es/institucion/inei/informes-publicaciones/7505952-peru-characterization-of-living-conditions-of-the-population-with-disabilities-2024
 
 **Fuente (Business Outcome 6):** "Tecnologías de asistencia contribuyen a la autonomía de las personas con discapacidad"
 
-**URL:** https://www.gob.pe/institucion/conadis/noticias/1404861-tecnologias-de-asistencia-contribuyen-a-la-autonomia-de-las-personas-con-discapacidad
+https://www.gob.pe/institucion/conadis/noticias/1404861-tecnologias-de-asistencia-contribuyen-a-la-autonomia-de-las-personas-con-discapacidad
 
 **Fuente:** "Resolución de Presidencia N.° 240-2024-CONADIS-PRE"
 
-**URL:** https://www.gob.pe/institucion/conadis/normas-legales/6310594-240-2024-conadis-pre
-
-## Referencias
+https://www.gob.pe/institucion/conadis/normas-legales/6310594-240-2024-conadis-pre
 
 El Comercio. (2023). *El 10,3% de peruanos con discapacidad tiene dificultad para desplazarse por las calles* [con base en datos del INEI]. https://elcomercio.pe
 
