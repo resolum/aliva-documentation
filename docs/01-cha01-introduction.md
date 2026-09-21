@@ -48,6 +48,11 @@ Ofrecemos soluciones accesibles para personas con discapacidades motoras severas
         <th> Descripción y conocimientos </th>
     </tr>
     <tr>
+        <td> Armas Sánchez, Oscar Javier (u20211G192) </td>
+        <td> <img src="https://imgur.com/KAkQatq.png" alt="Oscar Javier Armas Sánchez" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
+        <td> Soy estudiante de Ingeniería de Software, con interés en el desarrollo de software y la arquitectura de sistemas. Me gusta involucrarme en distintas etapas de un proyecto, desde el análisis de requisitos hasta la implementación de soluciones, y disfruto trabajar en equipo compartiendo conocimientos y aprendiendo de mis compañeros. Busco seguir fortaleciendo mis habilidades técnicas y aportar una visión práctica y organizada que ayude al equipo a alcanzar los objetivos del proyecto. </td>
+    </tr>
+    <tr>
         <td> Calvo Yalan, Renato Guillermo (u202217053) </td>
         <td> <img src="https://imgur.com/7WPnnzU.png" alt="Renato Guillermo Calvo Yalan" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
         <td> Soy estudiante de Ingeniería de Software y me interesa especialmente la ciberseguridad y la inteligencia artificial, áreas en las que quiero seguir desarrollándome y aplicar mis conocimientos en proyectos reales. Considero que una de mis principales fortalezas es el liderazgo, ya que me gusta organizar el trabajo, asumir responsabilidades y ayudar a que un equipo avance hacia sus objetivos. También me considero una persona perseverante, con conocimientos en distintos lenguajes de programación y muchas ganas de seguir aprendiendo. Mi objetivo es aprovechar estas habilidades para desarrollar, junto con mi grupo, un proyecto sólido, innovador y exitoso, en el que todos podamos aportar y crecer. </td>
@@ -62,7 +67,7 @@ conocimientos técnicos, comprensión del negocio y mejora continua. </td>
     </tr>
     <tr>
         <td> Diaz Quispe, Matias Sebastian (u202311938) </td>
-        <td> <img src="https://imgur.com/EQEGoaB.png" alt="Matias Diaz Quispe" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
+        <td> <img src="https://imgur.com/jIWHwh9.jpeg" alt="Matias Diaz Quispe" style="width: 750px; margin-right: 20px; border-radius: 10%;"> </td>
         <td> Soy estudiante de la carrera de Ingeniería de Software, actualmente cursando el 7mo ciclo. Cuento con conocimientos sólidos en desarrollo backend y móvil. Además, me adapto con facilidad y tengo una fuerte ética de trabajo.Por otro lado, poseo conocimientos en Git, TypeScript, React.js, HTML y Tailwind, así como en programación orientada a objetos. También tengo manejo básico de frameworks como Vue y Next.js. Contribuyo al equipo aportando soluciones prácticas y orientadas a resultados, buscando siempre optimizar procesos y mejorar la experiencia del usuario final.</td>
     </tr>
     <tr>
