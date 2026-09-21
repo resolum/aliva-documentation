@@ -29,6 +29,8 @@
 
 <strong> INTEGRANTES: </strong>
 
+Armas Sánchez, Oscar Javier (U20211g192)
+
 Calvo Yalan, Renato Guillermo (u202217053)
 
 Coronel Espinoza, Farid Sebastian (u202312508)
@@ -60,1249 +62,361 @@ Rios Piñan, Dayro Richard (u202315283)
         <th> Descripción de la modificación </th>
     </tr>
     <tr>
-        <td> 1.27 </td>
+        <td> 0.1.0 </td>
         <td> 24/07/26 </td>
         <td> Nicolas Juarez </td>
-        <td> Add cover page and base sections. </td>
+        <td> Se agregó la Portada y la estructura base del informe. </td>
     </tr>
     <tr>
-        <td> 1.28 </td>
-        <td> 24/07/26 </td>
-        <td> Nicolas Juarez </td>
-        <td> Add base sections for chapter 01. </td>
+        <td> 0.2.0 </td>
+        <td> 10/09/26 </td>
+        <td> Dayro Rios </td>
+        <td> Se agregó el formato y la organización general del informe. </td>
     </tr>
     <tr>
-        <td> 1.29 </td>
-        <td> 24/07/26 </td>
-        <td> Nicolas Juarez </td>
-        <td> Add base sections for chapter 02. </td>
+        <td> 0.3.0 </td>
+        <td> 15/09/26 </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó el formato y la organización general del informe. </td>
     </tr>
     <tr>
-        <td> 1.30 </td>
-        <td> 24/07/26 </td>
-        <td> Nicolas Juarez </td>
-        <td> Add base sections for chapter 03. </td>
-    </tr>
-    <tr>
-        <td> 1.31 </td>
-        <td> 25/07/26 </td>
-        <td> Nicolas Juarez </td>
-        <td> Add base sections for chapter 04. </td>
-    </tr>
-    <tr>
-        <td> 1.32 </td>
-        <td> 25/07/26 </td>
-        <td> Nicolas Juarez </td>
-        <td> Add base sections for chapter 05. </td>
-    </tr>
-    <tr>
-        <td> 1.33 </td>
-        <td> 25/07/26 </td>
-        <td> Nicolas Juarez </td>
-        <td> Add base sections for chapter 06. </td>
-    </tr>
-    <tr>
-        <td> 1.34 </td>
-        <td> 25/07/26 </td>
-        <td> Nicolas Juarez </td>
-        <td> Add base sections for chapter 07. </td>
-    </tr>
-    <tr>
-        <td> 1.35 </td>
-        <td> 25/07/26 </td>
-        <td> Nicolas Juarez </td>
-        <td> Add base sections for conclusions, bibliography and annexes. </td>
-    </tr>
-    <tr>
-        <td> 1.36 </td>
+        <td> 0.4.0 </td>
         <td> 30/08/26 </td>
         <td> Matias Diaz </td>
-        <td> Add table of contents </td>
+        <td> Se agregó la Tabla de contenidos. </td>
     </tr>
     <tr>
-        <td> 1.37 </td>
+        <td> 0.5.0 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó el Capítulo I: Introducción. </td>
+    </tr>
+    <tr>
+        <td> 0.6.0 </td>
         <td> 31/08/26 </td>
         <td> Matias Diaz </td>
-        <td> Add startup profile section with mission and vision </td>
+        <td> Se agregó la sección 1.1.1. Descripción de la Startup. </td>
     </tr>
     <tr>
-        <td> 1.38 </td>
+        <td> 0.7.0 </td>
         <td> 31/08/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add startup profile section with mission and vision </td>
+        <td> Renato Calvo </td>
+        <td> Se agregó la sección 1.2.1. Antecedentes y problemática. </td>
     </tr>
     <tr>
-        <td> 1.39 </td>
-        <td> 31/08/26 </td>
-        <td> RenatoCY </td>
-        <td> Expand introduction section with detailed problem analysis </td>
-    </tr>
-    <tr>
-        <td> 1.40 </td>
-        <td> 31/08/26 </td>
-        <td> Matias Diaz </td>
-        <td> Rewrite startup description to focus on resolum. </td>
-    </tr>
-    <tr>
-        <td> 1.41 </td>
-        <td> 31/08/26 </td>
-        <td> Matias Diaz </td>
-        <td> Rewrite mission statement </td>
-    </tr>
-    <tr>
-        <td> 1.42 </td>
-        <td> 31/08/26 </td>
-        <td> Matias Diaz </td>
-        <td> Rewrite mission statement </td>
-    </tr>
-    <tr>
-        <td> 1.43 </td>
-        <td> 01/09/26 </td>
-        <td> RenatoCY </td>
-        <td> Enhance problem analysis in introduction section for clarity and depth </td>
-    </tr>
-    <tr>
-        <td> 1.44 </td>
+        <td> 0.8.0 </td>
         <td> 01/09/26 </td>
         <td> Matias Diaz </td>
-        <td> Rewrite mission statement </td>
+        <td> Se agregó la sección 1.2.1. Antecedentes y problemática. </td>
     </tr>
     <tr>
-        <td> 1.45 </td>
+        <td> 0.9.0 </td>
         <td> 01/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Rewrite mission statement </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 1.2.2. Lean UX Process. </td>
     </tr>
     <tr>
-        <td> 1.46 </td>
+        <td> 0.10.0 </td>
         <td> 01/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Rewrite mission statement </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 1.2.2.1. Lean UX Problem Statement. </td>
     </tr>
     <tr>
-        <td> 1.47 </td>
+        <td> 0.11.0 </td>
         <td> 01/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Rewrite mission statement </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó la sección 1.2.2.2. Lean UX Assumptions. </td>
     </tr>
     <tr>
-        <td> 1.48 </td>
+        <td> 0.12.0 </td>
         <td> 01/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Specify target audience and clarify mission around autonomy recovery </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó la sección 1.2.2.3. Lean UX Hypothesis Statements. </td>
     </tr>
     <tr>
-        <td> 1.49 </td>
-        <td> 01/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Remove duplicate examples across paragraphs in startup description </td>
-    </tr>
-    <tr>
-        <td> 1.50 </td>
-        <td> 01/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add lean ux assumptions section. </td>
-    </tr>
-    <tr>
-        <td> 1.51 </td>
-        <td> 01/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Update business outcome to align with lean ux. </td>
-    </tr>
-    <tr>
-        <td> 1.52 </td>
-        <td> 01/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Update system behavior description to align with lean ux. </td>
-    </tr>
-    <tr>
-        <td> 1.53 </td>
-        <td> 01/09/26 </td>
-        <td> Far14z </td>
-        <td> AR-19 add lean ux process description. </td>
-    </tr>
-    <tr>
-        <td> 1.54 </td>
-        <td> 01/09/26 </td>
-        <td> Far14z </td>
-        <td> AR-19 add lean UX problem statement for home assistance service. </td>
-    </tr>
-    <tr>
-        <td> 1.55 </td>
-        <td> 01/09/26 </td>
-        <td> Far14z </td>
-        <td> AR-19 clarify success criteria for user autonomy in home activities. </td>
-    </tr>
-    <tr>
-        <td> 1.56 </td>
-        <td> 01/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> AR-14 add lean ux hypothesis statements section. </td>
-    </tr>
-    <tr>
-        <td> 1.57 </td>
+        <td> 0.13.0 </td>
         <td> 02/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
+        <td> Dayro Rios </td>
+        <td> Se agregó la sección 1.2.2.3. Lean UX Hypothesis Statements. </td>
     </tr>
     <tr>
-        <td> 1.58 </td>
-        <td> 01/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> AR-14 update hypothesis 3 &amp; 6 to so it align logically. </td>
-    </tr>
-    <tr>
-        <td> 1.59 </td>
+        <td> 0.14.0 </td>
         <td> 02/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> AR-14 clarify user definition and outcomes. </td>
+        <td> Dayro Rios </td>
+        <td> Se agregó la sección 1.2.2.4. Lean UX Canvas. </td>
     </tr>
     <tr>
-        <td> 1.60 </td>
+        <td> 0.15.0 </td>
         <td> 02/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> AR-14 refine terms used in the statements. </td>
+        <td> Renato Calvo </td>
+        <td> Se agregó la sección 1.3. Segmentos objetivo. </td>
     </tr>
     <tr>
-        <td> 1.61 </td>
-        <td> 02/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> AR-14 update statement 1 &amp; 2 to mention use of voice and gesture recognition. </td>
-    </tr>
-    <tr>
-        <td> 1.62 </td>
-        <td> 02/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> AR-14 update statement 4 to reduce the use of technical definitions. </td>
-    </tr>
-    <tr>
-        <td> 1.63 </td>
-        <td> 02/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.64 </td>
-        <td> 02/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add competitors section. </td>
-    </tr>
-    <tr>
-        <td> 1.65 </td>
-        <td> 02/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Added lean ux canvas </td>
-    </tr>
-    <tr>
-        <td> 1.66 </td>
-        <td> 02/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Changed image link </td>
-    </tr>
-    <tr>
-        <td> 1.67 </td>
-        <td> 03/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.68 </td>
-        <td> 02/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Update Lean UX Hypothesis Statements image link </td>
-    </tr>
-    <tr>
-        <td> 1.69 </td>
-        <td> 03/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Update Lean UX Hypothesis Statements image link </td>
-    </tr>
-    <tr>
-        <td> 1.70 </td>
-        <td> 03/09/26 </td>
-        <td> equinox-1092 </td>
-        <td> Add competitive analysis table. </td>
-    </tr>
-    <tr>
-        <td> 1.71 </td>
-        <td> 03/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add competitive analysis table. </td>
-    </tr>
-    <tr>
-        <td> 1.72 </td>
-        <td> 03/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add startup logo </td>
-    </tr>
-    <tr>
-        <td> 1.73 </td>
-        <td> 03/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add competitive analysis table. </td>
-    </tr>
-    <tr>
-        <td> 1.74 </td>
-        <td> 03/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.75 </td>
-        <td> 03/09/26 </td>
-        <td> equinox-1092 </td>
-        <td> Center startup logo and adjust competitors table content. </td>
-    </tr>
-    <tr>
-        <td> 1.76 </td>
-        <td> 03/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Change logo size in startup description. </td>
-    </tr>
-    <tr>
-        <td> 1.77 </td>
-        <td> 02/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-16 add demographic segments and statistical information for visually and motor-disabled individuals </td>
-    </tr>
-    <tr>
-        <td> 1.78 </td>
-        <td> 03/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.79 </td>
-        <td> 03/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-16 update demographic segments and statistical information for visually and motor-disabled individuals </td>
-    </tr>
-    <tr>
-        <td> 1.80 </td>
-        <td> 03/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.81 </td>
-        <td> 03/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add competitive strategies and tactics section. </td>
-    </tr>
-    <tr>
-        <td> 1.82 </td>
-        <td> 03/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Clarify how each competitive tactic will be achieved. </td>
-    </tr>
-    <tr>
-        <td> 1.83 </td>
-        <td> 03/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Rephrase competitive tactics in future tense to reflect pre-launch stage. </td>
-    </tr>
-    <tr>
-        <td> 1.84 </td>
-        <td> 04/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.85 </td>
-        <td> 04/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add cover page with information about team and course. </td>
-    </tr>
-    <tr>
-        <td> 1.86 </td>
-        <td> 04/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-25 add interview questions for target segments in requirements elicitation </td>
-    </tr>
-    <tr>
-        <td> 1.87 </td>
-        <td> 04/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.88 </td>
-        <td> 04/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.89 </td>
-        <td> 06/09/26 </td>
-        <td> RenatoCY </td>
-        <td> Refine introduction section to specify challenges faced by individuals with severe motor disabilities </td>
-    </tr>
-    <tr>
-        <td> 1.90 </td>
-        <td> 06/09/26 </td>
-        <td> RenatoCY </td>
-        <td> Update target segment description for individuals with severe motor disabilities </td>
-    </tr>
-    <tr>
-        <td> 1.91 </td>
+        <td> 0.16.0 </td>
         <td> 07/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.92 </td>
-        <td> 07/09/26 </td>
-        <td> equinox-1092 </td>
-        <td> Align sections with updated target segments. </td>
-    </tr>
-    <tr>
-        <td> 1.93 </td>
-        <td> 08/09/26 </td>
-        <td> equinox-1092 </td>
-        <td> Remover referencias a discapacidad visual y gestos </td>
-    </tr>
-    <tr>
-        <td> 1.94 </td>
-        <td> 08/09/26 </td>
-        <td> equinox-1092 </td>
-        <td> Remove references to visual impairment and gestures. </td>
-    </tr>
-    <tr>
-        <td> 1.95 </td>
-        <td> 08/09/26 </td>
-        <td> equinox-1092 </td>
-        <td> Remove references to visual impairment and gestures. </td>
-    </tr>
-    <tr>
-        <td> 1.96 </td>
-        <td> 08/09/26 </td>
-        <td> equinox-1092 </td>
-        <td> Remove references to visual impairment and gestures. </td>
-    </tr>
-    <tr>
-        <td> 1.97 </td>
-        <td> 06/09/26 </td>
-        <td> RenatoCY </td>
-        <td> Refine interview questions for individuals with severe motor disabilities </td>
-    </tr>
-    <tr>
-        <td> 1.98 </td>
-        <td> 07/09/26 </td>
-        <td> RenatoCY </td>
-        <td> Refine interview questions for individuals with motor disabilities for clarity and relevance </td>
-    </tr>
-    <tr>
-        <td> 1.99 </td>
-        <td> 08/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.100 </td>
-        <td> 08/09/26 </td>
-        <td> Far14z </td>
-        <td> Enhance interview questions for individuals with disabilities to gather more comprehensive insights. </td>
-    </tr>
-    <tr>
-        <td> 1.101 </td>
-        <td> 08/09/26 </td>
-        <td> Far14z </td>
-        <td> Refine lean ux problem statement to enhance clarity on challenges faced by individuals with severe motor disabilities </td>
-    </tr>
-    <tr>
-        <td> 1.102 </td>
-        <td> 08/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.103 </td>
-        <td> 31/08/26 </td>
         <td> Matias Diaz </td>
-        <td> Add profile for Matias Diaz. </td>
+        <td> Se agregó la sección 1.3. Segmentos objetivo. </td>
     </tr>
     <tr>
-        <td> 1.104 </td>
-        <td> 31/08/26 </td>
+        <td> 0.17.0 </td>
+        <td> 10/09/26 </td>
+        <td> Dayro Rios </td>
+        <td> Se agregó la sección 1.3. Segmentos objetivo. </td>
+    </tr>
+    <tr>
+        <td> 0.18.0 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó el Capítulo II: Requirements Elicitation & Analysis. </td>
+    </tr>
+    <tr>
+        <td> 0.19.0 </td>
+        <td> 10/09/26 </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó el Capítulo II: Requirements Elicitation & Analysis. </td>
+    </tr>
+    <tr>
+        <td> 0.20.0 </td>
+        <td> 02/09/26 </td>
         <td> Matias Diaz </td>
-        <td> Add profile for Matias Diaz. </td>
+        <td> Se agregó la sección 2.1. Competidores. </td>
     </tr>
     <tr>
-        <td> 1.105 </td>
-        <td> 31/08/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add profile for Matias Diaz. </td>
+        <td> 0.21.0 </td>
+        <td> 15/09/26 </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 2.1. Competidores y 2.2. Entrevistas. </td>
     </tr>
     <tr>
-        <td> 1.106 </td>
-        <td> 01/09/26 </td>
-        <td> Far14z </td>
-        <td> Update photo and description profile for farid coronel. </td>
-    </tr>
-    <tr>
-        <td> 1.107 </td>
+        <td> 0.22.0 </td>
         <td> 03/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Add profile for Dayro Rios with photo and description </td>
+        <td> Matias Diaz </td>
+        <td> Se agregó la sección 2.1.1. Análisis competitivo. </td>
     </tr>
     <tr>
-        <td> 1.108 </td>
+        <td> 0.23.0 </td>
+        <td> 03/09/26 </td>
+        <td> Matias Diaz </td>
+        <td> Se agregó la sección 2.1.2. Estrategias y tácticas frente a competidores. </td>
+    </tr>
+    <tr>
+        <td> 0.24.0 </td>
         <td> 04/09/26 </td>
-        <td> RenatoCY </td>
-        <td> Add profile for Renato Guillermo Calvo Yalan with photo and description </td>
+        <td> Renato Calvo </td>
+        <td> Se agregó la sección 2.2.1. Diseño de entrevistas. </td>
     </tr>
     <tr>
-        <td> 1.109 </td>
-        <td> 09/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.110 </td>
-        <td> 09/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add profile description and photo for Nicolas Juarez. </td>
-    </tr>
-    <tr>
-        <td> 1.111 </td>
-        <td> 09/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.112 </td>
-        <td> 09/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Update assuptions to match with current target segments. </td>
-    </tr>
-    <tr>
-        <td> 1.113 </td>
-        <td> 09/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Ensure that the assumptions don't use specific technology definition. </td>
-    </tr>
-    <tr>
-        <td> 1.114 </td>
-        <td> 03/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Add As-Is Scenario Mapping section to analyze user experience for individuals with motor or visual disabilities </td>
-    </tr>
-    <tr>
-        <td> 1.115 </td>
-        <td> 03/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Add target segment for caregivers in As-Is Scenario Mapping to enhance understanding of user needs </td>
-    </tr>
-    <tr>
-        <td> 1.116 </td>
-        <td> 10/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.117 </td>
-        <td> 10/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Update target segment descriptions for clarity and accuracy </td>
-    </tr>
-    <tr>
-        <td> 1.118 </td>
-        <td> 10/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Update target segment description for clarity in As-Is Scenario Mapping </td>
-    </tr>
-    <tr>
-        <td> 1.119 </td>
-        <td> 10/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Enhance As-Is Scenario Mapping with conclusions on user experiences and needs </td>
-    </tr>
-    <tr>
-        <td> 1.120 </td>
-        <td> 11/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.121 </td>
-        <td> 10/09/26 </td>
-        <td> Far14z </td>
-        <td> Add user task matrix analysis for target segments to enhance understanding of user needs. </td>
-    </tr>
-    <tr>
-        <td> 1.122 </td>
-        <td> 10/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Add ubiquitous language definitions for accessibility context </td>
-    </tr>
-    <tr>
-        <td> 1.123 </td>
-        <td> 10/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Remove outdated version information from requirements document </td>
-    </tr>
-    <tr>
-        <td> 1.124 </td>
-        <td> 11/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.125 </td>
-        <td> 10/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Update terminology for clarity in requirements document </td>
-    </tr>
-    <tr>
-        <td> 1.126 </td>
+        <td> 0.25.0 </td>
         <td> 08/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-26 update interview records and demographic details for individuals with severe motor disabilities </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 2.2.1. Diseño de entrevistas. </td>
     </tr>
     <tr>
-        <td> 1.127 </td>
-        <td> 09/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-26 update interview summaries and demographic details for individuals with severe motor disabilities </td>
+        <td> 0.26.0 </td>
+        <td> 08/09/26 </td>
+        <td> Renato Calvo </td>
+        <td> Se agregó la sección 2.2.2. Registro de entrevistas. </td>
     </tr>
     <tr>
-        <td> 1.128 </td>
-        <td> 11/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.129 </td>
-        <td> 10/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add image and findings of the first target segment. </td>
-    </tr>
-    <tr>
-        <td> 1.130 </td>
-        <td> 11/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.131 </td>
+        <td> 0.27.0 </td>
         <td> 10/09/26 </td>
         <td> Matias Diaz </td>
-        <td> Add segment 1 interview analysis with supporting chart </td>
+        <td> Se agregó la sección 2.2.3. Análisis de entrevistas. </td>
     </tr>
     <tr>
-        <td> 1.132 </td>
+        <td> 0.28.0 </td>
         <td> 10/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Correct wheelchair/crutches inconsistency and simplify chart. </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó la sección 2.2.3. Análisis de entrevistas. </td>
     </tr>
     <tr>
-        <td> 1.133 </td>
-        <td> 11/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.134 </td>
-        <td> 11/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.135 </td>
-        <td> 14/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add image and findings about the second target segment. </td>
-    </tr>
-    <tr>
-        <td> 1.136 </td>
-        <td> 12/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Update images and remove mention of visual disabilities in scenario mapping </td>
-    </tr>
-    <tr>
-        <td> 1.137 </td>
-        <td> 14/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.138 </td>
+        <td> 0.29.0 </td>
         <td> 10/09/26 </td>
-        <td> Far14z </td>
-        <td> Update section titles for clarity in requirements elicitation and analysis. </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 2.3.2. User Task Matrix. </td>
     </tr>
     <tr>
-        <td> 1.139 </td>
+        <td> 0.30.0 </td>
         <td> 11/09/26 </td>
-        <td> Far14z </td>
-        <td> Add empathy map analysis for disabled person. </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 2.3.3. Empathy Mapping. </td>
     </tr>
     <tr>
-        <td> 1.140 </td>
-        <td> 11/09/26 </td>
-        <td> Far14z </td>
-        <td> Refine empathy map analysis. </td>
+        <td> 0.31.0 </td>
+        <td> 03/09/26 </td>
+        <td> Dayro Rios </td>
+        <td> Se agregó la sección 2.3.4. As-Is Scenario Mapping. </td>
     </tr>
     <tr>
-        <td> 1.141 </td>
-        <td> 14/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.142 </td>
-        <td> 14/09/26 </td>
-        <td> Far14z </td>
-        <td> Expand empathy map analysis for caregiver perspective. </td>
-    </tr>
-    <tr>
-        <td> 1.143 </td>
-        <td> 14/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.144 </td>
+        <td> 0.32.0 </td>
         <td> 15/09/26 </td>
-        <td> Far14z </td>
-        <td> Add definitions for key terms related to disability support. </td>
+        <td> Dayro Rios </td>
+        <td> Se agregó la sección 2.4. Big Picture Event Storming. </td>
     </tr>
     <tr>
-        <td> 1.145 </td>
+        <td> 0.33.0 </td>
         <td> 15/09/26 </td>
-        <td> Far14z </td>
-        <td> Remove outdated competitive analysis and interview sections for clarity. </td>
+        <td> Matias Diaz </td>
+        <td> Se agregó la sección 2.4. Big Picture Event Storming. </td>
     </tr>
     <tr>
-        <td> 1.146 </td>
+        <td> 0.34.0 </td>
+        <td> 10/09/26 </td>
+        <td> Dayro Rios </td>
+        <td> Se agregó la sección 2.5. Ubiquitous Language. </td>
+    </tr>
+    <tr>
+        <td> 0.35.0 </td>
         <td> 15/09/26 </td>
-        <td> Far14z </td>
-        <td> Remove redundant header for clarity in requirements document. </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 2.5. Ubiquitous Language. </td>
     </tr>
     <tr>
-        <td> 1.147 </td>
-        <td> 15/09/26 </td>
-        <td> Far14z </td>
-        <td> Remove unnecessary page break elements for improved document flow </td>
+        <td> 0.36.0 </td>
+        <td> 24/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó el Capítulo III: Requirements Specification. </td>
     </tr>
     <tr>
-        <td> 1.148 </td>
+        <td> 0.37.0 </td>
         <td> 14/09/26 </td>
         <td> Matias Diaz </td>
-        <td> Add to-be scenario mapping section. </td>
+        <td> Se agregó la sección 3.1. To-Be Scenario Mapping. </td>
     </tr>
     <tr>
-        <td> 1.149 </td>
-        <td> 14/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add to-be scenario mapping section. </td>
-    </tr>
-    <tr>
-        <td> 1.150 </td>
-        <td> 14/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add to-be scenario mapping section. </td>
-    </tr>
-    <tr>
-        <td> 1.151 </td>
-        <td> 14/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add to-be scenario mapping section. </td>
-    </tr>
-    <tr>
-        <td> 1.152 </td>
+        <td> 0.38.0 </td>
         <td> 15/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
+        <td> Farid Coronel </td>
+        <td> Se agregaron las secciones 3.2.1. Requisitos Funcionales y 3.2.2. Requisitos No Funcionales. </td>
     </tr>
     <tr>
-        <td> 1.153 </td>
+        <td> 0.39.0 </td>
         <td> 15/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 3.2.1. Requisitos Funcionales. </td>
     </tr>
     <tr>
-        <td> 1.154 </td>
+        <td> 0.40.0 </td>
         <td> 15/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Define design purpose driver for the solution. </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 3.2.2. Requisitos No Funcionales. </td>
     </tr>
     <tr>
-        <td> 1.155 </td>
-        <td> 15/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add sync component description in design purpose. </td>
-    </tr>
-    <tr>
-        <td> 1.156 </td>
-        <td> 15/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Add Big Picture Event Storming section to enhance understanding of operational processes </td>
-    </tr>
-    <tr>
-        <td> 1.157 </td>
-        <td> 15/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Remove redundant wording in the Big Picture Event Storming section for clarity </td>
-    </tr>
-    <tr>
-        <td> 1.158 </td>
-        <td> 15/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Revise big picture event storming section for clarity. </td>
-    </tr>
-    <tr>
-        <td> 1.159 </td>
+        <td> 0.41.0 </td>
         <td> 16/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 3.2.3. Epics y User Stories. </td>
     </tr>
     <tr>
-        <td> 1.160 </td>
-        <td> 16/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Expand big picture event storming with event flow details. </td>
-    </tr>
-    <tr>
-        <td> 1.161 </td>
-        <td> 16/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Change section structure. </td>
-    </tr>
-    <tr>
-        <td> 1.162 </td>
-        <td> 16/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.163 </td>
-        <td> 16/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add quality attribute scenarios. </td>
-    </tr>
-    <tr>
-        <td> 1.164 </td>
-        <td> 16/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add tactics definition related to quality attributes. </td>
-    </tr>
-    <tr>
-        <td> 1.165 </td>
-        <td> 16/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add list of architectural concerns. </td>
-    </tr>
-    <tr>
-        <td> 1.166 </td>
-        <td> 15/09/26 </td>
-        <td> Far14z </td>
-        <td> Add functional and non-functional requirements for alivia system. </td>
-    </tr>
-    <tr>
-        <td> 1.167 </td>
-        <td> 15/09/26 </td>
-        <td> Far14z </td>
-        <td> Streamline functional requirements for alivia system. </td>
-    </tr>
-    <tr>
-        <td> 1.168 </td>
-        <td> 15/09/26 </td>
-        <td> Far14z </td>
-        <td> Reorganize functional requirements for clarity and consistency. </td>
-    </tr>
-    <tr>
-        <td> 1.169 </td>
-        <td> 15/09/26 </td>
-        <td> Far14z </td>
-        <td> Update non-functional requirements for improved clarity and completeness. </td>
-    </tr>
-    <tr>
-        <td> 1.170 </td>
-        <td> 16/09/26 </td>
-        <td> Far14z </td>
-        <td> Enhance non-functional requirements for availability, performance, usability, and security. </td>
-    </tr>
-    <tr>
-        <td> 1.171 </td>
-        <td> 16/09/26 </td>
-        <td> Far14z </td>
-        <td> Update non-functional requirements for improved clarity and completeness. </td>
-    </tr>
-    <tr>
-        <td> 1.172 </td>
-        <td> 16/09/26 </td>
-        <td> Far14z </td>
-        <td> Update implementation restrictions for application data handling. </td>
-    </tr>
-    <tr>
-        <td> 1.173 </td>
-        <td> 16/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.174 </td>
-        <td> 15/09/26 </td>
-        <td> Far14z </td>
-        <td> Add page break for improved document formatting. </td>
-    </tr>
-    <tr>
-        <td> 1.175 </td>
-        <td> 16/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add imapct mapping section. </td>
-    </tr>
-    <tr>
-        <td> 1.176 </td>
-        <td> 16/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Revise impact mapping and deliverables sections </td>
-    </tr>
-    <tr>
-        <td> 1.177 </td>
-        <td> 16/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.178 </td>
-        <td> 16/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Refine impact mapping deliverable description </td>
-    </tr>
-    <tr>
-        <td> 1.179 </td>
-        <td> 16/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.180 </td>
-        <td> 16/09/26 </td>
-        <td> Far14z </td>
-        <td> Add primary user stories. </td>
-    </tr>
-    <tr>
-        <td> 1.181 </td>
-        <td> 16/09/26 </td>
-        <td> Far14z </td>
-        <td> Update alert user story for improved clarity and readability. </td>
-    </tr>
-    <tr>
-        <td> 1.182 </td>
-        <td> 14/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-26 update interview details and add caregiver insights for individuals with severe disabilities </td>
-    </tr>
-    <tr>
-        <td> 1.183 </td>
-        <td> 17/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.184 </td>
-        <td> 17/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-26 update interview details and insights for caregiver support </td>
-    </tr>
-    <tr>
-        <td> 1.185 </td>
-        <td> 17/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-26 update interview links and add configuration files </td>
-    </tr>
-    <tr>
-        <td> 1.186 </td>
-        <td> 17/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR+26 update interview timings and durations in requirements document </td>
-    </tr>
-    <tr>
-        <td> 1.187 </td>
-        <td> 17/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-26 add detailed interview data and insights for individuals with motor disabilities </td>
-    </tr>
-    <tr>
-        <td> 1.188 </td>
-        <td> 17/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.189 </td>
-        <td> 17/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-51 add system landscape diagram and DSL model for Alivia Platform </td>
-    </tr>
-    <tr>
-        <td> 1.190 </td>
-        <td> 11/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Clarify wheelchair and crutches usage to avoid perceived contradiction. </td>
-    </tr>
-    <tr>
-        <td> 1.191 </td>
-        <td> 18/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.192 </td>
+        <td> 0.42.0 </td>
         <td> 17/09/26 </td>
         <td> Nicolas Juarez </td>
-        <td> Add constraints table. </td>
+        <td> Se agregó la sección 3.2.3. Epics y User Stories. </td>
     </tr>
     <tr>
-        <td> 1.193 </td>
-        <td> 18/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.194 </td>
-        <td> 17/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Change epic id to a correct one. </td>
-    </tr>
-    <tr>
-        <td> 1.195 </td>
-        <td> 17/09/26 </td>
-        <td> Addicted2you </td>
-        <td> Update constraints </td>
-    </tr>
-    <tr>
-        <td> 1.196 </td>
-        <td> 17/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add interview analysis for segment 2 </td>
-    </tr>
-    <tr>
-        <td> 1.197 </td>
-        <td> 18/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.198 </td>
+        <td> 0.43.0 </td>
         <td> 16/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add process description for architectural drivers backlog. </td>
+        <td> Matias Diaz </td>
+        <td> Se agregó la sección 3.3. Impact Mapping. </td>
     </tr>
     <tr>
-        <td> 1.199 </td>
-        <td> 18/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
+        <td> 0.44.0 </td>
+        <td> 20/09/26 </td>
+        <td> Farid Coronel </td>
+        <td> Se agregó la sección 3.4. Product Backlog. </td>
     </tr>
     <tr>
-        <td> 1.200 </td>
+        <td> 0.45.0 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó el Capítulo IV: Strategic-Level Software Design. </td>
+    </tr>
+    <tr>
+        <td> 0.46.0 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó la estructura de la sección 4.1. Strategic-Level Attribute-Driven Design. </td>
+    </tr>
+    <tr>
+        <td> 0.47.0 </td>
+        <td> 15/09/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó la sección 4.1.1. Design Purpose. </td>
+    </tr>
+    <tr>
+        <td> 0.48.0 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó la sección 4.1.2.2. Quality Attribute Scenarios. </td>
+    </tr>
+    <tr>
+        <td> 0.49.0 </td>
         <td> 17/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Combine elements and form scenario sentences. </td>
+        <td> Dayro Rios </td>
+        <td> Se agregó la sección 4.1.2.3. Constraints. </td>
     </tr>
     <tr>
-        <td> 1.201 </td>
+        <td> 0.50.0 </td>
         <td> 17/09/26 </td>
         <td> Nicolas Juarez </td>
-        <td> Define architectural driver backlog and analysis. </td>
+        <td> Se agregó la sección 4.1.2.3. Constraints. </td>
     </tr>
     <tr>
-        <td> 1.202 </td>
+        <td> 0.51.0 </td>
+        <td> 16/09/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó la sección 4.1.3. Architectural Drivers Backlog. </td>
+    </tr>
+    <tr>
+        <td> 0.52.0 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó la sección 4.1.4. Architectural Design Decisions. </td>
+    </tr>
+    <tr>
+        <td> 0.53.0 </td>
         <td> 17/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Update scores for importance and complexity. </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó la sección 4.1.5. Quality Attribute Scenario Refinements. </td>
     </tr>
     <tr>
-        <td> 1.203 </td>
-        <td> 18/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.204 </td>
-        <td> 18/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add architectural design records from output of attribute-driven design. </td>
-    </tr>
-    <tr>
-        <td> 1.205 </td>
-        <td> 18/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Fix metrics and reprioritize the drivers backlog. </td>
-    </tr>
-    <tr>
-        <td> 1.206 </td>
-        <td> 18/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Update decisions backlog. </td>
-    </tr>
-    <tr>
-        <td> 1.207 </td>
-        <td> 18/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Change wrong use of words in drivers. </td>
-    </tr>
-    <tr>
-        <td> 1.208 </td>
-        <td> 18/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Update tactics to be more clear. </td>
-    </tr>
-    <tr>
-        <td> 1.209 </td>
-        <td> 19/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.210 </td>
-        <td> 20/09/26 </td>
-        <td> Farid Coronel </td>
-        <td> Add product backlog. </td>
-    </tr>
-    <tr>
-        <td> 1.211 </td>
-        <td> 20/09/26 </td>
-        <td> Farid Coronel </td>
-        <td> Add user stories. </td>
-    </tr>
-    <tr>
-        <td> 1.212 </td>
-        <td> 21/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.213 </td>
-        <td> 20/09/26 </td>
-        <td> equinox-1092 </td>
-        <td> Add design-level eventstorming section. </td>
-    </tr>
-    <tr>
-        <td> 1.214 </td>
-        <td> 21/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.215 </td>
-        <td> 21/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.216 </td>
-        <td> 20/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-52 add context level diagram and actor interactions for Alivia system </td>
-    </tr>
-    <tr>
-        <td> 1.217 </td>
-        <td> 21/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.218 </td>
-        <td> 20/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-53 add C4 model and container diagram for Alivia system </td>
-    </tr>
-    <tr>
-        <td> 1.219 </td>
-        <td> 20/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-53 add paragraph for container diagram </td>
-    </tr>
-    <tr>
-        <td> 1.220 </td>
-        <td> 20/09/26 </td>
-        <td> equinox-1092 </td>
-        <td> Add per-image descriptions to design-level event storming </td>
-    </tr>
-    <tr>
-        <td> 1.221 </td>
-        <td> 21/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.222 </td>
+        <td> 0.54.0 </td>
         <td> 20/09/26 </td>
         <td> Matias Diaz </td>
-        <td> Add per-image descriptions to design-level event storming </td>
+        <td> Se agregó la sección 4.2.1. Design-Level EventStorming. </td>
     </tr>
     <tr>
-        <td> 1.223 </td>
-        <td> 21/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
+        <td> 0.55.0 </td>
+        <td> 17/09/26 </td>
+        <td> Renato Calvo </td>
+        <td> Se agregó la sección 4.3.1. Software Architecture System Landscape Diagram. </td>
     </tr>
     <tr>
-        <td> 1.224 </td>
+        <td> 0.56.0 </td>
         <td> 20/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add new photo for matias diaz member profile </td>
+        <td> Renato Calvo </td>
+        <td> Se agregó la sección 4.3.2. Software Architecture Context Level Diagram. </td>
     </tr>
     <tr>
-        <td> 1.225 </td>
-        <td> 21/09/26 </td>
-        <td> Matias Diaz </td>
-        <td> Add new photo for matias diaz member profile </td>
-    </tr>
-    <tr>
-        <td> 1.226 </td>
-        <td> 21/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.227 </td>
-        <td> 21/09/26 </td>
-        <td> RenatoCY </td>
-        <td> AR-53 add   Software Architecture Deployment Diagram </td>
-    </tr>
-    <tr>
-        <td> 1.228 </td>
+        <td> 0.57.0 </td>
         <td> 20/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add scenario refinements after qaw. </td>
+        <td> Renato Calvo </td>
+        <td> Se agregó la sección 4.3.3. Software Architecture Container Level Diagram. </td>
     </tr>
     <tr>
-        <td> 1.229 </td>
-        <td> 21/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Fix issue description for notification scenario. </td>
-    </tr>
-    <tr>
-        <td> 1.230 </td>
-        <td> 21/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.231 </td>
-        <td> 21/09/26 </td>
-        <td> github-actions[bot] </td>
-        <td> Update version log [skip ci] </td>
-    </tr>
-    <tr>
-        <td> 1.232 </td>
-        <td> 21/09/26 </td>
-        <td> Nicolas Juarez Leon </td>
-        <td> Add context map and decisions summary. </td>
+        <td> 1.0.0 </td>
+        <td> 25/07/26 </td>
+        <td> Nicolas Juarez </td>
+        <td> Se agregó la sección de Conclusiones, Bibliografía y Anexos. </td>
     </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
 <div style="page-break-after: always;"></div>
 
-# Project Report Collaboration Insights
+# Percepciones de Colaboración del Equipo sobre el Informe
 
-Texto base
+*[Equipo: completar con una reflexión grupal real (3-5 líneas) sobre cómo trabajaron juntos en la elaboración de este informe — qué herramientas usaron para coordinarse (Miro, Git, reuniones), cómo se dividieron los capítulos entre los integrantes, y qué aprendieron sobre trabajar en equipo de forma asíncrona a lo largo del curso.]*
 
 <div style="page-break-after: always;"></div>
 
@@ -1312,115 +426,115 @@ Texto base
 
 * [Student Outcome](00-cover.md#student-outcome)
 * [Capítulo I: Introducción](01-cha01-introduction.md#capítulo-i-introducción)
-   * [1.1. Startup Profile](01-cha01-introduction.md#11-startup-profile)
-      * [1.1.1. Descripción de la Startup](01-cha01-introduction.md#111-descripción-de-la-startup)
-      * [1.1.2. Perfiles de integrantes del equipo](01-cha01-introduction.md#112-perfiles-de-integrantes-del-equipo)
-   * [1.2. Solution Profile](01-cha01-introduction.md#12-solution-profile)
-      * [1.2.1. Antecedentes y problemática](01-cha01-introduction.md#121-antecedentes-y-problemática)
-      * [1.2.2. Lean UX Process](01-cha01-introduction.md#122-lean-ux-process)
-         * [1.2.2.1. Lean UX Problem Statements](01-cha01-introduction.md#1221-lean-ux-problem-statements)
-         * [1.2.2.2. Lean UX Assumptions](01-cha01-introduction.md#1222-lean-ux-assumptions)
-         * [1.2.2.3. Lean UX Hypothesis Statements](01-cha01-introduction.md#1223-lean-ux-hypothesis-statements)
-         * [1.2.2.4. Lean UX Canvas](01-cha01-introduction.md#1224-lean-ux-canvas)
-   * [1.3. Segmentos objetivo](01-cha01-introduction.md#13-segmentos-objetivo)
+    * [1.1. Startup Profile](01-cha01-introduction.md#11-startup-profile)
+        * [1.1.1. Descripción de la Startup](01-cha01-introduction.md#111-descripción-de-la-startup)
+        * [1.1.2. Perfiles de integrantes del equipo](01-cha01-introduction.md#112-perfiles-de-integrantes-del-equipo)
+    * [1.2. Solution Profile](01-cha01-introduction.md#12-solution-profile)
+        * [1.2.1. Antecedentes y problemática](01-cha01-introduction.md#121-antecedentes-y-problemática)
+        * [1.2.2. Lean UX Process](01-cha01-introduction.md#122-lean-ux-process)
+            * [1.2.2.1. Lean UX Problem Statements](01-cha01-introduction.md#1221-lean-ux-problem-statements)
+            * [1.2.2.2. Lean UX Assumptions](01-cha01-introduction.md#1222-lean-ux-assumptions)
+            * [1.2.2.3. Lean UX Hypothesis Statements](01-cha01-introduction.md#1223-lean-ux-hypothesis-statements)
+            * [1.2.2.4. Lean UX Canvas](01-cha01-introduction.md#1224-lean-ux-canvas)
+    * [1.3. Segmentos objetivo](01-cha01-introduction.md#13-segmentos-objetivo)
 * [Capítulo II: Requirements Elicitation & Analysis](02-cha02-requirements-elicitation-and-analysis.md#capítulo-ii-requirements-elicitation--analysis)
-   * [2.1. Competidores](02-cha02-requirements-elicitation-and-analysis.md#21-competidores)
-      * [2.1.1. Análisis competitivo](02-cha02-requirements-elicitation-and-analysis.md#211-análisis-competitivo)
-      * [2.1.2. Estrategias y tácticas frente a competidores](02-cha02-requirements-elicitation-and-analysis.md#212-estrategias-y-tácticas-frente-a-competidores)
-   * [2.2. Entrevistas](02-cha02-requirements-elicitation-and-analysis.md#22-entrevistas)
-      * [2.2.1. Diseño de entrevistas](02-cha02-requirements-elicitation-and-analysis.md#221-diseño-de-entrevistas)
-      * [2.2.2. Registro de entrevistas](02-cha02-requirements-elicitation-and-analysis.md#222-registro-de-entrevistas)
-      * [2.2.3. Análisis de entrevistas](02-cha02-requirements-elicitation-and-analysis.md#223-análisis-de-entrevistas)
-   * [2.3. Needfinding](02-cha02-requirements-elicitation-and-analysis.md#23-needfinding)
-      * [2.3.1. User Personas](02-cha02-requirements-elicitation-and-analysis.md#231-user-personas)
-      * [2.3.2. User Task Matrix](02-cha02-requirements-elicitation-and-analysis.md#232-user-task-matrix)
-      * [2.3.3. Empathy Mapping](02-cha02-requirements-elicitation-and-analysis.md#233-empathy-mapping)
-      * [2.3.4. As-is Scenario Mapping](02-cha02-requirements-elicitation-and-analysis.md#234-as-is-scenario-mapping)
-   * [2.4. Ubiquitous Language](02-cha02-requirements-elicitation-and-analysis.md#24-ubiquitous-language)
+    * [2.1. Competidores](02-cha02-requirements-elicitation-and-analysis.md#21-competidores)
+        * [2.1.1. Análisis competitivo](02-cha02-requirements-elicitation-and-analysis.md#211-análisis-competitivo)
+        * [2.1.2. Estrategias y tácticas frente a competidores](02-cha02-requirements-elicitation-and-analysis.md#212-estrategias-y-tácticas-frente-a-competidores)
+    * [2.2. Entrevistas](02-cha02-requirements-elicitation-and-analysis.md#22-entrevistas)
+        * [2.2.1. Diseño de entrevistas](02-cha02-requirements-elicitation-and-analysis.md#221-diseño-de-entrevistas)
+        * [2.2.2. Registro de entrevistas](02-cha02-requirements-elicitation-and-analysis.md#222-registro-de-entrevistas)
+        * [2.2.3. Análisis de entrevistas](02-cha02-requirements-elicitation-and-analysis.md#223-análisis-de-entrevistas)
+    * [2.3. Needfinding](02-cha02-requirements-elicitation-and-analysis.md#23-needfinding)
+        * [2.3.1. User Personas](02-cha02-requirements-elicitation-and-analysis.md#231-user-personas)
+        * [2.3.2. User Task Matrix](02-cha02-requirements-elicitation-and-analysis.md#232-user-task-matrix)
+        * [2.3.3. Empathy Mapping](02-cha02-requirements-elicitation-and-analysis.md#233-empathy-mapping)
+        * [2.3.4. As-is Scenario Mapping](02-cha02-requirements-elicitation-and-analysis.md#234-as-is-scenario-mapping)
+    * [2.4. Ubiquitous Language](02-cha02-requirements-elicitation-and-analysis.md#24-ubiquitous-language)
 * [Capítulo III: Requirements Specification](03-cha03-requirements-specification.md#capítulo-iii-requirements-specification)
-   * [3.1. To-Be Scenario Mapping](03-cha03-requirements-specification.md#31-to-be-scenario-mapping)
-   * [3.2. User Stories](03-cha03-requirements-specification.md#32-user-stories)
-   * [3.3. Impact Mapping](03-cha03-requirements-specification.md#33-impact-mapping)
-   * [3.4. Product Backlog](03-cha03-requirements-specification.md#34-product-backlog)
+    * [3.1. To-Be Scenario Mapping](03-cha03-requirements-specification.md#31-to-be-scenario-mapping)
+    * [3.2. User Stories](03-cha03-requirements-specification.md#32-user-stories)
+    * [3.3. Impact Mapping](03-cha03-requirements-specification.md#33-impact-mapping)
+    * [3.4. Product Backlog](03-cha03-requirements-specification.md#34-product-backlog)
 * [Capítulo IV: Strategic-Level Software Design](04-cha04-strategic-level-software-design.md#capítulo-iv-strategic-level-software-design)
-   * [4.1. Strategic-Level Attribute-Driven Design](04-cha04-strategic-level-software-design.md#41-strategic-level-attribute-driven-design)
-      * [4.1.1. Design Purpose](04-cha04-strategic-level-software-design.md#411-design-purpose)
-      * [4.1.2. Attribute-Driven Design Inputs](04-cha04-strategic-level-software-design.md#412-attribute-driven-design-inputs)
-         * [4.1.2.1. Primary Functionality (Primary User Stories)](04-cha04-strategic-level-software-design.md#4121-primary-functionality-primary-user-stories)
-         * [4.1.2.2. Quality Attribute Scenarios](04-cha04-strategic-level-software-design.md#4122-quality-attribute-scenarios)
-         * [4.1.2.3. Constraints](04-cha04-strategic-level-software-design.md#4123-constraints)
-      * [4.1.3. Architectural Drivers Backlog](04-cha04-strategic-level-software-design.md#413-architectural-drivers-backlog)
-      * [4.1.4. Architectural Design Decisions](04-cha04-strategic-level-software-design.md#414-architectural-design-decisions)
-      * [4.1.5. Quality Attribute Scenario Refinements](04-cha04-strategic-level-software-design.md#415-quality-attribute-scenario-refinements)
-   * [4.2. Strategic-Level Domain-Driven Design](04-cha04-strategic-level-software-design.md#42-strategic-level-domain-driven-design)
-      * [4.2.1. EventStorming](04-cha04-strategic-level-software-design.md#421-eventstorming)
-      * [4.2.2. Candidate Context Discovery](04-cha04-strategic-level-software-design.md#422-candidate-context-discovery)
-      * [4.2.3. Domain Message Flows Modeling](04-cha04-strategic-level-software-design.md#423-domain-message-flows-modeling)
-      * [4.2.4. Bounded Context Canvases](04-cha04-strategic-level-software-design.md#424-bounded-context-canvases)
-      * [4.2.5. Context Mapping](04-cha04-strategic-level-software-design.md#425-context-mapping)
-   * [4.3. Software Architecture](04-cha04-strategic-level-software-design.md#43-software-architecture)
-      * [4.3.1. Software Architecture System Landscape Diagram](04-cha04-strategic-level-software-design.md#431-software-architecture-system-landscape-diagram)
-      * [4.3.1. Software Architecture Context Level Diagrams](04-cha04-strategic-level-software-design.md#431-software-architecture-context-level-diagrams)
-      * [4.3.2. Software Architecture Container Level Diagrams](04-cha04-strategic-level-software-design.md#432-software-architecture-container-level-diagrams)
-      * [4.3.3. Software Architecture Deployment Diagrams](04-cha04-strategic-level-software-design.md#433-software-architecture-deployment-diagrams)
+    * [4.1. Strategic-Level Attribute-Driven Design](04-cha04-strategic-level-software-design.md#41-strategic-level-attribute-driven-design)
+        * [4.1.1. Design Purpose](04-cha04-strategic-level-software-design.md#411-design-purpose)
+        * [4.1.2. Attribute-Driven Design Inputs](04-cha04-strategic-level-software-design.md#412-attribute-driven-design-inputs)
+            * [4.1.2.1. Primary Functionality (Primary User Stories)](04-cha04-strategic-level-software-design.md#4121-primary-functionality-primary-user-stories)
+            * [4.1.2.2. Quality Attribute Scenarios](04-cha04-strategic-level-software-design.md#4122-quality-attribute-scenarios)
+            * [4.1.2.3. Constraints](04-cha04-strategic-level-software-design.md#4123-constraints)
+        * [4.1.3. Architectural Drivers Backlog](04-cha04-strategic-level-software-design.md#413-architectural-drivers-backlog)
+        * [4.1.4. Architectural Design Decisions](04-cha04-strategic-level-software-design.md#414-architectural-design-decisions)
+        * [4.1.5. Quality Attribute Scenario Refinements](04-cha04-strategic-level-software-design.md#415-quality-attribute-scenario-refinements)
+    * [4.2. Strategic-Level Domain-Driven Design](04-cha04-strategic-level-software-design.md#42-strategic-level-domain-driven-design)
+        * [4.2.1. EventStorming](04-cha04-strategic-level-software-design.md#421-eventstorming)
+        * [4.2.2. Candidate Context Discovery](04-cha04-strategic-level-software-design.md#422-candidate-context-discovery)
+        * [4.2.3. Domain Message Flows Modeling](04-cha04-strategic-level-software-design.md#423-domain-message-flows-modeling)
+        * [4.2.4. Bounded Context Canvases](04-cha04-strategic-level-software-design.md#424-bounded-context-canvases)
+        * [4.2.5. Context Mapping](04-cha04-strategic-level-software-design.md#425-context-mapping)
+    * [4.3. Software Architecture](04-cha04-strategic-level-software-design.md#43-software-architecture)
+        * [4.3.1. Software Architecture System Landscape Diagram](04-cha04-strategic-level-software-design.md#431-software-architecture-system-landscape-diagram)
+        * [4.3.1. Software Architecture Context Level Diagrams](04-cha04-strategic-level-software-design.md#431-software-architecture-context-level-diagrams)
+        * [4.3.2. Software Architecture Container Level Diagrams](04-cha04-strategic-level-software-design.md#432-software-architecture-container-level-diagrams)
+        * [4.3.3. Software Architecture Deployment Diagrams](04-cha04-strategic-level-software-design.md#433-software-architecture-deployment-diagrams)
 * [Capítulo V: Tactical-Level Software Design](05-cha05-tactical-level-software-design.md#capítulo-v-tactical-level-software-design)
-   * [5.1. Bounded Context: \<Bounded Context Name\>](05-cha05-tactical-level-software-design.md#5x-bounded-context-bounded-context-name)
-      * [5.1.1. Domain Layer](05-cha05-tactical-level-software-design.md#5x1-domain-layer)
-      * [5.1.2. Interface Layer](05-cha05-tactical-level-software-design.md#5x2-interface-layer)
-      * [5.1.3. Application Layer](05-cha05-tactical-level-software-design.md#5x3-application-layer)
-      * [5.1.4. Infrastructure Layer](05-cha05-tactical-level-software-design.md#5x4-infrastructure-layer)
-      * [5.1.6. Bounded Context Software Architecture Component Level Diagrams](05-cha05-tactical-level-software-design.md#5x6-bounded-context-software-architecture-component-level-diagrams)
-      * [5.1.7. Bounded Context Software Architecture Code Level Diagrams](05-cha05-tactical-level-software-design.md#5x7-bounded-context-software-architecture-code-level-diagrams)
-         * [5.1.7.1. Bounded Context Domain Layer Class Diagrams](05-cha05-tactical-level-software-design.md#5x71-bounded-context-domain-layer-class-diagrams)
-         * [5.1.7.2. Bounded Context Database Design Diagram](05-cha05-tactical-level-software-design.md#5x72-bounded-context-database-design-diagram)
+    * [5.1. Bounded Context: \<Bounded Context Name\>](05-cha05-tactical-level-software-design.md#5x-bounded-context-bounded-context-name)
+        * [5.1.1. Domain Layer](05-cha05-tactical-level-software-design.md#5x1-domain-layer)
+        * [5.1.2. Interface Layer](05-cha05-tactical-level-software-design.md#5x2-interface-layer)
+        * [5.1.3. Application Layer](05-cha05-tactical-level-software-design.md#5x3-application-layer)
+        * [5.1.4. Infrastructure Layer](05-cha05-tactical-level-software-design.md#5x4-infrastructure-layer)
+        * [5.1.6. Bounded Context Software Architecture Component Level Diagrams](05-cha05-tactical-level-software-design.md#5x6-bounded-context-software-architecture-component-level-diagrams)
+        * [5.1.7. Bounded Context Software Architecture Code Level Diagrams](05-cha05-tactical-level-software-design.md#5x7-bounded-context-software-architecture-code-level-diagrams)
+            * [5.1.7.1. Bounded Context Domain Layer Class Diagrams](05-cha05-tactical-level-software-design.md#5x71-bounded-context-domain-layer-class-diagrams)
+            * [5.1.7.2. Bounded Context Database Design Diagram](05-cha05-tactical-level-software-design.md#5x72-bounded-context-database-design-diagram)
 * [Capítulo VI: Solution UX Design](06-cha06-solution-ux-design.md#capítulo-vi-solution-ux-design)
-   * [6.1. Style Guidelines](06-cha06-solution-ux-design.md#61-style-guidelines)
-      * [6.1.1. General Style Guidelines](06-cha06-solution-ux-design.md#611-general-style-guidelines)
-      * [6.1.2. Web, Mobile & Devices Style Guidelines](06-cha06-solution-ux-design.md#612-web-mobile--devices-style-guidelines)
-   * [6.2. Information Architecture](06-cha06-solution-ux-design.md#62-information-architecture)
-      * [6.2.2. Labeling Systems](06-cha06-solution-ux-design.md#622-labeling-systems)
-      * [6.2.3. Searching Systems](06-cha06-solution-ux-design.md#623-searching-systems)
-      * [6.2.4. SEO Tags and Meta Tags](06-cha06-solution-ux-design.md#624-seo-tags-and-meta-tags)
-      * [6.2.5. Navigation Systems](06-cha06-solution-ux-design.md#625-navigation-systems)
-   * [6.3. Landing Page UI Design](06-cha06-solution-ux-design.md#63-landing-page-ui-design)
-      * [6.3.1. Landing Page Wireframe](06-cha06-solution-ux-design.md#631-landing-page-wireframe)
-      * [6.3.2. Landing Page Mock-up](06-cha06-solution-ux-design.md#632-landing-page-mock-up)
-   * [6.4. Applications UX/UI Design](06-cha06-solution-ux-design.md#64-applications-uxui-design)
-      * [6.4.1. Applications Wireframes](06-cha06-solution-ux-design.md#641-applications-wireframes)
-      * [6.4.2. Applications Wireflow Diagrams](06-cha06-solution-ux-design.md#642-applications-wireflow-diagrams)
-      * [6.4.2. Applications Mock-ups](06-cha06-solution-ux-design.md#642-applications-mock-ups)
-      * [6.4.3. Applications User Flow Diagrams](06-cha06-solution-ux-design.md#643-applications-user-flow-diagrams)
-   * [6.5. Applications Prototyping](06-cha06-solution-ux-design.md#65-applications-prototyping)
+    * [6.1. Style Guidelines](06-cha06-solution-ux-design.md#61-style-guidelines)
+        * [6.1.1. General Style Guidelines](06-cha06-solution-ux-design.md#611-general-style-guidelines)
+        * [6.1.2. Web, Mobile & Devices Style Guidelines](06-cha06-solution-ux-design.md#612-web-mobile--devices-style-guidelines)
+    * [6.2. Information Architecture](06-cha06-solution-ux-design.md#62-information-architecture)
+        * [6.2.2. Labeling Systems](06-cha06-solution-ux-design.md#622-labeling-systems)
+        * [6.2.3. Searching Systems](06-cha06-solution-ux-design.md#623-searching-systems)
+        * [6.2.4. SEO Tags and Meta Tags](06-cha06-solution-ux-design.md#624-seo-tags-and-meta-tags)
+        * [6.2.5. Navigation Systems](06-cha06-solution-ux-design.md#625-navigation-systems)
+    * [6.3. Landing Page UI Design](06-cha06-solution-ux-design.md#63-landing-page-ui-design)
+        * [6.3.1. Landing Page Wireframe](06-cha06-solution-ux-design.md#631-landing-page-wireframe)
+        * [6.3.2. Landing Page Mock-up](06-cha06-solution-ux-design.md#632-landing-page-mock-up)
+    * [6.4. Applications UX/UI Design](06-cha06-solution-ux-design.md#64-applications-uxui-design)
+        * [6.4.1. Applications Wireframes](06-cha06-solution-ux-design.md#641-applications-wireframes)
+        * [6.4.2. Applications Wireflow Diagrams](06-cha06-solution-ux-design.md#642-applications-wireflow-diagrams)
+        * [6.4.2. Applications Mock-ups](06-cha06-solution-ux-design.md#642-applications-mock-ups)
+        * [6.4.3. Applications User Flow Diagrams](06-cha06-solution-ux-design.md#643-applications-user-flow-diagrams)
+    * [6.5. Applications Prototyping](06-cha06-solution-ux-design.md#65-applications-prototyping)
 * [Capítulo VII: Product Implementation, Validation & Deployment](07-cha07-product-implementation-validation-and-deployment.md#capítulo-vii-product-implementation-validation--deployment)
-   * [7.1. Software Configuration Management](07-cha07-product-implementation-validation-and-deployment.md#71-software-configuration-management)
-      * [7.1.1. Software Development Environment Configuration](07-cha07-product-implementation-validation-and-deployment.md#711-software-development-environment-configuration)
-      * [7.1.2. Source Code Management](07-cha07-product-implementation-validation-and-deployment.md#712-source-code-management)
-      * [7.1.3. Source Code Style Guide & Conventions](07-cha07-product-implementation-validation-and-deployment.md#713-source-code-style-guide--conventions)
-      * [7.1.4. Software Deployment Configuration](07-cha07-product-implementation-validation-and-deployment.md#714-software-deployment-configuration)
-   * [7.2. Solution Implementation](07-cha07-product-implementation-validation-and-deployment.md#72-solution-implementation)
-      * [7.2.1. Sprint 1](07-cha07-product-implementation-validation-and-deployment.md#72x-sprint-n)
-         * [7.2.1.1. Sprint Planning 1](07-cha07-product-implementation-validation-and-deployment.md#72x1-sprint-planning-n)
-         * [7.2.1.2. Sprint Backlog 1](07-cha07-product-implementation-validation-and-deployment.md#72x2-sprint-backlog-n)
-         * [7.2.1.3. Development Evidence for Sprint Review](07-cha07-product-implementation-validation-and-deployment.md#72x3-development-evidence-for-sprint-review)
-         * [7.2.1.4. Testing Suite Evidence for Sprint Review](07-cha07-product-implementation-validation-and-deployment.md#72x4-testing-suite-evidence-for-sprint-review)
-         * [7.2.1.5. Execution Evidence for Sprint Review](07-cha07-product-implementation-validation-and-deployment.md#72x5-execution-evidence-for-sprint-review)
-         * [7.2.1.6. Services Documentation Evidence for Sprint Review](07-cha07-product-implementation-validation-and-deployment.md#72x6-services-documentation-evidence-for-sprint-review)
-         * [7.2.1.7. Software Deployment Evidence for Sprint Review](07-cha07-product-implementation-validation-and-deployment.md#72x7-software-deployment-evidence-for-sprint-review)
-         * [7.2.1.8. Team Collaboration Insights during Sprint](07-cha07-product-implementation-validation-and-deployment.md#72x8-team-collaboration-insights-during-sprint)
-   * [7.3. Validation Interviews](07-cha07-product-implementation-validation-and-deployment.md#73-validation-interviews)
-      * [7.3.1. Diseño de Entrevistas](07-cha07-product-implementation-validation-and-deployment.md#731-diseño-de-entrevistas)
-      * [7.3.2. Registro de Entrevistas](07-cha07-product-implementation-validation-and-deployment.md#732-registro-de-entrevistas)
-      * [7.3.3. Evaluaciones según heurísticas](07-cha07-product-implementation-validation-and-deployment.md#733-evaluaciones-según-heurísticas)
-   * [7.4. Video About-the-Product](07-cha07-product-implementation-validation-and-deployment.md#74-video-about-the-product)
+    * [7.1. Software Configuration Management](07-cha07-product-implementation-validation-and-deployment.md#71-software-configuration-management)
+        * [7.1.1. Software Development Environment Configuration](07-cha07-product-implementation-validation-and-deployment.md#711-software-development-environment-configuration)
+        * [7.1.2. Source Code Management](07-cha07-product-implementation-validation-and-deployment.md#712-source-code-management)
+        * [7.1.3. Source Code Style Guide & Conventions](07-cha07-product-implementation-validation-and-deployment.md#713-source-code-style-guide--conventions)
+        * [7.1.4. Software Deployment Configuration](07-cha07-product-implementation-validation-and-deployment.md#714-software-deployment-configuration)
+    * [7.2. Solution Implementation](07-cha07-product-implementation-validation-and-deployment.md#72-solution-implementation)
+        * [7.2.1. Sprint 1](07-cha07-product-implementation-validation-and-deployment.md#72x-sprint-n)
+            * [7.2.1.1. Sprint Planning 1](07-cha07-product-implementation-validation-and-deployment.md#72x1-sprint-planning-n)
+            * [7.2.1.2. Sprint Backlog 1](07-cha07-product-implementation-validation-and-deployment.md#72x2-sprint-backlog-n)
+            * [7.2.1.3. Development Evidence for Sprint Review](07-cha07-product-implementation-validation-and-deployment.md#72x3-development-evidence-for-sprint-review)
+            * [7.2.1.4. Testing Suite Evidence for Sprint Review](07-cha07-product-implementation-validation-and-deployment.md#72x4-testing-suite-evidence-for-sprint-review)
+            * [7.2.1.5. Execution Evidence for Sprint Review](07-cha07-product-implementation-validation-and-deployment.md#72x5-execution-evidence-for-sprint-review)
+            * [7.2.1.6. Services Documentation Evidence for Sprint Review](07-cha07-product-implementation-validation-and-deployment.md#72x6-services-documentation-evidence-for-sprint-review)
+            * [7.2.1.7. Software Deployment Evidence for Sprint Review](07-cha07-product-implementation-validation-and-deployment.md#72x7-software-deployment-evidence-for-sprint-review)
+            * [7.2.1.8. Team Collaboration Insights during Sprint](07-cha07-product-implementation-validation-and-deployment.md#72x8-team-collaboration-insights-during-sprint)
+    * [7.3. Validation Interviews](07-cha07-product-implementation-validation-and-deployment.md#73-validation-interviews)
+        * [7.3.1. Diseño de Entrevistas](07-cha07-product-implementation-validation-and-deployment.md#731-diseño-de-entrevistas)
+        * [7.3.2. Registro de Entrevistas](07-cha07-product-implementation-validation-and-deployment.md#732-registro-de-entrevistas)
+        * [7.3.3. Evaluaciones según heurísticas](07-cha07-product-implementation-validation-and-deployment.md#733-evaluaciones-según-heurísticas)
+    * [7.4. Video About-the-Product](07-cha07-product-implementation-validation-and-deployment.md#74-video-about-the-product)
 * [Conclusiones](08-conclusions.md#conclusiones)
-   * [Conclusiones y recomendaciones](08-conclusions.md#conclusiones-y-recomendaciones)
-   * [Video About-the-Team](08-conclusions.md#video-about-the-team)
+    * [Conclusiones y recomendaciones](08-conclusions.md#conclusiones-y-recomendaciones)
+    * [Video About-the-Team](08-conclusions.md#video-about-the-team)
 * [Bibliografía](09-bibliography.md#bibliografía)
 * [Anexos](10-annexes.md#anexos)
 
 <div style="page-break-after: always;"></div>
 
-# Student Outcome
+# Resultado de Aprendizaje (Student Outcome)
 
 **ABET – EAC - Student Outcome 3**
 
@@ -1437,34 +551,65 @@ En el siguiente cuadro se describe las acciones realizadas y enunciados de concl
     <tr>
         <td> Comunica oralmente sus ideas y/o resultados con objetividad a público de diferentes especialidades y niveles jerárquicos, en el marco del desarrollo de un proyecto en ingeniería. </td>
         <td>
-            <strong>Calvo Yalan, Renato Guillermo</strong><br>            
-            <strong>AV1</strong><br>
-            Texto
+            <strong>Calvo Yalan, Renato Guillermo</strong><br>
+            <strong>TB1</strong><br>
+            Explicó al equipo la visión arquitectónica de Alivia mediante los diagramas de landscape, contexto, contenedores y despliegue, comunicando con claridad cómo interactúan los usuarios, dispositivos IoT, aplicaciones y servicios externos.
             <br><br>
-            <strong>Coronel Espinoza, Farid Sebastian</strong><br>            
-            <strong>AV1</strong><br>
-            Texto
+            <strong>Coronel Espinoza, Farid Sebastian</strong><br>
+            <strong>TB1</strong><br>
+            Presentó los requisitos funcionales y no funcionales, el Product Backlog y las historias de usuario principales, relacionando las necesidades de las personas con discapacidad motora y sus cuidadores con las funcionalidades priorizadas de la solución.
             <br><br>
-            <strong>Diaz Quispe, Matias Diaz</strong><br>            
-            <strong>AV1</strong><br>
-            Texto
+            <strong>Rios Piñan, Dayro Richard</strong><br>
+            <strong>TB1</strong><br>
+            Expuso el proceso Lean UX, el Big Picture Event Storming y los bounded contexts, explicando al equipo cómo los hallazgos obtenidos sobre los usuarios se transformaron en procesos y límites del dominio de Alivia.
             <br><br>
-            <strong>Juarez Leon, Nicolas Emilio Walter</strong><br>            
-            <strong>AV1</strong><br>
-            Texto
+            <strong>Juarez Leon, Nicolas Emilio Walter</strong><br>
+            <strong>TB1</strong><br>
+            Sustentó las tácticas arquitectónicas, el Context Mapping y los escenarios de atributos de calidad, comunicando cómo las decisiones propuestas responden a los principales drivers arquitectónicos del sistema.
             <br><br>
-            <strong>Rios Piñan, Dayro Richard</strong><br>            
-            <strong>AV1</strong><br>
-            Texto
+            <strong>Diaz Quispe, Matias Sebastian</strong><br>
+            <strong>TB1</strong><br>
+            Comunicó los resultados del análisis competitivo, el proceso de Needfinding y el Event Storming, destacando las necesidades identificadas, la posición de Alivia frente a otras soluciones y los eventos relevantes del negocio.
+            <br><br>
+            <strong>Armas Sánchez, Oscar Javier</strong><br>
+            <strong>TB1</strong><br>
+            Presentó los resultados del Big Picture Event Storming y del Event Storming a nivel de diseño, explicando la secuencia de eventos, actores y decisiones que estructuran los principales procesos de la solución.
         </td>
         <td>
-            <strong>AV1</strong>
+            <strong>TB1</strong><br>
+            El equipo comunicó oralmente los resultados de manera objetiva y ordenada, adaptando la explicación de conceptos de negocio, experiencia de usuario y arquitectura de software para facilitar su comprensión. La distribución de la exposición permitió evidenciar el dominio individual de las secciones asignadas y una visión integrada de la solución Alivia.
+        </td>
+    </tr>
+    <tr>
+        <td> Comunica en forma escrita ideas y/o resultados con objetividad a público de diferentes especialidades y niveles jerárquicos, en el marco del desarrollo de un proyecto en ingeniería. </td>
+        <td>
+            <strong>Calvo Yalan, Renato Guillermo</strong><br>
+            <strong>TB1</strong><br>
+            Documentó los diagramas de landscape, contexto, contenedores y despliegue, acompañándolos con descripciones que permiten comprender los componentes, relaciones, responsabilidades y entornos de ejecución de la arquitectura de Alivia.
             <br><br>
-            <strong>TB1</strong>
+            <strong>Coronel Espinoza, Farid Sebastian</strong><br>
+            <strong>TB1</strong><br>
+            Redactó y organizó los requisitos funcionales y no funcionales, el Product Backlog y las historias de usuario principales, utilizando criterios de aceptación y prioridades para mantener la trazabilidad entre necesidades y funcionalidades.
             <br><br>
-            <strong>AV2</strong>
+            <strong>Rios Piñan, Dayro Richard</strong><br>
+            <strong>TB1</strong><br>
+            Desarrolló la documentación del proceso Lean UX, el Big Picture Event Storming y los bounded contexts, presentando de forma estructurada la evolución desde la investigación del usuario hasta la delimitación del dominio.
             <br><br>
-            <strong>TB2</strong>
+            <strong>Juarez Leon, Nicolas Emilio Walter</strong><br>
+            <strong>TB1</strong><br>
+            Elaboró la sección de tácticas, el Context Mapping y los escenarios de atributos de calidad, especificando medidas verificables y justificando la relación entre los drivers y las decisiones arquitectónicas.
+            <br><br>
+            <strong>Diaz Quispe, Matias Sebastian</strong><br>
+            <strong>TB1</strong><br>
+            Redactó el análisis competitivo, el proceso de Needfinding y el Event Storming, sintetizando los hallazgos de investigación y representando de manera comprensible los eventos y necesidades del dominio.
+            <br><br>
+            <strong>Armas Sánchez, Oscar Javier</strong><br>
+            <strong>TB1</strong><br>
+            Documentó el Big Picture Event Storming y el Event Storming de diseño mediante descripciones asociadas a los diagramas, facilitando la lectura de los flujos, decisiones y responsabilidades identificadas.
+        </td>
+        <td>
+            <strong>TB1</strong><br>
+            El informe evidencia una comunicación escrita objetiva, coherente y sustentada mediante requisitos, modelos, diagramas y decisiones arquitectónicas. La integración de los aportes de los seis integrantes permite que audiencias con perfiles técnicos y no técnicos comprendan el problema, la propuesta de valor y el diseño de la solución.
         </td>
     </tr>
 </table>
