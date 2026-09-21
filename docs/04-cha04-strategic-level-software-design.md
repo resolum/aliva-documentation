@@ -1286,6 +1286,16 @@ A partir del Design-Level Event Storming, los agregados definidos delimitan la u
 
 ### 4.2.4. Bounded Context Canvases
 
+El propósito de los Bounded Context Canvases es consolidar la información obtenida en el Event Storming y en el Domain Message Flow Modeling, y presentarla de manera resumida y visual para cada bounded context. Cada canvas describe el propósito del contexto, sus agregados, read models, actores, sistemas externos y flujos de eventos, comandos y políticas.
+
+**Gestión de Operaciones Técnicas - Canvas**
+
+Gestiona el ciclo completo de operaciones técnicas de campo: evalúa la viabilidad técnica de la vivienda del usuario, coordina e instala los dispositivos, y atiende incidencias técnicas (alertas, mantenimiento, diagnóstico y reparación) para mantener el servicio operativo.
+
+![bc operaciones tecnicas](https://i.imgur.com/yHl8kI4.jpeg)
+
+
+
 ### 4.2.5. Context Mapping
 
 ## 4.3. Software Architecture
@@ -1294,6 +1304,7 @@ A partir del Design-Level Event Storming, los agregados definidos delimitan la u
 A continuación se presenta el diagrama de la vista general del sistema, que muestra la relacion entre el sistema y los usuarios,visitantes y trabajadores de la plataforma, asi como los dispositivos Iot y servicios externos que interactuan con el sistema.
 
 ![System Landscape Diagram](../images/diagrams/img/alivia-landscape.svg)
+
 ### 4.3.2. Software Architecture Context Level Diagram
 
 ### 4.3.3. Software Architecture Container Level Diagram
