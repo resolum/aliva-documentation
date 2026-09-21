@@ -1329,6 +1329,13 @@ Gestiona el ciclo de vida de identidades y el control de acceso de los usuarios 
 
 ![bc iam](https://i.imgur.com/YA6VrVx.jpeg)
 
+
+**Perfiles - Canvas**
+
+Gestiona el perfil de la persona asistida y su relación con los cuidadores: creación y actualización de datos personales, foto y preferencias de comunicación, así como la invitación, vinculación y desvinculación de cuidadores principales y adicionales.
+
+![bc perfiles](https://i.imgur.com/Xxl8fUw.jpeg)
+
 ### 4.2.5. Context Mapping
 
 ## 4.3. Software Architecture
