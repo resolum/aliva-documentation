@@ -1722,6 +1722,14 @@ A partir del Design-Level Event Storming, los agregados definidos delimitan la u
 
 ### 4.2.5. Context Mapping
 
+Se presenta el resultado del modelado del Context Map para la identificación de relaciones de los Bounded Contexts de la solución y patrones. Asimismo, las decisiones tomadas por el equipo concentran el uso de patrones tales como Conformist, Shared Kernel, Customer-Supplier y Anticorruption Layer para distintos motivos adecuándose al contexto que los utiliza. A continuación, se muestra la imagen del resultado del Context Map.
+
+![Context mapping de los bounded contexts para Alivia](https://i.imgur.com/0b7Y8vX.png)
+
+El Bounded Context de Comunicaciones actúa como un nodo central de recepción alimentado por múltiples contextos proveedores (Operaciones Técnicas, Actividades, Gestión de Bienes, Telemetría, Pagos y Suscripciones, e IAM). De esta forma, el uso intensivo de una capa anticorrupción en Comunicaciones es una excelente decisión arquitectónica que previene que las variaciones del lenguaje o modelo de cada uno de sus 6 proveedores contaminen su dominio de notificaciones/mensajería. Por otro lado, el contexto de Analíticas adopta un patrón conformista (CF) hacia Operaciones Técnicas y Gestión de Bienes. Esto es pragmático y habitual en contextos analíticos o de reporting, donde resulta más rentable ingerir los datos tal como provienen de los sistemas operativos principales que construir capas de abstracción complejas.
+
+Asimismo, el contexto de IAM sirve como pilar base upstream para varios dominios. El uso de núcleo compartido (SK) entre IAM, Perfiles y Preferencias, y Actividades señala una dependencia estrecha en las estructuras de datos básicas del usuario. Se espera que la aplicación repetida de este patrón solo se aplique para lo necesario de modo que se evite un acoplamiento fuerte en los despliegues y evolución del código. Finalmente, Gestión de Bienes actúa como uno de los núcleos operacionales del sistema. Su aislamiento respecto a Telemetría mediante una capa anticorrupción demuestra un buen diseño, ya que evita que el alto volumen o variabilidad de los datos de sensores y dispositivos IoT afecte las reglas de negocio de los bienes.  
+
 ## 4.3. Software Architecture
 
 ### 4.3.1. Software Architecture System Landscape Diagram
