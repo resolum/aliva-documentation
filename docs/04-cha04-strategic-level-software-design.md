@@ -2585,6 +2585,25 @@ A partir del Design-Level Event Storming, los agregados definidos delimitan la u
 
 ### 4.2.3. Domain Message Flow Modeling
 
+Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
+
+- **Abrir alguna parte de la habitación:** En este flujo se muestra la interacción entre el dispositivo embebido de la persona discapacitada y el bounded context **Tracking** al momento en que se solicita abrir una puerta u otra parte de la habitación. La persona discapacitada envía un audio, que es captado por el dispositivo embebido y transmitido a través del edge del dispositivo; este edge transcribe el audio en un comando y lo reenvía al edge del actuador a través del broker. El edge del actuador ejecuta el comando y publica el evento correspondiente hacia el bounded context Tracking, el cual finalmente notifica el resultado a la Mobile Application para mantener el seguimiento del estado del dispositivo.
+
+![ScenarioI](https://imgur.com/W23yWyL.png)
+
+- **Solicitar ayuda:** En este flujo se muestra la interacción entre el dispositivo de la persona discapacitada y los bounded contexts **Tracking** y **Communication** al momento en que se genera una alerta de ayuda. El dispositivo, mediante su capa embebida y el edge correspondiente, envía una alerta que es recibida por el bounded context Tracking; este, a su vez, emite un evento indicando la alerta hacia el bounded context Communication. Communication genera una notificación push a través de Firebase, la cual es enviada al dispositivo móvil y finalmente mostrada al cuidador, cerrando así el ciclo de respuesta ante una solicitud de ayuda.
+
+![ScenarioII](https://imgur.com/StO5Alh.png)
+
+- **Asignar dispositivo y actuadores a una casa:** En este flujo se muestra la interacción entre el dueño del negocio y el bounded context **Activos** al momento en que se registra la asignación de dispositivos y actuadores a una vivienda. El dueño del negocio, a través de la Web Application, envía el comando para agregar dispositivos a una casa; el bounded context Activos registra dicha asignación y notifica al familiar correspondiente, dejando constancia de qué activos quedan vinculados a su hogar.
+
+![ScenarioIII](https://imgur.com/NAlnH18.png)
+
+- **Familiar asigna cuenta para un cuidador:** En este flujo se muestra la interacción entre el cuidador, el Website y los bounded contexts **Nursing**, **IAM** y **Communication** al momento en que se crea una cuenta para un nuevo cuidador. El cuidador, desde el Website, envía el comando para crear la cuenta de otro cuidador hacia el bounded context Nursing; este emite el comando de creación de cuenta hacia IAM, que la registra y devuelve la URL de cambio de contraseña a Nursing. Finalmente, Nursing envía un comando al bounded context Communication para que despache un correo con el enlace correspondiente, completando así el proceso de asignación de la nueva cuenta.
+
+![ScenarioIV](https://imgur.com/YSPjpra.png)
+
+
 ### 4.2.4. Bounded Context Canvases
 
 ### 4.2.5. Context Mapping
