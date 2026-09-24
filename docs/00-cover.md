@@ -1177,6 +1177,30 @@ Rios Piñan, Dayro Richard (u202315283)
         <td> github-actions[bot] </td>
         <td> Update version log [skip ci] </td>
     </tr>
+    <tr>
+        <td> 1.213 </td>
+        <td> 21/09/26 </td>
+        <td> github-actions[bot] </td>
+        <td> Update version log [skip ci] </td>
+    </tr>
+    <tr>
+        <td> 1.214 </td>
+        <td> 18/09/26 </td>
+        <td> Nicolas Juarez Leon </td>
+        <td> Add space for new member description. </td>
+    </tr>
+    <tr>
+        <td> 1.215 </td>
+        <td> 18/09/26 </td>
+        <td> Racso24k </td>
+        <td> Add description and photo for oscar armas member profile </td>
+    </tr>
+    <tr>
+        <td> 1.216 </td>
+        <td> 24/09/26 </td>
+        <td> Racso24k </td>
+        <td> Add Oscar Armas entry to Student Outcome </td>
+    </tr>
 </table>
 <!-- VERSION_TABLE_END -->
 
