@@ -1319,6 +1319,10 @@ En el siguiente cuadro se describe las acciones realizadas y enunciados de concl
     <tr>
         <td> Comunica oralmente sus ideas y/o resultados con objetividad a público de diferentes especialidades y niveles jerárquicos, en el marco del desarrollo de un proyecto en ingeniería. </td>
         <td>
+            <strong>Armas Sánchez, Oscar Javier</strong><br>
+            <strong>TB1</strong><br>
+            Presentó los resultados del Big Picture Event Storming y del Event Storming a nivel de diseño, explicando la secuencia de eventos, actores y decisiones que estructuran los principales procesos de la solución.
+            <br><br>
             <strong>Calvo Yalan, Renato Guillermo</strong><br>            
             <strong>AV1</strong><br>
             Texto
