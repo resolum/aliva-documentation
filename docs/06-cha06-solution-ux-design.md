@@ -377,25 +377,24 @@ El dispositivo IoT de Alivia (el cubo instalado en el hogar con micrófono, mini
 
 ##### Señalización luminosa (indicadores LED)
 
-El cubo cuenta con indicadores LED que comunican su estado sin necesidad de que la persona asistida mire una pantalla, algo especialmente relevante considerando la comorbilidad visual frecuente en este segmento (ver Capítulo 1). Los estados se codifican por color y patrón de parpadeo, nunca solo por color, para no depender de la percepción cromática:
+El cubo cuenta con indicadores LED que comunican su **estado operativo general** sin necesidad de que la persona asistida mire una pantalla, algo especialmente relevante considerando la comorbilidad visual frecuente en este segmento (ver Capítulo 1). Los LED no confirman el resultado de un comando de voz (eso corresponde al altavoz) sino que informan de forma continua en qué condición se encuentra el dispositivo. Los estados se codifican por color y patrón de parpadeo, nunca solo por color, para no depender de la percepción cromática:
 
-| Estado del dispositivo       | Color del LED | Patrón                     | Significado para la persona asistida                              |
-| ----------------------------- | -------------- | --------------------------- | -------------------------------------------------------------------- |
-| Disponible / en espera       | Turquesa       | Fijo, brillo bajo           | El dispositivo está listo para recibir un comando de voz            |
-| Escuchando un comando        | Turquesa       | Pulso suave (fade in/out)   | El dispositivo detectó el inicio de una instrucción y está procesándola |
-| Acción ejecutada con éxito   | Turquesa       | Parpadeo corto único       | La acción solicitada (encender luz, abrir puerta) se completó       |
-| Comando no reconocido        | Azul Marino    | Parpadeo doble             | El sistema no comprendió la instrucción y solicitará repetirla      |
-| Batería de respaldo baja     | Ámbar/Amarillo | Parpadeo lento y sostenido | Advierte que la energía de respaldo se está agotando                 |
-| Falla o desconexión          | Rojo           | Parpadeo rápido            | El dispositivo perdió una función esencial y ya alertó al cuidador   |
+| Estado del dispositivo   | Color del LED   | Patrón                      | Significado para la persona asistida                                  |
+| ------------------------- | ---------------- | ----------------------------- | -------------------------------------------------------------------------- |
+| Disponible / en espera    | Turquesa          | Fijo, brillo bajo             | El dispositivo está listo para recibir un comando de voz                  |
+| Escuchando un comando     | Turquesa          | Pulso suave (fade in/out)     | El dispositivo detectó el inicio de una instrucción y la está procesando  |
+| Batería de respaldo baja  | Ámbar/Amarillo    | Parpadeo lento y sostenido    | Advierte que la energía de respaldo se está agotando                       |
+| Falla o desconexión       | Rojo              | Parpadeo rápido               | El dispositivo perdió una función esencial y ya alertó al cuidador         |
 
 Este código de color y parpadeo se mantiene idéntico en todos los dispositivos instalados en una misma vivienda, para que la persona asistida no tenga que memorizar variaciones entre el cubo del dormitorio y el de la sala.
 
 ##### Señalización sonora (miniparlante)
 
-Dado que la interacción es enteramente por voz, el diseño sonoro del dispositivo sigue directamente los principios de Communication Tone & Language: respuestas breves, directas y sin alarmismo, incluso en escenarios de falla.
+El resultado de cada comando de voz (si la acción se ejecutó, si no pudo completarse o si el sistema no comprendió la instrucción) se comunica exclusivamente mediante el miniparlante, ya que es el único canal capaz de confirmar sin ambigüedad lo que ocurrió con la acción solicitada. Esta decisión sigue directamente los principios de Communication Tone & Language: respuestas breves, directas y sin alarmismo, incluso en escenarios de falla.
 
-- Las **confirmaciones de acción** ("Listo, la puerta está abierta") se reproducen en un tono neutro y sereno, siguiendo el Body tone definido en la guía general, evitando cualquier efecto sonoro adicional que pueda distraer o confundirse con una alerta.
-- Las **solicitudes de repetición** ante un comando no reconocido usan una frase corta y sin tono de reproche ("No entendí, ¿puedes repetirlo?"), reforzando el principio de respeto por la autonomía de la persona asistida.
+- Las **confirmaciones de acción exitosa** ("Listo, la puerta está abierta") se reproducen en un tono neutro y sereno, siguiendo el Body tone definido en la guía general, sin efectos sonoros adicionales que puedan confundirse con una alerta.
+- El **comando no reconocido** se comunica con una frase corta y sin tono de reproche ("No entendí, ¿puedes repetirlo?"), reforzando el principio de respeto por la autonomía de la persona asistida.
+- Las **fallas de ejecución** (por ejemplo, una puerta atascada) se informan de inmediato por voz, indicando que la acción no pudo completarse y que se avisó al cuidador, sin dejar a la persona asistida sin retroalimentación sobre lo ocurrido.
 - Las **confirmaciones de auxilio** ("Se avisó a tu cuidador, ya viene en camino") priorizan la calma y la claridad sobre la urgencia, evitando cualquier sonido que pueda generar más ansiedad en un momento de necesidad real.
 - El **volumen y la velocidad de habla** del dispositivo son configurables por el cuidador durante la instalación, considerando que las condiciones auditivas y el tamaño de la habitación varían de un hogar a otro.
 
@@ -404,7 +403,7 @@ Dado que la interacción es enteramente por voz, el diseño sonoro del dispositi
 El dispositivo no cuenta con botones físicos de uso primario ni pantalla; toda la interacción de la persona asistida ocurre mediante frases clave, siguiendo el patrón de Intent Mapping definido en el diseño arquitectónico (ver Capítulo 4):
 
 - Las **frases de activación** son cortas, en lenguaje cotidiano y sin variantes técnicas, de modo que resulten fáciles de recordar y pronunciar incluso para personas con fatiga vocal.
-- El dispositivo **nunca ejecuta una acción física sin antes confirmar mediante LED y sonido** que recibió la instrucción, siguiendo la táctica de Confidence Threshold y Safe Default: ante duda, se abstiene y pide repetir, en lugar de arriesgar una acción no solicitada.
+- El dispositivo **nunca ejecuta una acción física sin antes confirmar por voz** que la completó, siguiendo la táctica de Confidence Threshold y Safe Default: ante duda o baja confianza en el reconocimiento, se abstiene de actuar y pide repetir la instrucción, en lugar de arriesgar una acción no solicitada.
 - La **frase de auxilio** se trata de forma diferenciada del resto de comandos: cualquier expresión reconocida como solicitud de ayuda activa de inmediato el flujo de alerta crítica hacia el cuidador, sin esperar confirmaciones adicionales que puedan retrasar la asistencia.
 
 ##### Coherencia física del dispositivo
