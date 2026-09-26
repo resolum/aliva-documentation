@@ -1,4 +1,4 @@
-# Capítulo 6: Solution UX Design
+ # Capítulo 6: Solution UX Design
 
 ## 6.1. Style Guidelines
 
@@ -259,11 +259,157 @@ Se evita el uso de anglicismos innecesarios, jerga técnica sin explicar y expre
 
 ### 6.1.2. Web, Mobile & Devices Style Guidelines
 
-**Web Style Guidelines**
+En esta sección se detallan los estándares visuales y de interacción específicos para las tres plataformas que conforman Alivia: la aplicación web (usada por cuidadores, técnicos y administradores), la aplicación móvil (canal principal del cuidador para supervisión remota) y el dispositivo IoT instalado en el hogar (la interfaz física con la que interactúa la persona con discapacidad motora severa). Cada plataforma hereda la base cromática, tipográfica y de tono definida en las General Style Guidelines, pero adapta su comportamiento a las particularidades técnicas, el contexto de uso y, sobre todo, a las necesidades de accesibilidad de cada segmento de usuario.
 
-**Mobile Style Guidelines**
+En los tres casos, la prioridad no es la sofisticación visual sino la reducción del esfuerzo cognitivo y físico requerido para operar el sistema, dado que Alivia atiende a personas con movilidad severamente limitada y, en varios casos, dificultades visuales asociadas, además de cuidadores que muchas veces consultan la plataforma en momentos de estrés o mientras realizan otra tarea.
 
-**Devices Style Guidelines**
+**Web Style Guidelines**:
+
+La aplicación web de Alivia está construida en React y sirve a dos tipos de usuario con necesidades distintas: el familiar o cuidador, que revisa el estado del hogar y gestiona la red de cuidado desde una computadora, y el personal operativo (técnicos, administradores del negocio, responsables de planes), que utiliza la plataforma para instalación, soporte y gestión comercial. Las decisiones de estilo priorizan la lectura rápida del estado de los dispositivos, la jerarquía clara entre información rutinaria y alertas, y una estructura que se sostenga tanto en pantallas de escritorio como en tablets usadas en campo por los técnicos.
+
+##### Sistema de cuadrícula y espaciado
+
+La cuadrícula web de Alivia se apoya en un contenedor de ancho máximo que evita que el contenido se disperse en monitores anchos, y en la escala de espaciado de 4 px (`spacing-1` a `spacing-8`) definida en las General Style Guidelines, implementada como variables CSS para mantener coherencia entre vistas.
+
+La organización de columnas varía según el tamaño de pantalla:
+
+- En **escritorio**, se usa una distribución de varias columnas que permite mostrar simultáneamente el panel lateral de navegación, el estado de los dispositivos del hogar y el historial de eventos. El gutter entre bloques es de 24 px y los márgenes laterales del contenedor principal son de 32 px.
+- En **tablet**, el panel lateral se reduce a una versión compacta con solo íconos, y el contenido principal pasa a dos columnas. Los márgenes bajan a 24 px y el gutter a 16 px.
+- En **móvil/pantallas angostas** (cuando la web se consulta desde un navegador móvil), el layout se reorganiza en una sola columna, el panel lateral se convierte en un menú desplegable y los márgenes se reducen a 16 px.
+
+El padding interno de los componentes sigue la escala definida: los botones primarios usan 12 px vertical y 22 px horizontal; los inputs, 12 px vertical y 14 px horizontal; las tarjetas de alerta o de estado de dispositivo, 16 px de padding interno con 16 px de margen externo entre ellas. La separación entre secciones del panel de supervisión es de 24 px, y entre bloques mayores de contenido, de 32 px.
+
+##### Responsividad y adaptabilidad
+
+La estrategia responsiva de la web de Alivia prioriza que el estado de los dispositivos del hogar y las alertas del cuidador permanezcan legibles y accionables en cualquier tamaño de pantalla, ya que estas son las dos secciones que más se consultan durante el uso diario.
+
+**Comportamiento de componentes clave según el dispositivo:**
+
+- El **panel de supervisión del hogar**, que muestra el estado de luces, puertas y ventanas, presenta una cuadrícula de tarjetas en escritorio (una por dispositivo, con ícono, estado y última actualización). En tablet se reorganiza en dos columnas. En móvil se apilan verticalmente, manteniendo siempre visible en la parte superior cualquier dispositivo con falla o batería baja, antes que los que están operando con normalidad.
+- El **historial de eventos y alertas** se presenta como una tabla completa en escritorio (persona, dispositivo, prioridad, hora, estado). En tablet se ocultan las columnas de menor relevancia operativa y se habilita scroll horizontal. En móvil se convierte en una lista de tarjetas, una por evento, priorizando persona, necesidad y prioridad por sobre el resto de metadatos.
+- El **panel lateral de navegación** permanece expandido con etiquetas de texto en escritorio. En tablet se colapsa a solo íconos. En móvil se oculta tras un botón de menú en el encabezado, usando la librería de íconos outline definida en la guía general, en 24 px.
+- Los **formularios** de registro (persona asistida, red de cuidado, evaluación técnica de vivienda) usan dos columnas en escritorio y una sola columna a ancho completo en tablet y móvil. Las etiquetas emplean Outfit Regular en 13–14 px sobre el gris azulado claro (`#8890A3`), y los inputs respetan el padding de la escala de espaciado.
+
+##### Tipografía en la interfaz web
+
+La interfaz web aplica **Outfit** en todos sus niveles, siguiendo la escala definida en las General Style Guidelines:
+
+- Los **títulos de sección y encabezados de página** (Headline) usan Outfit Semibold 600 entre 28 y 36 px, con altura de línea de 1.25×, en Azul Profundo (`#081745`) o Gris Azulado Oscuro (`#252F45`), para marcar con claridad en qué parte de la plataforma se encuentra el cuidador o el técnico.
+- El **cuerpo de texto**, usado en descripciones de eventos, notas de cuidado y contenido informativo, emplea Outfit Regular 400 entre 16 y 18 px con altura de línea de 1.5×, en Gris Azulado Oscuro (`#252F45`) sobre fondos claros, cuidando un contraste amplio.
+- Las **etiquetas**, metadatos de tabla y textos de ayuda usan Outfit Regular o Medium en 13–14 px con altura de línea de 1.4×. Los placeholders y textos secundarios emplean Gris Azulado Claro (`#8890A3`).
+- Los **valores de estado críticos**, como el nivel de batería de un dispositivo o la prioridad de una alerta, se destacan en Outfit Semibold en tamaños de 16 a 24 px según su jerarquía, de modo que una alerta crítica se distinga de inmediato dentro del panel de supervisión.
+
+##### Accesibilidad en la interfaz web
+
+Dado que buena parte de la información que circula por la web de Alivia puede ser consultada bajo presión (una alerta de auxilio, una falla de dispositivo), la plataforma cumple estrictamente los criterios WCAG 2.1 nivel AA/AAA en toda su paleta:
+
+- En **contraste cromático**, todo el texto de cuerpo sobre fondos claros supera el ratio 4.5:1, los encabezados grandes superan 3:1, y los íconos funcionales y bordes de componentes cumplen al menos 3:1 frente a su fondo.
+- En **navegación por teclado**, todos los controles interactivos (confirmar alerta, editar rutina, filtrar historial) son accesibles mediante Tab en un orden que sigue el flujo lógico de la pantalla, con un indicador de foco visible en Turquesa (`#2EC4B6`) de 3 px de grosor.
+- En **etiquetado semántico**, los íconos de estado de dispositivo llevan `aria-label` descriptivo ("puerta principal cerrada", "batería baja en luz de dormitorio"); las tablas de historial usan `role="columnheader"`; las alertas críticas emplean `role="alert"` para que un lector de pantalla las anuncie sin que el cuidador tenga que buscarlas; los modales de confirmación usan `role="dialog"` con `aria-modal="true"`.
+
+##### Patrón Z en la interfaz web
+
+El patrón Z describe el recorrido natural de la mirada al escanear una interfaz: de la esquina superior izquierda a la superior derecha, en diagonal hacia la inferior izquierda, y de ahí a la inferior derecha. Este recorrido se aprovecha en pantallas con estructura horizontal como el panel de supervisión del hogar (Zeldman, 2024).
+
+En la web de Alivia, el patrón Z se distribuye así:
+
+| Zona     | Posición          | Contenido asignado                                                                 | Justificación                                                                                          |
+| -------- | ------------------ | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Punto 1  | Superior izquierda | Logo de Alivia y nombre de la persona asistida activa                              | Ancla la identidad de marca y confirma de inmediato de quién se está viendo el hogar                     |
+| Punto 2  | Superior derecha   | Ícono de notificaciones, perfil del cuidador y acceso rápido a alertas pendientes | Concentra los controles de mayor uso durante la sesión                                                   |
+| Diagonal | Centro             | Estado de dispositivos del hogar y últimos eventos registrados                    | Zona de mayor densidad informativa, aprovechando el tránsito visual natural entre los puntos superiores |
+| Punto 3  | Inferior izquierda | Panel de navegación con accesos a Perfiles, Actividades, Dispositivos, Reportes    | Organiza la navegación secundaria en la zona de llegada del primer trazo diagonal                       |
+| Punto 4  | Inferior derecha   | Acción principal (confirmar alerta, registrar actividad) o resumen de estado       | Ubica la acción esperada en el punto donde concluye el recorrido visual                                 |
+
+**Principios de aplicación:**
+
+- Los elementos de mayor jerarquía (logo, identidad de la persona asistida, alertas críticas) se ubican en los extremos del eje horizontal superior, que son los primeros puntos que fija la mirada al abrir la plataforma.
+- El contenido de mayor densidad, como el estado de los dispositivos o el historial de eventos, ocupa la zona central de la diagonal, donde el ojo se desplaza sin esfuerzo adicional.
+- Las acciones primarias (confirmar una alerta, por ejemplo) se ubican en la esquina inferior derecha, reduciendo la distancia entre leer la información y actuar sobre ella, algo especialmente relevante cuando la alerta involucra una solicitud de auxilio.
+- En las tarjetas de dispositivo o de evento, el patrón se replica a nivel de componente: el nombre del dispositivo y su estado ocupan la parte superior, mientras que la acción disponible (ver detalle, marcar como atendido) se ubica en la esquina inferior derecha de la tarjeta.
+
+**Mobile Style Guidelines**:
+
+La aplicación móvil de Alivia, desarrollada de forma nativa en Kotlin (Android) y Swift (iOS), es el canal principal del cuidador para supervisar remotamente el hogar, recibir alertas y coordinar el cuidado desde cualquier lugar. Las decisiones de diseño priorizan la rapidez de comprensión de una alerta, muchas veces recibida mientras el cuidador está en la calle o en clases y la comodidad de uso con una sola mano.
+
+##### Paleta cromática y tipografía en móvil
+
+La aplicación móvil reutiliza sin modificaciones la paleta de las General Style Guidelines. El Azul Marino (`#0F2A6B`) identifica elementos de navegación activos y acciones principales; el Turquesa (`#2EC4B6`) marca confirmaciones y estados de éxito; los tonos de alerta (definidos a nivel de sistema semántico) distinguen las notificaciones críticas de las informativas. Los fondos emplean Blanco (`#FFFFFF`) y Menta Claro (`#E6F8F5`) para paneles y tarjetas de estado.
+
+La tipografía **Outfit** se empaqueta como fuente propia en ambas aplicaciones nativas, respetando los mismos pesos y tamaños definidos en la guía general:
+
+- Outfit Semibold para títulos de pantalla y etiquetas de navegación activa; Outfit Regular para cuerpo de texto y descripciones de eventos.
+- El tamaño de fuente respeta la configuración de accesibilidad del sistema operativo (Dynamic Type en iOS, ajuste de escala de fuente en Android), de modo que un cuidador con baja visión pueda aumentar el tamaño de texto sin que la interfaz se rompa.
+
+##### Navegación y jerarquía visual
+
+La navegación principal usa una **barra inferior** con acceso directo a las secciones de mayor frecuencia: Inicio, Dispositivos, Alertas, Agenda de cuidado y Perfil. Esta ubicación responde a que el cuidador suele revisar la app con una sola mano mientras hace otra cosa, por lo que los accesos deben estar al alcance del pulgar.
+
+El ícono activo se presenta en Azul Marino (`#0F2A6B`) con etiqueta en Outfit Semibold de 12 px; los inactivos usan Gris Azulado Claro (`#8890A3`) con etiqueta en Outfit Regular. Todos los íconos siguen el estilo outline definido en la guía general.
+
+Los accesos secundarios de menor frecuencia (configuración de dispositivos avanzada, gestión de turnos adicionales, ajustes de cuenta) se agrupan en un **menú lateral deslizante**, con opciones en Outfit Regular de 14 px e íconos alineados a la izquierda sobre fondo blanco, separados por líneas en Gris Azulado Claro.
+
+El **encabezado de pantalla** muestra el título de la sección en Outfit Semibold de 16–18 px en Azul Profundo, sobre fondo blanco, e incluye el acceso al centro de notificaciones con un badge en el color de alerta cuando existen avisos sin confirmar. Al hacer scroll en listas largas (como el historial de actividades), el encabezado se contrae para dejar más espacio al contenido.
+
+A diferencia de una app orientada a la creación frecuente de contenido, Alivia no centra su interacción en un botón de acción flotante genérico: la acción más relevante en cada pantalla (confirmar una alerta, registrar una actividad de cuidado) se resuelve dentro de la propia tarjeta o notificación, evitando que el cuidador tenga que buscar un control adicional en un momento donde cada segundo cuenta.
+
+##### Interacciones táctiles y gestos
+
+Las interacciones de la app móvil responden a las acciones que el cuidador realiza con más frecuencia:
+
+- El **tap** confirma una alerta, abre el detalle de un dispositivo o accede a la agenda de cuidado. La respuesta visual es un efecto de tinta en el color primario, confirmando que la pulsación fue registrada.
+- El **deslizamiento vertical** hacia abajo en el historial de eventos o en la lista de dispositivos activa la actualización de datos (pull-to-refresh), con un indicador de carga en Turquesa mientras se consulta el estado más reciente del hogar.
+- El **deslizamiento horizontal** sobre una alerta o una actividad pendiente revela acciones rápidas como confirmar, posponer o reasignar, reduciendo los pasos necesarios frente a una notificación urgente.
+- La **pulsación prolongada** sobre un dispositivo o un turno de cuidado abre un menú contextual con opciones adicionales, reservado para acciones que requieren una confirmación explícita, como desvincular un cuidador o reasignar una responsabilidad.
+- Las transiciones entre pantallas siguen las convenciones nativas de cada sistema operativo (deslizamiento horizontal), manteniendo tiempos breves que no generen sensación de demora frente a una alerta que puede ser crítica.
+
+##### Componentes visuales en móvil
+
+Las **tarjetas de dispositivo** son el componente central del módulo de supervisión del hogar. Muestran el nombre del dispositivo (por ejemplo, "Luz del dormitorio") en Outfit Medium de 14 px, su estado actual y un badge de color que distingue estado operativo, advertencia (batería baja) o falla, siguiendo la paleta semántica del sistema. El fondo de la tarjeta es blanco con borde sutil y esquinas redondeadas, coherente con la estética general de Outfit.
+
+Las **notificaciones de alerta** en la bandeja del cuidador se presentan con un borde lateral de color según su prioridad, siguiendo el criterio definido en Communication Tone & Language: las alertas críticas (por ejemplo, una solicitud de auxilio) usan el color de mayor urgencia y aparecen ancladas en la parte superior, por encima de recordatorios y notificaciones informativas. El título de la alerta emplea Outfit Semibold de 14 px, identificando primero a la persona asistida y luego la necesidad detectada; la descripción usa Outfit Regular de 13 px en Gris Azulado Claro, junto con la hora del evento.
+
+Los **modales de confirmación** por ejemplo, al confirmar que se atendió una alerta o al desvincular un cuidador, se presentan centrados sobre un fondo semitransparente. Usan fondo blanco, título en Outfit Semibold de 16 px, descripción en Outfit Regular de 14 px, y botones que distinguen visualmente confirmar (Turquesa) de cancelar (Gris Azulado Oscuro), evitando ambigüedad en una acción que puede tener consecuencias sobre el cuidado de la persona asistida.
+
+**Devices Style Guidelines**:
+
+El dispositivo IoT de Alivia (el cubo instalado en el hogar con micrófono, miniparlante e indicadores LED) es la única interfaz que usa directamente la persona con discapacidad motora severa, ya que su interacción es exclusivamente por voz. Aquí las "guías de estilo" no describen pantallas sino el lenguaje de señales sonoras y luminosas que el dispositivo usa para comunicarse, dado que no existe una interfaz gráfica que el usuario final pueda consultar.
+
+##### Señalización luminosa (indicadores LED)
+
+El cubo cuenta con indicadores LED que comunican su estado sin necesidad de que la persona asistida mire una pantalla, algo especialmente relevante considerando la comorbilidad visual frecuente en este segmento (ver Capítulo 1). Los estados se codifican por color y patrón de parpadeo, nunca solo por color, para no depender de la percepción cromática:
+
+| Estado del dispositivo       | Color del LED | Patrón                     | Significado para la persona asistida                              |
+| ----------------------------- | -------------- | --------------------------- | -------------------------------------------------------------------- |
+| Disponible / en espera       | Turquesa       | Fijo, brillo bajo           | El dispositivo está listo para recibir un comando de voz            |
+| Escuchando un comando        | Turquesa       | Pulso suave (fade in/out)   | El dispositivo detectó el inicio de una instrucción y está procesándola |
+| Acción ejecutada con éxito   | Turquesa       | Parpadeo corto único       | La acción solicitada (encender luz, abrir puerta) se completó       |
+| Comando no reconocido        | Azul Marino    | Parpadeo doble             | El sistema no comprendió la instrucción y solicitará repetirla      |
+| Batería de respaldo baja     | Ámbar/Amarillo | Parpadeo lento y sostenido | Advierte que la energía de respaldo se está agotando                 |
+| Falla o desconexión          | Rojo           | Parpadeo rápido            | El dispositivo perdió una función esencial y ya alertó al cuidador   |
+
+Este código de color y parpadeo se mantiene idéntico en todos los dispositivos instalados en una misma vivienda, para que la persona asistida no tenga que memorizar variaciones entre el cubo del dormitorio y el de la sala.
+
+##### Señalización sonora (miniparlante)
+
+Dado que la interacción es enteramente por voz, el diseño sonoro del dispositivo sigue directamente los principios de Communication Tone & Language: respuestas breves, directas y sin alarmismo, incluso en escenarios de falla.
+
+- Las **confirmaciones de acción** ("Listo, la puerta está abierta") se reproducen en un tono neutro y sereno, siguiendo el Body tone definido en la guía general, evitando cualquier efecto sonoro adicional que pueda distraer o confundirse con una alerta.
+- Las **solicitudes de repetición** ante un comando no reconocido usan una frase corta y sin tono de reproche ("No entendí, ¿puedes repetirlo?"), reforzando el principio de respeto por la autonomía de la persona asistida.
+- Las **confirmaciones de auxilio** ("Se avisó a tu cuidador, ya viene en camino") priorizan la calma y la claridad sobre la urgencia, evitando cualquier sonido que pueda generar más ansiedad en un momento de necesidad real.
+- El **volumen y la velocidad de habla** del dispositivo son configurables por el cuidador durante la instalación, considerando que las condiciones auditivas y el tamaño de la habitación varían de un hogar a otro.
+
+##### Interacción por voz
+
+El dispositivo no cuenta con botones físicos de uso primario ni pantalla; toda la interacción de la persona asistida ocurre mediante frases clave, siguiendo el patrón de Intent Mapping definido en el diseño arquitectónico (ver Capítulo 4):
+
+- Las **frases de activación** son cortas, en lenguaje cotidiano y sin variantes técnicas, de modo que resulten fáciles de recordar y pronunciar incluso para personas con fatiga vocal.
+- El dispositivo **nunca ejecuta una acción física sin antes confirmar mediante LED y sonido** que recibió la instrucción, siguiendo la táctica de Confidence Threshold y Safe Default: ante duda, se abstiene y pide repetir, en lugar de arriesgar una acción no solicitada.
+- La **frase de auxilio** se trata de forma diferenciada del resto de comandos: cualquier expresión reconocida como solicitud de ayuda activa de inmediato el flujo de alerta crítica hacia el cuidador, sin esperar confirmaciones adicionales que puedan retrasar la asistencia.
+
+##### Coherencia física del dispositivo
+
+El diseño físico del cubo sigue la misma lógica de calidez y confianza que el resto de la marca: formas redondeadas (coherentes con la geometría de la tipografía Outfit), acabado mate que evite reflejos molestos para personas con baja visión, y un tamaño que permita ubicarlo cerca de la cama o el área de mayor permanencia de la persona asistida sin resultar intrusivo en la decoración del hogar. El logotipo de Alivia, en su versión reducida (solo el isotipo del corazón), se ubica de forma discreta en la base del dispositivo, manteniendo la identidad de marca sin competir visualmente con los indicadores LED, que son el elemento funcional prioritario.
 
 ## 6.2. Information Architecture
 
