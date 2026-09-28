@@ -2595,6 +2595,10 @@ A partir de los agregados identificados, el equipo consolidó los bounded contex
 
 **Gestión del Negocio** centraliza el registro y la actualización del perfil del negocio por parte del Administrador, incluyendo la geolocalización mediante Google Maps, así como el registro de administradores adicionales.
 
+![Bounded Contexts Perfiles](https://i.imgur.com/hP0PBFj.png)
+
+**Perfiles** gestiona la creación y actualización del perfil de usuario, con carga de datos personales y foto mediante Cloudinary API, y del perfil de hogar, incluyendo la asignación del cuidador principal. Este último se inicializa automáticamente una vez completado el registro en IAM.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
