@@ -2619,6 +2619,10 @@ A partir de los agregados identificados, el equipo consolidó los bounded contex
 
 **Soporte Técnico** agrupa la evaluación de viabilidad técnica de la vivienda con apoyo de Google Maps, la instalación de los dispositivos y la atención de incidencias técnicas, desde el diagnóstico hasta la reparación del dispositivo y la generación del informe técnico.
 
+![Bounded Contexts Analiticas](https://i.imgur.com/bG0MhYF.png)
+
+**Analíticas** provee al Administrador, al Gestor de Suscripciones y al Cuidador el cálculo y la obtención de métricas globales, de ventas y de rendimiento de los dispositivos, consolidadas en un dashboard principal.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
