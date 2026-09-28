@@ -2607,6 +2607,10 @@ A partir de los agregados identificados, el equipo consolidó los bounded contex
 
 **Cuidado** orquesta la relación entre el familiar, la persona discapacitada y el cuidador: el registro del familiar y la asignación de labores de cuidado, la invitación y vinculación de cuidadores adicionales con envío de correo mediante Sendgrid, y la gestión de horarios, turnos y asignaciones cumplidas por el cuidador.
 
+![Bounded Contexts Pagos y suscripciones](https://i.imgur.com/S8F9C5u.png)
+
+**Pagos y Suscripciones** gestiona la comparación y elección de planes, el proceso de pago a través de Stripe con preautorización, confirmación o rechazo del cobro, la activación de la suscripción y la posterior adaptación del plan, coordinando con Soporte Técnico la fecha de instalación.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
