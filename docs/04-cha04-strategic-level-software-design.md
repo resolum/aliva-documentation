@@ -2736,7 +2736,7 @@ Gestiona el registro de empleados y sus contratos, permitiendo dar de alta a un 
 
 Se presenta el resultado del modelado del Context Map para la identificación de relaciones de los Bounded Contexts de la solución y patrones. Asimismo, las decisiones tomadas por el equipo concentran el uso de patrones tales como Conformist, Shared Kernel, Customer-Supplier y Anticorruption Layer para distintos motivos adecuándose al contexto que los utiliza. A continuación, se muestra la imagen del resultado del Context Map.
 
-![Context mapping de los bounded contexts para Alivia](https://i.imgur.com/0b7Y8vX.png)
+![Context mapping de los bounded contexts para Alivia](https://i.imgur.com/ThFfpve.png)
 
 El Bounded Context de Comunicaciones actúa como un nodo central de recepción alimentado por múltiples contextos proveedores (Operaciones Técnicas, Cuidados, Gestión de Bienes, Telemetría, Pagos y Suscripciones, e IAM). De esta forma, el uso intensivo de una capa anticorrupción en Comunicaciones es una excelente decisión arquitectónica que previene que las variaciones del lenguaje o modelo de cada uno de sus 6 proveedores contaminen su dominio de mensajería. Por otro lado, el contexto de Analíticas adopta un patrón conformista (CF) hacia Operaciones Técnicas y Gestión de Bienes. Esto es pragmático y habitual en contextos analíticos o de reporting, donde resulta más rentable ingerir los datos tal como provienen de los sistemas operativos principales que construir capas de abstracción complejas.
 
