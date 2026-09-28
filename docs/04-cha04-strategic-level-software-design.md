@@ -2627,6 +2627,10 @@ A partir de los agregados identificados, el equipo consolidó los bounded contex
 
 **Telemetría** monitorea el estado de los dispositivos instalados, registrando fallas de puerta, iluminación, micrófono, batería y ventana, y gestiona la sincronización de los eventos almacenados localmente cuando el dispositivo opera sin conexión, hasta el registro final de métricas.
 
+![Bounded Contexts Bienes](https://i.imgur.com/51loTO7.png)
+
+**Bienes** gestiona los dispositivos físicos del hogar: la captura y el procesamiento de comandos de voz, la ejecución de acciones sobre los dispositivos accionadores (puertas, ventanas, luces y solicitudes de auxilio) y el registro, la configuración y la desactivación de dispositivos.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
