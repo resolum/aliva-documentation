@@ -2591,6 +2591,10 @@ A partir de los agregados identificados, el equipo consolidó los bounded contex
 
 **IAM** gestiona el registro y la autenticación de los usuarios de la plataforma (Administrador, Cuidador y Empleado). Cubre el registro de cuenta con verificación de correo mediante Sendgrid, el inicio de sesión con segundo factor de autenticación opcional, el cierre de sesión y la recuperación de contraseña.
 
+![Bounded Contexts Gestión del Negocio](https://i.imgur.com/ftTHsjl.png)
+
+**Gestión del Negocio** centraliza el registro y la actualización del perfil del negocio por parte del Administrador, incluyendo la geolocalización mediante Google Maps, así como el registro de administradores adicionales.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
