@@ -2599,6 +2599,10 @@ A partir de los agregados identificados, el equipo consolidó los bounded contex
 
 **Perfiles** gestiona la creación y actualización del perfil de usuario, con carga de datos personales y foto mediante Cloudinary API, y del perfil de hogar, incluyendo la asignación del cuidador principal. Este último se inicializa automáticamente una vez completado el registro en IAM.
 
+![Bounded Contexts Capital Humano](https://i.imgur.com/AwkpnmZ.png)
+
+**Capital Humano** administra el ciclo de vida del personal interno de Alivia: el alta, la suspensión y el despido de empleados por parte del Administrador, junto con el registro, la renovación y la culminación de sus contratos laborales.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
