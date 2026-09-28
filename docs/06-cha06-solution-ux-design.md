@@ -431,18 +431,34 @@ Representación de la arquitectura jerárquica:
 
 Esta estructura representa la jerarquía informativa orientada al usuario externo. Guía el recorrido desde la propuesta de valor, pasando por el equipo, la solución y los beneficios diferenciados para la persona asistida y el cuidador, hasta culminar en la conversión mediante la comparación de planes y el paso a la contratación en la aplicación web.
 
-<p align="center">Organización de la aplicación</p>
+<p align="center">Organización de la app web/móvil de la vista del familiar o cuidador</p>
 <div style="display: flex; align-items: center;">
   <img src="https://imgur.com/c2Cj63r.png" alt="front_organization">
 </div>
 
 Este esquema detalla la arquitectura interna de la aplicación del familiar o cuidador. La organización jerárquica parte de un Inicio que resume el estado general del hogar y ramifica el acceso hacia los módulos operativos clave: la gestión del hogar y la red de cuidado, los dispositivos, las alertas, la agenda de cuidado, el soporte técnico y las métricas de autonomía.
 
+<p align="center">Organización de la app web/móvil de la vista del técnico</p>
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/NCJ06v9.png" alt="technical_organization">
+</div>
+
+Este esquema detalla la arquitectura interna de la aplicación del técnico o instalador, disponible tanto en web como en móvil para su uso en campo. La organización jerárquica parte de un punto de entrada que resume las órdenes asignadas (evaluaciones, instalaciones e incidencias) y ramifica el acceso hacia los módulos operativos: la evaluación de vivienda, la instalación de dispositivos y el mantenimiento.
+
+<p align="center">Organización de la app web de la vista del administrador del negocio</p>
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/a3ncGmL.png" alt="business_organization">
+</div>
+
+Este esquema detalla la arquitectura interna de la aplicación web empresarial, utilizada por el administrador del negocio y el responsable de planes y suscripciones. La organización jerárquica parte de un Dashboard central con las métricas del negocio y ramifica el acceso hacia los módulos de planes y suscripciones, personal, operaciones técnicas, dispositivos, y roles y permisos.
+
 Casos de aplicación:
 
 - Pantalla de Inicio donde las alertas pendientes y el estado general del hogar aparecen en la parte superior, por encima de las próximas actividades.
 - Vistas de dispositivos donde badges de color, íconos outline y tipografía Outfit Semibold jerarquizan el estado de cada dispositivo (operativo, batería baja o falla), mostrando primero los que requieren atención.
 - Bandeja de alertas donde las solicitudes de auxilio y las alertas críticas se anclan en la parte superior, por encima de recordatorios y notificaciones informativas.
+- Vista del técnico donde las órdenes asignadas (evaluaciones, instalaciones, incidencias) aparecen priorizadas por fecha y urgencia, antes que el historial de órdenes ya completadas.
+- Dashboard del administrador donde las métricas críticas del negocio (suscripciones vencidas, incidencias abiertas) se muestran en la parte superior, por encima de las métricas de desempeño general.
 
 #### Organización secuencial
 
@@ -456,6 +472,8 @@ Casos de aplicación:
 - **Transferencia de responsabilidad entre turnos:** finalización del turno, aceptación del relevo por el siguiente cuidador y entrega del resumen de actividades, medicamentos y alertas pendientes (US27).
 - **Reporte de una falla:** descripción del problema, adjunto de evidencia fotográfica, selección de un horario técnico disponible y seguimiento hasta la resolución (US31).
 - **Interacción por voz de la persona asistida:** emisión del comando, confirmación audible de la acción y notificación de falla al cuidador cuando el dispositivo no responde (US18 a US20).
+- **Atención de una orden técnica:** recepción de la orden asignada, evaluación o instalación en sitio, registro de resultados y pruebas, y cierre con conformidad o incidencia registrada (US09, US11, US32).
+- **Configuración de un empleado:** registro del empleado, asignación de su contrato, configuración de su horario laboral y habilitación para asignaciones según su disponibilidad calculada (US43 a US46).
 
 Al agrupar estos casos bajo el concepto de organización secuencial, se refuerza la idea de que el sistema debe guiar al usuario sin saltos ni confusiones, con estados intermedios visibles en cada paso, sobre todo en momentos de alta sensibilidad como una solicitud de auxilio.
 
