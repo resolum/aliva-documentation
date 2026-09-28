@@ -2583,6 +2583,54 @@ El equipo identificó los agregados en cada bounded context de la siguiente mane
 
 A partir del Design-Level Event Storming, los agregados definidos delimitan la unidad de consistencia de cada flujo del dominio y sirven de base para la identificación de los bounded contexts candidatos de Alivia.
 
+#### Paso 10: Bounded Contexts
+
+A partir de los agregados identificados, el equipo consolidó los bounded contexts candidatos de Alivia, delimitando para cada uno los comandos, eventos, actores y sistemas externos que le corresponden.
+
+![Bounded Contexts IAM](https://i.imgur.com/fdUp4Ol.png)
+
+**IAM** gestiona el registro y la autenticación de los usuarios de la plataforma (Administrador, Cuidador y Empleado). Cubre el registro de cuenta con verificación de correo mediante Sendgrid, el inicio de sesión con segundo factor de autenticación opcional, el cierre de sesión y la recuperación de contraseña.
+
+![Bounded Contexts Gestión del Negocio](https://i.imgur.com/ftTHsjl.png)
+
+**Gestión del Negocio** centraliza el registro y la actualización del perfil del negocio por parte del Administrador, incluyendo la geolocalización mediante Google Maps, así como el registro de administradores adicionales.
+
+![Bounded Contexts Perfiles](https://i.imgur.com/hP0PBFj.png)
+
+**Perfiles** gestiona la creación y actualización del perfil de usuario, con carga de datos personales y foto mediante Cloudinary API, y del perfil de hogar, incluyendo la asignación del cuidador principal. Este último se inicializa automáticamente una vez completado el registro en IAM.
+
+![Bounded Contexts Capital Humano](https://i.imgur.com/AwkpnmZ.png)
+
+**Capital Humano** administra el ciclo de vida del personal interno de Alivia: el alta, la suspensión y el despido de empleados por parte del Administrador, junto con el registro, la renovación y la culminación de sus contratos laborales.
+
+![Bounded Contexts Cuidado](https://i.imgur.com/XlANyIE.png)
+
+**Cuidado** orquesta la relación entre el familiar, la persona discapacitada y el cuidador: el registro del familiar y la asignación de labores de cuidado, la invitación y vinculación de cuidadores adicionales con envío de correo mediante Sendgrid, y la gestión de horarios, turnos y asignaciones cumplidas por el cuidador.
+
+![Bounded Contexts Pagos y suscripciones](https://i.imgur.com/S8F9C5u.png)
+
+**Pagos y Suscripciones** gestiona la comparación y elección de planes, el proceso de pago a través de Stripe con preautorización, confirmación o rechazo del cobro, la activación de la suscripción y la posterior adaptación del plan, coordinando con Soporte Técnico la fecha de instalación.
+
+![Bounded Contexts Comunicaciones ](https://i.imgur.com/Nhz7Am7.png)
+
+**Comunicaciones** centraliza la generación y el envío de notificaciones al cuidador principal mediante Firebase Cloud Messaging, la asignación de prioridad —incluyendo alertas críticas—, la confirmación o repetición de la notificación y la actualización del historial correspondiente.
+
+![Bounded Contexts Soporte técnico](https://i.imgur.com/ZhvXiOf.png)
+
+**Soporte Técnico** agrupa la evaluación de viabilidad técnica de la vivienda con apoyo de Google Maps, la instalación de los dispositivos y la atención de incidencias técnicas, desde el diagnóstico hasta la reparación del dispositivo y la generación del informe técnico.
+
+![Bounded Contexts Analiticas](https://i.imgur.com/bG0MhYF.png)
+
+**Analíticas** provee al Administrador, al Gestor de Suscripciones y al Cuidador el cálculo y la obtención de métricas globales, de ventas y de rendimiento de los dispositivos, consolidadas en un dashboard principal.
+
+![Bounded Contexts Telemetria ](https://i.imgur.com/PEFSSFy.png)
+
+**Telemetría** monitorea el estado de los dispositivos instalados, registrando fallas de puerta, iluminación, micrófono, batería y ventana, y gestiona la sincronización de los eventos almacenados localmente cuando el dispositivo opera sin conexión, hasta el registro final de métricas.
+
+![Bounded Contexts Bienes](https://i.imgur.com/51loTO7.png)
+
+**Bienes** gestiona los dispositivos físicos del hogar: la captura y el procesamiento de comandos de voz, la ejecución de acciones sobre los dispositivos accionadores (puertas, ventanas, luces y solicitudes de auxilio) y el registro, la configuración y la desactivación de dispositivos.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
@@ -2606,15 +2654,93 @@ Los Domain Message Flows modelan las interacciones entre los diferentes bounded 
 
 ### 4.2.4. Bounded Context Canvases
 
+El propósito de los Bounded Context Canvases es consolidar la información obtenida en el Event Storming y en el Domain Message Flow Modeling, y presentarla de manera resumida y visual para cada bounded context. Cada canvas describe el propósito del contexto, sus agregados, read models, actores, sistemas externos y flujos de eventos, comandos y políticas.
+
+**Cuidado - Canvas**
+
+Gestiona la red de cuidado de la persona con discapacidad, permitiendo registrar familiares y labores de cuidado, invitar y vincular cuidadores adicionales, y dar seguimiento a los horarios y asignaciones cumplidas por cada cuidador.
+
+![bc operaciones tecnicas](https://i.imgur.com/H56WoQY.jpeg)
+
+
+**Soporte Técnicas - Canvas**
+
+Gestiona el ciclo completo de operaciones técnicas de campo: evalúa la viabilidad técnica de la vivienda del usuario, coordina e instala los dispositivos, y atiende incidencias técnicas (alertas, mantenimiento, diagnóstico y reparación) para mantener el servicio operativo.
+
+![bc operaciones tecnicas](https://i.imgur.com/96vZ6da.jpeg)
+
+
+**Analíticas - Canvas**
+
+Consolida y expone las métricas del sistema (globales, de ventas/suscripciones y de telemetría de dispositivos) a través de un dashboard principal, permitiendo que administradores, gestores de suscripciones y cuidadores consulten los indicadores relevantes según su rol.
+
+![bc analiticas](https://i.imgur.com/G06KoPN.jpeg)
+
+
+**Bienes - Canvas**
+
+Gestiona el ciclo de vida de los dispositivos del hogar vinculados a Alivia (dispositivos de voz, accionadores como puertas, ventanas y luces), permitiendo que la persona con discapacidad emita comandos de voz para accionar el hogar de forma autónoma, mientras los cuidadores registran, configuran y desactivan los dispositivos.
+
+![bc gestión de bienes](https://i.imgur.com/AAesXb0.jpeg)
+
+
+**Telemetría - Canvas**
+
+Monitorea en tiempo real el estado y las fallas de los dispositivos del hogar, informa ese estado a cuidadores y técnicos, y garantiza la continuidad del servicio cuando se pierde la conexión a internet mediante el almacenamiento local y la sincronización posterior de eventos.
+
+![bc telemtría](https://i.imgur.com/PfvLkT3.jpeg)
+
+
+**Comunicaciones - Canvas**
+
+Gestiona la generación, priorización y envío de notificaciones y alertas hacia el cuidador principal, asegurando que los eventos relevantes (incluyendo alertas críticas) se comuniquen a tiempo, se registre su confirmación y se reenvíen o escalen si no son atendidos dentro del plazo esperado.
+
+![bc comunicaciones](https://i.imgur.com/LsOKpxb.jpeg)
+
+
+**IAM (Gestión de Identidad y Acceso) - Canvas**
+
+Gestiona el ciclo de vida de identidades y el control de acceso de los usuarios de Alivia: registro de cuentas, autenticación con segundo factor, recuperación de contraseña y asignación de roles/accesos, garantizando que solo usuarios verificados y autorizados operen el resto de la plataforma.
+
+![bc iam](https://i.imgur.com/ZyPchRw.jpeg)
+
+
+**Perfiles - Canvas**
+
+Gestiona el perfil de la persona asistida y su relación con los cuidadores: creación y actualización de datos personales, foto y preferencias de comunicación, así como la invitación, vinculación y desvinculación de cuidadores principales y adicionales.
+
+![bc perfiles](https://i.imgur.com/VvZ4RsB.jpeg)
+
+
+**Pagos y Suscripciones - Canvas**
+
+Gestiona la selección de planes de suscripción, el proceso de pago (preautorización, cobro y liberación de fondos vía Stripe), la activación de la cuenta del cuidador, y el ajuste o adaptación de planes cuando las condiciones del usuario cambian.
+
+![bc subscripciones y pagos](https://i.imgur.com/niJAdQ3.jpeg)
+
+
+**Gestión del negocio - Canvas**
+
+Gestiona la información del negocio y de sus administradores, permitiendo registrar el negocio con su ubicación, actualizar su perfil, y registrar y actualizar a los administradores responsables de su gestión.
+
+![bc gestion del negocio](https://i.imgur.com/jz0uQxA.jpeg)
+
+
+**Capital Humano - Canvas**
+
+Gestiona el registro de empleados y sus contratos, permitiendo dar de alta a un empleado con la creación de su cuenta, registrar, renovar, suspender o culminar contratos, y dar de baja a un empleado revocando sus accesos.
+
+![bc capital humano](https://i.imgur.com/00CxYBu.jpeg)
+
 ### 4.2.5. Context Mapping
 
 Se presenta el resultado del modelado del Context Map para la identificación de relaciones de los Bounded Contexts de la solución y patrones. Asimismo, las decisiones tomadas por el equipo concentran el uso de patrones tales como Conformist, Shared Kernel, Customer-Supplier y Anticorruption Layer para distintos motivos adecuándose al contexto que los utiliza. A continuación, se muestra la imagen del resultado del Context Map.
 
 ![Context mapping de los bounded contexts para Alivia](https://i.imgur.com/0b7Y8vX.png)
 
-El Bounded Context de Comunicaciones actúa como un nodo central de recepción alimentado por múltiples contextos proveedores (Operaciones Técnicas, Actividades, Gestión de Bienes, Telemetría, Pagos y Suscripciones, e IAM). De esta forma, el uso intensivo de una capa anticorrupción en Comunicaciones es una excelente decisión arquitectónica que previene que las variaciones del lenguaje o modelo de cada uno de sus 6 proveedores contaminen su dominio de notificaciones/mensajería. Por otro lado, el contexto de Analíticas adopta un patrón conformista (CF) hacia Operaciones Técnicas y Gestión de Bienes. Esto es pragmático y habitual en contextos analíticos o de reporting, donde resulta más rentable ingerir los datos tal como provienen de los sistemas operativos principales que construir capas de abstracción complejas.
+El Bounded Context de Comunicaciones actúa como un nodo central de recepción alimentado por múltiples contextos proveedores (Operaciones Técnicas, Cuidados, Gestión de Bienes, Telemetría, Pagos y Suscripciones, e IAM). De esta forma, el uso intensivo de una capa anticorrupción en Comunicaciones es una excelente decisión arquitectónica que previene que las variaciones del lenguaje o modelo de cada uno de sus 6 proveedores contaminen su dominio de mensajería. Por otro lado, el contexto de Analíticas adopta un patrón conformista (CF) hacia Operaciones Técnicas y Gestión de Bienes. Esto es pragmático y habitual en contextos analíticos o de reporting, donde resulta más rentable ingerir los datos tal como provienen de los sistemas operativos principales que construir capas de abstracción complejas.
 
-Asimismo, el contexto de IAM sirve como pilar base upstream para varios dominios. El uso de núcleo compartido (SK) entre IAM, Perfiles y Preferencias, y Actividades señala una dependencia estrecha en las estructuras de datos básicas del usuario. Se espera que la aplicación repetida de este patrón solo se aplique para lo necesario de modo que se evite un acoplamiento fuerte en los despliegues y evolución del código. Finalmente, Gestión de Bienes actúa como uno de los núcleos operacionales del sistema. Su aislamiento respecto a Telemetría mediante una capa anticorrupción demuestra un buen diseño, ya que evita que el alto volumen o variabilidad de los datos de sensores y dispositivos IoT afecte las reglas de negocio de los bienes.
+Asimismo, el contexto de IAM sirve como pilar base upstream para varios dominios. El uso de núcleo compartido (SK) entre IAM, Perfiles y Preferencias, y Cuidados señala una dependencia estrecha en las estructuras de datos básicas del usuario. Se espera que la aplicación repetida de este patrón solo se aplique para lo necesario de modo que se evite un acoplamiento fuerte en los despliegues y evolución del código. Finalmente, Gestión de Bienes actúa como uno de los núcleos operacionales del sistema. Su aislamiento respecto a Telemetría mediante una capa anticorrupción evita que el alto volumen o variabilidad de los datos de sensores y dispositivos IoT afecte las reglas de negocio de los bienes.
 
 ## 4.3. Software Architecture
 
@@ -2622,6 +2748,7 @@ Asimismo, el contexto de IAM sirve como pilar base upstream para varios dominios
 A continuación se presenta el diagrama de la vista general del sistema, que muestra la relacion entre el sistema y los usuarios,visitantes y trabajadores de la plataforma, asi como los dispositivos Iot y servicios externos que interactuan con el sistema.
 
 ![System Landscape Diagram](../images/diagrams/img/alivia-landscape.svg)
+
 ### 4.3.2. Software Architecture Context Level Diagram
 El diagrama de contexto muestra una vista de alto nivel de las relaciones entre los diferentes contextos delimitados y otros sistemas externos. Este diagrama ayuda a comprender cómo los diferentes contextos interactúan entre sí y con el mundo exterior, proporcionando una visión general de la arquitectura del sistema.
 
