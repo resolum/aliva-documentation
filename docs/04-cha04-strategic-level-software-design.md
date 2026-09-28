@@ -2589,11 +2589,18 @@ A partir del Design-Level Event Storming, los agregados definidos delimitan la u
 
 El propósito de los Bounded Context Canvases es consolidar la información obtenida en el Event Storming y en el Domain Message Flow Modeling, y presentarla de manera resumida y visual para cada bounded context. Cada canvas describe el propósito del contexto, sus agregados, read models, actores, sistemas externos y flujos de eventos, comandos y políticas.
 
-**Gestión de Operaciones Técnicas - Canvas**
+**Cuidado - Canvas**
+
+Gestiona la red de cuidado de la persona con discapacidad, permitiendo registrar familiares y labores de cuidado, invitar y vincular cuidadores adicionales, y dar seguimiento a los horarios y asignaciones cumplidas por cada cuidador.
+
+![bc operaciones tecnicas](https://i.imgur.com/H56WoQY.jpeg)
+
+
+**Soporte Técnicas - Canvas**
 
 Gestiona el ciclo completo de operaciones técnicas de campo: evalúa la viabilidad técnica de la vivienda del usuario, coordina e instala los dispositivos, y atiende incidencias técnicas (alertas, mantenimiento, diagnóstico y reparación) para mantener el servicio operativo.
 
-![bc operaciones tecnicas](https://i.imgur.com/yHl8kI4.jpeg)
+![bc operaciones tecnicas](https://i.imgur.com/96vZ6da.jpeg)
 
 
 **Actividades - Canvas**
@@ -2607,49 +2614,64 @@ Gestiona la creación, programación y seguimiento de actividades y rutinas de c
 
 Consolida y expone las métricas del sistema (globales, de ventas/suscripciones y de telemetría de dispositivos) a través de un dashboard principal, permitiendo que administradores, gestores de suscripciones y cuidadores consulten los indicadores relevantes según su rol.
 
-![bc analiticas](https://i.imgur.com/1kclJ9B.jpeg)
+![bc analiticas](https://i.imgur.com/G06KoPN.jpeg)
 
 
-**Gestión de Bienes - Canvas**
+**Bienes - Canvas**
 
 Gestiona el ciclo de vida de los dispositivos del hogar vinculados a Alivia (dispositivos de voz, accionadores como puertas, ventanas y luces), permitiendo que la persona con discapacidad emita comandos de voz para accionar el hogar de forma autónoma, mientras los cuidadores registran, configuran y desactivan los dispositivos.
 
-![bc gestión de bienes](https://i.imgur.com/JlBZmqo.jpeg)
+![bc gestión de bienes](https://i.imgur.com/AAesXb0.jpeg)
 
 
 **Telemetría - Canvas**
 
 Monitorea en tiempo real el estado y las fallas de los dispositivos del hogar, informa ese estado a cuidadores y técnicos, y garantiza la continuidad del servicio cuando se pierde la conexión a internet mediante el almacenamiento local y la sincronización posterior de eventos.
 
-![bc telemtría](https://i.imgur.com/kv6nG7A.jpeg)
+![bc telemtría](https://i.imgur.com/PfvLkT3.jpeg)
 
 
 **Comunicaciones - Canvas**
 
 Gestiona la generación, priorización y envío de notificaciones y alertas hacia el cuidador principal, asegurando que los eventos relevantes (incluyendo alertas críticas) se comuniquen a tiempo, se registre su confirmación y se reenvíen o escalen si no son atendidos dentro del plazo esperado.
 
-![bc comunicaciones](https://i.imgur.com/qp6Ogfe.jpeg)
+![bc comunicaciones](https://i.imgur.com/LsOKpxb.jpeg)
 
 
 **IAM (Gestión de Identidad y Acceso) - Canvas**
 
 Gestiona el ciclo de vida de identidades y el control de acceso de los usuarios de Alivia: registro de cuentas, autenticación con segundo factor, recuperación de contraseña y asignación de roles/accesos, garantizando que solo usuarios verificados y autorizados operen el resto de la plataforma.
 
-![bc iam](https://i.imgur.com/pc2iO1K.jpeg)
+![bc iam](https://i.imgur.com/ZyPchRw.jpeg)
 
 
 **Perfiles - Canvas**
 
 Gestiona el perfil de la persona asistida y su relación con los cuidadores: creación y actualización de datos personales, foto y preferencias de comunicación, así como la invitación, vinculación y desvinculación de cuidadores principales y adicionales.
 
-![bc perfiles](https://i.imgur.com/1I5rDnq.jpeg)
+![bc perfiles](https://i.imgur.com/VvZ4RsB.jpeg)
 
 
-**Suscripciones y Pagos - Canvas**
+**Pagos y Suscripciones - Canvas**
 
 Gestiona la selección de planes de suscripción, el proceso de pago (preautorización, cobro y liberación de fondos vía Stripe), la activación de la cuenta del cuidador, y el ajuste o adaptación de planes cuando las condiciones del usuario cambian.
 
-![bc subscripciones y pagos](https://i.imgur.com/tWCnJRO.jpeg)
+![bc subscripciones y pagos](https://i.imgur.com/niJAdQ3.jpeg)
+
+
+**Gestión del negocio - Canvas**
+
+Gestiona la información del negocio y de sus administradores, permitiendo registrar el negocio con su ubicación, actualizar su perfil, y registrar y actualizar a los administradores responsables de su gestión.
+
+![bc gestion del negocio](https://i.imgur.com/jz0uQxA.jpeg)
+
+
+**Capital Humano - Canvas**
+
+Gestiona el registro de empleados y sus contratos, permitiendo dar de alta a un empleado con la creación de su cuenta, registrar, renovar, suspender o culminar contratos, y dar de baja a un empleado revocando sus accesos.
+
+![bc capital humano](https://i.imgur.com/00CxYBu.jpeg)
+
 
 ### 4.2.5. Context Mapping
 
