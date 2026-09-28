@@ -2615,6 +2615,10 @@ A partir de los agregados identificados, el equipo consolidó los bounded contex
 
 **Comunicaciones** centraliza la generación y el envío de notificaciones al cuidador principal mediante Firebase Cloud Messaging, la asignación de prioridad —incluyendo alertas críticas—, la confirmación o repetición de la notificación y la actualización del historial correspondiente.
 
+![Bounded Contexts Soporte técnico](https://i.imgur.com/ZhvXiOf.png)
+
+**Soporte Técnico** agrupa la evaluación de viabilidad técnica de la vivienda con apoyo de Google Maps, la instalación de los dispositivos y la atención de incidencias técnicas, desde el diagnóstico hasta la reparación del dispositivo y la generación del informe técnico.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
