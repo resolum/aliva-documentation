@@ -2583,6 +2583,54 @@ El equipo identificó los agregados en cada bounded context de la siguiente mane
 
 A partir del Design-Level Event Storming, los agregados definidos delimitan la unidad de consistencia de cada flujo del dominio y sirven de base para la identificación de los bounded contexts candidatos de Alivia.
 
+#### Paso 10: Bounded Contexts
+
+A partir de los agregados identificados, el equipo consolidó los bounded contexts candidatos de Alivia, delimitando para cada uno los comandos, eventos, actores y sistemas externos que le corresponden.
+
+![Bounded Contexts IAM](https://i.imgur.com/fdUp4Ol.png)
+
+**IAM** gestiona el registro y la autenticación de los usuarios de la plataforma (Administrador, Cuidador y Empleado). Cubre el registro de cuenta con verificación de correo mediante Sendgrid, el inicio de sesión con segundo factor de autenticación opcional, el cierre de sesión y la recuperación de contraseña.
+
+![Bounded Contexts Gestión del Negocio](https://i.imgur.com/ftTHsjl.png)
+
+**Gestión del Negocio** centraliza el registro y la actualización del perfil del negocio por parte del Administrador, incluyendo la geolocalización mediante Google Maps, así como el registro de administradores adicionales.
+
+![Bounded Contexts Perfiles](https://i.imgur.com/hP0PBFj.png)
+
+**Perfiles** gestiona la creación y actualización del perfil de usuario, con carga de datos personales y foto mediante Cloudinary API, y del perfil de hogar, incluyendo la asignación del cuidador principal. Este último se inicializa automáticamente una vez completado el registro en IAM.
+
+![Bounded Contexts Capital Humano](https://i.imgur.com/AwkpnmZ.png)
+
+**Capital Humano** administra el ciclo de vida del personal interno de Alivia: el alta, la suspensión y el despido de empleados por parte del Administrador, junto con el registro, la renovación y la culminación de sus contratos laborales.
+
+![Bounded Contexts Cuidado](https://i.imgur.com/XlANyIE.png)
+
+**Cuidado** orquesta la relación entre el familiar, la persona discapacitada y el cuidador: el registro del familiar y la asignación de labores de cuidado, la invitación y vinculación de cuidadores adicionales con envío de correo mediante Sendgrid, y la gestión de horarios, turnos y asignaciones cumplidas por el cuidador.
+
+![Bounded Contexts Pagos y suscripciones](https://i.imgur.com/S8F9C5u.png)
+
+**Pagos y Suscripciones** gestiona la comparación y elección de planes, el proceso de pago a través de Stripe con preautorización, confirmación o rechazo del cobro, la activación de la suscripción y la posterior adaptación del plan, coordinando con Soporte Técnico la fecha de instalación.
+
+![Bounded Contexts Comunicaciones ](https://i.imgur.com/Nhz7Am7.png)
+
+**Comunicaciones** centraliza la generación y el envío de notificaciones al cuidador principal mediante Firebase Cloud Messaging, la asignación de prioridad —incluyendo alertas críticas—, la confirmación o repetición de la notificación y la actualización del historial correspondiente.
+
+![Bounded Contexts Soporte técnico](https://i.imgur.com/ZhvXiOf.png)
+
+**Soporte Técnico** agrupa la evaluación de viabilidad técnica de la vivienda con apoyo de Google Maps, la instalación de los dispositivos y la atención de incidencias técnicas, desde el diagnóstico hasta la reparación del dispositivo y la generación del informe técnico.
+
+![Bounded Contexts Analiticas](https://i.imgur.com/bG0MhYF.png)
+
+**Analíticas** provee al Administrador, al Gestor de Suscripciones y al Cuidador el cálculo y la obtención de métricas globales, de ventas y de rendimiento de los dispositivos, consolidadas en un dashboard principal.
+
+![Bounded Contexts Telemetria ](https://i.imgur.com/PEFSSFy.png)
+
+**Telemetría** monitorea el estado de los dispositivos instalados, registrando fallas de puerta, iluminación, micrófono, batería y ventana, y gestiona la sincronización de los eventos almacenados localmente cuando el dispositivo opera sin conexión, hasta el registro final de métricas.
+
+![Bounded Contexts Bienes](https://i.imgur.com/51loTO7.png)
+
+**Bienes** gestiona los dispositivos físicos del hogar: la captura y el procesamiento de comandos de voz, la ejecución de acciones sobre los dispositivos accionadores (puertas, ventanas, luces y solicitudes de auxilio) y el registro, la configuración y la desactivación de dispositivos.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
