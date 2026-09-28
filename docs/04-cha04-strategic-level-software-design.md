@@ -2622,13 +2622,6 @@ Gestiona el ciclo completo de operaciones técnicas de campo: evalúa la viabili
 ![bc operaciones tecnicas](https://i.imgur.com/96vZ6da.jpeg)
 
 
-**Actividades - Canvas**
-
-Gestiona la creación, programación y seguimiento de actividades y rutinas de cuidado (alimentación, medicación, higiene, etc.) para la persona asistida, permitiendo que los cuidadores asignen horarios y responsables, y den seguimiento al estado de cada actividad.
-
-![bc actividades](https://i.imgur.com/sD9pBBC.jpeg)
-
-
 **Analíticas - Canvas**
 
 Consolida y expone las métricas del sistema (globales, de ventas/suscripciones y de telemetría de dispositivos) a través de un dashboard principal, permitiendo que administradores, gestores de suscripciones y cuidadores consulten los indicadores relevantes según su rol.
