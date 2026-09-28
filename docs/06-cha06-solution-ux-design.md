@@ -508,20 +508,24 @@ El etiquetado en el sitio público utiliza un lenguaje directo, cercano y cohere
     - **"Descargar la app":** Muestra la disponibilidad de la aplicación para Android e iOS.
     - **"Iniciar sesión":** Acceso a la plataforma para usuarios registrados.
 
-#### B. Aplicación Web
+#### B. Aplicación Web del Cuidador
 
-La aplicación web sirve a dos tipos de usuario con necesidades distintas, por lo que el etiquetado se adapta según el perfil:
+La aplicación web del cuidador está dirigida al familiar o cuidador, que revisa el estado del hogar y gestiona la red de cuidado:
 
-- **Familiar o cuidador:**
-    - **Inicio:** Resumen del estado del hogar, alertas pendientes y próximas actividades.
-    - **Mi hogar:** Perfil del hogar, persona asistida y red de cuidado.
-    - **Contratación:** Selección de plan, autorización del importe, horario de evaluación técnica y resultado técnico.
-    - **Dispositivos:** Estado de conexión, batería y funcionamiento, e historial de eventos.
-    - **Alertas:** Alertas escritas, confirmación y atención de alertas críticas, y solicitudes de auxilio.
-    - **Agenda de cuidado:** Turnos, transferencia de responsabilidad, actividades, medicamentos y recordatorios.
-    - **Soporte:** Reporte de fallas, evidencias y seguimiento de incidencias.
-    - **Autonomía:** Métricas de acciones solicitadas y realizadas por la persona asistida.
-    - **Perfil:** Datos personales, preferencias de comunicación, recuperación de acceso y cierre de sesión.
+- **Inicio:** Resumen del estado del hogar, alertas pendientes y próximas actividades.
+- **Mi hogar:** Perfil del hogar, persona asistida y red de cuidado.
+- **Contratación:** Selección de plan, autorización del importe, horario de evaluación técnica y resultado técnico.
+- **Dispositivos:** Estado de conexión, batería y funcionamiento, e historial de eventos.
+- **Alertas:** Alertas escritas, confirmación y atención de alertas críticas, y solicitudes de auxilio.
+- **Agenda de cuidado:** Turnos, transferencia de responsabilidad, actividades, medicamentos y recordatorios.
+- **Soporte:** Reporte de fallas, evidencias y seguimiento de incidencias.
+- **Autonomía:** Métricas de acciones solicitadas y realizadas por la persona asistida.
+- **Perfil:** Datos personales, preferencias de comunicación, recuperación de acceso y cierre de sesión.
+
+#### C. Aplicación Web del Negocio
+
+La aplicación web del negocio está dirigida al personal de Alivia, y el etiquetado se adapta según el rol:
+
 - **Administrador del negocio y responsable de planes y suscripciones:**
     - **Métricas:** Indicadores comerciales y operativos globales.
     - **Planes:** Gestión de planes, precios y condiciones comerciales.
@@ -530,10 +534,16 @@ La aplicación web sirve a dos tipos de usuario con necesidades distintas, por l
     - **Órdenes técnicas:** Asignación de técnicos y reserva de dispositivos.
     - **Dispositivos:** Inventario y asignación de dispositivos a viviendas.
     - **Trazabilidad:** Historial de operaciones técnicas.
+- **Técnico:**
+    - **Visitas:** Agenda de evaluaciones e instalaciones asignadas.
+    - **Evaluación:** Registro de compatibilidad de puertas, ventanas, iluminación y conectividad.
+    - **Instalación:** Instalación, pruebas y conformidad del cliente.
+    - **Incidencias:** Atención de fallas, mantenimiento y reemplazo de dispositivos.
 
-*Nota de consistencia:* Las etiquetas compartidas entre perfiles (**Inicio, Dispositivos, Alertas y Perfil**) mantienen el mismo nombre y significado en todas las vistas, para estandarizar la experiencia y evitar que el usuario tenga que aprender términos distintos para una misma función.
+*Nota de consistencia:* Las etiquetas compartidas entre las webs y la app móvil (**Inicio, Dispositivos, Alertas y Perfil**) mantienen el mismo nombre y significado en todas las vistas, para evitar que el usuario tenga que aprender términos distintos para una misma función.
 
-#### C. Aplicación Móvil
+
+#### D. Aplicación Móvil
 
 Diseñada para la supervisión rápida y el uso con una sola mano, la aplicación móvil del cuidador usa etiquetas cortas y orientadas a la acción en su barra de navegación inferior:
 
@@ -545,7 +555,7 @@ Diseñada para la supervisión rápida y el uso con una sola mano, la aplicació
 
 Los accesos de menor frecuencia (soporte, autonomía, gestión de la red de cuidado y ajustes avanzados) se agrupan en un menú lateral deslizante con etiquetas como **Soporte**, **Autonomía**, **Mi hogar** y **Configuración**.
 
-#### D. Dispositivo IoT
+#### E. Dispositivo IoT
 
 El dispositivo no cuenta con pantalla, por lo que su "etiquetado" se compone de frases de voz y señales luminosas. Se mantiene la coherencia con el tono definido: breve, sereno y sin alarmismo.
 
@@ -565,7 +575,7 @@ El dispositivo no cuenta con pantalla, por lo que su "etiquetado" se compone de 
     - **Ámbar con parpadeo lento:** Batería de respaldo baja.
     - **Rojo con parpadeo rápido:** Falla o desconexión.
 
-#### E. Etiquetas en Formularios y Botones Operativos
+#### F. Etiquetas en Formularios y Botones Operativos
 
 Se definen etiquetas estándar para campos de entrada y acciones frecuentes, con la intención de reducir la carga cognitiva en todas las plataformas.
 
@@ -723,22 +733,23 @@ Con el objetivo de mejorar el posicionamiento orgánico de **Alivia** en los mot
 
 ---
 
-**Mobile Application – Vista de Monitoreo del Cuidador**
+**Mobile Application – Android (Vista de Monitoreo del Cuidador)**
 
-- **Title:**
-  `<title>Alivia Mobile | Alertas y cuidado del hogar en tu bolsillo</title>`
+- **Title:** `<title>Alivia para Android | Alertas y cuidado del hogar en tu bolsillo</title>`
+    - **Propósito:** Resalta la portabilidad y la inmediatez, e identifica la plataforma Android para quien busca la app en ese ecosistema.
+- **Meta Description:** `<meta name="description" content="Descarga Alivia para Android. Recibe alertas escritas de rápida lectura, confirma solicitudes de auxilio y consulta el estado de los dispositivos del hogar desde tu celular. Alivia te mantiene al tanto sin dejar tus responsabilidades.">`
+    - **Propósito:** Se enfoca en las capacidades exclusivas del móvil: notificaciones push, alertas escritas y supervisión remota.
+- **Meta Keywords:** `<meta name="keywords" content="app para cuidadores, app Android, Alivia Android, notificaciones de auxilio, alertas push, supervisión del hogar, monitoreo de dispositivos, agenda de cuidado, Alivia">`
+    - **Propósito:** Atrae a usuarios de Android que buscan aplicaciones de apoyo al cuidado y monitoreo remoto.
+- **Meta Author:** `<meta name="author" content="Equipo de Desarrollo Mobile – Alivia, 2026">`
 
-    - **Propósito:** Resalta la portabilidad y la inmediatez, en línea con el uso principal de la aplicación: recibir alertas y supervisar el hogar en cualquier lugar.
-- **Meta Description:**
-  `<meta name="description" content="Recibe alertas escritas de rápida lectura, confirma solicitudes de auxilio y consulta el estado de los dispositivos del hogar desde tu celular. Alivia te mantiene al tanto sin dejar tus responsabilidades.">`
+**Mobile Application – iOS (Vista de Monitoreo del Cuidador)**
 
-    - **Propósito:** Se enfoca en las capacidades exclusivas del móvil: notificaciones push, alertas escritas y supervisión remota, clave para un cuidador que no siempre está en casa.
-- **Meta Keywords:**
-  `<meta name="keywords" content="app para cuidadores, notificaciones de auxilio, alertas push, supervisión del hogar, monitoreo de dispositivos, agenda de cuidado, app Android, app iOS, Alivia">`
-
-    - **Propósito:** Atrae a usuarios que buscan aplicaciones de apoyo al cuidado y monitoreo remoto, tanto en Android como en iOS.
-- **Meta Author:**
-  `<meta name="author" content="Equipo de Desarrollo Mobile – Alivia, 2026">`
+- **Title:** `<title>Alivia para iOS | Alertas y cuidado del hogar en tu bolsillo</title>`
+- **Meta Description:** `<meta name="description" content="Descarga Alivia para iPhone. Recibe alertas escritas de rápida lectura, confirma solicitudes de auxilio y consulta el estado de los dispositivos del hogar desde tu celular. Alivia te mantiene al tanto sin dejar tus responsabilidades.">`
+- **Meta Keywords:** `<meta name="keywords" content="app para cuidadores, app iOS, app iPhone, Alivia iOS, notificaciones de auxilio, alertas push, supervisión del hogar, monitoreo de dispositivos, agenda de cuidado, Alivia">`
+- **Meta Author:** `<meta name="author" content="Equipo de Desarrollo Mobile – Alivia, 2026">`
+    - **Propósito (compartido con Android):** Ambas versiones mantienen el mismo mensaje y difieren solo en la plataforma, para posicionar por separado las búsquedas de Android y de iOS.
 
 **Etiquetas complementarias (Landing Page)**
 
@@ -773,12 +784,21 @@ La Landing Page sigue una estructura de scroll lineal con anclas, en la que cada
 - Los enlaces de **descarga de la aplicación** muestran la disponibilidad para Android e iOS.
 - El contenido audiovisual ofrece una alternativa textual equivalente cuando no puede reproducirse (US02).
 
-#### Navegación en la Aplicación Web
+#### Navegación en la Aplicación Web del Cuidador
 
-- **Familiar o cuidador:** el panel lateral persistente concentra la navegación global. En escritorio se muestra expandido con etiquetas de texto; en tablet se colapsa a solo íconos outline; en pantallas angostas se oculta tras un botón de menú en el encabezado. El encabezado superior incluye el logo, el nombre de la persona asistida activa, el acceso a notificaciones y el perfil del cuidador, siguiendo el patrón Z definido en las Web Style Guidelines.
-- **Técnico y administrador:** la plataforma empresarial mantiene una estructura similar de panel lateral, con módulos ajustados al rol (visitas, evaluación, instalación e incidencias para el técnico; métricas, planes, suscripciones, empleados, órdenes técnicas, dispositivos y trazabilidad para el administrador), aplicando autorización por rol para que cada perfil solo vea las funciones que le corresponden.
-- La **navegación local** se concentra en tabs, tarjetas y accesos directos que reducen la profundidad de clics; por ejemplo, desde una tarjeta de dispositivo con falla se accede directamente a "Reportar falla".
-- Los **botones de retorno y cierre** se reservan para flujos de detalle, edición y confirmación, sin duplicar controles innecesarios.
+- **Navegación global:** el panel lateral persistente concentra la navegación e incluye Inicio, Mi hogar, Contratación, Dispositivos, Alertas, Agenda de cuidado, Soporte, Autonomía y Perfil. En escritorio se muestra expandido con etiquetas de texto; en tablet se colapsa a solo íconos outline; en pantallas angostas se oculta tras un botón de menú en el encabezado.
+- **Encabezado superior:** incluye el logo, el nombre de la persona asistida activa, el acceso a notificaciones y el perfil del cuidador, siguiendo el patrón Z definido en las Web Style Guidelines.
+- **Navegación local:** se concentra en tabs, tarjetas y accesos directos que reducen la profundidad de clics; por ejemplo, desde una tarjeta de dispositivo con falla se accede directamente a "Reportar falla".
+- **Botones de retorno y cierre:** se reservan para flujos de detalle, edición y confirmación, sin duplicar controles innecesarios.
+
+#### Navegación en la Aplicación Web del Negocio
+
+- **Navegación global:** la plataforma empresarial mantiene una estructura similar de panel lateral, con módulos ajustados al rol y autorización por rol (RBAC), de modo que cada perfil solo vea las funciones que le corresponden.
+    - **Administrador y responsable de planes y suscripciones:** Métricas, Planes, Suscripciones, Empleados, Órdenes técnicas, Dispositivos y Trazabilidad.
+    - **Técnico:** Visitas, Evaluación, Instalación e Incidencias.
+- **Navegación local:** tabs, filtros y accesos directos entre módulos relacionados; por ejemplo, desde el detalle de una suscripción se accede a las órdenes técnicas del hogar, y desde una orden se accede a la asignación de técnico y a la reserva de dispositivos.
+- **Botones de retorno y cierre:** se reservan para flujos de detalle, edición y confirmación, con breadcrumbs cuando el flujo lo requiere (por ejemplo, Órdenes técnicas > Detalle de la orden > Asignación de técnico).
+- **Encabezado superior:** incluye el logo, el rol activo y el perfil del usuario, sin el selector de persona asistida, que solo aplica a la web del cuidador.
 
 #### Navegación en la Aplicación Móvil
 
