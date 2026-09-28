@@ -2585,7 +2585,31 @@ A partir del Design-Level Event Storming, los agregados definidos delimitan la u
 
 #### Paso 10: Bounded Contexts
 
+A partir de los agregados identificados, el equipo consolidó los bounded contexts candidatos de Alivia, delimitando para cada uno los comandos, eventos, actores y sistemas externos que le corresponden.
+
 ![Bounded Contexts IAM](https://i.imgur.com/fdUp4Ol.png)
+
+**IAM** gestiona el registro y la autenticación de los usuarios de la plataforma (Administrador, Cuidador y Empleado). Cubre el registro de cuenta con verificación de correo mediante Sendgrid, el inicio de sesión con segundo factor de autenticación opcional, el cierre de sesión y la recuperación de contraseña.
+
+![Bounded Contexts Gestión del Negocio](https://i.imgur.com/ftTHsjl.png)
+
+**Gestión del Negocio** centraliza el registro y la actualización del perfil del negocio por parte del Administrador, incluyendo la geolocalización mediante Google Maps, así como el registro de administradores adicionales.
+
+![Bounded Contexts Perfiles](https://i.imgur.com/hP0PBFj.png)
+
+**Perfiles** gestiona la creación y actualización del perfil de usuario, con carga de datos personales y foto mediante Cloudinary API, y del perfil de hogar, incluyendo la asignación del cuidador principal. Este último se inicializa automáticamente una vez completado el registro en IAM.
+
+![Bounded Contexts Capital Humano](https://i.imgur.com/AwkpnmZ.png)
+
+**Capital Humano** administra el ciclo de vida del personal interno de Alivia: el alta, la suspensión y el despido de empleados por parte del Administrador, junto con el registro, la renovación y la culminación de sus contratos laborales.
+
+![Bounded Contexts Cuidado](https://i.imgur.com/XlANyIE.png)
+
+**Cuidado** orquesta la relación entre el familiar, la persona discapacitada y el cuidador: el registro del familiar y la asignación de labores de cuidado, la invitación y vinculación de cuidadores adicionales con envío de correo mediante Sendgrid, y la gestión de horarios, turnos y asignaciones cumplidas por el cuidador.
+
+![Bounded Contexts Pagos y suscripciones](https://i.imgur.com/S8F9C5u.png)
+
+**Pagos y Suscripciones** gestiona la comparación y elección de planes, el proceso de pago a través de Stripe con preautorización, confirmación o rechazo del cobro, la activación de la suscripción y la posterior adaptación del plan, coordinando con Soporte Técnico la fecha de instalación.
 
 ### 4.2.3. Domain Message Flow Modeling
 
