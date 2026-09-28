@@ -2611,6 +2611,10 @@ A partir de los agregados identificados, el equipo consolidó los bounded contex
 
 **Pagos y Suscripciones** gestiona la comparación y elección de planes, el proceso de pago a través de Stripe con preautorización, confirmación o rechazo del cobro, la activación de la suscripción y la posterior adaptación del plan, coordinando con Soporte Técnico la fecha de instalación.
 
+![Bounded Contexts Comunicaciones ](https://i.imgur.com/Nhz7Am7.png)
+
+**Comunicaciones** centraliza la generación y el envío de notificaciones al cuidador principal mediante Firebase Cloud Messaging, la asignación de prioridad —incluyendo alertas críticas—, la confirmación o repetición de la notificación y la actualización del historial correspondiente.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
