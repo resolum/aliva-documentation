@@ -492,7 +492,7 @@ Esta categorización por audiencias permite que cada perfil vea únicamente la i
 - **Técnico:** gestión de visitas de evaluación e instalación, registro de compatibilidad, dispositivos, pruebas y conformidad, y atención de incidencias.
 - **Administrador del negocio y responsable de planes y suscripciones:** gestión de planes, suscripciones, empleados, contratos, horarios, dispositivos, órdenes técnicas, trazabilidad y métricas globales del negocio.
 
-La persona con discapacidad motora severa no interactúa con estas vistas: su interfaz es exclusivamente el dispositivo de voz, organizado mediante frases clave asociadas a acciones (luz, puerta, ventana y auxilio) y señales sonoras y luminosas.
+La persona con discapacidad motora severa no interactúa con estas vistas: su interfaz es exclusivamente el dispositivo de voz, organizado mediante frases clave asociadas a acciones (luz, puerta, ventana y auxilio) y respuestas sonoras.
 
 #### Segmentación por roles y audiencias
 
@@ -560,7 +560,6 @@ La aplicación web del negocio está dirigida al personal de Alivia, y el etique
 
 *Nota de consistencia:* Las etiquetas compartidas entre las webs y la app móvil (**Inicio, Dispositivos, Alertas y Perfil**) mantienen el mismo nombre y significado en todas las vistas, para evitar que el usuario tenga que aprender términos distintos para una misma función.
 
-
 #### D. Aplicación Móvil
 
 Diseñada para la supervisión rápida y el uso con una sola mano, la aplicación móvil del cuidador usa etiquetas cortas y orientadas a la acción en su barra de navegación inferior:
@@ -575,7 +574,7 @@ Los accesos de menor frecuencia (soporte, autonomía, gestión de la red de cuid
 
 #### E. Dispositivo IoT
 
-El dispositivo no cuenta con pantalla, por lo que su "etiquetado" se compone de frases de voz y señales luminosas. Se mantiene la coherencia con el tono definido: breve, sereno y sin alarmismo.
+El dispositivo no cuenta con pantalla ni indicadores luminosos, por lo que su "etiquetado" se compone exclusivamente de frases de voz. Se mantiene la coherencia con el tono definido: breve, sereno y sin alarmismo.
 
 - **Frases de interacción (ejemplos):**
     - **"Enciende la luz" / "Apaga la luz":** Control de la iluminación.
@@ -587,11 +586,8 @@ El dispositivo no cuenta con pantalla, por lo que su "etiquetado" se compone de 
     - **"No entendí, ¿puedes repetirlo?":** Comando no reconocido o con baja confianza.
     - **"La puerta no respondió. Avisamos a tu cuidador para revisarla.":** Falla de ejecución.
     - **"Se avisó a tu cuidador, ya viene en camino.":** Confirmación de solicitud de auxilio.
-- **Señales luminosas (LED):**
-    - **Turquesa fijo:** Disponible y en espera.
-    - **Turquesa con pulso suave:** Escuchando un comando.
-    - **Ámbar con parpadeo lento:** Batería de respaldo baja.
-    - **Rojo con parpadeo rápido:** Falla o desconexión.
+    - **"Estoy listo para escucharte." (al iniciar o tras completar una acción):** Confirma por voz que el dispositivo está disponible para recibir un nuevo comando.
+    - **"Mi batería de respaldo está baja, avisamos a tu cuidador.":** Advertencia de batería baja, comunicada por voz en lugar de una señal visual.
 
 #### F. Etiquetas en Formularios y Botones Operativos
 
@@ -650,7 +646,7 @@ Estas ayudas siguen el tono de comunicación definido en Alivia: claro, directo,
 | Landing Page | Navegación por secciones (anclas y menú) | Permite ubicar contenido informativo (solución, beneficios, testimonios, planes) sin un motor de búsqueda dedicado |
 | Aplicación web | Búsqueda textual por módulo + filtros básicos | Permite localizar registros en listas y tablas según las tareas del cuidador, el técnico y el administrador |
 | Aplicación móvil | Búsqueda textual por pantalla + filtros simplificados | Permite consultar los datos clave del hogar y las alertas con interacción táctil y uso con una sola mano |
-| Dispositivo IoT | No aplica búsqueda textual | La persona asistida interactúa únicamente mediante frases de voz asociadas a acciones (Intent Mapping); el dispositivo comunica su estado mediante LED y miniparlante, sin flujo de búsqueda manual |
+| Dispositivo IoT | No aplica búsqueda textual | La persona asistida interactúa únicamente mediante frases de voz asociadas a acciones (Intent Mapping); el dispositivo comunica su estado exclusivamente por voz, sin flujo de búsqueda manual |
 
 #### 6.2.3.3. Filtros definidos por módulo (alineados a User Stories)
 
@@ -828,11 +824,11 @@ La Landing Page sigue una estructura de scroll lineal con anclas, en la que cada
 
 #### Navegación en el Dispositivo IoT
 
-El dispositivo no cuenta con pantalla ni botones de uso primario, por lo que su "navegación" se resuelve mediante interacción por voz y señales:
+El dispositivo no cuenta con pantalla, botones de uso primario ni indicadores luminosos, por lo que su "navegación" se resuelve exclusivamente mediante interacción por voz:
 
 - **Activación por frases clave:** la persona asistida solicita acciones mediante frases cortas y cotidianas asociadas a luz, puerta, ventana y auxilio (Intent Mapping).
 - **Retroalimentación inmediata:** cada comando se confirma por voz con el resultado real de la acción; ante baja confianza (menos de 75 %) el dispositivo se abstiene de actuar y solicita repetir la instrucción.
-- **Estado permanente:** los indicadores LED comunican el estado operativo (disponible, escuchando, batería baja o falla) mediante color y patrón de parpadeo, sin depender solo del color.
+- **Estado comunicado por voz:** el dispositivo informa verbalmente su condición operativa cuando es relevante para la persona asistida (por ejemplo, al iniciar, al detectar batería de respaldo baja o al perder una función esencial), sin depender de ninguna señal visual.
 - **Ruta de auxilio directa:** la expresión de auxilio reconocida activa de inmediato una alerta crítica al cuidador, sin pasos intermedios ni confirmaciones adicionales que retrasen la asistencia.
 
 #### Principios y técnicas clave
@@ -856,7 +852,6 @@ El dispositivo no cuenta con pantalla ni botones de uso primario, por lo que su 
 - **Administrador → Inicio de sesión → Métricas → Suscripciones → Detalle del hogar → Órdenes técnicas → Asignación de técnico y reserva de dispositivos.**
 
 Con estas decisiones de navegación, Alivia orienta a cada usuario paso a paso, desde el primer contacto en la Landing Page hasta las tareas de cuidado y supervisión diarias, reduciendo el esfuerzo cognitivo y físico, protegiendo la seguridad de la persona asistida y fortaleciendo la confianza del cuidador en la solución.
-
 
 ## 6.3. Landing Page UI Design
 
