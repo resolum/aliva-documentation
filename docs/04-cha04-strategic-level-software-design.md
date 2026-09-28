@@ -2623,6 +2623,10 @@ A partir de los agregados identificados, el equipo consolidó los bounded contex
 
 **Analíticas** provee al Administrador, al Gestor de Suscripciones y al Cuidador el cálculo y la obtención de métricas globales, de ventas y de rendimiento de los dispositivos, consolidadas en un dashboard principal.
 
+![Bounded Contexts Telemetria ](https://i.imgur.com/PEFSSFy.png)
+
+**Telemetría** monitorea el estado de los dispositivos instalados, registrando fallas de puerta, iluminación, micrófono, batería y ventana, y gestiona la sincronización de los eventos almacenados localmente cuando el dispositivo opera sin conexión, hasta el registro final de métricas.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
