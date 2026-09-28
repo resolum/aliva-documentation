@@ -2603,6 +2603,10 @@ A partir de los agregados identificados, el equipo consolidó los bounded contex
 
 **Capital Humano** administra el ciclo de vida del personal interno de Alivia: el alta, la suspensión y el despido de empleados por parte del Administrador, junto con el registro, la renovación y la culminación de sus contratos laborales.
 
+![Bounded Contexts Cuidado](https://i.imgur.com/XlANyIE.png)
+
+**Cuidado** orquesta la relación entre el familiar, la persona discapacitada y el cuidador: el registro del familiar y la asignación de labores de cuidado, la invitación y vinculación de cuidadores adicionales con envío de correo mediante Sendgrid, y la gestión de horarios, turnos y asignaciones cumplidas por el cuidador.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
