@@ -2583,6 +2583,14 @@ El equipo identificó los agregados en cada bounded context de la siguiente mane
 
 A partir del Design-Level Event Storming, los agregados definidos delimitan la unidad de consistencia de cada flujo del dominio y sirven de base para la identificación de los bounded contexts candidatos de Alivia.
 
+#### Paso 10: Bounded Contexts
+
+A partir de los agregados identificados, el equipo consolidó los bounded contexts candidatos de Alivia, delimitando para cada uno los comandos, eventos, actores y sistemas externos que le corresponden.
+
+![Bounded Contexts IAM](https://i.imgur.com/fdUp4Ol.png)
+
+**IAM** gestiona el registro y la autenticación de los usuarios de la plataforma (Administrador, Cuidador y Empleado). Cubre el registro de cuenta con verificación de correo mediante Sendgrid, el inicio de sesión con segundo factor de autenticación opcional, el cierre de sesión y la recuperación de contraseña.
+
 ### 4.2.3. Domain Message Flow Modeling
 
 Los Domain Message Flows modelan las interacciones entre los diferentes bounded contexts, mostrando cómo se comunican entre sí mediante comandos, eventos y consultas. A continuación, se muestran los flujos de mensaje para los escenarios clave del negocio:
