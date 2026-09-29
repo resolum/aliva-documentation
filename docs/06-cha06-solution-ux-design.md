@@ -855,9 +855,199 @@ Con estas decisiones de navegación, Alivia orienta a cada usuario paso a paso, 
 
 ## 6.3. Landing Page UI Design
 
+En esta sección se detalla el diseño de la interfaz de usuario para la Landing Page del proyecto Alivia. El objetivo de este diseño es establecer una primera interacción efectiva con los potenciales clientes (personas con discapacidad motora severa y sus familiares o cuidadores), comunicando de manera clara la propuesta de valor de la plataforma y facilitando la conversión mediante una arquitectura orientada al usuario, con un tono sereno, respetuoso y accesible.
+
 ### 6.3.1. Landing Page Wireframe
 
+Se presentan los esquemas de baja fidelidad que definen la estructura base de la Landing Page. Estos wireframes se centran en la disposición de los bloques de contenido, la jerarquía de la información y la ubicación de los llamados a la acción (CTA), asegurando que la navegación sea intuitiva antes de integrar elementos estéticos definitivos.
+
+**Barra de Navegación y Sección Principal (Hero)**
+
+<div align="center">
+  <img src="https://imgur.com/WMR4mM8.png" alt="Encabezado fijo con menú de anclas y sección hero de dos columnas con propuesta de valor, CTA y contenedor gráfico principal." height="400">
+</div>
+
+**Descripción:** Encabezado fijo con el logotipo de Alivia, un menú de anclas hacia cada sección (¿Qué es?, Cómo funciona, Dispositivos, Audiovisual, Testimonios, Equipo, Planes, FAQ) y un acceso de usuario. Debajo, la sección hero presenta una distribución de dos columnas: a la izquierda, una etiqueta de categoría, el titular de la propuesta de valor, un párrafo descriptivo, dos botones de llamada a la acción y una fila de cuatro indicadores rápidos (tiempo de respuesta, procesamiento local, fonética peruana y batería); a la derecha, un contenedor gráfico principal con una tarjeta flotante inferior que simula un comando de voz detectado en vivo.
+
+**Dos Vidas Transformadas en Paralelo**
+
+<div align="center">
+  <img src="https://imgur.com/PbskBjN.png" alt="Sección con pestañas alternables entre persona asistida y cuidador, tres tarjetas de beneficio y un contenedor gráfico con cita testimonial." height="400">
+</div>
+
+**Descripción:** Sección con un encabezado centrado y un control de pestañas ("Para la Persona Asistida" / "Para el Cuidador Familiar") que alterna el contenido mostrado debajo. El layout combina una columna izquierda con tres tarjetas de beneficio numeradas (ícono, título y descripción breve) y una columna derecha con un contenedor gráfico principal acompañado de una cita testimonial superpuesta en la parte inferior.
+
+**Ecosistema de Dispositivos**
+
+<div align="center">
+  <img src="https://imgur.com/wR2g7Vp.png" alt="Disposición asimétrica con una tarjeta destacada para el hub central y una cuadrícula de tarjetas secundarias para los demás dispositivos." height="400">
+</div>
+
+**Descripción:** Disposición asimétrica que presenta primero una tarjeta destacada de mayor tamaño para el componente central del sistema (Hub Alivia Core), seguida de una cuadrícula de tarjetas secundarias más pequeñas para los demás dispositivos (micrófono, iluminación y actuador de puerta), cada una con espacio para ícono, título, descripción y una etiqueta técnica inferior.
+
+**Testimonios**
+
+<div align="center">
+  <img src="https://imgur.com/tLrAkPU.png" alt="Grilla de seis tarjetas de testimonios junto a un bloque destacado con encabezado, CTA y aviso de cumplimiento legal." height="400">
+</div>
+
+**Descripción:** Grilla de dos columnas con seis tarjetas de testimonios de usuarios y familiares, cada una con un avatar circular, una cita y los datos de la persona (nombre, ciudad y rol). Una de las tarjetas incorpora una etiqueta adicional para el caso de una identidad reservada. A la derecha, un bloque destacado de mayor contraste concentra el encabezado de la sección, un párrafo introductorio, un botón de llamada a la acción y un aviso de cumplimiento legal.
+
+**Equipo**
+
+<div align="center">
+  <img src="https://imgur.com/td3WcjV.png" alt="Cuadrícula de seis tarjetas de equipo con avatar, nombre, especialidad y descripción breve." height="400">
+</div>
+
+**Descripción:** Sección con encabezado centrado y una cuadrícula de seis tarjetas uniformes, cada una con un avatar circular con iniciales, el nombre completo, la especialidad en una etiqueta corta y una descripción breve de la responsabilidad de cada integrante dentro del proyecto.
+
+**Contenido Audiovisual**
+
+<div align="center">
+  <img src="https://imgur.com/3PqOWJ2.png" alt="Bloque de video independiente con controles de accesibilidad y enlace a transcripción completa." height="400">
+</div>
+
+**Descripción:** Bloque independiente centrado para el reproductor de video, con un encabezado y subtítulo propios, un área de reproducción con botón de play central y la duración del video, y una fila inferior de controles de accesibilidad (subtítulos, lengua de señas, audio descriptivo) junto con un enlace a la transcripción completa como alternativa textual.
+
+**Planes**
+
+<div align="center">
+  <img src="https://imgur.com/ntM0tJU.png" alt="Estructura comparativa de dos planes de suscripción con interruptor de facturación y selectores de personalización." height="400">
+</div>
+
+**Descripción:** Estructura comparativa de dos columnas para los planes de suscripción, con un interruptor superior para alternar entre facturación mensual y anual. Cada columna contiene el nombre del plan, una etiqueta de categoría, el precio, una lista de características incluidas con marcadores de verificación y un botón de continuar; la columna del plan personalizado incorpora además selectores desplegables para configurar habitaciones y dispositivos adicionales.
+
+**Descarga de la Aplicación**
+
+<div align="center">
+  <img src="https://imgur.com/82RL5Du.png" alt="Banner oscuro de ancho completo con descripción de la app y botones de descarga para Google Play y App Store." height="400">
+</div>
+
+**Descripción:** Banner de ancho completo con fondo oscuro y disposición de una sola columna, que agrupa una etiqueta de categoría, el titular de descarga, un párrafo descriptivo de las funciones de la app de cuidadores y dos botones de tienda de aplicaciones (Google Play y App Store).
+
+**Preguntas Frecuentes**
+
+<div align="center">
+  <img src="https://imgur.com/OagTJmu.png" alt="Acordeón de preguntas frecuentes y bloque de contacto adicional para consultas específicas." height="400">
+</div>
+
+**Descripción:** Sección con encabezado centrado y un componente de tipo acordeón que agrupa las consultas técnicas más comunes sobre el funcionamiento sin Internet, la compatibilidad con puertas, los cortes eléctricos y el reconocimiento de voz. Debajo, un bloque de contacto adicional invita a comunicarse directamente con el equipo para consultas específicas sobre la vivienda.
+
+**Cita del Manifiesto**
+
+<div align="center">
+  <img src="https://imgur.com/buZUvkV.png" alt="Bloque de transición oscuro con una cita centrada del manifiesto de diseño inclusivo." height="400">
+</div>
+
+**Descripción:** Bloque de transición de ancho completo con fondo oscuro y disposición centrada, utilizado como pausa visual entre secciones. Contiene únicamente una cita destacada en tipografía de mayor tamaño y la atribución al manifiesto de diseño inclusivo de Alivia.
+
+**Pie de Página**
+
+<div align="center">
+  <img src="https://imgur.com/NmUmGlX.png" alt="Pie de página de cuatro columnas con enlaces agrupados por categoría y franja legal inferior." height="400">
+</div>
+
+**Descripción:** Layout de cuatro columnas para el pie de página: la primera con el logotipo, una descripción breve de la plataforma y un sello de cumplimiento; las siguientes tres con enlaces agrupados por categoría (Plataforma; Compañía y Equipo; Urgencias y Contacto), esta última incluyendo una línea asistencial y la dirección de la sede. Una franja inferior cierra con el aviso de derechos reservados y los enlaces legales (Aviso Legal, Política de Privacidad, Política de Cookies, Declaración de Accesibilidad).
+
 ### 6.3.2. Landing Page Mockups
+
+Esta sección muestra el diseño de alta fidelidad de la Landing Page, donde se aplica la identidad visual de Alivia. En este nivel de diseño se integran la paleta de colores corporativa (azul marino, turquesa y menta), la tipografía Outfit y los recursos gráficos detallados, proporcionando la representación visual exacta de la interfaz tal como será percibida por el visitante, la persona asistida y el cuidador.
+
+**Barra de Navegación y Sección Principal (Hero)**
+
+<div align="center">
+  <img src="https://imgur.com/iHcpzXH.png" alt="Interfaz de alta fidelidad con la paleta corporativa de Alivia, encabezado fijo con menú de anclas y sección hero con fotografía real y botones de llamada a la acción en turquesa." height="400">
+</div>
+
+**Descripción:** Interfaz de alta fidelidad con la paleta corporativa de Alivia (azul marino, turquesa y blanco), un encabezado fijo con el menú de anclas y un badge de accesibilidad AA, y una sección hero de fondo oscuro con fotografía real de una persona en silla de ruedas, tarjetas de estadísticas translúcidas y botones de llamada a la acción en turquesa.
+
+**Dos Vidas Transformadas en Paralelo - Persona Asistida**
+
+<div align="center">
+  <img src="https://imgur.com/n5vXyi9.png" alt="Pestaña activa para la persona asistida con tres tarjetas de beneficio, fotografía real de una usuaria en silla de ruedas y cita testimonial superpuesta." height="400">
+</div>
+
+**Descripción:** Diseño final de la pestaña activa "Para la Persona Asistida", con tres tarjetas de beneficio en fondo blanco con íconos circulares en menta y una fotografía real de una usuaria en silla de ruedas junto a una cita testimonial superpuesta en la esquina inferior.
+
+**Dos Vidas Transformadas en Paralelo - Cuidador Familiar**
+
+<div align="center">
+  <img src="https://imgur.com/B32QslE.png" alt="Pestaña activa para el cuidador familiar con cuadrícula de fotografías del hogar, tarjeta de estado en vivo y cita testimonial de una cuidadora." height="400">
+</div>
+
+**Descripción:** Diseño final de la pestaña alternativa "Para el Cuidador Familiar", que reemplaza la fotografía por una cuadrícula de cuatro imágenes reales del entorno del hogar y agrega una tarjeta de estado en vivo del hogar (dormitorio, acceso principal, batería y último comando) junto con una cita testimonial de una cuidadora.
+
+**Ecosistema de Dispositivos**
+
+<div align="center">
+  <img src="https://imgur.com/6aoyP4l.png" alt="Composición visual con fotografía real del micrófono Far-Field y cuadrícula de cuatro tarjetas descriptivas del ecosistema de dispositivos." height="400">
+</div>
+
+**Descripción:** Composición visual que integra una fotografía real del micrófono Far-Field de Alivia junto a una cuadrícula de cuatro tarjetas descriptivas de los dispositivos del ecosistema (hub, micrófono, iluminación y actuador), cada una con ícono circular en menta y una etiqueta técnica inferior.
+
+**Testimonios**
+
+<div align="center">
+  <img src="https://imgur.com/czFF8X4.png" alt="Grilla de seis tarjetas de testimonios con avatares de colores, badge de identidad reservada y bloque destacado con CTA y aviso legal." height="400">
+</div>
+
+**Descripción:** Grilla final de seis tarjetas de testimonios con avatares circulares de colores y datos del usuario (nombre, ciudad y rol), incluyendo el badge de "Identidad Reservada" en el testimonio correspondiente, junto a un bloque destacado con el encabezado de la sección, un botón de conversión en azul marino y el aviso de cumplimiento legal.
+
+**Equipo**
+
+<div align="center">
+  <img src="https://imgur.com/JBeqYI3.png" alt="Cuadrícula de seis tarjetas del equipo con íconos temáticos, nombre, especialidad y descripción de su rol en el proyecto." height="400">
+</div>
+
+**Descripción:** Sección final "Detrás de Alivia" con una cuadrícula de seis tarjetas de integrantes, cada una con un ícono circular temático (código, robot, análisis, entre otros), el nombre completo, la especialidad y el ciclo académico, y una descripción breve de su rol en el proyecto.
+
+**Contenido Audiovisual**
+
+<div align="center">
+  <img src="https://imgur.com/GR7oisw.png" alt="Reproductor de video con fondo degradado azul marino, botón de reproducción turquesa y controles de accesibilidad." height="400">
+</div>
+
+**Descripción:** Reproductor de video de alta fidelidad con fondo degradado en azul marino, un botón de reproducción circular en turquesa, la duración del video y controles de accesibilidad (subtítulos en español, lengua de señas y audio descriptivo) junto con el enlace a la transcripción completa.
+
+**Planes**
+
+<div align="center">
+  <img src="https://imgur.com/XB8zgAM.png" alt="Dos tarjetas de planes con interruptor de facturación, listas de características con marcadores en turquesa y selectores de personalización." height="400">
+</div>
+
+**Descripción:** Diseño final de dos tarjetas de planes sobre fondo menta claro, con el interruptor de facturación mensual y anual en la parte superior, listas de características con marcadores de verificación en turquesa, y selectores desplegables en el plan personalizado para configurar habitaciones y puertas.
+
+**Descarga de la Aplicación**
+
+<div align="center">
+  <img src="https://imgur.com/ppYsn4T.png" alt="Banner azul marino con esquinas redondeadas, descripción de la app y botones de descarga para Google Play y App Store." height="400">
+</div>
+
+**Descripción:** Banner de ancho completo en azul marino con esquinas redondeadas, que presenta el titular de descarga en blanco, un párrafo descriptivo de las funciones de la app y dos botones de tienda con íconos de Android e iOS sobre fondo blanco.
+
+**Preguntas Frecuentes**
+
+<div align="center">
+  <img src="https://imgur.com/Afnllzd.png" alt="Acordeón de preguntas frecuentes con tarjetas blancas redondeadas e íconos de chevron para expandir cada respuesta." height="400">
+</div>
+
+**Descripción:** Componente de acordeón de alta fidelidad sobre fondo menta claro, con tarjetas blancas de esquinas redondeadas para cada pregunta y un ícono de chevron indicando la posibilidad de expandir cada respuesta.
+
+**Cita del Manifiesto**
+
+<div align="center">
+  <img src="https://imgur.com/hpWOddx.png" alt="Bloque de transición azul marino con cita destacada en blanco, comillas en turquesa y separador decorativo." height="400">
+</div>
+
+**Descripción:** Bloque de transición final en azul marino con esquinas muy redondeadas, que centra una cita destacada en tipografía grande color blanco con las comillas en turquesa y un separador decorativo debajo del texto.
+
+**Pie de Página**
+
+<div align="center">
+  <img src="https://imgur.com/lVajgR7.png" alt="Pie de página de cuatro columnas con logotipo, sello de cumplimiento, enlaces agrupados por categoría y franja legal inferior." height="400">
+</div>
+
+**Descripción:** Diseño final del pie de página en cuatro columnas, con el logotipo de Alivia y su sello de cumplimiento en la primera columna, y los enlaces agrupados por categoría (Plataforma; Compañía y Equipo; Urgencias y Contacto) en las columnas siguientes, cerrando con una franja inferior de derechos reservados y enlaces legales.
 
 ## 6.4. Applications UX/UI Design
 
