@@ -6,34 +6,30 @@ workspace "Alivia" "Diagrama C4 del Sistema Alivia" {
 
   // ---------- Personas ----------
   visit = person "Visitante" "Interesado en la plataforma"
-  disabled = person "Persona con discapacidad" "Persona con discapacidad motora"
-  bussinessOwner = person "Administrador del negocio" "Gestiona todos los dispositivos, personal, suscripciones, etc."
-  tec = person "Técnico de la empresa" "Personal encargado de la instalación de los dispositivos en la casa y de verificar que la casa cumple con los requisitos para la instalación"
-  family = person "Familiar o cuidador" "Persona encargada del cuidado de la persona con discapacidad"
+  disabled = person "Persona con Discapacidad" "Persona con discapacidad motora"
+  bussinessOwner = person "Administrador del Negocio" "Gestiona todos los dispositivos, personal, suscripciones, etc."
+  tec = person "Técnico de la Empresa" "Personal encargado de la instalación de los dispositivos en la casa y de verificar que la casa cumple con los requisitos para la instalación"
+  family = person "Cuidador" "Persona encargada del cuidado de la persona con discapacidad"
 
   // ---------- Sistema Alivia ----------
-  ss = softwareSystem "Sistema Alivia" {
+  ss = softwareSystem "Sistema Alivia" "Plataforma centrada en ofrecer control de objetos del hogar por voz a las personas con discapacidad motora severa" {
 
-   landing = container "Landing Page" "Sitio web estático para mostrar la información de nuestro sistema" "Astro,typescript" "LandingPage"
+   landing = container "Landing Page" "Sitio web estático para mostrar la información de nuestro sistema" "Astro, Typescript" "LandingPage"
 
-   frontendPersonal = container "Pagina web para la empresa" "Página para el personal de la empresa y administrador" "Angular, TypeScript" "Web"
+   api = container "API" "API encargada de distribuir los endpoints a cada plataforma" "Spring Boot, Java" "backend" {
 
-   frontendUsuarios = container "Pagina web para los usuarios" "Página web para los familiares o cuidadores" "React" "Web"
-
-   api = container "alivia API" "API encargada de distribuir los endpoints a cada plataforma" "Java, Spring Boot" "backend" {
-
-     iam = component "IAM" "Contexto encargado de identificar a los usuarios y controlar sus accesos y permisos en la plataforma" "Java, Spring Boot"
-     perfiles = component "Perfiles" "Contexto encargado de gestionar los perfiles de las personas y de la empresa, incluyendo sus datos, ubicación y fotos" "Java, Spring Boot"
-     hcm = component "HCM" "Contexto encargado de gestionar a los empleados: creación y renovación de contratos, actualización de puestos, etc." "Java, Spring Boot"
-     nursing = component "Cuidado" "Contexto encargado del cuidado de la persona con discapacidad: asignación de tareas a cada cuidador e invitaciones para que otros cuidadores visualicen sus asignaciones" "Java, Spring Boot"
-     paymentsAndSubscription = component "Pagos y Suscripciones" "Contexto encargado de gestionar los pagos y las suscripciones: estado del pago, tiempo de suscripción, etc." "Java, Spring Boot"
-     communication = component "Comunicaciones" "Contexto encargado de enviar notificaciones y correos a los cuidadores ante algún problema con los dispositivos o con la persona" "Java, Spring Boot"
-     technicalSupport = component "Soporte Técnico" "Contexto encargado de brindar apoyo presencial en las viviendas: instalación, mantenimiento y verificación de la viabilidad del producto" "Java, Spring Boot"
-     analytics = component "Analítica" "Contexto encargado de mostrar métricas de los dispositivos, ventas, cantidad de empleados, etc." "Java, Spring Boot"
-     tracking = component "Telemetría" "Contexto encargado de recibir y registrar las acciones y estados enviados por los edges" "Java, Spring Boot"
-     assets = component "Bienes" "Contexto encargado de registrar y actualizar los dispositivos, y de indicar a los edges cuáles están autorizados" "Java, Spring Boot"
-     businessManagment = component "Gestión del Negocio" "Contexto encargado de gestionar la empresa: actualizar su información, administrador a cargo, etc." "Java, Spring Boot"
-     shared = component "Compartido" "Contexto que maneja los agregados, entidades y objetos de valor compartidos por los demás contextos" "Java, Spring Boot"
+     iam = component "IAM" "Contexto encargado de identificar a los usuarios y controlar sus accesos y permisos en la plataforma" "Java, Spring Boot" "Bounded"
+     perfiles = component "Perfiles" "Contexto encargado de gestionar los perfiles de las personas y de la empresa, incluyendo sus datos, ubicación y fotos" "Java, Spring Boot" "Bounded"
+     hcm = component "Capital Humano" "Contexto encargado de gestionar a los empleados: creación y renovación de contratos, actualización de puestos, etc." "Java, Spring Boot" "Bounded"
+     nursing = component "Cuidado" "Contexto encargado del cuidado de la persona con discapacidad: asignación de tareas a cada cuidador e invitaciones para que otros cuidadores visualicen sus asignaciones" "Java, Spring Boot" "Bounded"
+     paymentsAndSubscription = component "Pagos y Suscripciones" "Contexto encargado de gestionar los pagos y las suscripciones: estado del pago, tiempo de suscripción, etc." "Java, Spring Boot" "Bounded"
+     communication = component "Comunicaciones" "Contexto encargado de enviar notificaciones y correos a los cuidadores ante algún problema con los dispositivos o con la persona" "Java, Spring Boot" "Bounded"
+     technicalSupport = component "Soporte Técnico" "Contexto encargado de brindar apoyo presencial en las viviendas: instalación, mantenimiento y verificación de la viabilidad del producto" "Java, Spring Boot" "Bounded"
+     analytics = component "Analítica" "Contexto encargado de mostrar métricas de los dispositivos, ventas, cantidad de empleados, etc." "Java, Spring Boot" "Bounded"
+     tracking = component "Telemetría" "Contexto encargado de recibir y registrar las acciones y estados enviados por los edges" "Java, Spring Boot" "Bounded"
+     assets = component "Bienes" "Contexto encargado de registrar y actualizar los dispositivos, y de indicar a los edges cuáles están autorizados" "Java, Spring Boot" "Bounded"
+     businessManagment = component "Gestión del Negocio" "Contexto encargado de gestionar la empresa: actualizar su información, administrador a cargo, etc." "Java, Spring Boot" "Bounded"
+     shared = component "Compartido" "Contexto que maneja los agregados, entidades y objetos de valor compartidos por los demás contextos" "Java, Spring Boot" "Pattern"
 
 
     //-------- Compartido --------//
@@ -75,40 +71,190 @@ workspace "Alivia" "Diagrama C4 del Sistema Alivia" {
 
     //-------- Relaciones de Bienes --------//
     assets -> technicalSupport "Provee los dispositivos que se instalan o reparan en las visitas técnicas"
-
    }
 
-   mongodb = container "MongoDB" "Base de datos NoSQL que almacena las peticiones enviadas por los devices hacia el backend" "Database" "Database"
+   mongodb = container "Base de Datos de Sincronización" "Base de datos NoSQL que almacena las peticiones enviadas por los devices hacia el backend" "MongoDB" "Database"
 
-postgress = container "PostgreSQL" "Base de datos relacional que almacena los datos del negocio: perfiles, devices, suscripciones, etc." "Database" "Database"
+   postgress = container "Base de Datos de Operaciones" "Base de datos relacional que almacena los datos del negocio: perfiles, devices, suscripciones, etc." "PostgreSQL" "Database"
 
-embebidoActuadores = container "Embebido de los actuadores" "Firmware que recibe la acción a ejecutar desde el edge y controla el hardware físico (abrir la puerta, encender la luz, etc.)" "C++"
+   embebidoActuadores = container "Aplicación Embebida para Actuadores" "Firmware que recibe la acción a ejecutar desde el edge y controla el hardware físico (abrir la puerta, encender la luz, etc.)" "C++"
 
-   mobile = container "Nativo para Android y Ios" "Aplicación nativa para smartphone y iPhone" "Nativo iOS y Android" "Mobile"
+   nginx = container "Balanceador de Carga" "Contenedor que distribuye las peticiones entrantes hacia la API" "NGINX"
 
-nginx = container "nginx" "Balanceador de carga que distribuye las peticiones entrantes hacia la API" "balanceador"
+   webServer = container "Servidor Web" "Servidor web que entrega los recursos estáticos y las dependencias de la aplicación web de usuarios" "WebApplication" "WebApplication"
 
-  group "Fog Layer (Infraestructura Local / LAN)" {
+   sqlite = container "Base de Datos Lócal Móvil" "Base de datos local para las aplicaciones móviles de Android e iOS" "SQLite" "Database"
+   embebidoMicrophone = container "Aplicación Embebida para Micrófono IoT" "Firmware que captura el audio desde el hardware del micrófono y lo envía al edge correspondiente" "C++"
 
-       edgeActuadores = container "edge para el Actuador" "Procesa la información que le llega por medio del broker por el otro edge para ejecutar una acción como abrir la puerta,prender la luz,etc." "Python, Flask" "Edge"
+   webServerEmpresa = container "Servidor Web Administrativo" "Carga dependencias y bibliotecas de la pagina de la empresa" "WebApplication" "WebApplication"
 
-       broker = container "message broker" "Recibe los comandos del edge de los dispositivos y los reenvía al edge del actuador para procesarlos sin conexión a internet" "Broker" "Broker"
+   frontendPersonal = container "Aplicación Web Administrativa" "Página para el personal de la empresa y administrador" "Angular, Typescript" "Web" {
+       
+       iam = component "IAM" "Realiza el proceso de inicio de sesión del usuario en la plataforma" "Angular, Typescript" "Bounded"
+       perfiles = component "Perfiles y Preferencias" "Muestra la información personal a cada empleado" "Angular, Typescript" "Bounded"
+       soporteTecnico = component "Soporte Técnico" "Muestra la relación de actividades técnicas como instalación y mantenimiento a cada empleado" "Angular, Typescript" "Bounded"
+       analiticas = component "Analíticas" "Muestra métricas de negocio relacionadas a labores técnicas, económicas, etc." "Angular, Typescript" "Bounded"
+       hcm = component "Capital Humano" "Permite gestionar contratos y personal técnico del negocio" "Angular, Typescript" "Bounded"
+       assets = component "Bienes" "Muestra la disponibilidad de los dispositivos a la venta" "Angular, Typescript" "Bounded"
+       businessManagement = component "Gestión del Negocio" "Muestra la información de la empresa y permite gestionar información como administradores" "Angular, Typescript" "Bounded"
+       suscripciones = component "Pagos y Suscripciones" "Muestra la información de las suscripciones de las cuentas de los usuarios" "Angular, Typescript" "Bounded"
+       facade = component "Interfaz de Comunicación" "Facade encargado de la comunicación de peticiones y respuestas de la aplicación con el API" "Typescript" "Pattern"
+       shared = component "Shared Kernel" "Presenta la vista 'Home' y almacena vistas y objetos que utilizan varios contextos" "Angular, Typescript" "Pattern"
+       
+       //-------- Relaciones de Shared --------//
+       shared -> perfiles "Redirige" "Capa de Presentación"
+       shared -> hcm "Redirige" "Capa de Presentación"
+       shared -> analiticas "Redirige" "Capa de Presentación"
+       shared -> businessManagement "Redirige" "Capa de Presentación"
+       shared -> suscripciones "Redirige" "Capa de Presentación"
+       shared -> soporteTecnico "Redirige" "Capa de Presentación"
+       shared -> assets "Redirige" "Capa de Presentación"
+       
+       //-------- Relaciones de IAM --------//
+       iam -> facade "Transmite peticiones y recibe respuestas"
+       iam -> shared "Redirige a 'Home'" "Capa de Presentación"
+       
+       //-------- Relaciones de Perfiles --------//
+       perfiles -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Analíticas --------//
+       analiticas -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Assets --------//
+       assets -> facade "Transmite peticiones y recibe respuestas"
+      
+       //-------- Relaciones de Suscripciones --------//
+       suscripciones -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Soporte Técnico --------//
+       soporteTecnico -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de HCM --------//
+       hcm -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Business Management --------//
+       businessManagement -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Mobile Facade --------//
+       facade -> nginx "Consume los endpoints" "HTTPS/JSON"
+   }
 
-       edgeMicrophone = container "Edge microphone" "Transcribe con el modelo de IA el sonido que capturo el sensor para mandarle por medio del broker al otro edge" "Python, Flask" "Edge"
+   frontendUsuarios = container "Aplicación Web de Usuarios" "Página web para los familiares o cuidadores" "React.js, Typescript" "Web" {
+       
+       iam = component "IAM" "Realiza el proceso de inicio de sesión del usuario en la plataforma" "React.js, Typescript" "Bounded"
+       perfiles = component "Perfiles y Preferencias" "Muestra la información personal del usuario y la configuración de preferencias" "React.js, Typescript" "Bounded"
+       comunicaciones = component "Comunicaciones" "Agrupa y organiza la lista de notificaciones y alertas generadas por el sistema" "React.js, Typescript" "Bounded"
+       analiticas = component "Analíticas" "Muestra el desempeño y estado actual de los dispositivos y actuadores instalados" "React.js, Typescript" "Bounded"
+       tracking = component "Telemetría" "Muestra el historial de acciones físicas realizadas por los actuadores" "React.js, Typescript" "Bounded"
+       nursing = component "Cuidado" "Permite la gestión y la asignación de tareas a cada cuidador" "React.js, Typescript" "Bounded"
+       suscripciones = component "Pagos y Suscripciones" "Muestra el resumen de la suscripción y cuenta del usuario" "React.js, Typescript" "Bounded"
+       assets = component "Bienes" "Muestra los dispositivos registrados en la cuenta del usuario" "React.js, Typescript" "Bounded"
+       facade = component "Interfaz de Comunicación" "Facade encargado de la comunicación de peticiones y respuestas de la aplicación con el API" "React.js, Typescript" "Pattern"
+       shared = component "Shared Kernel" "Presenta la vista 'Home' y almacena vistas y objetos que utilizan varios contextos" "React.js, Typescript" "Pattern"
+       
+       //-------- Relaciones de Shared --------//
+       shared -> perfiles "Redirige" "Capa de Presentación"
+       shared -> comunicaciones "Redirige" "Capa de Presentación"
+       shared -> analiticas "Redirige" "Capa de Presentación"
+       shared -> tracking "Redirige" "Capa de Presentación"
+       shared -> nursing "Redirige" "Capa de Presentación"
+       shared -> suscripciones "Redirige" "Capa de Presentación"
+       shared -> assets "Redirige" "Capa de Presentación"
+       
+       //-------- Relaciones de IAM --------//
+       iam -> facade "Transmite peticiones y recibe respuestas"
+       iam -> shared "Redirige a 'Home'" "Capa de Presentación"
+       
+       //-------- Relaciones de Perfiles --------//
+       perfiles -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Comunicaciones --------//
+       comunicaciones -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Analíticas --------//
+       analiticas -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Tracking --------//
+       tracking -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Assets --------//
+       assets -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Nursing --------//
+       nursing -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Suscripciones --------//
+       suscripciones -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Mobile Facade --------//
+       facade -> nginx "Consume los endpoints" "HTTPS/JSON"
+   }
 
-   sqliteEdgeMicrophone = container "sqlite edge devices" "Almacenamiento de los devices permitidos para hacer el envío de datos" "Database" "Database"
+   mobile = container "Aplicación Móvil Nativa" "Aplicación nativa para smartphone y iPhone" "Swift (iOS) / Kotlin (Android)" "Mobile" {
+       
+       iam = component "IAM" "Realiza el proceso de inicio de sesión del usuario en la plataforma" "Swift (iOS) / Kotlin (Android)" "Bounded"
+       perfiles = component "Perfiles y Preferencias" "Muestra la información personal del usuario y la configuración de preferencias" "Swift (iOS) / Kotlin (Android)" "Bounded"
+       comunicaciones = component "Comunicaciones" "Agrupa y organiza la lista de notificaciones y alertas generadas por el sistema" "Swift (iOS) / Kotlin (Android)" "Bounded"
+       analiticas = component "Analíticas" "Muestra el desempeño y estado actual de los dispositivos y actuadores instalados" "Swift (iOS) / Kotlin (Android)" "Bounded"
+       tracking = component "Telemetría" "Muestra el historial de acciones físicas realizadas por los actuadores" "Swift (iOS) / Kotlin (Android)" "Bounded"
+       nursing = component "Cuidado" "Permite la gestión y la asignación de tareas a cada cuidador" "Swift (iOS) / Kotlin (Android)" "Bounded"
+       suscripciones = component "Pagos y Suscripciones" "Muestra el resumen de la suscripción y cuenta del usuario" "Swift (iOS) / Kotlin (Android)" "Bounded"
+       soporteTecnico = component "Soporte Técnico" "Muestra la relación de actividades técnicas como instalación y mantenimiento a cada empleado" "Swift (iOS) / Kotlin (Android)" "Bounded"
+       facade = component "Interfaz de Comunicación" "Facade encargado de la comunicación de peticiones y respuestas de la aplicación con el API" "Swift (iOS) / Kotlin (Android)" "Pattern"
+       sincronizacion = component "Sincronizador" "Módulo encargo de gestionar el almacenamiento y sincronización con la nube de datos locales" "Swift (iOS) / Kotlin (Android)" "Pattern"
+       shared = component "Shared Kernel" "Presenta la vista 'Home' y almacena vistas y objetos que utilizan varios contextos" "Swift (iOS) / Kotlin (Android)" "Pattern"
+       
+       //-------- Relaciones de Shared --------//
+       shared -> perfiles "Redirige" "Capa de Presentación"
+       shared -> comunicaciones "Redirige" "Capa de Presentación"
+       shared -> analiticas "Redirige" "Capa de Presentación"
+       shared -> tracking "Redirige" "Capa de Presentación"
+       shared -> nursing "Redirige" "Capa de Presentación"
+       shared -> suscripciones "Redirige" "Capa de Presentación"
+       shared -> soporteTecnico "Redirige técnicos" "Capa de Presentación"
+       
+       //-------- Relaciones de IAM --------//
+       iam -> facade "Transmite peticiones y recibe respuestas"
+       iam -> shared "Redirige a 'Home'" "Capa de Presentación"
+       
+       //-------- Relaciones de Perfiles --------//
+       perfiles -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Comunicaciones --------//
+       comunicaciones -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Analíticas --------//
+       analiticas -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Tracking --------//
+       tracking -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Nursing --------//
+       nursing -> facade "Transmite peticiones y recibe respuestas"
+       nursing -> sincronizacion "Procesa información local sin conexión a red"
+       
+       //-------- Relaciones de Suscripciones --------//
+       suscripciones -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Soporte Técnico --------//
+       soporteTecnico -> facade "Transmite peticiones y recibe respuestas"
+       
+       //-------- Relaciones de Synchronization Module --------//
+       sincronizacion -> sqlite "Guarda y recupera datos locales" "API Local"
+       sincronizacion -> facade "Transmite información local"
+       
+       //-------- Relaciones de Mobile Facade --------//
+       facade -> nginx "Consume los endpoints" "HTTPS/JSON"
+   }
 
-   sqliteEdgeActuador = container "sqlite edge actuador" "Almacenamiento de las acciones realizadas y quiénes pueden realizarlas" "Database" "Database"
+   group "Fog Layer (Infraestructura Local / LAN)" {
 
-  }
-
-webServer = container "Web Server" "Servidor web que entrega los recursos estáticos y las dependencias de la aplicación web de usuarios" "WebApplication" "WebApplication"
-
-sqlite = container "SQLite" "Base de datos local para las aplicaciones móviles de Android e iOS" "Database" "Database"
-embebidoMicrophone = container "Embebido del micrófono IoT" "Firmware que captura el audio desde el hardware del micrófono y lo envía al edge correspondiente" "C++"
-
-   webServerEmpresa = container "Web Server de la plataforma de la empresa" "Carga dependencias y bibliotecas de la pagina de la empresa" "WebApplication" "WebApplication"
-
+       edgeActuadores = container "Aplicación Edge para Actuadores" "Procesa la información que le llega por medio del broker por el otro edge para ejecutar una acción como abrir la puerta,prender la luz,etc." "Python, Flask" "Edge"
+       broker = container "Broker de Mensajería" "Recibe los comandos del edge de los dispositivos y los reenvía al edge del actuador para procesarlos sin conexión a internet" "Eclipse Mosquitto" "Broker"
+       edgeMicrophone = container "Aplicación Edge para Micrófono" "Transcribe con el modelo de IA el sonido que capturo el sensor para mandarle por medio del broker al otro edge" "Python, Flask" "Edge"
+       sqliteEdgeMicrophone = container "Base de Datos Local para Device" "Almacenamiento de los devices permitidos para hacer el envío de datos" "SQLite" "Database"
+       sqliteEdgeActuador = container "Base de Datos Local para Actuadores" "Almacenamiento de las acciones realizadas y quiénes pueden realizarlas" "SQLite" "Database"
+   }
 
    // ---------- Edge / API ----------
    edgeActuadores -> sqliteEdgeActuador "Guarda acciones y permisos" "SQLite"
@@ -116,7 +262,8 @@ embebidoMicrophone = container "Embebido del micrófono IoT" "Firmware que captu
 
    // ---------- embebidos / edges ----------
    embebidoMicrophone -> edgeMicrophone "Envía el audio capturado por el micrófono"
-edgeActuadores -> embebidoActuadores "Envía la acción a ejecutar al hardware del actuador"
+   edgeActuadores -> embebidoActuadores "Envía la acción a ejecutar al hardware del actuador"
+   
    // ---------- Fog Layer: broker / edges ----------
    edgeMicrophone -> broker "Envía los comandos recibidos del microfono"
    broker -> edgeActuadores "Reenvía el comando para que el actuador lo procese sin conexión a internet"
@@ -124,19 +271,17 @@ edgeActuadores -> embebidoActuadores "Envía la acción a ejecutar al hardware d
    // ---------- Edge actuador / API ----------
    edgeActuadores -> api "Envía la acción realizada y su estado (correcta, con error, fallando,etc.)"
    edgeMicrophone -> api "Envía estado del devices(baja batería,cargado,fallando)"
+   
    // ---------- API / datos / IA ----------
    api -> mongodb "Guarda las peticiones enviadas por los devices"
    api -> postgress "Lee y guarda los datos del negocio" "SQL"
 
    // ---------- Clientes / gateway ----------
-   mobile -> nginx "Consume los endpoints" "HTTPS/JSON"
    nginx -> api "Redirige las peticiones" "HTTP"
-   frontendPersonal -> nginx "Envía las peticiones" "HTTPS"
-   frontendUsuarios -> nginx "Envía las peticiones" "HTTPS"
 
    landing -> webServer "Solicita los recursos estáticos" "HTTPS"
    webServer -> frontendUsuarios "Entrega la aplicación web" "HTTPS"
-  webServerEmpresa -> frontendPersonal "Entrega la aplicación web para el personal" "HTTPS"
+   webServerEmpresa -> frontendPersonal "Entrega la aplicación web para el personal" "HTTPS"
 
    // ---------- api/edges-------------------
     api -> edgeActuadores "Envía la tabla de actuadores y la tabla de edges autorizados para validar desde qué origen se pueden aceptar las peticiones"
@@ -151,40 +296,40 @@ edgeActuadores -> embebidoActuadores "Envía la acción a ejecutar al hardware d
    tec -> mobile "Registra la instalación de los dispositivos"
    bussinessOwner -> webServerEmpresa "Administra dispositivos, personal y suscripciones"
 
+   //------relaciones hacia bases de datos------//
 
-    //------relaciones hacia bases de datos------//
+   // PostgreSQL (datos del negocio)
+   api.iam                     -> postgress "Lee y guarda usuarios, roles y accesos" "SQL"
+   api.perfiles                -> postgress "Lee y guarda perfiles de personas y empresa" "SQL"
+   api.hcm                     -> postgress "Lee y guarda empleados y contratos" "SQL"
+   api.nursing                 -> postgress "Lee y guarda asignaciones e invitaciones" "SQL"
+   api.paymentsAndSubscription -> postgress "Lee y guarda pagos y suscripciones" "SQL"
+   api.technicalSupport        -> postgress "Lee y guarda visitas técnicas" "SQL"
+   api.businessManagment       -> postgress "Lee y guarda datos de la empresa" "SQL"
+   api.assets                  -> postgress "Lee y guarda dispositivos" "SQL"
+   api.communication           -> postgress "Guarda historial de notificaciones" "SQL"
 
-// PostgreSQL (datos del negocio)
-api.iam                     -> postgress "Lee y guarda usuarios, roles y accesos" "SQL"
-api.perfiles                -> postgress "Lee y guarda perfiles de personas y empresa" "SQL"
-api.hcm                     -> postgress "Lee y guarda empleados y contratos" "SQL"
-api.nursing                 -> postgress "Lee y guarda asignaciones e invitaciones" "SQL"
-api.paymentsAndSubscription -> postgress "Lee y guarda pagos y suscripciones" "SQL"
-api.technicalSupport        -> postgress "Lee y guarda visitas técnicas" "SQL"
-api.businessManagment       -> postgress "Lee y guarda datos de la empresa" "SQL"
-api.assets                  -> postgress "Lee y guarda dispositivos" "SQL"
-api.communication           -> postgress "Guarda historial de notificaciones" "SQL"
+   // MongoDB (peticiones de los devices)
+   api.tracking  -> mongodb "Guarda las acciones y estados enviados por los edges"
+   api.analytics -> mongodb "Consulta las métricas de los dispositivos"
+   api.analytics -> postgress "Consulta ventas y empleados" "SQL"
+   
+   //-----relaciones con los edges -------//
 
-// MongoDB (peticiones de los devices)
-api.tracking  -> mongodb "Guarda las acciones y estados enviados por los edges"
-api.analytics -> mongodb "Consulta las métricas de los dispositivos"
-api.analytics -> postgress "Consulta ventas y empleados" "SQL"
-//-----relaciones con los edges -------//
+   edgeActuadores -> ss.api.tracking "Envía la acción ejecutada (ej. abrir la puerta) y si se ejecutó de forma correcta o no"
+   edgeMicrophone -> ss.api.tracking "Envía el estado del dispositivo: porcentaje de batería, fallas y estado de otros componentes"
 
-edgeActuadores -> ss.api.tracking "Envía la acción ejecutada (ej. abrir la puerta) y si se ejecutó de forma correcta o no"
-edgeMicrophone -> ss.api.tracking "Envía el estado del dispositivo: porcentaje de batería, fallas y estado de otros componentes"
-
-ss.api.assets -> edgeActuadores "Envía los dispositivos autorizados a interactuar con el edge de los actuadores"
-ss.api.assets -> edgeMicrophone "Envía los dispositivos autorizados a interactuar con el edge del micrófono"
+   ss.api.assets -> edgeActuadores "Envía los dispositivos autorizados a interactuar con el edge de los actuadores"
+   ss.api.assets -> edgeMicrophone "Envía los dispositivos autorizados a interactuar con el edge del micrófono"
 
   }
 
   // ---------- Sistemas externos ----------
-  firebase = softwareSystem "Firebase" "Encargado de las notificaciones push" "External"
+  firebase = softwareSystem "Firebase Cloud Messaging" "Encargado de las notificaciones push" "External"
   cloudinary = softwareSystem "Cloudinary" "Almacenamiento de fotos o videos" "External"
-  microphoneDevice = softwareSystem "Microphone device" "Dispositivo IoT encargado de la recepción de sonido" "External"
-  googleMaps = softwareSystem "Google maps" "servicio para saber la ubicación de la casa" "External"
-  hardwareActuadores = softwareSystem "Hardware de los Actuadores" "Hardware para el manejo de los actuadores"
+  microphoneDevice = softwareSystem "Dispositivo de Micrófono" "Dispositivo IoT encargado de la recepción de sonido" "External"
+  googleMaps = softwareSystem "Google Maps" "servicio para saber la ubicación de la casa" "External"
+  hardwareActuadores = softwareSystem "Hardware de Actuadores" "Hardware para el manejo de los actuadores"
   stripe = softwareSystem "Stripe" "Pasarela de pago de las suscripciones" "External"
   sendgrid = softwareSystem "Sendgrid" "Servicio para envío de correos" "External"
 
@@ -195,40 +340,49 @@ ss.api.assets -> edgeMicrophone "Envía los dispositivos autorizados a interactu
   ss.api -> sendgrid "Envía correos de confirmación y verificación" "HTTPS"
   ss.api -> googleMaps "verifica la dirección si es existente o no" "HTTPS"
 
-  ss.mobile -> ss.sqlite "Guarda datos locales" "SQLite"
   ss.embebidoActuadores -> hardwareActuadores "Controla el hardware"
   ss.embebidoMicrophone -> microphoneDevice "Recibe el audio del micrófono"
   disabled -> microphoneDevice "Da comandos de voz"
 
-
   // ---- relaciones con los servicios externo ------//
-ss.api.perfiles -> cloudinary "Sube y actualiza las fotos de los perfiles" "HTTPS"
-ss.api.paymentsAndSubscription -> stripe "Procesa los pagos de las suscripciones" "HTTPS"
-ss.api.perfiles -> googleMaps "Verifica la ubicación del personal, del negocio y de la vivienda donde se realizará la instalación" "HTTPS"
-ss.api.communication -> firebase "Envía notificaciones y alertas push al celular de los cuidadores" "HTTPS"
-ss.api.communication -> sendgrid "Envía correos de confirmación y verificación" "HTTPS"
-
-
-
-
- }
+  ss.api.perfiles -> cloudinary "Sube y actualiza las fotos de los perfiles" "HTTPS"
+  ss.api.paymentsAndSubscription -> stripe "Procesa los pagos de las suscripciones" "HTTPS"
+  ss.api.perfiles -> googleMaps "Verifica la ubicación del personal, del negocio y de la vivienda donde se realizará la instalación" "HTTPS"
+  ss.api.communication -> firebase "Envía notificaciones y alertas push al celular de los cuidadores" "HTTPS"
+  ss.api.communication -> sendgrid "Envía correos de confirmación y verificación" "HTTPS"
+}
 
  views {
 
-  systemContext ss "Diagram1" {
+  systemContext ss "DiagramaContexto" {
    include *
    autoLayout lr
   }
 
-  container ss "Diagram2" {
+  container ss "DiagramaContenedores" {
    include *
    autoLayout lr
   }
 
-  component ss.api "ApiComponents" {
-            include *
-            autoLayout lr
-        }
+  component ss.api "ComponentesAPI" {
+    include *
+    autoLayout lr
+  }
+  
+  component ss.frontendPersonal "ComponentesWebAdmin" {
+    include *
+    autolayout lr
+  }
+  
+  component ss.frontendUsuarios "ComponentesWebUsuarios" {
+      include *
+      autolayout lr
+  }
+  
+  component ss.mobile "ComponentesMovil" {
+      include *
+      autolayout lr
+  }
 
   styles {
 
@@ -241,6 +395,9 @@ ss.api.communication -> sendgrid "Envía correos de confirmación y verificació
 
    element "Person" {
     shape person
+    color white
+    background #36A7C7
+    stroke #36A7C7
    }
 
    element "Database" {
@@ -321,6 +478,18 @@ ss.api.communication -> sendgrid "Envía correos de confirmación y verificació
     background "#f0fdf4"
     color "#0f766e"
     stroke "#0f766e"
+   }
+   element "Bounded" {
+       shape Component
+       background #334155
+       color white
+       stroke #334155
+   }
+   element "Pattern" {
+       shape Component
+       background #57BDAA
+       color white
+       stroke #57BDAA
    }
 
    element "Hardware" {
