@@ -1051,7 +1051,450 @@ Esta sección muestra el diseño de alta fidelidad de la Landing Page, donde se 
 
 ## 6.4. Applications UX/UI Design
 
+Esta sección detalla el diseño de las interfaces operativas de la plataforma Alivia, abarcando la aplicación web del negocio, utilizada por el equipo de operaciones, los técnicos y los responsables de suscripciones, y la aplicación móvil del cuidador. El diseño UX/UI se ha centrado en la claridad, la seguridad del acceso y la reducción de la carga cognitiva, de modo que cada usuario pueda completar sus tareas sin fricciones, incluso bajo presión. Se aplican las Style Guidelines definidas en la sección 6.1: paleta azul marino, turquesa y menta, tipografía Outfit, íconos outline y un tono de comunicación claro, sereno y respetuoso.
+
 ### 6.4.1. Applications Wireframes
+
+Se presentan los esquemas estructurales de las aplicaciones, los cuales definen la lógica de navegación y la distribución de los componentes funcionales. Estos wireframes validan la usabilidad de los flujos de acceso y recuperación de credenciales del portal, organizando los campos de autenticación, los mensajes de validación y las acciones principales de manera coherente, antes de proceder con la implementación de estilos visuales definitivos.
+
+### Web Application
+
+En esta sección se presentan los wireframes de la aplicación web del negocio, los cuales definen la arquitectura de la información y la disposición estructural de los elementos clave del flujo de autenticación. Estos diagramas establecen la jerarquía visual y el flujo de navegación sin elementos distractores de diseño, y sirven como base técnica para el desarrollo posterior de los mockups de alta fidelidad.
+
+**Vista estándar de inicio de sesión**
+
+<div align="center">
+  <img src="https://imgur.com/uHtbv8H.png" alt="Esquema de la pantalla de inicio de sesión del portal de negocio con formulario a la izquierda y panel ilustrativo a la derecha" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla de acceso al portal de negocio, dividida en dos columnas. A la izquierda se ubican el logotipo, el mensaje de bienvenida, los campos de correo institucional y contraseña con opción de mostrar u ocultar, la casilla "Recordarme en este equipo", el enlace de recuperación de contraseña, el botón "Iniciar sesión" y un aviso de acceso restringido para colaboradores autorizados. A la derecha, un panel oscuro con una ilustración isométrica del hogar e indicadores de estado (red operativa, control por voz local, monitoreo activo y nodo central IoT) refuerza la propuesta de valor del producto.
+
+**Creación de nueva contraseña**
+
+<div align="center">
+  <img src="https://imgur.com/Z34BckY.png" alt="Esquema del formulario de creación de nueva contraseña con lista de requisitos de seguridad y campo de confirmación" height="400">
+</div>
+
+**Descripción:** Esquema del formulario para establecer nuevas credenciales de acceso, centrado en una tarjeta con el campo "Nueva contraseña", un bloque de requisitos de seguridad (mínimo de caracteres, mayúscula, minúscula, número y carácter especial), el campo "Confirmar contraseña" y el botón "Cambiar contraseña". Define la estructura de la validación doble de seguridad.
+
+**Estado de error en inicio de sesión**
+
+<div align="center">
+  <img src="https://imgur.com/YdYUIPh.png" alt="Esquema de la pantalla de inicio de sesión con mensajes de validación en los campos de correo y contraseña" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla de autenticación que representa los elementos de validación negativa. Los campos de correo y contraseña se resaltan con un borde de énfasis e incorporan mensajes de ayuda debajo de cada uno ("Ingresa un correo institucional válido" y "La contraseña debe tener al menos 8 caracteres"), de modo que el usuario identifique y corrija el dato erróneo sin perder el contexto del formulario.
+
+**Solicitud de recuperación de contraseña**
+
+<div align="center">
+  <img src="https://imgur.com/3VPZYWY.png" alt="Esquema del módulo de recuperación de contraseña con campo de correo institucional y botón para enviar código" height="400">
+</div>
+
+**Descripción:** Esquema del módulo de recuperación de acceso, con una tarjeta centrada que contiene el campo de correo institucional, el botón "Enviar código" y el enlace secundario "Volver a iniciar sesión". Define la estructura del flujo de envío del código de verificación al correo asociado a la cuenta administrativa.
+
+**Estado de error en la creación de contraseña**
+
+<div align="center">
+  <img src="https://imgur.com/hc8aa2N.png" alt="Esquema del formulario de nueva contraseña con requisitos parcialmente cumplidos y mensajes de error de validación" height="400">
+</div>
+
+**Descripción:** Esquema del formulario de nueva contraseña que representa la validación en tiempo real. Los requisitos cumplidos se marcan con un indicador activo y los pendientes (letra mayúscula y carácter especial) permanecen atenuados. Se muestran además los mensajes "La contraseña no cumple con los requisitos de seguridad" y "Las contraseñas no coinciden" debajo de cada campo, indicando con claridad qué debe corregirse.
+
+**Confirmación de contraseña actualizada**
+
+<div align="center">
+  <img src="https://imgur.com/xRLNmC2.png" alt="Esquema de la pantalla de confirmación de contraseña actualizada con ícono de éxito y botón para volver al inicio de sesión" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla de cierre del flujo de recuperación, con una tarjeta centrada que presenta un ícono de confirmación, el título "Contraseña actualizada", un mensaje breve que informa que ya es posible iniciar sesión con las nuevas credenciales y el botón "Ir a iniciar sesión" como acción principal.
+
+**Listado de empleados**
+
+<div align="center">
+  <img src="https://imgur.com/9bNvkTU.png" alt="Esquema del listado de empleados con tarjetas de indicadores, buscador, filtros y tabla paginada" height="400">
+</div>
+
+**Descripción:** Esquema de la vista principal del módulo de Capital humano, compuesta por el panel lateral de navegación, el encabezado con migas de pan, sede activa, notificaciones y perfil de la administradora, y el área de contenido. En la parte superior se ubican el título "Empleados", el botón secundario "Exportar listado" y el botón principal "Registrar empleado". Debajo se disponen cuatro tarjetas de indicadores (total de empleados, técnicos activos, gestores activos y configuración pendiente), una barra de búsqueda con pestañas por rol, filtros y acción "Limpiar", y una tabla con las columnas empleado, rol, contrato, horario, disponibilidad y acciones, cerrada por un paginador.
+
+**Registro de empleado - Paso 1: Información personal**
+
+<div align="center">
+  <img src="https://imgur.com/AFUbmGV.png" alt="Esquema del paso de información personal del registro de empleado con formulario de datos de identificación" height="400">
+</div>
+
+**Descripción:** Esquema del primer paso del asistente de registro. Incluye un indicador de progreso de cuatro pasos (información personal, información laboral, acceso a la plataforma y revisión) y un formulario con tipo y número de documento, nombres completos, apellidos paterno y materno, teléfono celular y correo personal. Un aviso informativo indica la validación automática del documento contra servicios oficiales. La parte inferior agrupa las acciones "Guardar borrador", "Cancelar" y "Continuar".
+
+**Registro de empleado - Paso 2: Información laboral**
+
+<div align="center">
+  <img src="https://imgur.com/phAYkID.png" alt="Esquema del paso de información laboral con selección de rol, contrato, horario y observaciones" height="400">
+</div>
+
+**Descripción:** Esquema del segundo paso del asistente, con el primer paso marcado como completado. Define la selección del rol operativo mediante dos opciones excluyentes (técnico de campo y gestor de suscripciones), los selectores de contrato asignado y de horario laboral, el campo de fecha de inicio del horario y un área de observaciones operativas opcional con límite de caracteres. Se añaden los botones "Anterior" y "Continuar".
+
+**Registro de empleado - Paso 3: Acceso a la plataforma**
+
+<div align="center">
+  <img src="https://imgur.com/zgZl0us.png" alt="Esquema del paso de acceso a la plataforma con correo institucional y vista previa del correo de bienvenida" height="400">
+</div>
+
+**Descripción:** Esquema del tercer paso, donde se configura la cuenta institucional del colaborador. Contiene los campos de correo institucional y su confirmación con indicadores de disponibilidad y coincidencia, un bloque que informa el envío automático y obligatorio de la invitación con su protocolo de seguridad, y una vista previa en tiempo real del correo de bienvenida con remitente, destinatario, asunto y botón de activación de cuenta.
+
+**Registro de empleado - Paso 4: Confirmación**
+
+<div align="center">
+  <img src="https://imgur.com/H3pFWpN.png" alt="Esquema del resumen y confirmación del registro de empleado con bloques editables por paso" height="400">
+</div>
+
+**Descripción:** Esquema del paso final, con los tres pasos previos completados. Presenta un resumen organizado en tres bloques (información personal, información laboral y acceso a la plataforma), cada uno con su acción "Editar paso" para corregir datos sin reiniciar el flujo. Incluye una casilla de confirmación de veracidad de la información y los botones "Guardar borrador", "Anterior" y "Registrar empleado".
+
+**Listado de contratos**
+
+<div align="center">
+  <img src="https://imgur.com/C7wEG55.png" alt="Esquema del listado de contratos con indicadores, aviso de vencimientos, filtros y tabla" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de gestión de contratos laborales. Reúne el título, los botones "Exportar listado" y "Registrar contrato", cuatro tarjetas de indicadores (total, vigentes, próximos a vencer y vencidos), un aviso informativo sobre contratos por vencer, una barra de búsqueda con filtros por estado y modalidad, y una tabla con las columnas contrato y código, posición, modalidad y horas, vigencia, estado y acciones.
+
+**Registro de contrato**
+
+<div align="center">
+  <img src="https://imgur.com/ejBzxOZ.png" alt="Esquema del formulario de registro de contrato con condiciones contractuales, fechas y estado inicial" height="400">
+</div>
+
+**Descripción:** Esquema del formulario de alta de contrato, con el encabezado que indica el régimen laboral de marco y el sello de cumplimiento normativo. El formulario incluye el código autogenerado, el cargo contractual, la modalidad, las horas por semana, las fechas de inicio y término con la duración calculada, la elección del estado inicial (pendiente de activación o vigente inmediatamente) y un campo de observaciones o cláusulas particulares. Cierra con las acciones "Guardar borrador", "Cancelar" y "Registrar contrato".
+
+**Detalle de contrato**
+
+<div align="center">
+  <img src="https://imgur.com/T4sPVcX.png" alt="Esquema del detalle de contrato con condiciones, trazabilidad y tarjetas de empleados asignados" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de consulta de un contrato, con el código y el estado en el encabezado y las acciones "Editar" y de menú adicional. Muestra un bloque de condiciones del contrato (código, cargo, sede, modalidad, horas semanales, fechas de inicio y término, estado legal y cláusula de confidencialidad), el registro de creación y última modificación, y una sección de empleados asignados con tarjetas que indican nombre, código, cargo y estado.
+
+**Listado de horarios laborales**
+
+<div align="center">
+  <img src="https://imgur.com/0vogFSJ.png" alt="Esquema del listado de horarios laborales con indicadores, filtros y tabla con días configurados" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de administración de jornadas. Incluye cinco tarjetas de indicadores (total, vigentes, programados, con observaciones y finalizados), una barra de búsqueda por código o turno con filtros de estado y vigencia, y una tabla con las columnas horario y código, fecha de inicio, fecha de término, días configurados representados con chips de la semana, horas semanales y acción "Ver detalle". Los horarios finalizados se muestran atenuados.
+
+**Registro de horario laboral**
+
+<div align="center">
+  <img src="https://imgur.com/F984LN5.png" alt="Esquema del registro de horario laboral con parámetros de vigencia, bloques diarios y resumen de jornada" height="400">
+</div>
+
+**Descripción:** Esquema del formulario de alta de horario, organizado en dos columnas. En la principal se ubican la sección de vigencia y parámetros temporales (nombre, fechas de inicio y término con opción "Indefinido" y estado de aplicación) y la sección de configuración de bloques diarios por día de la semana, con interruptor de día laborable, subtotal y acción "Agregar bloque". En la columna lateral se muestra el resumen de jornada en tiempo real (horas contratadas frente a configuradas y balance) y un recuadro de ayuda para turnos atípicos.
+
+**Detalle de horario laboral**
+
+<div align="center">
+  <img src="https://imgur.com/sGSCay6.png" alt="Esquema del detalle de horario laboral con distribución semanal y comparación de horas configuradas y contratadas" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de consulta de un horario, con el código, el estado, el régimen y las acciones "Editar horario", "Duplicar horario" y "Finalizar horario". Presenta una tarjeta del colaborador con su carga semanal, sede asignada, vigencia y referencia de contrato, una tabla de distribución semanal con los bloques horarios, el régimen intermedio y el total diario de cada día, y un pie de totales que compara las horas configuradas con las contratadas e indica el cumplimiento de la carga.
+
+**Listado de órdenes técnicas (vista de tabla)**
+
+<div align="center">
+  <img src="https://imgur.com/BMIDdzv.png" alt="Esquema del listado de órdenes técnicas en vista de tabla con indicadores, filtros, prioridades y paginador" height="400">
+</div>
+
+**Descripción:** Esquema de la vista principal del módulo de Operaciones técnicas en modo tabla. En la parte superior se ubican el título "Órdenes técnicas", el selector de vista (Calendario / Tabla) y el botón "Exportar listado". Debajo se disponen dos tarjetas de indicadores (total de órdenes y órdenes en curso hoy), una barra de filtros con selector de periodo (Hoy, Esta semana, Este mes), pestañas por tipo de orden (Todas, Revisiones, Instalaciones), buscador por código, paciente o distrito, filtros por técnico y distrito, y la acción "Limpiar". La tabla incluye las columnas código, tipo o servicio, hogar y paciente, distrito, fecha y hora programada, técnico asignado y prioridad, con la opción "Asignar" para órdenes sin técnico. Cierra con el paginador, el botón "Imprimir hoja de ruta" y una nota de auditoría.
+
+**Órdenes técnicas (vista de calendario)**
+
+<div align="center">
+  <img src="https://imgur.com/IHW6ieI.png" alt="Esquema de la vista de calendario semanal de órdenes técnicas con bloques por tipo de orden y leyenda" height="400">
+</div>
+
+**Descripción:** Esquema de la vista alternativa del módulo en formato de calendario semanal. Incluye los controles de navegación temporal (Hoy, anterior, siguiente), el rango de la semana visible, el selector Día / Semana / Mes, los filtros por periodo, tipo de orden y técnico, y el buscador. La cuadrícula muestra los días de lunes a sábado con franjas horarias, donde cada orden se representa como un bloque con código, tipo, descripción, hogar, técnico y horario. Se resalta el día actual y una línea de hora en curso. Al pie se presenta la leyenda de tipos de orden (incidencia técnica, revisión periódica e instalación nueva).
+
+**Detalle de orden técnica**
+
+<div align="center">
+  <img src="https://imgur.com/eRVAlvm.png" alt="Esquema del panel lateral de detalle de una orden técnica con datos del paciente, mapa de ruta y checklist de equipos" height="400">
+</div>
+
+**Descripción:** Esquema del panel lateral deslizante que se superpone al listado de órdenes y muestra el detalle de una orden. En el encabezado aparecen el código, la etiqueta de prioridad, la información de creación y el botón de cierre. El contenido se organiza en un bloque de estado actual con el tiempo estimado de arribo, los datos del paciente y del hogar (condición, dirección, cuidadora de contacto y nota clínica de ingreso), la sección de ubicación y despacho con un mapa de ruta y la distancia calculada, y la lista de equipos involucrados con su checklist técnico y estado. El pie agrupa las acciones "Cerrar", "Contactar al Técnico" y "Gestionar Orden".
+
+**Asignación de técnicos - Paso 1: Seleccionar orden técnica**
+
+<div align="center">
+  <img src="https://imgur.com/WDHMdYP.png" alt="Esquema de la selección de orden técnica con tarjetas seleccionables, módulos afectados y técnico asignado" height="400">
+</div>
+
+**Descripción:** Esquema de la primera fase del flujo de reprogramación. Presenta el título, una tarjeta con la capacidad disponible de técnicos de campo, un aviso informativo sobre las órdenes mostradas y su sincronización, una barra de búsqueda con filtro de distrito y rango de fechas, y pestañas por tipo de orden (todas, incidencias críticas, revisiones preventivas e instalaciones domóticas). El listado muestra tarjetas seleccionables con código, tipo, datos de la persona asistida y dirección, módulos afectados y asignación actual del técnico con fecha y horario, junto con los botones "Elegir orden" o "Seleccionada".
+
+**Asignación de técnicos - Paso 2: Reasignar y reprogramar orden**
+
+<div align="center">
+  <img src="https://imgur.com/vpbW3R1.png" alt="Esquema del formulario de reasignación con selección de fecha, franja horaria y edición de ubicación en mapa" height="400">
+</div>
+
+**Descripción:** Esquema del formulario de reprogramación, con el encabezado de la orden seleccionada y el técnico asignado. Se organiza en dos columnas: a la izquierda, el cambio de fecha y rango horario (nueva fecha, franjas disponibles seleccionables y motivo de reprogramación); a la derecha, la edición de la ubicación con distrito, dirección completa, referencia del hogar y un mapa con marcador ajustable sincronizado con Google Maps. Una barra inferior fija resume la nueva cita y ofrece las acciones "Volver" y "Confirmar cambios de fecha y ubicación".
+
+**Listado de personas asistidas**
+
+<div align="center">
+  <img src="https://imgur.com/qD2jrLq.png" alt="Esquema del listado maestro-detalle de personas asistidas con perfil, etiquetas operativas y cuidador principal" height="400">
+</div>
+
+**Descripción:** Esquema del módulo de Clientes y servicio dividido en dos paneles. A la izquierda, un buscador y una lista paginada de personas asistidas con avatar, hogar, cuidador, estado (activo, pendiente de instalación o suspendido), incidencias y cantidad de dispositivos. A la derecha, el detalle de la persona seleccionada con su identificación y el identificador del dispositivo maestro, tarjetas de condición prioritaria, servicio contratado y hogar asignado, etiquetas operativas, observaciones clínicas y pautas de asistencia, y la sección del cuidador principal con las acciones "WhatsApp" y "Llamar". El pie incluye "Deseleccionar", "Historial de alertas" y "Nueva orden técnica".
+
+**Directorio de cuidadores**
+
+<div align="center">
+  <img src="https://imgur.com/clIe9qb.png" alt="Esquema del directorio de cuidadores con indicadores de red de cuidado, filtros y tabla de titulares" height="400">
+</div>
+
+**Descripción:** Esquema del directorio de cuidadores principales, con el título, los botones "Exportar CSV" y "Registrar Cuidador", y tres tarjetas de indicadores (cuidadores principales, cuidadores adicionales e invitaciones pendientes, esta última destacada como acción que requiere atención). Incluye una barra de búsqueda con filtros de distrito y estado, y una tabla con las columnas cuidador principal (datos de contacto e indicador de identidad verificada), hogar y red de cuidado autorizada (persona asistida, adicionales e invitaciones pendientes), estado y acciones ("Ver detalle" y menú adicional), cerrada por un paginador.
+
+**Inventario de dispositivos**
+
+<div align="center">
+  <img src="https://imgur.com/MLLc9er.png" alt="Esquema del inventario de dispositivos con lista filtrada y panel de detalle con diagnóstico de batería" height="400">
+</div>
+
+**Descripción:** Esquema del módulo de gestión de dispositivos IoT, con el botón "Registrar nuevo dispositivo", filtros por identificador, categoría y estado, y un alternador entre vista de lista y de tarjetas. Muestra tres tarjetas de indicadores (nodos disponibles, en reserva o tránsito e instalados en hogares). El área principal combina una lista de dispositivos filtrados con código, nombre, ubicación, estado y nivel de batería, y un panel de detalle del dispositivo seleccionado con pestañas de resumen, telemetría y bitácora de mantenimiento. El panel incluye ubicación física, persona asistida, tipo de enlace, cobertura, diagnóstico, una alerta de batería crítica y las acciones "Programar orden de servicio técnico", "Exportar telemetría" y "Ping nodo".
+
+**Listado de hogares**
+
+<div align="center">
+  <img src="https://imgur.com/1OyTtJZ.png" alt="Esquema del listado de hogares con indicadores, filtros y tabla paginada de responsables, planes y suscripciones" height="400">
+</div>
+
+**Descripción:** Esquema de la vista principal del módulo de Clientes y servicio dedicada a los hogares registrados. Incluye el título "Hogares", el botón "Exportar listado" y cinco tarjetas de indicadores (total de hogares, suscripción activa, pendientes de evaluación, pendientes de instalación e incidencias activas). Debajo se ubica una barra con buscador por hogar, responsable o dirección, filtros de distrito y estado, contador de filtros activos y acción "Limpiar". La tabla presenta las columnas alias del hogar, responsable principal, dirección, distrito, teléfono, plan, suscripción y acciones, cerrada por un paginador con selector de filas por página.
+
+**Detalle de hogar - Pestaña 1: Información**
+
+<div align="center">
+  <img src="https://imgur.com/qQYzcJi.png" alt="Esquema de la pestaña de información del detalle de hogar con datos generales y panel de ubicación y cobertura" height="400">
+</div>
+
+**Descripción:** Esquema de la ficha de un hogar con el encabezado que muestra el nombre, el estado de la suscripción, el código, la dirección y la fecha de registro, junto con las acciones "Volver a hogares", "Modo consulta" y un menú adicional. Una barra de cuatro pestañas (información, suscripción, dispositivos y órdenes técnicas) organiza el contenido. En esta pestaña, la columna principal agrupa los datos generales (alias, código único, responsable principal, teléfono, correo, tipo y estado del servicio, fecha de registro y canales de comunicación preferidos) y la columna lateral presenta la ubicación y cobertura con un mapa, dirección normalizada, distrito, código postal, coordenadas y referencia proporcionada.
+
+**Detalle de hogar - Pestaña 2: Suscripción**
+
+<div align="center">
+  <img src="https://imgur.com/gZXgUDk.png" alt="Esquema de la pestaña de suscripción del detalle de hogar con plan contratado, tarifa y datos de facturación" height="400">
+</div>
+
+**Descripción:** Esquema de la segunda pestaña del detalle de hogar. La columna principal muestra el detalle de la suscripción con su código y estado, el plan contratado, la tarifa mensual, el estado de pago, las fechas de inicio de contrato y próxima facturación, el método de pago registrado, el titular de facturación y el documento de facturación. La columna lateral mantiene el panel de ubicación y cobertura con el mapa y los datos de la dirección.
+
+**Detalle de hogar - Pestaña 3: Dispositivos**
+
+<div align="center">
+  <img src="https://imgur.com/qCj9hkt.png" alt="Esquema de la pestaña de dispositivos del detalle de hogar con lista de equipos instalados y métricas de batería y señal" height="400">
+</div>
+
+**Descripción:** Esquema de la tercera pestaña del detalle de hogar. Presenta el bloque de dispositivos instalados con el estado del gateway, la última sincronización y la cantidad de equipos, seguido de una lista de dispositivos con nombre, número de serie, ubicación dentro del hogar y estado operativo. Al pie se incluyen dos tarjetas de resumen (batería promedio y red o señal). La columna lateral conserva el panel de ubicación y cobertura.
+
+**Detalle de hogar - Pestaña 4: Órdenes técnicas**
+
+<div align="center">
+  <img src="https://imgur.com/WaV4npj.png" alt="Esquema de la pestaña de órdenes técnicas del detalle de hogar con historial cronológico y resumen de atención" height="400">
+</div>
+
+**Descripción:** Esquema de la cuarta pestaña del detalle de hogar, con el registro cronológico de las órdenes técnicas asociadas a la vivienda. Cada orden se representa con su código, estado (en curso o completada), descripción, fecha y enlace "Ver orden". Debajo se ubican dos tarjetas de resumen (órdenes atendidas y orden activa) y una nota sobre el protocolo de SLA técnico. La columna lateral mantiene el panel de ubicación y cobertura.
+
+**Planes**
+
+<div align="center">
+  <img src="https://imgur.com/XnX7g1v.png" alt="Esquema de la vista de planes con tarjetas comparativas del plan Esencial y el plan Personalizado" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de gestión comercial de planes, con el título, una descripción del módulo y dos tarjetas comparativas lado a lado. La primera corresponde al plan Esencial, con etiqueta de categoría, precio mensual, lista de equipamiento y cobertura incluida (incluyendo elementos no contemplados), cantidad de suscripciones activas y el botón "Ver detalle del plan". La segunda corresponde al plan Personalizado, con precio a cotizar, parámetros configurables (habitaciones y puertas con motorización), características incluidas, aviso de evaluación técnica presencial previa, suscripciones activas y el mismo botón de acción.
+
+**Contrataciones**
+
+<div align="center">
+  <img src="https://imgur.com/qdWTGeI.png" alt="Esquema del tablero de contrataciones con indicadores, filtros y columnas por etapa del flujo de activación" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de supervisión de contrataciones organizada como tablero por etapas. En la parte superior se ubican tres tarjetas de indicadores (nuevas solicitudes, requieren decisión y pendientes de instalación), una barra de búsqueda con filtros de etapa y atención, el acceso a más filtros, los filtros activos como chips removibles y el botón "Ver Finalizadas". El tablero muestra cuatro columnas secuenciales (solicitud y pago, evaluación técnica, decisión del cliente e instalación), cada una con un contador y tarjetas que indican código, plan, hogar, distrito, descripción, estado y fecha. La columna que requiere atención se resalta visualmente.
+
+**Suscripciones**
+
+<div align="center">
+  <img src="https://imgur.com/RCGP9Cv.png" alt="Esquema del listado de suscripciones con indicadores, pestañas por estado y tabla de clientes, planes y próximas acciones" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de administración de suscripciones. Incluye el título, tres tarjetas de indicadores (activas, requieren atención y próximas a renovar), pestañas de filtrado por estado (todas, activas, atención requerida, suspendidas, próximas a renovar y cancelación programada), un buscador por código, cliente u hogar, un selector de estado y el acceso a más filtros. La tabla muestra las columnas suscripción, cliente y hogar, plan, estado, próxima acción y acciones ("Ver detalle" y menú adicional), cerrada por un paginador.
+
+**Mi perfil**
+
+<div align="center">
+  <img src="https://imgur.com/dDJGUm4.png" alt="Esquema de la vista Mi perfil con tarjeta de identidad, formularios de información personal y contacto y preferencias del sistema" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de perfil personal del administrador, ubicada en el módulo de Configuración. En el encabezado se muestran el título "Mi perfil", el identificador del colaborador y el rol asignado. La columna izquierda agrupa una tarjeta con la fotografía de perfil y la acción "Cambiar fotografía", el nombre, las etiquetas de rol y estado de cuenta, el correo institucional, la sede asignada, el estado de la seguridad en dos pasos, una nota sobre los cambios gestionados por Administración Central y la acción "Cambiar contraseña". La columna derecha contiene tres bloques de formulario: información personal (nombres, apellidos, tipo y número de documento y teléfono móvil), información de contacto (correo institucional de solo lectura y correo personal de respaldo) y preferencias del sistema (canales de notificación, zona horaria y formato de fecha). Una barra inferior fija recuerda la edición activa y ofrece las acciones "Descartar cambios" y "Guardar cambios".
+
+**Perfil del negocio - Pestaña 1: Identidad del negocio**
+
+<div align="center">
+  <img src="https://imgur.com/VOj2lA3.png" alt="Esquema de la pestaña de identidad del negocio con logotipo, razón social, RUC y descripción institucional" height="400">
+</div>
+
+**Descripción:** Esquema de la primera pestaña del perfil del negocio, que incluye el título, la descripción del módulo, el botón "Editar perfil" y una barra de cuatro pestañas (identidad del negocio, información de contacto, ubicación corporativa e información para clientes). El contenido muestra la insignia de estado validado, un bloque con el logotipo institucional y la acción "Cambiar logotipo", y los campos de nombre comercial, razón social institucional, RUC con indicador de dato protegido, actividad económica principal y descripción institucional y propósito. Al pie se indica que solo el administrador general puede modificar la razón social y el RUC, junto con el botón "Editar perfil".
+
+**Perfil del negocio - Pestaña 2: Información de contacto**
+
+<div align="center">
+  <img src="https://imgur.com/ToHcAWU.png" alt="Esquema de la pestaña de información de contacto con tarjetas de correo, teléfonos y sitio web corporativo" height="400">
+</div>
+
+**Descripción:** Esquema de la segunda pestaña del perfil del negocio. Presenta cuatro tarjetas con los canales oficiales de la organización: correo de contacto institucional, teléfono principal corporativo, teléfono móvil institucional o de guardia y sitio web corporativo, cada una con su ícono, valor y metadatos de estado u horario. Debajo se incluye un recuadro informativo sobre la disponibilidad de la mesa de partes virtual y el soporte regulatorio. El pie mantiene la nota de permisos y el botón "Editar perfil".
+
+**Perfil del negocio - Pestaña 3: Ubicación corporativa**
+
+<div align="center">
+  <img src="https://imgur.com/jJDscLI.png" alt="Esquema de la pestaña de ubicación corporativa con dirección, referencia y mapa de la sede central" height="400">
+</div>
+
+**Descripción:** Esquema de la tercera pestaña del perfil del negocio, dedicada a la sede central administrativa. A la izquierda se muestran la dirección principal, el distrito, la provincia, el departamento y la referencia de ubicación con una nota de accesibilidad. A la derecha se presenta un mapa con el marcador de la sede, el acceso "Ver en Google Maps", las coordenadas y la zona postal. El pie mantiene la nota de permisos y el botón "Editar perfil".
+
+**Perfil del negocio - Pestaña 4: Información para clientes**
+
+<div align="center">
+  <img src="https://imgur.com/GUdjtOl.png" alt="Esquema de la pestaña de información para clientes con horarios, soporte, emergencias y protocolo de SLA" height="400">
+</div>
+
+**Descripción:** Esquema de la cuarta pestaña del perfil del negocio, que reúne los datos usados en las comunicaciones hacia los clientes. Incluye tarjetas con el horario de atención institucional, el correo de mesa de ayuda y soporte técnico, la central de emergencias familiares y el WhatsApp oficial, y el lema o firma oficial en comunicaciones. Cierra con un recuadro de protocolo de SLA y reglas de escalamiento, la nota de permisos y el botón "Editar perfil".
+
+**Panel de notificaciones**
+
+<div align="center">
+  <img src="https://imgur.com/X21Uosb.png" alt="Esquema del panel desplegable de notificaciones con eventos agrupados por día, prioridad y módulo de origen" height="400">
+</div>
+
+**Descripción:** Esquema del panel desplegable de notificaciones que se superpone a la vista actual desde el ícono de campana del encabezado. Muestra el contador de notificaciones nuevas, la acción "Marcar leídas" y pestañas de filtrado (todas y no leídas). Las notificaciones se agrupan por día y cada una presenta un ícono, título, descripción, tiempo transcurrido y etiquetas de prioridad y módulo de origen (por ejemplo, incidencia crítica en órdenes técnicas, adaptación aceptada en contrataciones y pago en revisión en suscripciones). Al pie se ubica el enlace "Ver historial completo de eventos".
+
+**Inicio**
+
+<div align="center">
+  <img src="https://imgur.com/WWbLj0o.png" alt="Esquema de la pantalla de inicio con indicadores, órdenes técnicas del día y resúmenes por módulo" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla de inicio del administrador, con un saludo, la fecha y hora actuales y la sede activa. Presenta cuatro tarjetas de indicadores (órdenes técnicas activas, contrataciones en proceso, suscripciones en atención y configuraciones de personal), cada una con su acceso "Ver detalle". Debajo se incluye la tabla "Órdenes técnicas de hoy" con código y tipo, hogar y distrito, horario, técnico y estado o acción (incluyendo "Asignar" para órdenes sin técnico), junto con los accesos "Ver todas las órdenes" y "Abrir calendario". Cierra con tres tarjetas de resumen (Gestión comercial, Capital humano y Dispositivos IoT) con sus métricas clave y enlaces de acceso.
+
+**Métricas - Resumen general**
+
+<div align="center">
+  <img src="https://imgur.com/IgQMRcx.png" alt="Esquema del panel de métricas con indicadores, gráficos de operación técnica, estado del servicio y capacidad técnica" height="400">
+</div>
+
+**Descripción:** Esquema del panel analítico del negocio, con el título, el selector de periodo (Hoy, Esta semana, Últimos 30 días, Trimestre) y el botón "Exportar". Incluye cuatro tarjetas de indicadores con tendencia (hogares activos, órdenes pendientes, suscripciones activas e incidencias críticas, esta última destacada). En la franja central se ubican tres bloques analíticos: operación técnica con barras de avance por tipo de orden, estado del servicio con un gráfico circular de dispositivos conectados y evolución comercial con un gráfico de líneas de renovaciones, altas y bajas. Al pie se presenta la capacidad técnica con barras de ocupación semanal por técnico y el acceso "Ver horarios de cuadrilla".
+
+**Contrataciones (tablero por etapas, vista alternativa)**
+
+<div align="center">
+  <img src="https://imgur.com/WIzJ181.png" alt="Esquema del tablero de contrataciones con indicadores, filtros activos y columnas por etapa del flujo de activación" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de supervisión de contrataciones, desde la selección del plan hasta la activación del servicio, organizada como tablero por etapas. En la parte superior se ubican tres tarjetas de indicadores (nuevas solicitudes, requieren decisión y pendientes de instalación), cada una con un ícono y una descripción breve de su alcance. Debajo se dispone una barra de filtros con buscador por código, cliente, hogar o correo, selectores de etapa y de atención requerida, y el acceso a "Más filtros" con su contador. Los filtros aplicados se muestran como chips removibles (por ejemplo, "Requieren atención" y "Distrito: Lima Metropolitana") junto con la acción "Limpiar todos". El encabezado "Flujo activo previo a activación" acompaña al botón "Ver Finalizadas". El tablero presenta cuatro columnas secuenciales (solicitud y pago, evaluación técnica, decisión del cliente e instalación), cada una con un contador. Las tarjetas indican código de contratación, etiqueta de plan (Esencial, Personalizado o Adaptación), hogar, distrito, descripción breve, estado y fecha o plazo. La columna de decisión del cliente se resalta para señalar que concentra las contrataciones que requieren atención.
+
+### Vista del técnico
+
+**Mis órdenes (vista de tarjetas)**
+
+<div align="center">
+  <img src="https://imgur.com/u9ZRWUT.png" alt="Esquema de la vista Mis órdenes del técnico con indicadores, filtros y tarjetas de órdenes técnicas" height="400">
+</div>
+
+**Descripción:** Esquema de la vista principal del técnico de campo, con el menú lateral propio del perfil (Mi jornada, Mis órdenes técnicas, Mi agenda, Equipos y bodega móvil, Mi rendimiento, Mi perfil y Cerrar sesión). En el encabezado se muestran el estado de servicio con GPS activo, el turno asignado y los datos del técnico. El contenido incluye el título "Mis órdenes" con el contador de pendientes, un selector de vista (Tarjetas / Calendario), un buscador por código o alias y filtros por tipo, estado y fecha. Debajo se ubican tres tarjetas de indicadores (órdenes de hoy, en proceso y atrasadas) y una lista de órdenes en tarjetas con código, etiqueta de tipo, horario, estado, hogar, distrito y el botón "Ver orden". La orden en ruta se resalta como acción principal y las completadas se atenúan.
+
+**Detalle de orden técnica en ruta (panel lateral)**
+
+<div align="center">
+  <img src="https://imgur.com/ztcp0hE.png" alt="Esquema del panel lateral de detalle de una orden en ruta con mapa, contacto autorizado y botón para confirmar llegada" height="400">
+</div>
+
+**Descripción:** Esquema del panel lateral deslizante que se superpone al listado de órdenes, mientras el fondo se atenúa. En el encabezado se muestran el código de la orden, su tipo, el estado "En ruta hacia el domicilio" y el botón de cierre. El contenido incluye una tarjeta del hogar con el tiempo estimado de llegada, la dirección y el horario, un mapa con la ruta estimada, su duración y distancia, un aviso de tráfico con acceso a una aplicación de navegación externa, y una tarjeta de contacto autorizado con nombre, teléfono y botón de llamada. El pie agrupa la acción principal "Confirmar llegada" y el enlace "Ver expediente completo".
+
+**Calendario semanal del técnico**
+
+<div align="center">
+  <img src="https://imgur.com/CRyQU5U.png" alt="Esquema del calendario semanal del técnico con bloques de órdenes por tipo, almuerzos, espacios disponibles y resumen de ocupación" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de calendario del técnico, con el título, el mes visible, el selector Día / Semana / Mes, los controles de navegación temporal (Hoy, anterior, siguiente) y el rango de la semana. Una franja de resumen muestra las horas reservadas con su porcentaje de ocupación, las órdenes programadas y los espacios disponibles, acompañada de la leyenda de tipos (instalación, incidencia, mantenimiento y evaluación). La cuadrícula presenta los días de lunes a sábado con franjas horarias, donde cada orden se representa como un bloque con código, ícono de tipo, hogar y horario. Se incluyen bloques de almuerzo, espacios disponibles con borde punteado, una línea de hora actual sobre el día en curso y un estado de descanso para el día sin turnos programados.
+
+**Inicio del portal técnico**
+
+<div align="center">
+  <img src="https://imgur.com/QG1eMU8.png" alt="Esquema del inicio del portal técnico con indicadores, próxima visita, agenda de hoy y órdenes que requieren atención" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla de inicio del portal del técnico, con un saludo, la fecha actual, el turno y la zona de trabajo. Presenta cuatro tarjetas de indicadores (órdenes para hoy, en atención, urgentes y pendientes de actualizar). Debajo se destaca el bloque "Próxima visita asignada" con el código de la orden, tipo, estado de desplazamiento, hogar, dirección, equipos en revisión, contacto operativo, ventana de servicio y las acciones "Ver orden técnica" y "Abrir en Google Maps". La parte inferior combina la agenda de hoy, con las órdenes ordenadas por horario y su estado, un panel "Requieren atención" con acciones rápidas (resolver, actualizar y ver cambio) y un minicalendario semanal con el conteo de órdenes por día.
+
+**Mi jornada**
+
+<div align="center">
+  <img src="https://imgur.com/awtcfNT.png" alt="Esquema del tablero Mi jornada con indicadores, orden en ruta, agenda semanal, estado semanal y rendimiento" height="400">
+</div>
+
+**Descripción:** Esquema del tablero de seguimiento de la jornada del técnico, con el título, el estado activo, la fecha, el selector de semana y el acceso "Ver agenda". Incluye cuatro tarjetas de indicadores con minigráficos de tendencia (órdenes de hoy, pendientes, completadas y tiempo promedio frente a la meta). Debajo se destaca la orden en curso con su estado "En ruta a domicilio", código, tipo, prioridad, horario, tiempo restante, destino, equipamiento asignado y las acciones "Ver ruta en mapa", "Ver orden de trabajo" y "Llamar cuidador", junto con un mapa de la ruta y su distancia. La franja inferior reúne tres bloques: agenda semanal con las órdenes por día y leyenda de tipos, estado semanal con un gráfico circular de órdenes completadas, pendientes, en proceso y reprogramadas, y rendimiento semanal con barras de avance por día y la efectividad global.
+
+**Inventario de dispositivos (vista del técnico)**
+
+<div align="center">
+  <img src="https://imgur.com/sC4XETU.png" alt="Esquema del inventario de dispositivos del técnico con lista filtrada y panel de detalle con diagnóstico de batería" height="400">
+</div>
+
+**Descripción:** Esquema del inventario de dispositivos IoT consultado por el técnico para preparar y dar seguimiento a sus órdenes. Incluye el título, el botón "Registrar nuevo dispositivo", filtros por identificador, categoría y estado, y un alternador entre vista de lista y de tarjetas. Muestra tres tarjetas de indicadores (nodos disponibles, en reserva o tránsito en cuadrilla móvil e instalados en hogares). El área principal combina la lista de dispositivos filtrados, con código, nombre, ubicación, estado y nivel de batería, y un panel de detalle del dispositivo seleccionado con pestañas de resumen, telemetría y bitácora de mantenimiento. El panel presenta ubicación física, persona asistida, punto de acceso, tipo de enlace, cobertura, diagnóstico de enlace, una alerta de batería crítica y las acciones "Programar orden de servicio técnico", "Exportar telemetría" y "Ping nodo".
+
+**Mi perfil (vista del técnico)**
+
+<div align="center">
+  <img src="https://imgur.com/9xtgKwT.png" alt="Esquema de la vista Mi perfil del técnico con tarjeta de identidad, formularios de datos personales y contacto y preferencias" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de perfil personal del técnico, ubicada en el módulo de Configuración. En el encabezado se muestran el título "Mi perfil", el identificador del colaborador y el rol asignado. La columna izquierda agrupa la fotografía de perfil con la acción "Cambiar fotografía", el nombre, las etiquetas de rol y estado de cuenta, el correo institucional, la sede asignada, el estado de la seguridad en dos pasos, una nota que indica que los cambios de rol, contrato y jornada se gestionan desde Administración Central, y la acción "Cambiar contraseña". La columna derecha contiene los bloques de información personal, información de contacto (correo institucional de solo lectura y correo personal de respaldo) y preferencias del sistema (canales de notificación, zona horaria y formato de fecha). Una barra inferior fija ofrece "Descartar cambios" y "Guardar cambios".
+
+**Hogares asignados (listado)**
+
+<div align="center">
+  <img src="https://imgur.com/Cb3KXim.png" alt="Esquema del listado de hogares del técnico con indicadores, filtros y tabla paginada" height="400">
+</div>
+
+**Descripción:** Esquema del listado de hogares a los que el técnico brinda servicio, dentro del módulo de Clientes y servicio. Incluye el título "Hogares", el botón "Exportar listado" y cinco tarjetas de indicadores (total de hogares, suscripción activa, pendientes de evaluación, pendientes de instalación e incidencias activas). Debajo se ubican el buscador por hogar, responsable o dirección, los filtros de distrito y estado, el contador de filtros activos y la acción "Limpiar". La tabla presenta las columnas alias del hogar, responsable principal, dirección, distrito, teléfono, plan, suscripción y acciones, cerrada por un paginador con selector de filas por página.
+
+**Detalle de hogar - Pestaña 1: Información**
+
+<div align="center">
+  <img src="https://imgur.com/oWD2Hmf.png" alt="Esquema de la pestaña de información del detalle de hogar con datos generales y panel de ubicación y cobertura" height="400">
+</div>
+
+**Descripción:** Esquema de la ficha de consulta de un hogar, con el nombre, el estado de la suscripción, el código, la dirección y la fecha de registro, junto con las acciones "Volver a hogares", "Modo consulta" y un menú adicional. Una barra de cuatro pestañas (información, suscripción, dispositivos y órdenes técnicas) organiza el contenido. La columna principal agrupa los datos generales (alias, código único, responsable principal, teléfono, correo, tipo y estado del servicio, fecha de registro y canales de comunicación preferidos, como la llamada previa obligatoria). La columna lateral presenta la ubicación y cobertura con un mapa, el acceso "Abrir en Google Maps", la dirección normalizada, el distrito, el código postal, las coordenadas GPS y la referencia proporcionada, útil para el desplazamiento del técnico.
+
+**Detalle de hogar - Pestaña 2: Suscripción**
+
+<div align="center">
+  <img src="https://imgur.com/GnSV0om.png" alt="Esquema de la pestaña de suscripción del detalle de hogar con plan contratado, tarifa y datos de facturación" height="400">
+</div>
+
+**Descripción:** Esquema de la segunda pestaña del detalle de hogar, de solo consulta para el técnico. La columna principal muestra el detalle de la suscripción con su código y estado, el plan contratado, la tarifa mensual, el estado de pago, las fechas de inicio de contrato y próxima facturación, el método de pago registrado, el titular de facturación y el documento de facturación. La columna lateral mantiene el panel de ubicación y cobertura con el mapa y los datos de la dirección.
+
+**Detalle de hogar - Pestaña 3: Dispositivos**
+
+<div align="center">
+  <img src="https://imgur.com/mFG5F5e.png" alt="Esquema de la pestaña de dispositivos del detalle de hogar con lista de equipos instalados y métricas de batería y señal" height="400">
+</div>
+
+**Descripción:** Esquema de la tercera pestaña del detalle de hogar, que permite al técnico conocer el equipamiento instalado antes de una visita. Presenta el bloque de dispositivos instalados con el estado del gateway, la última sincronización y la cantidad de equipos, seguido de la lista de dispositivos con nombre, número de serie, ubicación dentro del hogar y estado operativo. Al pie se incluyen dos tarjetas de resumen (batería promedio y red o señal). La columna lateral conserva el panel de ubicación y cobertura.
+
+**Detalle de hogar - Pestaña 4: Órdenes técnicas**
+
+
+<div align="center">
+  <img src="https://imgur.com/WlxE7bL.png" alt="Esquema de la pestaña de órdenes técnicas del detalle de hogar con historial cronológico y resumen de atención" height="400">
+</div>
+
+**Descripción:** Esquema de la cuarta pestaña del detalle de hogar, con el registro cronológico de las órdenes técnicas asociadas a la vivienda, que da al técnico el historial de intervenciones previas. Cada orden se representa con su código, estado (en curso o completada), descripción, fecha y enlace "Ver orden". Debajo se ubican dos tarjetas de resumen (órdenes atendidas y orden activa) y una nota sobre el protocolo de SLA técnico. La columna lateral mantiene el panel de ubicación y cobertura.
 
 ### 6.4.2. Applications Wire-flow Diagrams
 
