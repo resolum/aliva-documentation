@@ -412,21 +412,642 @@ El diseño físico del cubo sigue la misma lógica de calidez y confianza que el
 
 ## 6.2. Information Architecture
 
+En esta sección el equipo de Alivia presenta las decisiones y fundamentos relacionados con la organización del contenido dentro de las experiencias web y móvil, incluyendo la Landing Page, las aplicaciones del sistema y las señales del dispositivo IoT instalado en el hogar. El objetivo es garantizar que los usuarios puedan interactuar de manera intuitiva con la plataforma, accediendo de forma rápida y sencilla a las funcionalidades, la información y los recursos que necesitan. Dado que Alivia atiende a personas con discapacidad motora severa, con posibles dificultades visuales asociadas, y a cuidadores que muchas veces consultan la plataforma bajo presión o mientras realizan otra tarea, cada decisión prioriza la claridad, la reducción de la carga cognitiva y la rapidez de comprensión por sobre consideraciones puramente estéticas. Asimismo, se detallan las decisiones tomadas respecto a los Organization Systems, Labeling Systems, Searching Systems, SEO Tags & Meta Tags y Navigation Systems, alineadas con el Ubiquitous Language y las User Stories definidas en los capítulos anteriores.
+
 ### 6.2.1. Organization Systems
+
+Alivia utiliza un esquema de organización que combina tres tipos principales de ordenamiento: jerárquico, secuencial y categórico. Cada uno responde a una necesidad distinta del usuario y permite presentar la información de forma clara y alineada con los roles de las diferentes audiencias: el visitante, la persona asistida (que interactúa por voz con el dispositivo), el familiar o cuidador, el técnico y el administrador del negocio.
+
+#### Organización visual jerárquica
+
+En Alivia, la organización jerárquica prioriza visualmente la información crítica para la seguridad y la autonomía de la persona asistida: las solicitudes de auxilio, las alertas críticas pendientes de confirmación, las fallas de dispositivos y las advertencias de batería baja. Esta jerarquía garantiza que el cuidador identifique de inmediato qué requiere su atención antes de revisar información rutinaria como el historial de eventos o las métricas de autonomía, facilitando una toma de decisiones rápida, incluso cuando consulta la plataforma desde la calle o en clases.
+
+Representación de la arquitectura jerárquica:
+
+<p align="center">Organización en el landing page</p>
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/cQXpcIP.png" alt="landingpage_organization">
+</div>
+
+Esta estructura representa la jerarquía informativa orientada al usuario externo. Guía el recorrido desde la propuesta de valor, pasando por el equipo, la solución y los beneficios diferenciados para la persona asistida y el cuidador, hasta culminar en la conversión mediante la comparación de planes y el paso a la contratación en la aplicación web.
+
+<p align="center">Organización de la app web/móvil de la vista del familiar o cuidador</p>
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/c2Cj63r.png" alt="front_organization">
+</div>
+
+Este esquema detalla la arquitectura interna de la aplicación del familiar o cuidador. La organización jerárquica parte de un Inicio que resume el estado general del hogar y ramifica el acceso hacia los módulos operativos clave: la gestión del hogar y la red de cuidado, los dispositivos, las alertas, la agenda de cuidado, el soporte técnico y las métricas de autonomía.
+
+<p align="center">Organización de la app web/móvil de la vista del técnico</p>
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/NCJ06v9.png" alt="technical_organization">
+</div>
+
+Este esquema detalla la arquitectura interna de la aplicación del técnico o instalador, disponible tanto en web como en móvil para su uso en campo. La organización jerárquica parte de un punto de entrada que resume las órdenes asignadas (evaluaciones, instalaciones e incidencias) y ramifica el acceso hacia los módulos operativos: la evaluación de vivienda, la instalación de dispositivos y el mantenimiento.
+
+<p align="center">Organización de la app web de la vista del administrador del negocio</p>
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/a3ncGmL.png" alt="business_organization">
+</div>
+
+Este esquema detalla la arquitectura interna de la aplicación web empresarial, utilizada por el administrador del negocio y el responsable de planes y suscripciones. La organización jerárquica parte de un Dashboard central con las métricas del negocio y ramifica el acceso hacia los módulos de planes y suscripciones, personal, operaciones técnicas, dispositivos, y roles y permisos.
+
+Casos de aplicación:
+
+- Pantalla de Inicio donde las alertas pendientes y el estado general del hogar aparecen en la parte superior, por encima de las próximas actividades.
+- Vistas de dispositivos donde badges de color, íconos outline y tipografía Outfit Semibold jerarquizan el estado de cada dispositivo (operativo, batería baja o falla), mostrando primero los que requieren atención.
+- Bandeja de alertas donde las solicitudes de auxilio y las alertas críticas se anclan en la parte superior, por encima de recordatorios y notificaciones informativas.
+- Vista del técnico donde las órdenes asignadas (evaluaciones, instalaciones, incidencias) aparecen priorizadas por fecha y urgencia, antes que el historial de órdenes ya completadas.
+- Dashboard del administrador donde las métricas críticas del negocio (suscripciones vencidas, incidencias abiertas) se muestran en la parte superior, por encima de las métricas de desempeño general.
+
+#### Organización secuencial
+
+Alivia también aplica una organización secuencial en procesos que requieren una progresión lógica y una guía paso a paso, especialmente en los flujos de contratación y en aquellos donde el orden de las acciones impacta en la seguridad o la trazabilidad del cuidado.
+
+Casos de aplicación:
+
+- **Contratación del servicio:** registro del responsable y creación de la cuenta del hogar, selección del plan y la periodicidad, autorización temporal del importe, selección del horario de evaluación técnica, resultado técnico (viable, parcialmente viable o no viable) e instalación y activación con conformidad del cliente (US05 a US11).
+- **Onboarding del hogar:** completar el perfil del hogar con una ubicación validada, registrar a la persona asistida e invitar a los cuidadores de la red de cuidado, antes de que la persona asistida empiece a usar el sistema por sí misma (US42, US12, US13).
+- **Gestión de una alerta crítica:** recepción de la alerta, confirmación por parte del cuidador, inicio de la atención y registro del resultado (resuelta), con repeticiones automáticas cada dos minutos hasta un máximo de tres si no hay confirmación (US24).
+- **Transferencia de responsabilidad entre turnos:** finalización del turno, aceptación del relevo por el siguiente cuidador y entrega del resumen de actividades, medicamentos y alertas pendientes (US27).
+- **Reporte de una falla:** descripción del problema, adjunto de evidencia fotográfica, selección de un horario técnico disponible y seguimiento hasta la resolución (US31).
+- **Interacción por voz de la persona asistida:** emisión del comando, confirmación audible de la acción y notificación de falla al cuidador cuando el dispositivo no responde (US18 a US20).
+- **Atención de una orden técnica:** recepción de la orden asignada, evaluación o instalación en sitio, registro de resultados y pruebas, y cierre con conformidad o incidencia registrada (US09, US11, US32).
+- **Configuración de un empleado:** registro del empleado, asignación de su contrato, configuración de su horario laboral y habilitación para asignaciones según su disponibilidad calculada (US43 a US46).
+
+Al agrupar estos casos bajo el concepto de organización secuencial, se refuerza la idea de que el sistema debe guiar al usuario sin saltos ni confusiones, con estados intermedios visibles en cada paso, sobre todo en momentos de alta sensibilidad como una solicitud de auxilio.
+
+#### Esquemas de categorización de contenido
+
+Para gestionar el volumen de información y facilitar el acceso rápido a los datos relevantes, Alivia implementa esquemas de categorización que combinan criterios cronológicos, temáticos y por audiencia.
+
+- **Organización cronológica:** se utiliza para el historial de eventos de los dispositivos, el historial de alertas, la agenda de cuidado, los recordatorios y el historial de administración de medicamentos, presentando siempre los eventos más recientes o próximos en primer plano.
+- **Organización por tópicos:** agrupa la información según su naturaleza: dispositivos del hogar (luz, puerta, ventana y dispositivo de interacción por voz), alertas (críticas, técnicas e informativas), actividades de cuidado (alimentación, higiene, movilización y medicación) y soporte técnico.
+- **Organización por audiencia:** separa las vistas y funciones según los perfiles reales del sistema: visitante, familiar o cuidador, técnico, administrador del negocio y responsable de planes y suscripciones.
+
+Esta categorización por audiencias permite que cada perfil vea únicamente la información relevante para su rol:
+
+- **Visitante:** Landing Page con propuesta de valor, solución, beneficios, testimonios y planes.
+- **Familiar o cuidador:** supervisión del hogar, alertas, agenda de cuidado, dispositivos, soporte y métricas de autonomía.
+- **Técnico:** gestión de visitas de evaluación e instalación, registro de compatibilidad, dispositivos, pruebas y conformidad, y atención de incidencias.
+- **Administrador del negocio y responsable de planes y suscripciones:** gestión de planes, suscripciones, empleados, contratos, horarios, dispositivos, órdenes técnicas, trazabilidad y métricas globales del negocio.
+
+La persona con discapacidad motora severa no interactúa con estas vistas: su interfaz es exclusivamente el dispositivo de voz, organizado mediante frases clave asociadas a acciones (luz, puerta, ventana y auxilio) y respuestas sonoras.
+
+#### Segmentación por roles y audiencias
+
+Además de los criterios anteriores, Alivia distingue claramente entre los perfiles disponibles en la plataforma, aplicando los principios de autorización por responsabilidad (RBAC) definidos en la arquitectura. La segmentación refuerza que:
+
+- los cuidadores visualizan herramientas de supervisión remota, alertas escritas, coordinación de turnos y actividades de cuidado, y métricas de autonomía;
+- los técnicos acceden a las herramientas de evaluación, instalación y mantenimiento de dispositivos;
+- los administradores acceden a la gestión operativa y comercial del servicio, incluyendo planes, suscripciones, capital humano y trazabilidad de operaciones.
+
+Con este enfoque, cada perfil obtiene una experiencia ajustada a su rol y sus responsabilidades, reduciendo la complejidad, protegiendo la información de la persona asistida y mejorando la eficacia en la toma de decisiones.
 
 ### 6.2.2. Labeling Systems
 
+En esta sección se presenta el sistema de etiquetado (labeling system) de la plataforma Alivia. Este sistema prioriza la claridad y la sencillez del lenguaje, utilizando términos familiares y alineados con el Ubiquitous Language del proyecto (persona asistida, cuidador, solicitud de asistencia, autonomía, alerta crítica), evitando anglicismos innecesarios y expresiones que puedan sonar ambiguas o condescendientes hacia la persona con discapacidad. Se mantiene el tono de comunicación definido en las Style Guidelines: claro, sereno, respetuoso y orientado a la acción, con la calidez suficiente para no sonar a manual técnico.
+
+#### A. Landing Page
+
+El etiquetado en el sitio público utiliza un lenguaje directo, cercano y coherente con la propuesta de valor de Alivia.
+
+- **Secciones de navegación:**
+    - **Inicio:** Sección de bienvenida con la propuesta de valor y el video del producto.
+    - **Nosotros:** Misión, visión y equipo detrás de Alivia.
+    - **Solución:** Explicación del control por voz, la operación sin Internet, las alertas al cuidador y los dispositivos incluidos.
+    - **Beneficios:** Ventajas diferenciadas para la persona asistida y para el cuidador.
+    - **Testimonios:** Experiencias de personas relacionadas con Alivia y respaldo del equipo.
+    - **Planes:** Comparación de planes, precios, periodicidad y aplicaciones disponibles.
+- **Botones de llamada a la acción (CTA):**
+    - **"Conocer Alivia":** Dirige a la explicación de la solución y sus beneficios.
+    - **"Ver planes":** Lleva a la comparación de planes disponibles.
+    - **"Contratar":** Redirige a la aplicación web para iniciar la contratación (sin pagar en la landing).
+    - **"Descargar la app":** Muestra la disponibilidad de la aplicación para Android e iOS.
+    - **"Iniciar sesión":** Acceso a la plataforma para usuarios registrados.
+
+#### B. Aplicación Web del Cuidador
+
+La aplicación web del cuidador está dirigida al familiar o cuidador, que revisa el estado del hogar y gestiona la red de cuidado:
+
+- **Inicio:** Resumen del estado del hogar, alertas pendientes y próximas actividades.
+- **Mi hogar:** Perfil del hogar, persona asistida y red de cuidado.
+- **Contratación:** Selección de plan, autorización del importe, horario de evaluación técnica y resultado técnico.
+- **Dispositivos:** Estado de conexión, batería y funcionamiento, e historial de eventos.
+- **Alertas:** Alertas escritas, confirmación y atención de alertas críticas, y solicitudes de auxilio.
+- **Agenda de cuidado:** Turnos, transferencia de responsabilidad, actividades, medicamentos y recordatorios.
+- **Soporte:** Reporte de fallas, evidencias y seguimiento de incidencias.
+- **Autonomía:** Métricas de acciones solicitadas y realizadas por la persona asistida.
+- **Perfil:** Datos personales, preferencias de comunicación, recuperación de acceso y cierre de sesión.
+
+#### C. Aplicación Web del Negocio
+
+La aplicación web del negocio está dirigida al personal de Alivia, y el etiquetado se adapta según el rol:
+
+- **Administrador del negocio y responsable de planes y suscripciones:**
+    - **Métricas:** Indicadores comerciales y operativos globales.
+    - **Planes:** Gestión de planes, precios y condiciones comerciales.
+    - **Suscripciones:** Consulta y gestión del ciclo de vida de las suscripciones de cada hogar.
+    - **Empleados:** Registro de personal, contratos y horarios laborales.
+    - **Órdenes técnicas:** Asignación de técnicos y reserva de dispositivos.
+    - **Dispositivos:** Inventario y asignación de dispositivos a viviendas.
+    - **Trazabilidad:** Historial de operaciones técnicas.
+- **Técnico:**
+    - **Visitas:** Agenda de evaluaciones e instalaciones asignadas.
+    - **Evaluación:** Registro de compatibilidad de puertas, ventanas, iluminación y conectividad.
+    - **Instalación:** Instalación, pruebas y conformidad del cliente.
+    - **Incidencias:** Atención de fallas, mantenimiento y reemplazo de dispositivos.
+
+*Nota de consistencia:* Las etiquetas compartidas entre las webs y la app móvil (**Inicio, Dispositivos, Alertas y Perfil**) mantienen el mismo nombre y significado en todas las vistas, para evitar que el usuario tenga que aprender términos distintos para una misma función.
+
+#### D. Aplicación Móvil
+
+Diseñada para la supervisión rápida y el uso con una sola mano, la aplicación móvil del cuidador usa etiquetas cortas y orientadas a la acción en su barra de navegación inferior:
+
+- **Inicio:** Resumen del estado del hogar y alertas pendientes.
+- **Dispositivos:** Estado de conexión, batería y funcionamiento de cada dispositivo.
+- **Alertas:** Centro de notificaciones escritas, con prioridad y confirmación de alertas críticas.
+- **Agenda:** Turnos, actividades, medicamentos y recordatorios del cuidado.
+- **Perfil:** Datos personales, preferencias y ajustes de cuenta.
+
+Los accesos de menor frecuencia (soporte, autonomía, gestión de la red de cuidado y ajustes avanzados) se agrupan en un menú lateral deslizante con etiquetas como **Soporte**, **Autonomía**, **Mi hogar** y **Configuración**.
+
+#### E. Dispositivo IoT
+
+El dispositivo no cuenta con pantalla ni indicadores luminosos, por lo que su "etiquetado" se compone exclusivamente de frases de voz. Se mantiene la coherencia con el tono definido: breve, sereno y sin alarmismo.
+
+- **Frases de interacción (ejemplos):**
+    - **"Enciende la luz" / "Apaga la luz":** Control de la iluminación.
+    - **"Abre la puerta" / "Cierra la puerta":** Control de la puerta.
+    - **"Abre la ventana" / "Cierra la ventana":** Control de la ventana.
+    - **"Necesito ayuda" (o expresión de auxilio reconocida):** Genera de inmediato una alerta crítica al cuidador.
+- **Respuestas del dispositivo (ejemplos):**
+    - **"Listo, la luz de tu cuarto está encendida.":** Confirmación de acción exitosa.
+    - **"No entendí, ¿puedes repetirlo?":** Comando no reconocido o con baja confianza.
+    - **"La puerta no respondió. Avisamos a tu cuidador para revisarla.":** Falla de ejecución.
+    - **"Se avisó a tu cuidador, ya viene en camino.":** Confirmación de solicitud de auxilio.
+    - **"Estoy listo para escucharte." (al iniciar o tras completar una acción):** Confirma por voz que el dispositivo está disponible para recibir un nuevo comando.
+    - **"Mi batería de respaldo está baja, avisamos a tu cuidador.":** Advertencia de batería baja, comunicada por voz en lugar de una señal visual.
+
+#### F. Etiquetas en Formularios y Botones Operativos
+
+Se definen etiquetas estándar para campos de entrada y acciones frecuentes, con la intención de reducir la carga cognitiva en todas las plataformas.
+
+- **Campos de formulario:**
+    - **"Nombre completo":** Identificación del usuario o de la persona asistida.
+    - **"Correo electrónico":** Credencial de acceso o contacto.
+    - **"Contraseña":** Campo seguro para el acceso del usuario.
+    - **"Código de verificación":** Código de un solo uso enviado al correo para activar la cuenta o validar el ingreso.
+    - **"Alias del hogar":** Nombre con el que se identifica la vivienda.
+    - **"Dirección del hogar":** Ubicación validada mediante Google Maps.
+    - **"Teléfono de contacto":** Número de contacto del hogar.
+    - **"Nombre del medicamento":** Medicamento previamente indicado por un profesional de salud.
+    - **"Horario":** Momento programado de una actividad o medicamento.
+    - **"Descripción de la falla":** Texto libre para reportar un problema con un dispositivo.
+- **Botones de acción:**
+    - **"Crear cuenta":** Registra al responsable de la contratación.
+    - **"Continuar":** Avanza al siguiente paso de un flujo secuencial.
+    - **"Autorizar importe":** Confirma la retención temporal del importe, sin activar la suscripción.
+    - **"Reservar horario":** Confirma el bloque para la evaluación técnica.
+    - **"Invitar cuidador":** Envía una invitación para vincular a un cuidador al hogar.
+    - **"Confirmar alerta":** Registra la recepción de una alerta y detiene sus repeticiones.
+    - **"Iniciar atención":** Indica que el cuidador comienza a atender una alerta.
+    - **"Marcar como resuelta":** Cierra la alerta y conserva el resultado de la intervención.
+    - **"Registrar administración":** Deja constancia de que un medicamento fue administrado u omitido.
+    - **"Aceptar relevo":** Confirma la transferencia de responsabilidad al finalizar un turno.
+    - **"Reportar falla":** Crea una incidencia asociada con el dispositivo afectado.
+    - **"Adjuntar foto":** Añade evidencia fotográfica a un reporte.
+    - **"Guardar cambios":** Confirma la edición de un perfil o configuración.
+    - **"Cerrar sesión":** Finaliza la sesión de forma segura.
+
 ### 6.2.3. Searching Systems
+
+En Alivia, los sistemas de búsqueda se definen de acuerdo con las funcionalidades establecidas en las User Stories del Capítulo 3, especialmente en los flujos de supervisión de dispositivos, historial de eventos, alertas, agenda de cuidado, incidencias y administración del negocio. Por ello, la propuesta se centra en mecanismos de búsqueda simples y filtros operativos concretos, evitando funcionalidades avanzadas no contempladas en el alcance del producto.
+
+El objetivo principal es que el usuario encuentre rápidamente registros existentes para ejecutar sus tareas (consultar, confirmar, atender, reprogramar o reportar) sin sentirse abrumado por el volumen de información, algo especialmente relevante para un cuidador que consulta la plataforma bajo presión o mientras realiza otra actividad.
+
+#### 6.2.3.1. Medios de ayuda para la búsqueda
+
+Para apoyar al usuario durante la consulta de datos, la interfaz incorpora ayudas directas:
+
+- **Campo de búsqueda visible por módulo:** ubicado en la parte superior de listas o tablas, con textos guía como "Buscar dispositivo", "Buscar alerta" o "Buscar actividad".
+- **Filtros básicos de contexto:** controles de selección por estado, prioridad, persona asistida, dispositivo o rango de fechas, según el módulo.
+- **Indicador de resultados:** mensaje de apoyo como "Mostrando X resultados" para confirmar que la búsqueda fue aplicada.
+- **Acción "Limpiar":** permite quitar el texto y los filtros seleccionados para volver al listado completo.
+- **Estado sin resultados:** mensaje claro y sereno, como "No encontramos registros con esos criterios", invitando a cambiar el término ingresado o ajustar los filtros, sin alterar la información existente.
+- **Prioridad visual en resultados:** las alertas críticas y los dispositivos con falla se muestran primero en los resultados, para que la urgencia se note incluso sin depender solo del color.
+
+Estas ayudas siguen el tono de comunicación definido en Alivia: claro, directo, sereno y orientado a la acción.
+
+#### 6.2.3.2. Opciones de búsqueda por aplicación
+
+| Plataforma | Tipo de búsqueda | Alcance |
+| --- | --- | --- |
+| Landing Page | Navegación por secciones (anclas y menú) | Permite ubicar contenido informativo (solución, beneficios, testimonios, planes) sin un motor de búsqueda dedicado |
+| Aplicación web | Búsqueda textual por módulo + filtros básicos | Permite localizar registros en listas y tablas según las tareas del cuidador, el técnico y el administrador |
+| Aplicación móvil | Búsqueda textual por pantalla + filtros simplificados | Permite consultar los datos clave del hogar y las alertas con interacción táctil y uso con una sola mano |
+| Dispositivo IoT | No aplica búsqueda textual | La persona asistida interactúa únicamente mediante frases de voz asociadas a acciones (Intent Mapping); el dispositivo comunica su estado exclusivamente por voz, sin flujo de búsqueda manual |
+
+#### 6.2.3.3. Filtros definidos por módulo (alineados a User Stories)
+
+| Módulo | Búsqueda textual | Filtros disponibles |
+| --- | --- | --- |
+| Dispositivos (US30, US22) | Nombre o ubicación del dispositivo | Estado (operativo, batería baja, falla, desconectado), tipo (luz, puerta, ventana, voz), rango de fechas del evento |
+| Historial de eventos (US22) | Dispositivo o tipo de evento | Rango de fechas, severidad, resultado |
+| Alertas (US23, US24, US25) | Persona asistida o necesidad | Prioridad (crítica, informativa), estado (pendiente, confirmada, en atención, resuelta, pendiente crítica), rango de fechas |
+| Agenda de cuidado (US26, US28, US36) | Actividad o cuidador | Tipo (turno, alimentación, higiene, movilización), estado (programada, completada, pendiente, vencida), fecha |
+| Medicamentos (US29, US37) | Nombre del medicamento | Estado de administración (administrada, omitida, pendiente, vencida), horario, responsable |
+| Red de cuidado (US13) | Nombre o correo del cuidador | Estado (invitación pendiente, vinculado), rol |
+| Soporte e incidencias (US31, US32) | Dispositivo o descripción de la falla | Estado (abierta, programada, resuelta), rango de fechas |
+| Autonomía (US41) | No aplica búsqueda textual | Dispositivo, periodo, resultado (exitosa, fallida, rechazada por baja confianza, sin confirmación) |
+| Planes y suscripciones (US33, US38) | Hogar, plan o responsable de pago | Estado de la suscripción, plan, periodicidad |
+| Empleados y disponibilidad (US43 a US46) | Nombre o documento del empleado | Cargo, especialidad, zona, tipo de servicio, estado del contrato |
+| Órdenes y trazabilidad técnica (US34, US35) | Hogar, orden o dispositivo | Tipo de servicio (evaluación, instalación, incidencia), estado, periodo, técnico asignado |
+| Métricas de negocio (US39, US40) | No aplica búsqueda textual | Periodo, plan, estado de la contratación |
+
+#### 6.2.3.4. Visualización de resultados después de la búsqueda
+
+Después de aplicar búsqueda o filtros, los datos se muestran manteniendo el mismo formato base de cada módulo:
+
+- **Web:** tablas o listas con columnas clave (persona asistida, dispositivo, prioridad, hora, estado), con desplazamiento horizontal en tablet cuando se ocultan columnas de menor relevancia.
+- **Móvil:** tarjetas o listas resumidas que priorizan persona, necesidad y prioridad, con acceso al detalle y acciones rápidas por gesto (confirmar, posponer o reasignar).
+- **Consistencia de estado:** siempre se muestra si la búsqueda devolvió resultados, si no hubo coincidencias o si se debe limpiar o ajustar los filtros.
+- **Información desactualizada:** cuando la vivienda perdió la conexión, los resultados indican la fecha de la última actualización y advierten que pueden existir eventos pendientes de sincronización (US22).
+
+Comportamientos esperados:
+
+- **Con resultados:** se visualiza el subconjunto filtrado junto con el contador de coincidencias.
+- **Sin resultados:** se muestra un estado vacío con mensaje orientativo, sin alterar la información registrada.
+- **Al limpiar filtros:** se restaura el listado completo del módulo.
+
+#### 6.2.3.5. Criterio de alcance funcional
+
+El sistema de búsqueda propuesto no introduce funcionalidades complejas adicionales (por ejemplo, búsqueda semántica, recomendaciones inteligentes o consultas predictivas), ya que no forman parte de los requerimientos funcionales priorizados en el Capítulo 3. Tampoco se contempla la búsqueda por voz dentro de las aplicaciones, pues la interacción por voz está reservada a la persona asistida y al control de dispositivos. De esta manera, la sección se mantiene consistente con el backlog del producto y con los flujos de uso definidos para la versión actual de Alivia.
 
 ### 6.2.4. SEO Tags & Meta Tags
 
+Con el objetivo de mejorar el posicionamiento orgánico de **Alivia** en los motores de búsqueda y facilitar que familiares, cuidadores y personas con discapacidad motora severa encuentren una solución que les devuelva autonomía en el hogar, se ha definido la siguiente estrategia de etiquetado HTML. El contenido está redactado en español, con un tono claro, sereno y respetuoso, coherente con las Style Guidelines, y se apoya en términos que el segmento objetivo realmente utiliza al buscar soluciones de asistencia.
+
+**Landing Page**
+
+- **Title:**
+  `<title>Alivia | Autonomía en el hogar para personas con discapacidad motora</title>`
+
+    - **Propósito:** Incluye el nombre de la marca y las palabras clave de mayor relevancia ("autonomía", "hogar", "discapacidad motora"), comunicando de inmediato a quién está dirigida la solución.
+- **Meta Description:**
+  `<meta name="description" content="Alivia permite a personas con discapacidad motora severa controlar luces, puertas y ventanas con su voz, incluso sin Internet. Los cuidadores reciben alertas escritas y supervisan el hogar desde su celular. Conoce nuestros planes.">`
+
+    - **Propósito:** Explica el funcionamiento (control por voz), el diferencial (operación sin Internet) y el beneficio para el cuidador (alertas y supervisión remota), incitando al clic con una propuesta de valor clara.
+- **Meta Keywords:**
+  `<meta name="keywords" content="Alivia, discapacidad motora, autonomía en el hogar, control por voz, domótica accesible, casa inteligente accesible, cuidador, persona asistida, asistencia tecnológica, funciona sin internet, Perú">`
+
+    - **Propósito:** Agrupa términos que los familiares y cuidadores utilizan para buscar soluciones de asistencia tecnológica y domótica accesible en el mercado peruano.
+- **Meta Author:**
+  `<meta name="author" content="Equipo Alivia – Tecnología accesible para la autonomía en el hogar">`
+
+---
+
+**Web Application – Panel del Familiar o Cuidador**
+
+- **Title:**
+  `<title>Panel de cuidado – Alivia | Supervisión del hogar y alertas en tiempo real</title>`
+
+    - **Propósito:** Enfocado en la utilidad de la herramienta. "Supervisión del hogar" y "alertas" refuerzan que la aplicación web es una consola de seguimiento activa para el cuidador.
+- **Meta Description:**
+  `<meta name="description" content="Accede a tu panel de Alivia. Consulta el estado de los dispositivos del hogar, confirma alertas críticas, organiza turnos y actividades de cuidado, y revisa las métricas de autonomía de la persona asistida.">`
+
+    - **Propósito:** Resume las funciones principales del panel (estado de dispositivos, alertas, agenda de cuidado y autonomía) para usuarios que ya conocen la plataforma.
+- **Meta Keywords:**
+  `<meta name="keywords" content="panel de cuidado, supervisión remota, alertas de auxilio, agenda de cuidado, estado de dispositivos, red de cuidado, métricas de autonomía, gestión de turnos de cuidado">`
+
+    - **Propósito:** Palabras clave específicas del entorno de trabajo del cuidador, que ayudan a la indexación de las secciones públicas de la herramienta.
+- **Meta Author:**
+  `<meta name="author" content="Equipo de Desarrollo Alivia, 2026">`
+
+---
+
+**Web Application – Plataforma Empresarial (Administradores)**
+
+- **Title:**
+  `<title>Gestión operativa – Alivia | Evaluaciones, instalaciones y suscripciones</title>`
+
+    - **Propósito:** Identifica el uso interno de la plataforma por parte del personal de Alivia y resume sus módulos principales.
+- **Meta Description:**
+  `<meta name="description" content="Plataforma empresarial de Alivia para administrar planes, suscripciones, empleados, órdenes técnicas, evaluaciones de vivienda, instalaciones y mantenimiento de dispositivos.">`
+
+    - **Propósito:** Resume las funciones operativas y comerciales del entorno empresarial para el personal autorizado.
+- **Meta Keywords:**
+  `<meta name="keywords" content="gestión de suscripciones, órdenes técnicas, evaluación de vivienda, instalación de dispositivos, administración de empleados, trazabilidad operativa, métricas de negocio">`
+
+    - **Propósito:** Términos asociados a la operación interna del servicio.
+- **Meta Robots:**
+  `<meta name="robots" content="noindex, nofollow">`
+
+    - **Propósito:** Al tratarse de una plataforma de uso interno, se excluye de la indexación de los motores de búsqueda para proteger la información operativa y comercial.
+
+---
+
+**Mobile Application – Android (Vista de Monitoreo del Cuidador)**
+
+- **Title:** `<title>Alivia para Android | Alertas y cuidado del hogar en tu bolsillo</title>`
+    - **Propósito:** Resalta la portabilidad y la inmediatez, e identifica la plataforma Android para quien busca la app en ese ecosistema.
+- **Meta Description:** `<meta name="description" content="Descarga Alivia para Android. Recibe alertas escritas de rápida lectura, confirma solicitudes de auxilio y consulta el estado de los dispositivos del hogar desde tu celular. Alivia te mantiene al tanto sin dejar tus responsabilidades.">`
+    - **Propósito:** Se enfoca en las capacidades exclusivas del móvil: notificaciones push, alertas escritas y supervisión remota.
+- **Meta Keywords:** `<meta name="keywords" content="app para cuidadores, app Android, Alivia Android, notificaciones de auxilio, alertas push, supervisión del hogar, monitoreo de dispositivos, agenda de cuidado, Alivia">`
+    - **Propósito:** Atrae a usuarios de Android que buscan aplicaciones de apoyo al cuidado y monitoreo remoto.
+- **Meta Author:** `<meta name="author" content="Equipo de Desarrollo Mobile – Alivia, 2026">`
+
+**Mobile Application – iOS (Vista de Monitoreo del Cuidador)**
+
+- **Title:** `<title>Alivia para iOS | Alertas y cuidado del hogar en tu bolsillo</title>`
+- **Meta Description:** `<meta name="description" content="Descarga Alivia para iPhone. Recibe alertas escritas de rápida lectura, confirma solicitudes de auxilio y consulta el estado de los dispositivos del hogar desde tu celular. Alivia te mantiene al tanto sin dejar tus responsabilidades.">`
+- **Meta Keywords:** `<meta name="keywords" content="app para cuidadores, app iOS, app iPhone, Alivia iOS, notificaciones de auxilio, alertas push, supervisión del hogar, monitoreo de dispositivos, agenda de cuidado, Alivia">`
+- **Meta Author:** `<meta name="author" content="Equipo de Desarrollo Mobile – Alivia, 2026">`
+    - **Propósito (compartido con Android):** Ambas versiones mantienen el mismo mensaje y difieren solo en la plataforma, para posicionar por separado las búsquedas de Android y de iOS.
+
+**Etiquetas complementarias (Landing Page)**
+
+Adicionalmente, se incluyen las etiquetas de idioma, adaptabilidad y redes sociales para asegurar una correcta visualización en dispositivos móviles y al compartir el enlace:
+
+- `<html lang="es">`
+    - **Propósito:** Declara el idioma del contenido para motores de búsqueda y tecnologías de asistencia como lectores de pantalla.
+- `<meta name="viewport" content="width=device-width, initial-scale=1">`
+    - **Propósito:** Garantiza una visualización adecuada en pantallas de distintos tamaños.
+- `<meta property="og:title" content="Alivia | Autonomía en el hogar para personas con discapacidad motora">`
+- `<meta property="og:description" content="Control por voz de luces, puertas y ventanas, incluso sin Internet, y alertas escritas para el cuidador.">`
+- `<meta property="og:type" content="website">`
+    - **Propósito:** Definen cómo se presenta el enlace de Alivia al compartirse en redes sociales y aplicaciones de mensajería, canal habitual de recomendación entre familiares y cuidadores.
+
 ### 6.2.5. Navigation Systems
+
+En esta sección se describen las acciones y técnicas que guiarán a los usuarios a través de la Landing Page y de las aplicaciones (web, móvil e IoT), permitiéndoles cumplir sus metas e interactuar de forma satisfactoria con el producto. Se incluyen los recorridos principales, los patrones de interacción y las tácticas UX que facilitan la navegación y la conversión hacia tareas de valor, considerando que buena parte de los usuarios consulta la plataforma bajo presión, con una sola mano o mientras realiza otra actividad, y que la persona asistida interactúa exclusivamente por voz.
+
+El sistema de navegación de Alivia se estructura en tres niveles complementarios:
+
+- **Navegación global:** permite desplazarse entre las secciones principales de la Landing Page y entre los módulos de las aplicaciones web y móvil. En la Landing Page se implementa mediante el menú superior (Inicio, Nosotros, Solución, Beneficios, Testimonios y Planes) y los CTA principales; en la aplicación web, mediante un panel lateral persistente que conduce a Inicio, Mi hogar, Contratación, Dispositivos, Alertas, Agenda de cuidado, Soporte, Autonomía y Perfil; y en la aplicación móvil, mediante una barra de navegación inferior con acceso directo a Inicio, Dispositivos, Alertas, Agenda y Perfil, complementada con un menú lateral deslizante para los accesos de menor frecuencia.
+- **Navegación local:** facilita el acceso a subniveles dentro de una sección o pantalla. Incluye tabs internos, filtros y acciones contextuales para pasar de una vista general a otra más específica, por ejemplo, abrir el detalle de un dispositivo desde su tarjeta, entrar al detalle de una alerta desde la bandeja, cambiar entre turnos, actividades y medicamentos dentro de la Agenda de cuidado, o alternar entre estado actual e historial de eventos en Dispositivos.
+- **Sistemas de orientación:** ayudan al usuario a entender dónde está y cómo volver. Se aplican botones de retorno, breadcrumbs en la aplicación web cuando el flujo lo requiere (por ejemplo, Contratación > Selección de plan > Autorización del importe), indicadores de progreso en los flujos secuenciales, resaltado del ítem activo en el panel lateral y en la barra inferior, y patrones de cierre o retorno en móvil. En la aplicación web y móvil se implementan rutas de regreso claras desde pantallas de detalle, modales y formularios; en la Landing Page no se prioriza un botón de retorno interno porque la navegación se resuelve por scroll, anclas y acceso directo a secciones.
+
+#### Navegación en la Landing Page
+
+La Landing Page sigue una estructura de scroll lineal con anclas, en la que cada sección del menú superior corresponde a un bloque de contenido. El recorrido busca generar confianza antes de la conversión: primero se presenta la propuesta de valor, luego el equipo y la solución, después los beneficios y testimonios, y finalmente los planes y el paso a la contratación.
+
+- El **hero** presenta la propuesta de valor con un CTA principal ("Ver planes") visible above-the-fold, junto con un acceso secundario a "Conocer Alivia".
+- El **menú superior** se mantiene fijo durante el scroll y resalta la sección activa; en móvil se convierte en un menú desplegable.
+- El CTA **"Contratar"** redirige a la aplicación web para iniciar la contratación, dado que el pago no se realiza en la Landing Page (US04).
+- Los enlaces de **descarga de la aplicación** muestran la disponibilidad para Android e iOS.
+- El contenido audiovisual ofrece una alternativa textual equivalente cuando no puede reproducirse (US02).
+
+#### Navegación en la Aplicación Web del Cuidador
+
+- **Navegación global:** el panel lateral persistente concentra la navegación e incluye Inicio, Mi hogar, Contratación, Dispositivos, Alertas, Agenda de cuidado, Soporte, Autonomía y Perfil. En escritorio se muestra expandido con etiquetas de texto; en tablet se colapsa a solo íconos outline; en pantallas angostas se oculta tras un botón de menú en el encabezado.
+- **Encabezado superior:** incluye el logo, el nombre de la persona asistida activa, el acceso a notificaciones y el perfil del cuidador, siguiendo el patrón Z definido en las Web Style Guidelines.
+- **Navegación local:** se concentra en tabs, tarjetas y accesos directos que reducen la profundidad de clics; por ejemplo, desde una tarjeta de dispositivo con falla se accede directamente a "Reportar falla".
+- **Botones de retorno y cierre:** se reservan para flujos de detalle, edición y confirmación, sin duplicar controles innecesarios.
+
+#### Navegación en la Aplicación Web del Negocio
+
+- **Navegación global:** la plataforma empresarial mantiene una estructura similar de panel lateral, con módulos ajustados al rol y autorización por rol (RBAC), de modo que cada perfil solo vea las funciones que le corresponden.
+    - **Administrador y responsable de planes y suscripciones:** Métricas, Planes, Suscripciones, Empleados, Órdenes técnicas, Dispositivos y Trazabilidad.
+    - **Técnico:** Visitas, Evaluación, Instalación e Incidencias.
+- **Navegación local:** tabs, filtros y accesos directos entre módulos relacionados; por ejemplo, desde el detalle de una suscripción se accede a las órdenes técnicas del hogar, y desde una orden se accede a la asignación de técnico y a la reserva de dispositivos.
+- **Botones de retorno y cierre:** se reservan para flujos de detalle, edición y confirmación, con breadcrumbs cuando el flujo lo requiere (por ejemplo, Órdenes técnicas > Detalle de la orden > Asignación de técnico).
+- **Encabezado superior:** incluye el logo, el rol activo y el perfil del usuario, sin el selector de persona asistida, que solo aplica a la web del cuidador.
+
+#### Navegación en la Aplicación Móvil
+
+- La **barra inferior** (Inicio, Dispositivos, Alertas, Agenda y Perfil) permite acceder a las secciones de mayor frecuencia con una sola mano, con el ícono activo en Azul Marino y los inactivos en Gris Azulado Claro.
+- El **menú lateral deslizante** agrupa accesos secundarios como Mi hogar, Soporte, Autonomía y Configuración.
+- Las **alertas críticas** se resuelven dentro de la propia tarjeta o notificación (confirmar, iniciar atención, marcar como resuelta), evitando que el cuidador deba buscar un control adicional cuando cada segundo cuenta. Al tocar una notificación push, la aplicación abre directamente el detalle de la alerta.
+- Los **gestos** complementan la navegación: deslizamiento vertical para actualizar (pull-to-refresh), deslizamiento horizontal sobre una alerta o actividad para revelar acciones rápidas (confirmar, posponer o reasignar) y pulsación prolongada para menús contextuales que requieren confirmación explícita.
+- Las **transiciones** entre pantallas siguen las convenciones nativas de Android (Kotlin) e iOS (Swift), con tiempos breves para no generar sensación de demora ante una alerta crítica.
+
+#### Navegación en el Dispositivo IoT
+
+El dispositivo no cuenta con pantalla, botones de uso primario ni indicadores luminosos, por lo que su "navegación" se resuelve exclusivamente mediante interacción por voz:
+
+- **Activación por frases clave:** la persona asistida solicita acciones mediante frases cortas y cotidianas asociadas a luz, puerta, ventana y auxilio (Intent Mapping).
+- **Retroalimentación inmediata:** cada comando se confirma por voz con el resultado real de la acción; ante baja confianza (menos de 75 %) el dispositivo se abstiene de actuar y solicita repetir la instrucción.
+- **Estado comunicado por voz:** el dispositivo informa verbalmente su condición operativa cuando es relevante para la persona asistida (por ejemplo, al iniciar, al detectar batería de respaldo baja o al perder una función esencial), sin depender de ninguna señal visual.
+- **Ruta de auxilio directa:** la expresión de auxilio reconocida activa de inmediato una alerta crítica al cuidador, sin pasos intermedios ni confirmaciones adicionales que retrasen la asistencia.
+
+#### Principios y técnicas clave
+
+- **Camino claro hacia la acción:** la Landing Page presenta un hero con un CTA principal visible above-the-fold para reducir la fricción y dirigir al visitante hacia los planes y la contratación.
+- **Estructura de anclas y scroll lineal:** el contenido de la Landing Page se organiza en secciones con anclas (Nosotros, Solución, Beneficios, Testimonios y Planes) para permitir navegación rápida y enlaces profundos.
+- **Prioridad a lo urgente:** en la aplicación web y móvil, las alertas críticas y los dispositivos con falla se muestran antes que la información rutinaria, tanto en el Inicio como en las listas.
+- **Acción cerca de la información:** las acciones principales (confirmar una alerta, registrar una actividad) se ubican en la esquina inferior derecha de la tarjeta o pantalla, reduciendo la distancia entre leer y actuar.
+- **Onboarding guiado y checklist:** tras el registro, un asistente guía los pasos esenciales (crear la cuenta del hogar, registrar la ubicación validada, registrar a la persona asistida, invitar cuidadores, seleccionar el plan y reservar la evaluación técnica) para que el hogar llegue cuanto antes a tener el servicio activo.
+- **Accesibilidad en la navegación:** todos los controles son accesibles por teclado en un orden lógico, con indicador de foco visible en Turquesa, íconos con etiqueta descriptiva (`aria-label`), alertas con `role="alert"` y áreas táctiles amplias para personas con movilidad reducida en manos o dedos.
+- **Observabilidad y optimización:** los eventos de navegación y conversión se registran para medir los recorridos críticos y ajustar su orden con base en datos.
+
+#### Ejemplos de recorridos de usuario
+
+- **Visitante → Hero CTA "Ver planes" → Solución y Beneficios → Testimonios → Planes → "Contratar" → Aplicación web (registro).**
+- **Cuidador (contratación) → Registro → Mi hogar (perfil y persona asistida) → Selección de plan → Autorización del importe → Horario de evaluación técnica → Resultado técnico → Servicio activo.**
+- **Cuidador (alerta crítica) → Notificación push → Detalle de la alerta → Confirmar alerta → Iniciar atención → Marcar como resuelta.**
+- **Cuidador (supervisión) → Inicio → Dispositivos → Tarjeta de dispositivo con falla → Reportar falla → Adjuntar foto → Reservar horario técnico → Seguimiento de incidencias.**
+- **Cuidador (relevo de turno) → Agenda → Turnos y disponibilidad → Transferencia de responsabilidad → Resumen de pendientes → Aceptar relevo.**
+- **Persona asistida → Frase de voz ("Enciende la luz") → Confirmación audible → Luz encendida; o expresión de auxilio → Alerta crítica al cuidador → Confirmación de recepción.**
+- **Administrador → Inicio de sesión → Métricas → Suscripciones → Detalle del hogar → Órdenes técnicas → Asignación de técnico y reserva de dispositivos.**
+
+Con estas decisiones de navegación, Alivia orienta a cada usuario paso a paso, desde el primer contacto en la Landing Page hasta las tareas de cuidado y supervisión diarias, reduciendo el esfuerzo cognitivo y físico, protegiendo la seguridad de la persona asistida y fortaleciendo la confianza del cuidador en la solución.
 
 ## 6.3. Landing Page UI Design
 
+En esta sección se detalla el diseño de la interfaz de usuario para la Landing Page del proyecto Alivia. El objetivo de este diseño es establecer una primera interacción efectiva con los potenciales clientes (personas con discapacidad motora severa y sus familiares o cuidadores), comunicando de manera clara la propuesta de valor de la plataforma y facilitando la conversión mediante una arquitectura orientada al usuario, con un tono sereno, respetuoso y accesible.
+
 ### 6.3.1. Landing Page Wireframe
 
+Se presentan los esquemas de baja fidelidad que definen la estructura base de la Landing Page. Estos wireframes se centran en la disposición de los bloques de contenido, la jerarquía de la información y la ubicación de los llamados a la acción (CTA), asegurando que la navegación sea intuitiva antes de integrar elementos estéticos definitivos.
+
+**Barra de Navegación y Sección Principal (Hero)**
+
+<div align="center">
+  <img src="https://imgur.com/WMR4mM8.png" alt="Encabezado fijo con menú de anclas y sección hero de dos columnas con propuesta de valor, CTA y contenedor gráfico principal." height="400">
+</div>
+
+**Descripción:** Encabezado fijo con el logotipo de Alivia, un menú de anclas hacia cada sección (¿Qué es?, Cómo funciona, Dispositivos, Audiovisual, Testimonios, Equipo, Planes, FAQ) y un acceso de usuario. Debajo, la sección hero presenta una distribución de dos columnas: a la izquierda, una etiqueta de categoría, el titular de la propuesta de valor, un párrafo descriptivo, dos botones de llamada a la acción y una fila de cuatro indicadores rápidos (tiempo de respuesta, procesamiento local, fonética peruana y batería); a la derecha, un contenedor gráfico principal con una tarjeta flotante inferior que simula un comando de voz detectado en vivo.
+
+**Dos Vidas Transformadas en Paralelo**
+
+<div align="center">
+  <img src="https://imgur.com/PbskBjN.png" alt="Sección con pestañas alternables entre persona asistida y cuidador, tres tarjetas de beneficio y un contenedor gráfico con cita testimonial." height="400">
+</div>
+
+**Descripción:** Sección con un encabezado centrado y un control de pestañas ("Para la Persona Asistida" / "Para el Cuidador Familiar") que alterna el contenido mostrado debajo. El layout combina una columna izquierda con tres tarjetas de beneficio numeradas (ícono, título y descripción breve) y una columna derecha con un contenedor gráfico principal acompañado de una cita testimonial superpuesta en la parte inferior.
+
+**Ecosistema de Dispositivos**
+
+<div align="center">
+  <img src="https://imgur.com/wR2g7Vp.png" alt="Disposición asimétrica con una tarjeta destacada para el hub central y una cuadrícula de tarjetas secundarias para los demás dispositivos." height="400">
+</div>
+
+**Descripción:** Disposición asimétrica que presenta primero una tarjeta destacada de mayor tamaño para el componente central del sistema (Hub Alivia Core), seguida de una cuadrícula de tarjetas secundarias más pequeñas para los demás dispositivos (micrófono, iluminación y actuador de puerta), cada una con espacio para ícono, título, descripción y una etiqueta técnica inferior.
+
+**Testimonios**
+
+<div align="center">
+  <img src="https://imgur.com/tLrAkPU.png" alt="Grilla de seis tarjetas de testimonios junto a un bloque destacado con encabezado, CTA y aviso de cumplimiento legal." height="400">
+</div>
+
+**Descripción:** Grilla de dos columnas con seis tarjetas de testimonios de usuarios y familiares, cada una con un avatar circular, una cita y los datos de la persona (nombre, ciudad y rol). Una de las tarjetas incorpora una etiqueta adicional para el caso de una identidad reservada. A la derecha, un bloque destacado de mayor contraste concentra el encabezado de la sección, un párrafo introductorio, un botón de llamada a la acción y un aviso de cumplimiento legal.
+
+**Equipo**
+
+<div align="center">
+  <img src="https://imgur.com/td3WcjV.png" alt="Cuadrícula de seis tarjetas de equipo con avatar, nombre, especialidad y descripción breve." height="400">
+</div>
+
+**Descripción:** Sección con encabezado centrado y una cuadrícula de seis tarjetas uniformes, cada una con un avatar circular con iniciales, el nombre completo, la especialidad en una etiqueta corta y una descripción breve de la responsabilidad de cada integrante dentro del proyecto.
+
+**Contenido Audiovisual**
+
+<div align="center">
+  <img src="https://imgur.com/3PqOWJ2.png" alt="Bloque de video independiente con controles de accesibilidad y enlace a transcripción completa." height="400">
+</div>
+
+**Descripción:** Bloque independiente centrado para el reproductor de video, con un encabezado y subtítulo propios, un área de reproducción con botón de play central y la duración del video, y una fila inferior de controles de accesibilidad (subtítulos, lengua de señas, audio descriptivo) junto con un enlace a la transcripción completa como alternativa textual.
+
+**Planes**
+
+<div align="center">
+  <img src="https://imgur.com/ntM0tJU.png" alt="Estructura comparativa de dos planes de suscripción con interruptor de facturación y selectores de personalización." height="400">
+</div>
+
+**Descripción:** Estructura comparativa de dos columnas para los planes de suscripción, con un interruptor superior para alternar entre facturación mensual y anual. Cada columna contiene el nombre del plan, una etiqueta de categoría, el precio, una lista de características incluidas con marcadores de verificación y un botón de continuar; la columna del plan personalizado incorpora además selectores desplegables para configurar habitaciones y dispositivos adicionales.
+
+**Descarga de la Aplicación**
+
+<div align="center">
+  <img src="https://imgur.com/82RL5Du.png" alt="Banner oscuro de ancho completo con descripción de la app y botones de descarga para Google Play y App Store." height="400">
+</div>
+
+**Descripción:** Banner de ancho completo con fondo oscuro y disposición de una sola columna, que agrupa una etiqueta de categoría, el titular de descarga, un párrafo descriptivo de las funciones de la app de cuidadores y dos botones de tienda de aplicaciones (Google Play y App Store).
+
+**Preguntas Frecuentes**
+
+<div align="center">
+  <img src="https://imgur.com/OagTJmu.png" alt="Acordeón de preguntas frecuentes y bloque de contacto adicional para consultas específicas." height="400">
+</div>
+
+**Descripción:** Sección con encabezado centrado y un componente de tipo acordeón que agrupa las consultas técnicas más comunes sobre el funcionamiento sin Internet, la compatibilidad con puertas, los cortes eléctricos y el reconocimiento de voz. Debajo, un bloque de contacto adicional invita a comunicarse directamente con el equipo para consultas específicas sobre la vivienda.
+
+**Cita del Manifiesto**
+
+<div align="center">
+  <img src="https://imgur.com/buZUvkV.png" alt="Bloque de transición oscuro con una cita centrada del manifiesto de diseño inclusivo." height="400">
+</div>
+
+**Descripción:** Bloque de transición de ancho completo con fondo oscuro y disposición centrada, utilizado como pausa visual entre secciones. Contiene únicamente una cita destacada en tipografía de mayor tamaño y la atribución al manifiesto de diseño inclusivo de Alivia.
+
+**Pie de Página**
+
+<div align="center">
+  <img src="https://imgur.com/NmUmGlX.png" alt="Pie de página de cuatro columnas con enlaces agrupados por categoría y franja legal inferior." height="400">
+</div>
+
+**Descripción:** Layout de cuatro columnas para el pie de página: la primera con el logotipo, una descripción breve de la plataforma y un sello de cumplimiento; las siguientes tres con enlaces agrupados por categoría (Plataforma; Compañía y Equipo; Urgencias y Contacto), esta última incluyendo una línea asistencial y la dirección de la sede. Una franja inferior cierra con el aviso de derechos reservados y los enlaces legales (Aviso Legal, Política de Privacidad, Política de Cookies, Declaración de Accesibilidad).
+
 ### 6.3.2. Landing Page Mockups
+
+Esta sección muestra el diseño de alta fidelidad de la Landing Page, donde se aplica la identidad visual de Alivia. En este nivel de diseño se integran la paleta de colores corporativa (azul marino, turquesa y menta), la tipografía Outfit y los recursos gráficos detallados, proporcionando la representación visual exacta de la interfaz tal como será percibida por el visitante, la persona asistida y el cuidador.
+
+**Barra de Navegación y Sección Principal (Hero)**
+
+<div align="center">
+  <img src="https://imgur.com/iHcpzXH.png" alt="Interfaz de alta fidelidad con la paleta corporativa de Alivia, encabezado fijo con menú de anclas y sección hero con fotografía real y botones de llamada a la acción en turquesa." height="400">
+</div>
+
+**Descripción:** Interfaz de alta fidelidad con la paleta corporativa de Alivia (azul marino, turquesa y blanco), un encabezado fijo con el menú de anclas y un badge de accesibilidad AA, y una sección hero de fondo oscuro con fotografía real de una persona en silla de ruedas, tarjetas de estadísticas translúcidas y botones de llamada a la acción en turquesa.
+
+**Dos Vidas Transformadas en Paralelo - Persona Asistida**
+
+<div align="center">
+  <img src="https://imgur.com/n5vXyi9.png" alt="Pestaña activa para la persona asistida con tres tarjetas de beneficio, fotografía real de una usuaria en silla de ruedas y cita testimonial superpuesta." height="400">
+</div>
+
+**Descripción:** Diseño final de la pestaña activa "Para la Persona Asistida", con tres tarjetas de beneficio en fondo blanco con íconos circulares en menta y una fotografía real de una usuaria en silla de ruedas junto a una cita testimonial superpuesta en la esquina inferior.
+
+**Dos Vidas Transformadas en Paralelo - Cuidador Familiar**
+
+<div align="center">
+  <img src="https://imgur.com/B32QslE.png" alt="Pestaña activa para el cuidador familiar con cuadrícula de fotografías del hogar, tarjeta de estado en vivo y cita testimonial de una cuidadora." height="400">
+</div>
+
+**Descripción:** Diseño final de la pestaña alternativa "Para el Cuidador Familiar", que reemplaza la fotografía por una cuadrícula de cuatro imágenes reales del entorno del hogar y agrega una tarjeta de estado en vivo del hogar (dormitorio, acceso principal, batería y último comando) junto con una cita testimonial de una cuidadora.
+
+**Ecosistema de Dispositivos**
+
+<div align="center">
+  <img src="https://imgur.com/6aoyP4l.png" alt="Composición visual con fotografía real del micrófono Far-Field y cuadrícula de cuatro tarjetas descriptivas del ecosistema de dispositivos." height="400">
+</div>
+
+**Descripción:** Composición visual que integra una fotografía real del micrófono Far-Field de Alivia junto a una cuadrícula de cuatro tarjetas descriptivas de los dispositivos del ecosistema (hub, micrófono, iluminación y actuador), cada una con ícono circular en menta y una etiqueta técnica inferior.
+
+**Testimonios**
+
+<div align="center">
+  <img src="https://imgur.com/czFF8X4.png" alt="Grilla de seis tarjetas de testimonios con avatares de colores, badge de identidad reservada y bloque destacado con CTA y aviso legal." height="400">
+</div>
+
+**Descripción:** Grilla final de seis tarjetas de testimonios con avatares circulares de colores y datos del usuario (nombre, ciudad y rol), incluyendo el badge de "Identidad Reservada" en el testimonio correspondiente, junto a un bloque destacado con el encabezado de la sección, un botón de conversión en azul marino y el aviso de cumplimiento legal.
+
+**Equipo**
+
+<div align="center">
+  <img src="https://imgur.com/JBeqYI3.png" alt="Cuadrícula de seis tarjetas del equipo con íconos temáticos, nombre, especialidad y descripción de su rol en el proyecto." height="400">
+</div>
+
+**Descripción:** Sección final "Detrás de Alivia" con una cuadrícula de seis tarjetas de integrantes, cada una con un ícono circular temático (código, robot, análisis, entre otros), el nombre completo, la especialidad y el ciclo académico, y una descripción breve de su rol en el proyecto.
+
+**Contenido Audiovisual**
+
+<div align="center">
+  <img src="https://imgur.com/GR7oisw.png" alt="Reproductor de video con fondo degradado azul marino, botón de reproducción turquesa y controles de accesibilidad." height="400">
+</div>
+
+**Descripción:** Reproductor de video de alta fidelidad con fondo degradado en azul marino, un botón de reproducción circular en turquesa, la duración del video y controles de accesibilidad (subtítulos en español, lengua de señas y audio descriptivo) junto con el enlace a la transcripción completa.
+
+**Planes**
+
+<div align="center">
+  <img src="https://imgur.com/XB8zgAM.png" alt="Dos tarjetas de planes con interruptor de facturación, listas de características con marcadores en turquesa y selectores de personalización." height="400">
+</div>
+
+**Descripción:** Diseño final de dos tarjetas de planes sobre fondo menta claro, con el interruptor de facturación mensual y anual en la parte superior, listas de características con marcadores de verificación en turquesa, y selectores desplegables en el plan personalizado para configurar habitaciones y puertas.
+
+**Descarga de la Aplicación**
+
+<div align="center">
+  <img src="https://imgur.com/ppYsn4T.png" alt="Banner azul marino con esquinas redondeadas, descripción de la app y botones de descarga para Google Play y App Store." height="400">
+</div>
+
+**Descripción:** Banner de ancho completo en azul marino con esquinas redondeadas, que presenta el titular de descarga en blanco, un párrafo descriptivo de las funciones de la app y dos botones de tienda con íconos de Android e iOS sobre fondo blanco.
+
+**Preguntas Frecuentes**
+
+<div align="center">
+  <img src="https://imgur.com/Afnllzd.png" alt="Acordeón de preguntas frecuentes con tarjetas blancas redondeadas e íconos de chevron para expandir cada respuesta." height="400">
+</div>
+
+**Descripción:** Componente de acordeón de alta fidelidad sobre fondo menta claro, con tarjetas blancas de esquinas redondeadas para cada pregunta y un ícono de chevron indicando la posibilidad de expandir cada respuesta.
+
+**Cita del Manifiesto**
+
+<div align="center">
+  <img src="https://imgur.com/hpWOddx.png" alt="Bloque de transición azul marino con cita destacada en blanco, comillas en turquesa y separador decorativo." height="400">
+</div>
+
+**Descripción:** Bloque de transición final en azul marino con esquinas muy redondeadas, que centra una cita destacada en tipografía grande color blanco con las comillas en turquesa y un separador decorativo debajo del texto.
+
+**Pie de Página**
+
+<div align="center">
+  <img src="https://imgur.com/lVajgR7.png" alt="Pie de página de cuatro columnas con logotipo, sello de cumplimiento, enlaces agrupados por categoría y franja legal inferior." height="400">
+</div>
+
+**Descripción:** Diseño final del pie de página en cuatro columnas, con el logotipo de Alivia y su sello de cumplimiento en la primera columna, y los enlaces agrupados por categoría (Plataforma; Compañía y Equipo; Urgencias y Contacto) en las columnas siguientes, cerrando con una franja inferior de derechos reservados y enlaces legales.
 
 ## 6.4. Applications UX/UI Design
 
