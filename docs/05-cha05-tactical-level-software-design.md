@@ -670,6 +670,24 @@ No se declaran Factories ni Domain Services en este bounded context: `Profile` y
 
 ### 5.3.2. Interface Layer
 
+La Interface Layer expone dos controllers independientes, uno por cada aggregate root: `ProfileController` y `HomeProfileController`. Ninguno expone `InitializeProfileCommand` ni `ReplacePrincipalCaregiverCommand`, ya que ambos solo se invocan desde Event Handlers en la Application Layer (5.3.3), nunca desde un endpoint REST directo. Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: sus únicas integraciones salientes son hacia servicios externos (Cloudinary, Google Maps); ningún otro bounded context consume a Perfiles de forma síncrona según el Context Mapping (4.2.5).
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ProfileController |
+| Categoría | Controller |
+| Propósito | Exponer la consulta y la actualización del perfil genérico de un titular de cuenta. |
+| Aggregate/Entity relacionado | Profile |
+| Ruta base | /api/v1/profiles |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getProfileById | /{profileId} (GET) | path: profileId: Long | Obtiene el detalle de un perfil | GetProfileByIdQuery |
+| getProfileByAccountId | /by-account/{accountId} (GET) | path: accountId: Long | Obtiene el perfil asociado a una cuenta | GetProfileByAccountIdQuery |
+| updatePersonalData | /{profileId} (PUT) | path: profileId: Long; body: UpdateProfilePersonalDataResource { name: String } | Actualiza los datos personales del perfil | UpdateProfilePersonalDataCommand |
+| updatePhoto | /{profileId}/photo (POST) | path: profileId: Long; body: UpdateProfilePhotoResource { photoUrl: String } | Actualiza la foto de perfil subida a Cloudinary | UpdateProfilePhotoCommand |
+| updateCommunicationPreferences | /{profileId}/preferences (PUT) | path: profileId: Long; body: UpdateCommunicationPreferencesResource { preferredChannel: String } | Actualiza el canal de comunicación preferido | UpdateCommunicationPreferencesCommand |
+
 ### 5.3.3. Application Layer
 
 ### 5.3.4. Infrastructure Layer
