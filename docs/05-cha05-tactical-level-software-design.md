@@ -654,6 +654,20 @@ Ninguno de los siguientes Domain Events tiene un consumidor externo declarado en
 | HomeProfileUpdated | Se publica al actualizarse los datos o la ubicación del perfil de hogar. | homeProfileId: Long, updatedAt: LocalDateTime |
 | PrincipalCaregiverAssigned | Se publica al asignarse o reemplazarse el cuidador principal de un perfil de hogar. | homeProfileId: Long, accountId: Long, assignedAt: LocalDateTime |
 
+No se declaran Factories ni Domain Services en este bounded context: `Profile` y `HomeProfile` son aggregates simples cuya creación no requiere colaboración entre aggregates distintos. La única regla que involucra múltiples instancias —que un Cuidador no sea principal de más de un HomeProfile a la vez (observación previa #2)— se valida en `CreateHomeProfileCommandHandler` mediante una consulta a `HomeProfileRepository`, ya que es una restricción de unicidad entre instancias del mismo aggregate y no una colaboración entre aggregates de distinto tipo.
+
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| ProfileRepository | Profile | Persiste y recupera el aggregate Profile; expone la búsqueda por accountId para soportar la inicialización idempotente. |
+| HomeProfileRepository | HomeProfile | Persiste y recupera el aggregate HomeProfile; expone la búsqueda por principalCaregiverId para validar la unicidad de la observación previa #2. |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| Profile | asociación | Account (IAM, Shared Kernel) | Profile referencia a su titular mediante accountId, el AccountId de IAM compartido vía Shared Kernel (Context Mapping 4.2.5). |
+| HomeProfile | asociación | Account (IAM, Shared Kernel) | HomeProfile referencia a su cuidador principal mediante principalCaregiverId, el AccountId de IAM compartido vía Shared Kernel. |
+| ProfileRepository | depende de | Profile | El repositorio persiste y recupera el aggregate Profile. |
+| HomeProfileRepository | depende de | HomeProfile | El repositorio persiste y recupera el aggregate HomeProfile. |
+
 ### 5.3.2. Interface Layer
 
 ### 5.3.3. Application Layer
