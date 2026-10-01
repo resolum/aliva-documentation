@@ -962,6 +962,14 @@ No se identifican Entities en este bounded context: tanto `Employee` como `Contr
 | ReactivateEmployeeCommand | Reactiva a un empleado previamente suspendido. | employeeId: Long |
 | DismissEmployeeCommand | Despide al empleado, llevándolo a su estado terminal DISMISSED. | employeeId: Long, reason: String |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| RegisterContractCommand | Registra un nuevo contrato para un empleado, de forma manual por el Administrador o automática al crearse su cuenta en IAM (observación previa #1). | employeeId: Long, startDate: LocalDate, endDate: LocalDate, position: String |
+| RenewContractCommand | Renueva el contrato, extendiendo su fecha de término. | contractId: Long, newEndDate: LocalDate |
+| SuspendContractCommand | Suspende el contrato. | contractId: Long, reason: String |
+| ReactivateContractCommand | Reactiva un contrato previamente suspendido. | contractId: Long |
+| CulminateContractCommand | Culmina el contrato, llevándolo a su estado terminal CULMINATED. | contractId: Long |
+
 ### 5.4.2. Interface Layer
 
 ### 5.4.3. Application Layer
