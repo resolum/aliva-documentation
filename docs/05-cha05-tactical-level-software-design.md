@@ -1342,6 +1342,27 @@ Salvo `PrincipalCaregiverReplaced`, ninguno de los siguientes Domain Events tien
 | CaregiverUnlinked | Se publica al desvincularse un cuidador; lo consume `CaregiverUnlinkedEventHandler` propio para liberar sus labores asignadas (observación previa #2). | caregiverId: Long, unlinkedAt: LocalDateTime |
 | PrincipalCaregiverReplaced | Se publica al reemplazarse al cuidador principal; es consumido por `PrincipalCaregiverReplacedEventHandler` de Perfiles (5.3.3), cerrando el compromiso pendiente. | familyMemberId: Long, newCaregiverId: Long, previousCaregiverId: Long, replacedAt: LocalDateTime |
 
+No se declaran Factories ni Domain Services en este bounded context: los cuatro aggregates se referencian solo por identificador. La única regla que involucra a dos aggregates distintos —liberar las CareTask de un Caregiver desvinculado (observación previa #2)— se resuelve en `CaregiverUnlinkedEventHandler` mediante `CareTaskRepository`, ya que es una reacción a un evento y no una colaboración síncrona en el mismo proceso de escritura.
+
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| FamilyMemberRepository | FamilyMember | Persiste y recupera el aggregate FamilyMember. |
+| CareTaskRepository | CareTask | Persiste y recupera el aggregate CareTask; expone la búsqueda por responsibleCaregiverId para resolver la observación previa #2. |
+| InvitationRepository | Invitation | Persiste y recupera el aggregate Invitation. |
+| CaregiverRepository | Caregiver | Persiste y recupera el aggregate Caregiver; expone la búsqueda por accountId para listar las redes de cuidado que atiende (observación previa #1). |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| CareTask | asociación | FamilyMember | CareTask referencia a su familiar mediante familyMemberId. |
+| CareTask | asociación | Caregiver | CareTask referencia a su cuidador responsable mediante responsibleCaregiverId, nulo si quedó sin asignar (observación previa #2). |
+| Invitation | asociación | FamilyMember | Invitation referencia a su familiar mediante familyMemberId. |
+| Caregiver | asociación | FamilyMember | Caregiver referencia a la red de cuidado a la que pertenece mediante familyMemberId; no es global (observación previa #1). |
+| Caregiver | composición | Schedule | Caregiver gestiona el ciclo de vida de sus turnos y horarios. |
+| FamilyMemberRepository | depende de | FamilyMember | El repositorio persiste y recupera el aggregate FamilyMember. |
+| CareTaskRepository | depende de | CareTask | El repositorio persiste y recupera el aggregate CareTask. |
+| InvitationRepository | depende de | Invitation | El repositorio persiste y recupera el aggregate Invitation. |
+| CaregiverRepository | depende de | Caregiver | El repositorio persiste y recupera el aggregate Caregiver. |
+
 ### 5.5.2. Interface Layer
 
 ### 5.5.3. Application Layer
