@@ -1309,6 +1309,14 @@ La Domain Layer de Cuidado modela cuatro aggregates independientes, fieles al Ev
 | AcceptInvitationCommand | Acepta la invitación; el cuidador invitado ya cuenta con un accountId válido en IAM (nuevo o existente) al momento de invocarla (observación previa #3). | invitationId: Long, accountId: Long |
 | RejectInvitationCommand | Rechaza la invitación, sin vincular al cuidador. | invitationId: Long |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| CreateCaregiverCommand | Crea al cuidador vinculado a una red de cuidado específica, invocado únicamente por el Event Handler que reacciona a la aceptación de una invitación (observación previa #3). | familyMemberId: Long, accountId: Long, principal: Boolean |
+| RegisterScheduleCommand | Registra un nuevo turno y horario para el cuidador. | caregiverId: Long, startTime: LocalDateTime, endTime: LocalDateTime |
+| RecordCompletedAssignmentsCommand | Registra el cumplimiento de las asignaciones de un turno. | caregiverId: Long, scheduleId: Long |
+| UnlinkCaregiverCommand | Desvincula al cuidador de la red de cuidado. | caregiverId: Long |
+| ReplacePrincipalCaregiverCommand | Reemplaza al cuidador principal de una red de cuidado. | familyMemberId: Long, newCaregiverId: Long |
+
 ### 5.5.2. Interface Layer
 
 ### 5.5.3. Application Layer
