@@ -416,6 +416,18 @@ No se declaran Enums en este bounded context: ni `Business` ni `BusinessAdminist
 | RegisterBusinessAdministratorCommand | Registra un nuevo administrador responsable de gestionar el negocio. | businessId: Long, name: String, email: String, phone: String |
 | UpdateBusinessAdministratorCommand | Actualiza los datos de contacto de un administrador. | administratorId: Long, name: String, email: String, phone: String |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GetBusinessByIdQuery | Obtiene el detalle del negocio, incluyendo su perfil y ubicación. | businessId: Long |
+| GetBusinessAdministratorByIdQuery | Obtiene el detalle de un administrador del negocio. | administratorId: Long |
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| BusinessRegistered | Se publica al registrarse el negocio de Alivia con su ubicación geocodificada. | businessId: Long, name: String, address: String, latitude: Double, longitude: Double, registeredAt: LocalDateTime |
+| BusinessProfileUpdated | Se publica al actualizarse el perfil del negocio. | businessId: Long, updatedAt: LocalDateTime |
+| BusinessAdministratorRegistered | Se publica al registrarse un nuevo administrador; es consumido por `AdministratorRegisteredEventHandler` de IAM (5.1.3) para crear su cuenta y asignarle el rol BUSINESS_ADMIN (observación previa #2). | administratorId: Long, businessId: Long, name: String, email: String, phone: String, registeredAt: LocalDateTime |
+| BusinessAdministratorUpdated | Se publica al actualizarse los datos de un administrador; dispara la creación de su perfil en Perfiles, conforme a la decisión de negocio del Canvas (observación previa #3, a formalizar en 5.3). | administratorId: Long, name: String, email: String, phone: String, updatedAt: LocalDateTime |
+
 ### 5.2.2. Interface Layer
 
 ### 5.2.3. Application Layer
