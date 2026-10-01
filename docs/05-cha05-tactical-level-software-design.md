@@ -754,6 +754,54 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | PrincipalCaregiverAssigned (vía el command invocado) |
 | User story/capability que habilita | Resuelve la observación previa #4 (gap de sincronización con Cuidado) |
 
+**InitializeProfileCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | InitializeProfileCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear el perfil si no existe, o refrescar sus datos básicos si ya existe (operación idempotente). |
+| Command/Query/Evento que maneja | InitializeProfileCommand |
+| Repositorios y servicios que usa | ProfileRepository |
+| Eventos que publica | ProfileInitialized |
+| User story/capability que habilita | Decisión de negocio del Canvas: inicialización automática del perfil |
+
+**UpdateProfilePersonalDataCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | UpdateProfilePersonalDataCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Actualizar los datos personales de un perfil a solicitud de su propio titular. |
+| Command/Query/Evento que maneja | UpdateProfilePersonalDataCommand |
+| Repositorios y servicios que usa | ProfileRepository |
+| Eventos que publica | ProfilePersonalDataUpdated |
+| User story/capability que habilita | Resuelve la observación previa #3 |
+
+**UpdateProfilePhotoCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | UpdateProfilePhotoCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Subir la nueva foto de perfil a Cloudinary y actualizar la referencia en el perfil. |
+| Command/Query/Evento que maneja | UpdateProfilePhotoCommand |
+| Repositorios y servicios que usa | ProfileRepository, PhotoStorageGateway |
+| Eventos que publica | ProfilePhotoUpdated |
+| User story/capability que habilita | Decisión de negocio del Canvas: "toda foto de perfil se almacena en Cloudinary" |
+
+**UpdateCommunicationPreferencesCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | UpdateCommunicationPreferencesCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Actualizar el canal de comunicación preferido del titular del perfil. |
+| Command/Query/Evento que maneja | UpdateCommunicationPreferencesCommand |
+| Repositorios y servicios que usa | ProfileRepository |
+| Eventos que publica | CommunicationPreferencesUpdated |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
 ### 5.3.4. Infrastructure Layer
 
 ### 5.3.5. Bounded Context Software Architecture Component Level Diagrams
