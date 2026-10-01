@@ -954,6 +954,14 @@ No se identifican Entities en este bounded context: tanto `Employee` como `Contr
 | EmployeeStatus | Enum | Estado del empleado. Transiciones permitidas: `ACTIVE` → `SUSPENDED` al suspenderse temporalmente su actividad; `SUSPENDED` → `ACTIVE` al reactivarse; `ACTIVE`/`SUSPENDED` → `DISMISSED` al despedirse, estado terminal que revoca su acceso en IAM (5.1) y no admite ninguna transición posterior. |
 | ContractStatus | Enum | Estado del contrato. Transiciones permitidas: `ACTIVE` → `SUSPENDED` al suspenderse; `SUSPENDED` → `ACTIVE` al reactivarse; `ACTIVE`/`SUSPENDED` → `CULMINATED` al culminarse, estado terminal que no admite ninguna transición posterior. No está acoplado al EmployeeStatus del Employee referenciado (observación previa #2). |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| CreateEmployeeCommand | Da de alta a un nuevo empleado en estado ACTIVE. | name: String, email: String, phone: String |
+| UpdateEmployeeInfoCommand | Actualiza los datos básicos de contacto del empleado. | employeeId: Long, name: String, email: String, phone: String |
+| SuspendEmployeeCommand | Suspende temporalmente la actividad del empleado. | employeeId: Long, reason: String |
+| ReactivateEmployeeCommand | Reactiva a un empleado previamente suspendido. | employeeId: Long |
+| DismissEmployeeCommand | Despide al empleado, llevándolo a su estado terminal DISMISSED. | employeeId: Long, reason: String |
+
 ### 5.4.2. Interface Layer
 
 ### 5.4.3. Application Layer
