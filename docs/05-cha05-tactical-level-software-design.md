@@ -66,6 +66,17 @@ No se declaran Factories ni Domain Services en este bounded context: la creació
 | AccountSuspended | Se publica al suspenderse la cuenta; es consumido por Comunicaciones para notificar la suspensión al titular. | accountId: Long, reason: String, suspendedAt: LocalDateTime |
 | AccountReactivated | Se publica al reactivarse la cuenta; es consumido por Comunicaciones para notificar la reactivación al titular. | accountId: Long, reactivatedAt: LocalDateTime |
 
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| AccountRepository | Account | Persiste y recupera el aggregate `Account` junto con sus entidades internas `Session` y `RoleAssignment`; expone la búsqueda por `AccountId` y por `Email` para validar unicidad en el registro. |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| Account | composición | Session | `Account` crea y gestiona el ciclo de vida de sus sesiones activas. |
+| Account | composición | RoleAssignment | `Account` gestiona el conjunto de roles vigentes que le fueron otorgados. |
+| Account | asociación | VerificationCode | `Account` emite y valida los códigos de verificación ligados a su identidad. |
+| AccountRepository | depende de | Account | El repositorio persiste y recupera el aggregate `Account`. |
+
 ### 5.1.2. Interface Layer
 
 ### 5.1.3. Application Layer
