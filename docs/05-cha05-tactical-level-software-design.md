@@ -704,6 +704,56 @@ La Interface Layer expone dos controllers independientes, uno por cada aggregate
 
 ### 5.3.3. Application Layer
 
+La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante Event Handlers las cuatro integraciones entrantes identificadas en el Canvas y en las Observaciones Previas: la creación de cuenta en IAM, la actualización de empleados en Capital Humano, la actualización de administradores en Gestión del Negocio, y el reemplazo de cuidador principal en Cuidado.
+
+**AccountRegisteredEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AccountRegisteredEventHandler |
+| Categoría | Event Handler |
+| Propósito | Inicializar el perfil genérico de un titular al crearse su cuenta en IAM. |
+| Command/Query/Evento que maneja | AccountRegistered (evento externo, BC de origen: IAM, ver 5.1.1) |
+| Repositorios y servicios que usa | InitializeProfileCommand (invocado internamente) |
+| Eventos que publica | ProfileInitialized (vía el command invocado) |
+| User story/capability que habilita | Decisión de negocio del Canvas: "el perfil se inicializa automáticamente al crearse una cuenta" |
+
+**EmployeeUpdatedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | EmployeeUpdatedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Inicializar o refrescar el perfil genérico de un empleado al actualizarse su registro en Capital Humano. |
+| Command/Query/Evento que maneja | EmployeeUpdated (evento externo, BC de origen: Capital Humano, a formalizar en 5.4) |
+| Repositorios y servicios que usa | InitializeProfileCommand (invocado internamente) |
+| Eventos que publica | ProfileInitialized (vía el command invocado) |
+| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Capital Humano (empleado actualizado)" |
+
+**BusinessAdministratorUpdatedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | BusinessAdministratorUpdatedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Inicializar o refrescar el perfil genérico de un administrador al actualizarse su registro en Gestión del Negocio. |
+| Command/Query/Evento que maneja | BusinessAdministratorUpdated (evento externo, BC de origen: Gestión del Negocio, ver 5.2.1) |
+| Repositorios y servicios que usa | InitializeProfileCommand (invocado internamente) |
+| Eventos que publica | ProfileInitialized (vía el command invocado) |
+| User story/capability que habilita | Resuelve la observación previa #3 de Gestión del Negocio (5.2) |
+
+**PrincipalCaregiverReplacedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | PrincipalCaregiverReplacedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Mantener sincronizado el cuidador principal del perfil de hogar cuando Cuidado registra su reemplazo. |
+| Command/Query/Evento que maneja | PrincipalCaregiverReplaced (evento externo, BC de origen: Cuidado, a formalizar en 5.5) |
+| Repositorios y servicios que usa | ReplacePrincipalCaregiverCommand (invocado internamente) |
+| Eventos que publica | PrincipalCaregiverAssigned (vía el command invocado) |
+| User story/capability que habilita | Resuelve la observación previa #4 (gap de sincronización con Cuidado) |
+
 ### 5.3.4. Infrastructure Layer
 
 ### 5.3.5. Bounded Context Software Architecture Component Level Diagrams
