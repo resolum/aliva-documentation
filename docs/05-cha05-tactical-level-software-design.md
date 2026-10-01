@@ -111,6 +111,80 @@ La Interface Layer expone un único controller, `AccountController`, dado que `S
 
 ### 5.1.3. Application Layer
 
+La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante Event Handlers las integraciones entrantes identificadas en las Observaciones Previas: el alta y la baja de empleados publicadas por Capital Humano, y el alta de administradores publicada por Gestión del Negocio.
+
+**RegisterAccountCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterAccountCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear la cuenta en estado PENDING_VERIFICATION, derivar y almacenar el hash de la contraseña, y emitir el código de verificación de correo. |
+| Command/Query/Evento que maneja | RegisterAccountCommand |
+| Repositorios y servicios que usa | AccountRepository, PasswordHasher, VerificationCodeGenerator |
+| Eventos que publica | AccountRegistered, VerificationCodeIssued |
+| User story/capability que habilita | TS-01, US05 |
+
+**VerifyEmailCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | VerifyEmailCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Validar el código de verificación vigente y activar la cuenta. |
+| Command/Query/Evento que maneja | VerifyEmailCommand |
+| Repositorios y servicios que usa | AccountRepository |
+| Eventos que publica | AccountEmailVerified |
+| User story/capability que habilita | TS-01 |
+
+**ResendVerificationCodeCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ResendVerificationCodeCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Invalidar el código de verificación anterior y emitir uno nuevo, respetando el límite de frecuencia de reenvío. |
+| Command/Query/Evento que maneja | ResendVerificationCodeCommand |
+| Repositorios y servicios que usa | AccountRepository, VerificationCodeGenerator, RateLimiter |
+| Eventos que publica | VerificationCodeIssued |
+| User story/capability que habilita | TS-02 |
+
+**LoginCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | LoginCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Autenticar las credenciales de la cuenta, verificar su estado ACTIVE y emitir una nueva Session con sus tokens asociados. |
+| Command/Query/Evento que maneja | LoginCommand |
+| Repositorios y servicios que usa | AccountRepository, PasswordHasher, TokenProvider |
+| Eventos que publica | SessionStarted |
+| User story/capability que habilita | TS-03, US15 |
+
+**RefreshSessionCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RefreshSessionCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Validar la vigencia del refresh token y emitir un nuevo par de tokens para la Session existente. |
+| Command/Query/Evento que maneja | RefreshSessionCommand |
+| Repositorios y servicios que usa | AccountRepository, TokenProvider |
+| Eventos que publica | SessionStarted |
+| User story/capability que habilita | TS-03, escenario #4 |
+
+**LogoutCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | LogoutCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Invalidar la Session activa indicada. |
+| Command/Query/Evento que maneja | LogoutCommand |
+| Repositorios y servicios que usa | AccountRepository |
+| Eventos que publica | SessionEnded |
+| User story/capability que habilita | Derivado del EventStorming (comando Cerrar sesión) |
+
 ### 5.1.4. Infrastructure Layer
 
 ### 5.1.5. Bounded Context Software Architecture Component Level Diagrams
