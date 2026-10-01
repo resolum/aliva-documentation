@@ -885,6 +885,37 @@ La Infrastructure Layer implementa los repositorios de Profile y HomeProfile sob
 
 La persistencia se configura mediante `ProfileJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Profile` y `HomeProfile` sobre el motor PostgreSQL.
 
+| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
+| --- | --- | --- | --- | --- |
+| CloudinaryPhotoGateway | Gateway | PhotoStorageGateway | Cloudinary | Sube y gestiona las fotos de perfil. |
+| GoogleMapsGeocodingAdapter | Gateway | GeocodingService | Google Maps | Geocodifica la dirección del hogar al crear o actualizar un HomeProfile. |
+| DomainEventBusSubscriber | Event Subscriber | AccountRegisteredListener, EmployeeUpdatedListener, BusinessAdministratorUpdatedListener, PrincipalCaregiverReplacedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por IAM, Capital Humano, Gestión del Negocio y Cuidado hacia los Event Handlers de Perfiles. |
+
+| Tabla/Colección | Propósito |
+| --- | --- |
+| profiles | Almacena el aggregate Profile: datos personales, foto y preferencias de comunicación del titular de cualquier cuenta. |
+| home_profiles | Almacena el aggregate HomeProfile: datos de la persona asistida, ubicación geocodificada y cuidador principal vigente. |
+
+| Objeto | BC responsable | Justificación |
+| --- | --- | --- |
+| Cuenta / credenciales | IAM | La autenticación y el estado de acceso de la cuenta son responsabilidad de IAM; Perfiles solo referencia accountId vía Shared Kernel (Context Mapping 4.2.5). |
+| Membresía de cuidadores (principal/autorizado, invitación) | Cuidado | La invitación, vinculación y desvinculación de cuidadores es responsabilidad de Cuidado; Perfiles solo refleja al cuidador principal vigente mediante PrincipalCaregiverReplacedEventHandler (observación previa #4). |
+| Contrato laboral | Capital Humano | El ciclo de vida del contrato es responsabilidad de Capital Humano; Perfiles solo refresca los datos básicos del empleado al recibir EmployeeUpdated. |
+| Perfil del negocio | Gestión del Negocio | El registro del negocio y sus administradores es responsabilidad de Gestión del Negocio; Perfiles solo refresca los datos básicos del administrador al recibir BusinessAdministratorUpdated. |
+
+**Verificación de trazabilidad — Perfiles**
+
+| Criterio | Cumple | Evidencia |
+| --- | --- | --- |
+| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 7 commands y las 3 queries de 5.3.1 tienen su handler correspondiente en 5.3.3. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | InitializeProfileCommand y ReplacePrincipalCaregiverCommand se usan exclusivamente desde Event Handlers (justificado en 5.3.2); el resto se usa desde los endpoints de ProfileController y HomeProfileController. |
+| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.3.2) mapea 1:1 los parámetros del Command correspondiente. |
+| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | ProfileController se relaciona con Profile; HomeProfileController se relaciona con HomeProfile. |
+| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | ProfileRepository ↔ ProfileRepositoryJpa; HomeProfileRepository ↔ HomeProfileRepositoryJpa. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | Ninguno de los 7 Domain Events de Perfiles tiene un consumidor externo declarado en el Canvas (4.2.4); se publican para auditoría y futuras integraciones (ver nota en 5.3.1), sin dejar incompleto ningún flujo de este bounded context. |
+| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Profile y HomeProfile son exclusivos de este bounded context. |
+| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PhotoStorageGateway y GeocodingService se declaran como puertos en Domain; sus implementaciones concretas (CloudinaryPhotoGateway, GoogleMapsGeocodingAdapter) están en Infrastructure (5.3.4). |
+
 ### 5.3.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.3.6. Bounded Context Software Architecture Code Level Diagrams
