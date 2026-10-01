@@ -1179,6 +1179,42 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | ContractCulminated |
 | User story/capability que habilita | Resuelve la observación previa #4 |
 
+**GetEmployeeByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetEmployeeByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un empleado. |
+| Command/Query/Evento que maneja | GetEmployeeByIdQuery |
+| Repositorios y servicios que usa | EmployeeRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getEmployeeById |
+
+**GetContractByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetContractByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un contrato. |
+| Command/Query/Evento que maneja | GetContractByIdQuery |
+| Repositorios y servicios que usa | ContractRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getContractById |
+
+**GetContractsByEmployeeIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetContractsByEmployeeIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Listar los contratos de un empleado. |
+| Command/Query/Evento que maneja | GetContractsByEmployeeIdQuery |
+| Repositorios y servicios que usa | ContractRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getContractsByEmployee |
+
 ### 5.4.4. Infrastructure Layer
 
 ### 5.4.5. Bounded Context Software Architecture Component Level Diagrams
