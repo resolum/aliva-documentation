@@ -688,6 +688,20 @@ La Interface Layer expone dos controllers independientes, uno por cada aggregate
 | updatePhoto | /{profileId}/photo (POST) | path: profileId: Long; body: UpdateProfilePhotoResource { photoUrl: String } | Actualiza la foto de perfil subida a Cloudinary | UpdateProfilePhotoCommand |
 | updateCommunicationPreferences | /{profileId}/preferences (PUT) | path: profileId: Long; body: UpdateCommunicationPreferencesResource { preferredChannel: String } | Actualiza el canal de comunicación preferido | UpdateCommunicationPreferencesCommand |
 
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | HomeProfileController |
+| Categoría | Controller |
+| Propósito | Exponer la creación, la consulta y la actualización del perfil de hogar de la persona asistida. |
+| Aggregate/Entity relacionado | HomeProfile |
+| Ruta base | /api/v1/home-profiles |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| createHomeProfile | / (POST) | body: CreateHomeProfileResource { accountId: Long, assistedPersonName: String, address: String, latitude: Double, longitude: Double } | Crea el perfil de hogar y asigna al creador como cuidador principal | CreateHomeProfileCommand |
+| getHomeProfileById | /{homeProfileId} (GET) | path: homeProfileId: Long | Obtiene el detalle del perfil de hogar | GetHomeProfileByIdQuery |
+| updateHomeProfile | /{homeProfileId} (PUT) | path: homeProfileId: Long; body: UpdateHomeProfileResource { assistedPersonName: String, address: String, latitude: Double, longitude: Double } | Actualiza los datos o la ubicación del perfil de hogar | UpdateHomeProfileCommand |
+
 ### 5.3.3. Application Layer
 
 ### 5.3.4. Infrastructure Layer
