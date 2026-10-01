@@ -551,6 +551,15 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 
 ### 5.2.4. Infrastructure Layer
 
+La Infrastructure Layer implementa los repositorios de Business y BusinessAdministrator sobre PostgreSQL, consistente con el carácter transaccional y estructurado de los datos del negocio (TS-47), y el adaptador hacia Google Maps para geocodificar direcciones.
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| BusinessRepositoryJpa | BusinessRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Business. |
+| BusinessAdministratorRepositoryJpa | BusinessAdministratorRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate BusinessAdministrator. |
+
+La persistencia se configura mediante `BusinessJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Business` y `BusinessAdministrator` sobre el motor PostgreSQL.
+
 ### 5.2.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.2.6. Bounded Context Software Architecture Code Level Diagrams
