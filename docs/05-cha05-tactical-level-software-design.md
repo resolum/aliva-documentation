@@ -1025,6 +1025,24 @@ La Interface Layer expone dos controllers independientes, uno por cada aggregate
 | reactivateEmployee | /{employeeId}/reactivate (POST) | path: employeeId: Long | Reactiva a un empleado suspendido | ReactivateEmployeeCommand |
 | dismissEmployee | /{employeeId}/dismiss (POST) | path: employeeId: Long; body: DismissEmployeeResource { reason: String } | Despide al empleado | DismissEmployeeCommand |
 
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ContractController |
+| Categoría | Controller |
+| Propósito | Exponer el registro, la renovación, la suspensión, la reactivación y la culminación de contratos. |
+| Aggregate/Entity relacionado | Contract |
+| Ruta base | /api/v1/contracts |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| registerContract | / (POST) | body: RegisterContractResource { employeeId: Long, startDate: LocalDate, endDate: LocalDate, position: String } | Registra un nuevo contrato para el empleado | RegisterContractCommand |
+| getContractById | /{contractId} (GET) | path: contractId: Long | Obtiene el detalle de un contrato | GetContractByIdQuery |
+| getContractsByEmployee | /by-employee/{employeeId} (GET) | path: employeeId: Long | Lista los contratos de un empleado | GetContractsByEmployeeIdQuery |
+| renewContract | /{contractId}/renew (POST) | path: contractId: Long; body: RenewContractResource { newEndDate: LocalDate } | Renueva el contrato | RenewContractCommand |
+| suspendContract | /{contractId}/suspend (POST) | path: contractId: Long; body: SuspendContractResource { reason: String } | Suspende el contrato | SuspendContractCommand |
+| reactivateContract | /{contractId}/reactivate (POST) | path: contractId: Long | Reactiva un contrato suspendido | ReactivateContractCommand |
+| culminateContract | /{contractId}/culminate (POST) | path: contractId: Long | Culmina el contrato | CulminateContractCommand |
+
 ### 5.4.3. Application Layer
 
 ### 5.4.4. Infrastructure Layer
