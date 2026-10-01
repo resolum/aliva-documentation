@@ -475,6 +475,56 @@ La Interface Layer expone dos controllers independientes, uno por cada aggregate
 
 ### 5.2.3. Application Layer
 
+La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado. Este bounded context no declara Event Handlers de eventos externos: su Comunicación Entrante (Canvas 4.2.4) proviene únicamente del actor Administrador, sin integraciones entrantes desde otros BC.
+
+**RegisterBusinessCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterBusinessCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Geocodificar la dirección ingresada mediante Google Maps y registrar el negocio, validando que no exista ya una instancia activa (observación previa #1). |
+| Command/Query/Evento que maneja | RegisterBusinessCommand |
+| Repositorios y servicios que usa | BusinessRepository, GeocodingService |
+| Eventos que publica | BusinessRegistered |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**UpdateBusinessProfileCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | UpdateBusinessProfileCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Actualizar el perfil del negocio, regeocodificando la ubicación cuando la dirección cambia. |
+| Command/Query/Evento que maneja | UpdateBusinessProfileCommand |
+| Repositorios y servicios que usa | BusinessRepository, GeocodingService |
+| Eventos que publica | BusinessProfileUpdated |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**RegisterBusinessAdministratorCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterBusinessAdministratorCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Registrar un nuevo administrador, validando que el negocio referenciado exista. |
+| Command/Query/Evento que maneja | RegisterBusinessAdministratorCommand |
+| Repositorios y servicios que usa | BusinessAdministratorRepository, BusinessRepository |
+| Eventos que publica | BusinessAdministratorRegistered |
+| User story/capability que habilita | Resuelve la observación previa #2 (integración saliente hacia IAM) |
+
+**UpdateBusinessAdministratorCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | UpdateBusinessAdministratorCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Actualizar los datos de contacto de un administrador. |
+| Command/Query/Evento que maneja | UpdateBusinessAdministratorCommand |
+| Repositorios y servicios que usa | BusinessAdministratorRepository |
+| Eventos que publica | BusinessAdministratorUpdated |
+| User story/capability que habilita | Resuelve la observación previa #3 (integración saliente hacia Perfiles) |
+
 ### 5.2.4. Infrastructure Layer
 
 ### 5.2.5. Bounded Context Software Architecture Component Level Diagrams
