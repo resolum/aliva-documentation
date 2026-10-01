@@ -443,6 +443,22 @@ No se declaran Factories ni Domain Services en este bounded context: `Business` 
 
 ### 5.2.2. Interface Layer
 
+La Interface Layer expone dos controllers independientes, uno por cada aggregate root: `BusinessController` y `BusinessAdministratorController`. Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: sus integraciones salientes se resuelven mediante Domain Events (hacia IAM y Perfiles, ver 5.2.1) y mediante el adaptador de Google Maps (ver 5.2.4), no mediante llamadas síncronas de otros BC hacia este.
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | BusinessController |
+| Categoría | Controller |
+| Propósito | Exponer el registro y la actualización del perfil del negocio de Alivia. |
+| Aggregate/Entity relacionado | Business |
+| Ruta base | /api/v1/business |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| registerBusiness | / (POST) | body: RegisterBusinessResource { name: String, description: String, address: String, latitude: Double, longitude: Double } | Registra el negocio de Alivia con su ubicación | RegisterBusinessCommand |
+| updateBusinessProfile | /{businessId} (PUT) | path: businessId: Long; body: UpdateBusinessProfileResource { name: String, description: String, address: String, latitude: Double, longitude: Double } | Actualiza el perfil del negocio | UpdateBusinessProfileCommand |
+| getBusiness | /{businessId} (GET) | path: businessId: Long | Obtiene el detalle del negocio | GetBusinessByIdQuery |
+
 ### 5.2.3. Application Layer
 
 ### 5.2.4. Infrastructure Layer
