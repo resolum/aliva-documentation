@@ -346,6 +346,33 @@ La persistencia se configura mediante `AccountJpaConfiguration`, que habilita lo
 | BcryptPasswordHasher | Service Adapter | PasswordHasher | Librería de hashing local | Aplica la función de derivación de claves resistente a fuerza bruta (QAS-11). |
 | DomainEventBusSubscriber | Event Subscriber | EmployeeRegisteredListener, EmployeeTerminatedListener, AdministratorRegisteredListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por Capital Humano y Gestión del Negocio hacia los Event Handlers de IAM. |
 
+| Tabla/Colección | Propósito |
+| --- | --- |
+| accounts | Almacena el aggregate Account: estado, credenciales hasheadas y datos de contacto. |
+| account_role_assignments | Almacena los roles vigentes otorgados a cada cuenta (entity RoleAssignment). |
+| account_sessions | Almacena las sesiones activas y expiradas emitidas por cuenta (entity Session). |
+| verification_codes | Almacena los códigos de verificación emitidos (value object VerificationCode), su propósito y su vigencia. |
+
+| Objeto | BC responsable | Justificación |
+| --- | --- | --- |
+| Invitación (aggregate) | Cuidado | Gestiona la invitación y vinculación de cuidadores; IAM solo recibe RegisterAccountCommand cuando el invitado completa su registro (observación previa #1). |
+| Perfil / Perfil de hogar | Perfiles | Los datos personales, la foto y el cuidador principal del hogar se gestionan en Perfiles, inicializados al consumir AccountRegistered (observación previa #1). |
+| Contrato laboral | Capital Humano | El ciclo de vida del contrato (alta, renovación, suspensión, culminación) es responsabilidad de Capital Humano; IAM solo refleja el estado de acceso derivado mediante EmployeeRegisteredEventHandler/EmployeeTerminatedEventHandler (observación previa #3). |
+| Perfil del negocio | Gestión del Negocio | El registro del negocio y los datos de negocio del administrador se gestionan en Gestión del Negocio; IAM solo crea la cuenta y las credenciales mediante AdministratorRegisteredEventHandler (observación previa #5). |
+
+**Verificación de trazabilidad — IAM**
+
+| Criterio | Cumple | Evidencia |
+| --- | --- | --- |
+| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 12 commands y la query de 5.1.1 tienen su handler correspondiente en 5.1.3. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | RegisterAccountCommand y AssignRoleCommand se usan desde endpoints REST y desde los Event Handlers que resuelven las observaciones previas #3 y #5; SuspendAccountCommand se usa desde el endpoint manual y desde EmployeeTerminatedEventHandler. |
+| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de la tabla de endpoints (5.1.2) mapea 1:1 los parámetros del Command correspondiente. |
+| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | AccountController está relacionado con el aggregate Account. |
+| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | AccountRepository (5.1.1) se implementa en AccountRepositoryJpa (5.1.4). |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | VerificationCodeIssued lo consume VerificationCodeIssuedEventHandler (propio); el resto se consumen en Perfiles o Comunicaciones, según se detalla en la tabla de Domain Events (5.1.1). |
+| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Account es exclusivo de IAM; Invitación se excluyó explícitamente hacia Cuidado (observación previa #1, tabla de objetos excluidos 5.1.4). |
+| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PasswordHash, TokenProvider y EmailGateway se declaran como puertos/value objects en Domain; sus implementaciones concretas (BcryptPasswordHasher, JwtTokenProvider, SendgridEmailGateway) están en Infrastructure (5.1.4). |
+
 ### 5.1.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.1.6. Bounded Context Software Architecture Code Level Diagrams
