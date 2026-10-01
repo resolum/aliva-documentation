@@ -941,6 +941,14 @@ La Domain Layer de Capital Humano modela dos aggregates independientes, fieles a
 
 No se identifican Entities en este bounded context: tanto `Employee` como `Contract` son aggregates simples sin componentes internos con identidad propia.
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| EmployeeId | Value Object | Identificador tipado del aggregate Employee; no admite valores nulos ni negativos. |
+| ContractId | Value Object | Identificador tipado del aggregate Contract; no admite valores nulos ni negativos. |
+| Email | Value Object | Dirección de correo electrónico del empleado; valida el formato y no admite valores vacíos o mal formados. Es un value object propio de este bounded context, sin acoplarse al Email de IAM (no existe Shared Kernel declarado entre ambos en el Context Mapping). |
+| PhoneNumber | Value Object | Número de contacto del empleado; valida el formato del número registrado. |
+| ContractTerms | Value Object | Condiciones del contrato: fecha de inicio, fecha de término (nula para contratos indefinidos) y puesto; no admite una fecha de término anterior a la fecha de inicio. |
+
 ### 5.4.2. Interface Layer
 
 ### 5.4.3. Application Layer
