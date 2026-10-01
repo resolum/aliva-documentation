@@ -596,3 +596,34 @@ La persistencia se configura mediante `BusinessJpaConfiguration`, que habilita l
 #### 5.2.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
+
+## 5.3. Bounded Context: Perfiles
+
+El bounded context **Perfiles** gestiona dos aggregates con sujetos distintos: el perfil genérico de cualquier titular de cuenta de Alivia —Cuidador, Empleado o Administrador— y el perfil de hogar de la persona asistida, incluyendo su ubicación y la asignación del cuidador principal. Es un subdominio de soporte con rol de contexto de ejecución. Participa como actor directo el **Cuidador**, quien crea y edita su propio perfil y el perfil de hogar; el resto de las altas de perfil llegan automáticamente desde IAM, Capital Humano y Gestión del Negocio al crearse o actualizarse una cuenta. Perfiles comparte un Shared Kernel con IAM (Context Mapping, 4.2.5): referencia a las cuentas mediante el `AccountId` de IAM en lugar de declarar un identificador propio de usuario.
+
+### 5.3.1. Domain Layer
+
+La Domain Layer de Perfiles modela dos aggregates independientes: `Profile`, el perfil genérico del titular de una cuenta (observación previa #1), y `HomeProfile`, el perfil de hogar de la persona asistida, con su ubicación y su cuidador principal.
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| Profile | Aggregate Root | Representa el perfil de cualquier titular de cuenta de Alivia (Cuidador, Empleado o Administrador): datos personales, foto y preferencias de comunicación. Solo el propio titular puede actualizarlo (observación previa #3); se inicializa automáticamente al recibir la señal de creación o actualización de su cuenta de origen. |
+| HomeProfile | Aggregate Root | Representa el perfil de hogar de la persona asistida: datos personales, ubicación geocodificada y cuidador principal. Un Cuidador no puede ser principal de más de un HomeProfile a la vez (observación previa #2). |
+
+No se identifican Entities en este bounded context: tanto `Profile` como `HomeProfile` son aggregates simples sin componentes internos con identidad propia.
+
+### 5.3.2. Interface Layer
+
+### 5.3.3. Application Layer
+
+### 5.3.4. Infrastructure Layer
+
+### 5.3.5. Bounded Context Software Architecture Component Level Diagrams
+
+### 5.3.6. Bounded Context Software Architecture Code Level Diagrams
+
+#### 5.3.6.1. Bounded Context Domain Layer Class Diagrams
+
+#### 5.3.6.2. Bounded Context Database Design Diagram
+
+<div style="page-break-after: always;"></div>
