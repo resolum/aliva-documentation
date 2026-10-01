@@ -636,6 +636,24 @@ No se identifican Entities en este bounded context: tanto `Profile` como `HomePr
 | UpdateHomeProfileCommand | Actualiza los datos o la ubicación del perfil de hogar. | homeProfileId: Long, assistedPersonName: String, address: String, latitude: Double, longitude: Double |
 | ReplacePrincipalCaregiverCommand | Reemplaza al cuidador principal del perfil de hogar, disparado al consumir el evento de reemplazo publicado por Cuidado (observación previa #4). | homeProfileId: Long, newPrincipalCaregiverAccountId: Long |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GetProfileByIdQuery | Obtiene el detalle de un perfil por su identificador. | profileId: Long |
+| GetProfileByAccountIdQuery | Obtiene el perfil asociado a una cuenta de IAM. | accountId: Long |
+| GetHomeProfileByIdQuery | Obtiene el detalle de un perfil de hogar, incluyendo su ubicación y su cuidador principal. | homeProfileId: Long |
+
+Ninguno de los siguientes Domain Events tiene un consumidor externo declarado en el Bounded Context Canvas (4.2.4): su Comunicación Saliente solo registra integraciones hacia Cloudinary y Google Maps, servicios externos sin interés en eventos de dominio. Se publican para dejar un historial de cambios y habilitar futuras integraciones (por ejemplo, Comunicaciones), sin que ello bloquee la trazabilidad de este bounded context.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| ProfileInitialized | Se publica al inicializarse por primera vez el perfil de un titular. | profileId: Long, accountId: Long, name: String, initializedAt: LocalDateTime |
+| ProfilePersonalDataUpdated | Se publica al actualizar los datos personales de un perfil. | profileId: Long, name: String, updatedAt: LocalDateTime |
+| ProfilePhotoUpdated | Se publica al actualizar la foto de un perfil. | profileId: Long, photoUrl: String, updatedAt: LocalDateTime |
+| CommunicationPreferencesUpdated | Se publica al actualizar el canal de comunicación preferido de un perfil. | profileId: Long, preferredChannel: PreferredChannel, updatedAt: LocalDateTime |
+| HomeProfileCreated | Se publica al crearse el perfil de hogar de la persona asistida. | homeProfileId: Long, assistedPersonName: String, address: String, latitude: Double, longitude: Double, principalCaregiverId: Long, createdAt: LocalDateTime |
+| HomeProfileUpdated | Se publica al actualizarse los datos o la ubicación del perfil de hogar. | homeProfileId: Long, updatedAt: LocalDateTime |
+| PrincipalCaregiverAssigned | Se publica al asignarse o reemplazarse el cuidador principal de un perfil de hogar. | homeProfileId: Long, accountId: Long, assignedAt: LocalDateTime |
+
 ### 5.3.2. Interface Layer
 
 ### 5.3.3. Application Layer
