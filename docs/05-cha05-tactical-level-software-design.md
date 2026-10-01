@@ -185,6 +185,78 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | SessionEnded |
 | User story/capability que habilita | Derivado del EventStorming (comando Cerrar sesión) |
 
+**RequestPasswordRecoveryCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RequestPasswordRecoveryCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Emitir un código de verificación con propósito PASSWORD_RECOVERY para la cuenta asociada al correo indicado. |
+| Command/Query/Evento que maneja | RequestPasswordRecoveryCommand |
+| Repositorios y servicios que usa | AccountRepository, VerificationCodeGenerator |
+| Eventos que publica | VerificationCodeIssued |
+| User story/capability que habilita | Derivado del EventStorming (flujo de recuperación de contraseña) |
+
+**ResetPasswordCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ResetPasswordCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Validar el código de recuperación vigente y reemplazar el hash de la contraseña de la cuenta. |
+| Command/Query/Evento que maneja | ResetPasswordCommand |
+| Repositorios y servicios que usa | AccountRepository, PasswordHasher |
+| Eventos que publica | PasswordReset |
+| User story/capability que habilita | Derivado del EventStorming (flujo de recuperación de contraseña) |
+
+**AssignRoleCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AssignRoleCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Otorgar un rol adicional a la cuenta, validando su compatibilidad con los roles vigentes. |
+| Command/Query/Evento que maneja | AssignRoleCommand |
+| Repositorios y servicios que usa | AccountRepository |
+| Eventos que publica | RoleAssigned |
+| User story/capability que habilita | US17 |
+
+**RevokeRoleCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RevokeRoleCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Retirar un rol previamente otorgado a la cuenta sin afectar los demás roles vigentes. |
+| Command/Query/Evento que maneja | RevokeRoleCommand |
+| Repositorios y servicios que usa | AccountRepository |
+| Eventos que publica | RoleRevoked |
+| User story/capability que habilita | US17, escenario #4 |
+
+**SuspendAccountCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | SuspendAccountCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Suspender la cuenta e impedir su autenticación hasta una reactivación explícita. |
+| Command/Query/Evento que maneja | SuspendAccountCommand |
+| Repositorios y servicios que usa | AccountRepository |
+| Eventos que publica | AccountSuspended |
+| User story/capability que habilita | Invocado manualmente por un Administrador o automáticamente por EmployeeTerminatedEventHandler |
+
+**ReactivateAccountCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ReactivateAccountCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Reactivar una cuenta previamente suspendida. |
+| Command/Query/Evento que maneja | ReactivateAccountCommand |
+| Repositorios y servicios que usa | AccountRepository |
+| Eventos que publica | AccountReactivated |
+| User story/capability que habilita | Invocado manualmente por un Administrador |
+
 ### 5.1.4. Infrastructure Layer
 
 ### 5.1.5. Bounded Context Software Architecture Component Level Diagrams
