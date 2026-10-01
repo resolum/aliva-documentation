@@ -991,6 +991,19 @@ Los eventos `EmployeeRegistered`, `EmployeeUpdated` y `EmployeeTerminated` reuti
 | ContractReactivated | Se publica al reactivarse un contrato suspendido. | contractId: Long, reactivatedAt: LocalDateTime |
 | ContractCulminated | Se publica al culminarse un contrato. | contractId: Long, culminatedAt: LocalDateTime |
 
+No se declaran Factories ni Domain Services en este bounded context: `Employee` y `Contract` son aggregates independientes que solo se referencian por identificador (employeeId). La validación de que el empleado referenciado exista y esté activo al registrar un contrato se resuelve en `RegisterContractCommandHandler` mediante `EmployeeRepository`, sin requerir un Domain Service.
+
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| EmployeeRepository | Employee | Persiste y recupera el aggregate Employee. |
+| ContractRepository | Contract | Persiste y recupera el aggregate Contract; expone la búsqueda por employeeId para listar los contratos de un empleado. |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| Contract | asociación | Employee | Contract referencia a su empleado mediante employeeId; son aggregates independientes, sin composición. |
+| EmployeeRepository | depende de | Employee | El repositorio persiste y recupera el aggregate Employee. |
+| ContractRepository | depende de | Contract | El repositorio persiste y recupera el aggregate Contract. |
+
 ### 5.4.2. Interface Layer
 
 ### 5.4.3. Application Layer
