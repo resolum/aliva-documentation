@@ -339,6 +339,13 @@ La Infrastructure Layer implementa el repositorio de Account sobre PostgreSQL, c
 
 La persistencia se configura mediante `AccountJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Account`, `Session`, `RoleAssignment` y `VerificationCode` sobre el motor PostgreSQL definido en TS-47.
 
+| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
+| --- | --- | --- | --- | --- |
+| SendgridEmailGateway | Gateway | EmailGateway | Sendgrid | Envía los correos de verificación y de recuperación de contraseña. |
+| JwtTokenProvider | Service Adapter | TokenProvider | Librería JWT local | Genera y valida los pares de accessToken/refreshToken firmados. |
+| BcryptPasswordHasher | Service Adapter | PasswordHasher | Librería de hashing local | Aplica la función de derivación de claves resistente a fuerza bruta (QAS-11). |
+| DomainEventBusSubscriber | Event Subscriber | EmployeeRegisteredListener, EmployeeTerminatedListener, AdministratorRegisteredListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por Capital Humano y Gestión del Negocio hacia los Event Handlers de IAM. |
+
 ### 5.1.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.1.6. Bounded Context Software Architecture Code Level Diagrams
