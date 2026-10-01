@@ -876,6 +876,15 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 
 ### 5.3.4. Infrastructure Layer
 
+La Infrastructure Layer implementa los repositorios de Profile y HomeProfile sobre PostgreSQL, consistente con el carácter transaccional y estructurado de los datos de perfil, y los adaptadores hacia Cloudinary y Google Maps, además del suscriptor del bus de eventos interno que conecta a Perfiles con IAM, Capital Humano, Gestión del Negocio y Cuidado.
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| ProfileRepositoryJpa | ProfileRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Profile. |
+| HomeProfileRepositoryJpa | HomeProfileRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate HomeProfile. |
+
+La persistencia se configura mediante `ProfileJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Profile` y `HomeProfile` sobre el motor PostgreSQL.
+
 ### 5.3.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.3.6. Bounded Context Software Architecture Code Level Diagrams
