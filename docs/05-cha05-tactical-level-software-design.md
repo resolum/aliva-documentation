@@ -925,3 +925,34 @@ La persistencia se configura mediante `ProfileJpaConfiguration`, que habilita lo
 #### 5.3.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
+
+## 5.4. Bounded Context: Capital Humano
+
+El bounded context **Capital Humano** gestiona el alta y la baja de empleados, y el ciclo de vida de sus contratos laborales: registro, renovación, suspensión y culminación. Es un subdominio de soporte con rol de contexto de ejecución. El único actor que participa es el **Administrador**, quien da de alta y despide empleados, y registra, renueva o suspende contratos. Este bounded context cierra un round-trip con IAM: al dar de alta a un empleado publica `EmployeeRegistered`, que IAM consume para crear su cuenta (5.1); al crearse esa cuenta, IAM publica `AccountRegistered`, que Capital Humano consume para registrar automáticamente el contrato (observación previa #1). También publica `EmployeeUpdated`, consumido por Perfiles para inicializar su perfil (5.3).
+
+### 5.4.1. Domain Layer
+
+La Domain Layer de Capital Humano modela dos aggregates independientes, fieles al EventStorming de Paso 10: `Employee`, que representa al empleado contratado, y `Contract`, que representa su acuerdo laboral. Ambos tienen ciclos de vida con estados propios y no sincronizados entre sí (observación previa #2).
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| Employee | Aggregate Root | Representa a la persona contratada que trabaja para el negocio. No permite operaciones de negocio una vez despedido (estado terminal DISMISSED); su suspensión es independiente del estado de sus contratos (observación previa #2). |
+| Contract | Aggregate Root | Representa el acuerdo laboral de un empleado, referenciado mediante employeeId. No permite renovarse ni suspenderse una vez culminado (estado terminal CULMINATED); su ciclo de vida no se sincroniza automáticamente con el estado del Employee asociado (observación previa #2 y #4). |
+
+No se identifican Entities en este bounded context: tanto `Employee` como `Contract` son aggregates simples sin componentes internos con identidad propia.
+
+### 5.4.2. Interface Layer
+
+### 5.4.3. Application Layer
+
+### 5.4.4. Infrastructure Layer
+
+### 5.4.5. Bounded Context Software Architecture Component Level Diagrams
+
+### 5.4.6. Bounded Context Software Architecture Code Level Diagrams
+
+#### 5.4.6.1. Bounded Context Domain Layer Class Diagrams
+
+#### 5.4.6.2. Bounded Context Database Design Diagram
+
+<div style="page-break-after: always;"></div>
