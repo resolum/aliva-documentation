@@ -838,6 +838,42 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | PrincipalCaregiverAssigned |
 | User story/capability que habilita | Resuelve la observación previa #4 (invocado únicamente por PrincipalCaregiverReplacedEventHandler) |
 
+**GetProfileByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetProfileByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un perfil por su identificador. |
+| Command/Query/Evento que maneja | GetProfileByIdQuery |
+| Repositorios y servicios que usa | ProfileRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getProfileById |
+
+**GetProfileByAccountIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetProfileByAccountIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el perfil asociado a una cuenta de IAM. |
+| Command/Query/Evento que maneja | GetProfileByAccountIdQuery |
+| Repositorios y servicios que usa | ProfileRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getProfileByAccountId |
+
+**GetHomeProfileByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetHomeProfileByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un perfil de hogar, incluyendo su ubicación y su cuidador principal. |
+| Command/Query/Evento que maneja | GetHomeProfileByIdQuery |
+| Repositorios y servicios que usa | HomeProfileRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getHomeProfileById |
+
 ### 5.3.4. Infrastructure Layer
 
 ### 5.3.5. Bounded Context Software Architecture Component Level Diagrams
