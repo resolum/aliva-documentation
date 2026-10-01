@@ -1282,6 +1282,16 @@ La Domain Layer de Cuidado modela cuatro aggregates independientes, fieles al Ev
 | --- | --- | --- |
 | Schedule | Entity | Representa un turno y horario dentro del ciclo de vida de un Caregiver: un periodo en que tiene asignaciones por cumplir. No admite una hora de término anterior a la hora de inicio. |
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| FamilyMemberId | Value Object | Identificador tipado del aggregate FamilyMember; no admite valores nulos ni negativos. |
+| CareTaskId | Value Object | Identificador tipado del aggregate CareTask; no admite valores nulos ni negativos. |
+| InvitationId | Value Object | Identificador tipado del aggregate Invitation; no admite valores nulos ni negativos. |
+| CaregiverId | Value Object | Identificador tipado del aggregate Caregiver; no admite valores nulos ni negativos. |
+| ScheduleId | Value Object | Identificador tipado de un Schedule; no admite valores nulos ni negativos. |
+| Email | Value Object | Dirección de correo electrónico del cuidador invitado; valida el formato y no admite valores vacíos o mal formados. Es un value object propio de este bounded context, sin acoplarse al Email de IAM. |
+| CareTaskDescription | Value Object | Descripción de la labor de cuidado; no admite valores vacíos. |
+
 ### 5.5.2. Interface Layer
 
 ### 5.5.3. Application Layer
