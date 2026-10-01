@@ -1006,6 +1006,25 @@ No se declaran Factories ni Domain Services en este bounded context: `Employee` 
 
 ### 5.4.2. Interface Layer
 
+La Interface Layer expone dos controllers independientes, uno por cada aggregate root: `EmployeeController` y `ContractController`. Ninguno expone `RegisterContractCommand` como su único origen, ya que también puede invocarse manualmente por el Administrador (ver endpoint registerContract) o automáticamente desde un Event Handler (5.4.3). Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: ningún otro bounded context consume a Capital Humano de forma síncrona según el Context Mapping (4.2.5); sus integraciones salientes se resuelven mediante Domain Events hacia IAM y Perfiles.
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | EmployeeController |
+| Categoría | Controller |
+| Propósito | Exponer el alta, la actualización, la suspensión, la reactivación y el despido de empleados. |
+| Aggregate/Entity relacionado | Employee |
+| Ruta base | /api/v1/employees |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| createEmployee | / (POST) | body: CreateEmployeeResource { name: String, email: String, phone: String } | Da de alta a un nuevo empleado | CreateEmployeeCommand |
+| getEmployeeById | /{employeeId} (GET) | path: employeeId: Long | Obtiene el detalle de un empleado | GetEmployeeByIdQuery |
+| updateEmployeeInfo | /{employeeId} (PUT) | path: employeeId: Long; body: UpdateEmployeeInfoResource { name: String, email: String, phone: String } | Actualiza los datos básicos del empleado | UpdateEmployeeInfoCommand |
+| suspendEmployee | /{employeeId}/suspend (POST) | path: employeeId: Long; body: SuspendEmployeeResource { reason: String } | Suspende temporalmente al empleado | SuspendEmployeeCommand |
+| reactivateEmployee | /{employeeId}/reactivate (POST) | path: employeeId: Long | Reactiva a un empleado suspendido | ReactivateEmployeeCommand |
+| dismissEmployee | /{employeeId}/dismiss (POST) | path: employeeId: Long; body: DismissEmployeeResource { reason: String } | Despide al empleado | DismissEmployeeCommand |
+
 ### 5.4.3. Application Layer
 
 ### 5.4.4. Infrastructure Layer
