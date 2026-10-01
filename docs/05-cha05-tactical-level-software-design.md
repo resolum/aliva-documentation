@@ -382,3 +382,34 @@ La persistencia se configura mediante `AccountJpaConfiguration`, que habilita lo
 #### 5.1.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
+
+## 5.2. Bounded Context: Gestión del Negocio
+
+El bounded context **Gestión del Negocio** administra la información del negocio de Alivia y de los administradores responsables de gestionarlo: el registro del negocio con su ubicación, la actualización de su perfil, y el registro y la actualización de los administradores. Es un subdominio de soporte con rol de contexto de ejecución (no de puerta de enlace como IAM). El único actor que participa es el **Administrador**, quien registra el negocio y da de alta a otros administradores. A diferencia de IAM, este bounded context no posee contratos técnicos (TS/US) propios en los capítulos 2-3; sus comandos y parámetros se derivan directamente del lenguaje ubicuo del Bounded Context Canvas (4.2.4).
+
+### 5.2.1. Domain Layer
+
+La Domain Layer de Gestión del Negocio modela dos aggregates independientes, fieles al EventStorming de Paso 10: `Business`, que representa al negocio de Alivia con su ubicación y perfil, y `BusinessAdministrator`, que representa a cada administrador responsable de gestionarlo. Ambos son aggregates simples, sin entidades internas con identidad propia.
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| Business | Aggregate Root | Representa el negocio de Alivia registrado con su ubicación y su perfil. No admite más de una instancia activa en la plataforma (observación previa #1: Alivia no es una plataforma multi-tenant) ni una ubicación sin geocodificar mediante Google Maps. |
+| BusinessAdministrator | Aggregate Root | Representa a un administrador responsable de gestionar el negocio. Referencia a `Business` mediante `businessId` (un `Business` puede tener varios administradores asociados, resolviendo la observación previa #1). |
+
+No se identifican Entities en este bounded context: tanto `Business` como `BusinessAdministrator` son aggregates simples sin componentes internos con identidad propia.
+
+### 5.2.2. Interface Layer
+
+### 5.2.3. Application Layer
+
+### 5.2.4. Infrastructure Layer
+
+### 5.2.5. Bounded Context Software Architecture Component Level Diagrams
+
+### 5.2.6. Bounded Context Software Architecture Code Level Diagrams
+
+#### 5.2.6.1. Bounded Context Domain Layer Class Diagrams
+
+#### 5.2.6.2. Bounded Context Database Design Diagram
+
+<div style="page-break-after: always;"></div>
