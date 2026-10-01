@@ -802,6 +802,42 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | CommunicationPreferencesUpdated |
 | User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
 
+**CreateHomeProfileCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | CreateHomeProfileCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Geocodificar la dirección del hogar mediante Google Maps, validar que el Cuidador creador no sea ya principal de otro HomeProfile (observación previa #2) y crear el perfil de hogar. |
+| Command/Query/Evento que maneja | CreateHomeProfileCommand |
+| Repositorios y servicios que usa | HomeProfileRepository, GeocodingService |
+| Eventos que publica | HomeProfileCreated, PrincipalCaregiverAssigned |
+| User story/capability que habilita | Resuelve la observación previa #2 |
+
+**UpdateHomeProfileCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | UpdateHomeProfileCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Actualizar los datos de la persona asistida o regeocodificar su ubicación cuando la dirección cambia. |
+| Command/Query/Evento que maneja | UpdateHomeProfileCommand |
+| Repositorios y servicios que usa | HomeProfileRepository, GeocodingService |
+| Eventos que publica | HomeProfileUpdated |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**ReplacePrincipalCaregiverCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ReplacePrincipalCaregiverCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Reemplazar el cuidador principal vigente de un perfil de hogar. |
+| Command/Query/Evento que maneja | ReplacePrincipalCaregiverCommand |
+| Repositorios y servicios que usa | HomeProfileRepository |
+| Eventos que publica | PrincipalCaregiverAssigned |
+| User story/capability que habilita | Resuelve la observación previa #4 (invocado únicamente por PrincipalCaregiverReplacedEventHandler) |
+
 ### 5.3.4. Infrastructure Layer
 
 ### 5.3.5. Bounded Context Software Architecture Component Level Diagrams
