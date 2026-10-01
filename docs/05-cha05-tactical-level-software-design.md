@@ -331,6 +331,14 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 
 ### 5.1.4. Infrastructure Layer
 
+La Infrastructure Layer implementa el repositorio de Account sobre PostgreSQL, consistente con la decisión TS-47 de persistencia transaccional para cuentas, y los adaptadores hacia Sendgrid, el proveedor de tokens y el hasher de contraseñas, además del suscriptor del bus de eventos interno que conecta a IAM con Capital Humano y Gestión del Negocio.
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| AccountRepositoryJpa | AccountRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Account junto con sus entidades internas Session y RoleAssignment. |
+
+La persistencia se configura mediante `AccountJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Account`, `Session`, `RoleAssignment` y `VerificationCode` sobre el motor PostgreSQL definido en TS-47.
+
 ### 5.1.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.1.6. Bounded Context Software Architecture Code Level Diagrams
