@@ -1119,6 +1119,66 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | EmployeeTerminated |
 | User story/capability que habilita | Resuelve la observación previa #4; consumido por EmployeeTerminatedEventHandler de IAM (5.1.3) |
 
+**RegisterContractCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterContractCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Validar que el empleado exista y esté ACTIVE, y registrar su contrato con los términos provistos, ya sea de forma manual (Administrador) o automática (AccountRegisteredEventHandler). |
+| Command/Query/Evento que maneja | RegisterContractCommand |
+| Repositorios y servicios que usa | ContractRepository, EmployeeRepository |
+| Eventos que publica | ContractRegistered |
+| User story/capability que habilita | Decisión de negocio del Canvas; resuelve la observación previa #1 |
+
+**RenewContractCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RenewContractCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Extender la fecha de término de un contrato vigente. |
+| Command/Query/Evento que maneja | RenewContractCommand |
+| Repositorios y servicios que usa | ContractRepository |
+| Eventos que publica | ContractRenewed |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**SuspendContractCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | SuspendContractCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Suspender un contrato, sin afectar el estado del Employee asociado (observación previa #2). |
+| Command/Query/Evento que maneja | SuspendContractCommand |
+| Repositorios y servicios que usa | ContractRepository |
+| Eventos que publica | ContractSuspended |
+| User story/capability que habilita | Resuelve la observación previa #2 |
+
+**ReactivateContractCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ReactivateContractCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Reactivar un contrato previamente suspendido. |
+| Command/Query/Evento que maneja | ReactivateContractCommand |
+| Repositorios y servicios que usa | ContractRepository |
+| Eventos que publica | ContractReactivated |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**CulminateContractCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | CulminateContractCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Culminar un contrato, llevándolo a su estado terminal, independientemente del estado del Employee asociado (observación previa #4). |
+| Command/Query/Evento que maneja | CulminateContractCommand |
+| Repositorios y servicios que usa | ContractRepository |
+| Eventos que publica | ContractCulminated |
+| User story/capability que habilita | Resuelve la observación previa #4 |
+
 ### 5.4.4. Infrastructure Layer
 
 ### 5.4.5. Bounded Context Software Architecture Component Level Diagrams
