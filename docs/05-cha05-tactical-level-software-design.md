@@ -949,6 +949,11 @@ No se identifican Entities en este bounded context: tanto `Employee` como `Contr
 | PhoneNumber | Value Object | Número de contacto del empleado; valida el formato del número registrado. |
 | ContractTerms | Value Object | Condiciones del contrato: fecha de inicio, fecha de término (nula para contratos indefinidos) y puesto; no admite una fecha de término anterior a la fecha de inicio. |
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| EmployeeStatus | Enum | Estado del empleado. Transiciones permitidas: `ACTIVE` → `SUSPENDED` al suspenderse temporalmente su actividad; `SUSPENDED` → `ACTIVE` al reactivarse; `ACTIVE`/`SUSPENDED` → `DISMISSED` al despedirse, estado terminal que revoca su acceso en IAM (5.1) y no admite ninguna transición posterior. |
+| ContractStatus | Enum | Estado del contrato. Transiciones permitidas: `ACTIVE` → `SUSPENDED` al suspenderse; `SUSPENDED` → `ACTIVE` al reactivarse; `ACTIVE`/`SUSPENDED` → `CULMINATED` al culminarse, estado terminal que no admite ninguna transición posterior. No está acoplado al EmployeeStatus del Employee referenciado (observación previa #2). |
+
 ### 5.4.2. Interface Layer
 
 ### 5.4.3. Application Layer
