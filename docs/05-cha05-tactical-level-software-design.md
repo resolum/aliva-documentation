@@ -612,6 +612,16 @@ La Domain Layer de Perfiles modela dos aggregates independientes: `Profile`, el 
 
 No se identifican Entities en este bounded context: tanto `Profile` como `HomeProfile` son aggregates simples sin componentes internos con identidad propia.
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| ProfileId | Value Object | Identificador tipado del aggregate Profile; no admite valores nulos ni negativos. |
+| HomeProfileId | Value Object | Identificador tipado del aggregate HomeProfile; no admite valores nulos ni negativos. |
+| DisplayName | Value Object | Nombre del titular mostrado en el perfil; no admite valores vacíos. |
+| PhotoUrl | Value Object | URL de la foto de perfil; valida que apunte a un recurso alojado en Cloudinary (decisión de negocio del Canvas: "toda foto de perfil se almacena en Cloudinary"). |
+| CommunicationPreferences | Value Object | Canal de comunicación preferido del titular (`PreferredChannel`); no admite un canal nulo o no soportado. |
+| AssistedPersonName | Value Object | Nombre de la persona asistida asociada a un HomeProfile; no admite valores vacíos. |
+| HomeLocation | Value Object | Ubicación geocodificada del hogar (dirección, latitud y longitud) obtenida mediante Google Maps; no admite coordenadas nulas ni fuera de los rangos válidos (-90 a 90 de latitud, -180 a 180 de longitud). |
+
 ### 5.3.2. Interface Layer
 
 ### 5.3.3. Application Layer
