@@ -1411,6 +1411,21 @@ La Interface Layer expone un controller por cada aggregate root: `FamilyMemberCo
 | acceptInvitation | /{invitationId}/accept (POST) | path: invitationId: Long; body: AcceptInvitationResource { accountId: Long } | Acepta la invitación y vincula al cuidador | AcceptInvitationCommand |
 | rejectInvitation | /{invitationId}/reject (POST) | path: invitationId: Long | Rechaza la invitación | RejectInvitationCommand |
 
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | CaregiverController |
+| Categoría | Controller |
+| Propósito | Exponer la consulta de cuidadores, el registro de turnos y horarios, el cumplimiento de asignaciones y la desvinculación de cuidadores. Schedule se expone como sub-recurso de Caregiver, su entidad interna. |
+| Aggregate/Entity relacionado | Caregiver (incluye el sub-recurso Schedule) |
+| Ruta base | /api/v1/caregivers |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getCaregiverById | /{caregiverId} (GET) | path: caregiverId: Long | Obtiene el detalle de un cuidador y sus turnos | GetCaregiverByIdQuery |
+| registerSchedule | /{caregiverId}/schedules (POST) | path: caregiverId: Long; body: RegisterScheduleResource { startTime: LocalDateTime, endTime: LocalDateTime } | Registra un nuevo turno y horario | RegisterScheduleCommand |
+| recordCompletedAssignments | /{caregiverId}/schedules/{scheduleId}/complete (POST) | path: caregiverId: Long, scheduleId: Long | Registra el cumplimiento de las asignaciones del turno | RecordCompletedAssignmentsCommand |
+| unlinkCaregiver | /{caregiverId}/unlink (POST) | path: caregiverId: Long | Desvincula al cuidador de la red de cuidado | UnlinkCaregiverCommand |
+
 ### 5.5.3. Application Layer
 
 ### 5.5.4. Infrastructure Layer
