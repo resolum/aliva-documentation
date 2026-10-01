@@ -398,6 +398,15 @@ La Domain Layer de Gestión del Negocio modela dos aggregates independientes, fi
 
 No se identifican Entities en este bounded context: tanto `Business` como `BusinessAdministrator` son aggregates simples sin componentes internos con identidad propia.
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| BusinessId | Value Object | Identificador tipado del aggregate Business; no admite valores nulos ni negativos. |
+| BusinessAdministratorId | Value Object | Identificador tipado del aggregate BusinessAdministrator; no admite valores nulos ni negativos. |
+| GeoLocation | Value Object | Ubicación geocodificada del negocio (latitud, longitud y dirección) obtenida mediante Google Maps; no admite coordenadas nulas ni fuera de los rangos válidos (-90 a 90 de latitud, -180 a 180 de longitud), conforme a la decisión de negocio del Canvas. |
+| BusinessName | Value Object | Nombre del negocio; no admite valores vacíos. |
+| Email | Value Object | Dirección de correo electrónico del administrador; valida el formato y no admite valores vacíos o mal formados. Es un value object propio de este bounded context, sin acoplarse al `Email` de IAM (no existe Shared Kernel declarado entre ambos en el Context Mapping). |
+| PhoneNumber | Value Object | Número de contacto del administrador; valida el formato del número registrado. |
+
 ### 5.2.2. Interface Layer
 
 ### 5.2.3. Application Layer
