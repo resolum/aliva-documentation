@@ -1292,6 +1292,17 @@ La Domain Layer de Cuidado modela cuatro aggregates independientes, fieles al Ev
 | Email | Value Object | Dirección de correo electrónico del cuidador invitado; valida el formato y no admite valores vacíos o mal formados. Es un value object propio de este bounded context, sin acoplarse al Email de IAM. |
 | CareTaskDescription | Value Object | Descripción de la labor de cuidado; no admite valores vacíos. |
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| InvitationStatus | Enum | Estado de la invitación. Transiciones permitidas: `SENT` → `ACCEPTED`, estado terminal que vincula al cuidador como cuidador adicional; `SENT` → `REJECTED`, estado terminal que no vincula al cuidador. Ninguno de los dos estados terminales admite una transición posterior (decisiones de negocio del Canvas). |
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| RegisterFamilyMemberCommand | Registra al familiar responsable de una red de cuidado, referenciando su cuenta en IAM y su perfil de hogar en Perfiles. | accountId: Long, homeProfileId: Long, name: String |
+| UpdateFamilyMemberInfoCommand | Actualiza el nombre del familiar. | familyMemberId: Long, name: String |
+| RegisterCareTaskCommand | Registra una nueva labor de cuidado. | familyMemberId: Long, description: String |
+| AssignCareTaskResponsibleCommand | Asigna un cuidador responsable a una labor de cuidado. | careTaskId: Long, caregiverId: Long |
+
 ### 5.5.2. Interface Layer
 
 ### 5.5.3. Application Layer
