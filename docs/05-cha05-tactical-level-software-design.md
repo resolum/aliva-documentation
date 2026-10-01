@@ -459,6 +459,20 @@ La Interface Layer expone dos controllers independientes, uno por cada aggregate
 | updateBusinessProfile | /{businessId} (PUT) | path: businessId: Long; body: UpdateBusinessProfileResource { name: String, description: String, address: String, latitude: Double, longitude: Double } | Actualiza el perfil del negocio | UpdateBusinessProfileCommand |
 | getBusiness | /{businessId} (GET) | path: businessId: Long | Obtiene el detalle del negocio | GetBusinessByIdQuery |
 
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | BusinessAdministratorController |
+| Categoría | Controller |
+| Propósito | Exponer el registro y la actualización de los administradores del negocio. |
+| Aggregate/Entity relacionado | BusinessAdministrator |
+| Ruta base | /api/v1/business/administrators |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| registerBusinessAdministrator | / (POST) | body: RegisterBusinessAdministratorResource { businessId: Long, name: String, email: String, phone: String } | Registra un nuevo administrador para el negocio | RegisterBusinessAdministratorCommand |
+| updateBusinessAdministrator | /{administratorId} (PUT) | path: administratorId: Long; body: UpdateBusinessAdministratorResource { name: String, email: String, phone: String } | Actualiza los datos de un administrador | UpdateBusinessAdministratorCommand |
+| getBusinessAdministratorById | /{administratorId} (GET) | path: administratorId: Long | Obtiene el detalle de un administrador | GetBusinessAdministratorByIdQuery |
+
 ### 5.2.3. Application Layer
 
 ### 5.2.4. Infrastructure Layer
