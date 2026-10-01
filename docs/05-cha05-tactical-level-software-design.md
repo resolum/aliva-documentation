@@ -1303,6 +1303,12 @@ La Domain Layer de Cuidado modela cuatro aggregates independientes, fieles al Ev
 | RegisterCareTaskCommand | Registra una nueva labor de cuidado. | familyMemberId: Long, description: String |
 | AssignCareTaskResponsibleCommand | Asigna un cuidador responsable a una labor de cuidado. | careTaskId: Long, caregiverId: Long |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| InviteCaregiverCommand | Envía una invitación a un cuidador para vincularse a la red de cuidado. | familyMemberId: Long, invitedEmail: String |
+| AcceptInvitationCommand | Acepta la invitación; el cuidador invitado ya cuenta con un accountId válido en IAM (nuevo o existente) al momento de invocarla (observación previa #3). | invitationId: Long, accountId: Long |
+| RejectInvitationCommand | Rechaza la invitación, sin vincular al cuidador. | invitationId: Long |
+
 ### 5.5.2. Interface Layer
 
 ### 5.5.3. Application Layer
