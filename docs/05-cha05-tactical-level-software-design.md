@@ -407,6 +407,15 @@ No se identifican Entities en este bounded context: tanto `Business` como `Busin
 | Email | Value Object | Dirección de correo electrónico del administrador; valida el formato y no admite valores vacíos o mal formados. Es un value object propio de este bounded context, sin acoplarse al `Email` de IAM (no existe Shared Kernel declarado entre ambos en el Context Mapping). |
 | PhoneNumber | Value Object | Número de contacto del administrador; valida el formato del número registrado. |
 
+No se declaran Enums en este bounded context: ni `Business` ni `BusinessAdministrator` exhiben estados con transiciones; el ciclo de vida de acceso (activo/suspendido) de la cuenta del administrador es responsabilidad exclusiva de IAM (ver 5.1, `AccountStatus`).
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| RegisterBusinessCommand | Registra el negocio de Alivia con su ubicación geocodificada mediante Google Maps. | name: String, description: String, address: String, latitude: Double, longitude: Double |
+| UpdateBusinessProfileCommand | Actualiza el perfil del negocio (nombre, descripción o ubicación). | businessId: Long, name: String, description: String, address: String, latitude: Double, longitude: Double |
+| RegisterBusinessAdministratorCommand | Registra un nuevo administrador responsable de gestionar el negocio. | businessId: Long, name: String, email: String, phone: String |
+| UpdateBusinessAdministratorCommand | Actualiza los datos de contacto de un administrador. | administratorId: Long, name: String, email: String, phone: String |
+
 ### 5.2.2. Interface Layer
 
 ### 5.2.3. Application Layer
