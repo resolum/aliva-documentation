@@ -1365,6 +1365,23 @@ No se declaran Factories ni Domain Services en este bounded context: los cuatro 
 
 ### 5.5.2. Interface Layer
 
+La Interface Layer expone un controller por cada aggregate root: `FamilyMemberController`, `CareTaskController`, `InvitationController` y `CaregiverController`. Ninguno expone `CreateCaregiverCommand`, ya que solo se invoca desde `InvitationAcceptedEventHandler` en la Application Layer (observación previa #3). Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: ningún otro bounded context consume a Cuidado de forma síncrona según el Context Mapping (4.2.5); sus integraciones salientes se resuelven mediante el adaptador de Sendgrid y el Domain Event `PrincipalCaregiverReplaced` hacia Perfiles.
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | FamilyMemberController |
+| Categoría | Controller |
+| Propósito | Exponer el registro y la actualización del familiar responsable de una red de cuidado. |
+| Aggregate/Entity relacionado | FamilyMember |
+| Ruta base | /api/v1/family-members |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| registerFamilyMember | / (POST) | body: RegisterFamilyMemberResource { accountId: Long, homeProfileId: Long, name: String } | Registra al familiar responsable de la red de cuidado | RegisterFamilyMemberCommand |
+| getFamilyMemberById | /{familyMemberId} (GET) | path: familyMemberId: Long | Obtiene el detalle de un familiar | GetFamilyMemberByIdQuery |
+| updateFamilyMemberInfo | /{familyMemberId} (PUT) | path: familyMemberId: Long; body: UpdateFamilyMemberInfoResource { name: String } | Actualiza el nombre del familiar | UpdateFamilyMemberInfoCommand |
+| replacePrincipalCaregiver | /{familyMemberId}/principal-caregiver (PUT) | path: familyMemberId: Long; body: ReplacePrincipalCaregiverResource { newCaregiverId: Long } | Reemplaza al cuidador principal de la red de cuidado | ReplacePrincipalCaregiverCommand |
+
 ### 5.5.3. Application Layer
 
 ### 5.5.4. Infrastructure Layer
