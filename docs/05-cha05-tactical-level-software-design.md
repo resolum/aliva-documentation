@@ -1059,6 +1059,66 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | ContractRegistered (vía el command invocado) |
 | User story/capability que habilita | Resuelve la observación previa #1 |
 
+**CreateEmployeeCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | CreateEmployeeCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Dar de alta al empleado en estado ACTIVE, reteniendo los términos de su contrato inicial hasta que IAM confirme la creación de la cuenta. |
+| Command/Query/Evento que maneja | CreateEmployeeCommand |
+| Repositorios y servicios que usa | EmployeeRepository |
+| Eventos que publica | EmployeeRegistered, EmployeeUpdated |
+| User story/capability que habilita | Decisión de negocio del Canvas; resuelve la observación previa #3 (EmployeeUpdated hacia Perfiles) |
+
+**UpdateEmployeeInfoCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | UpdateEmployeeInfoCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Actualizar los datos básicos de contacto de un empleado. |
+| Command/Query/Evento que maneja | UpdateEmployeeInfoCommand |
+| Repositorios y servicios que usa | EmployeeRepository |
+| Eventos que publica | EmployeeUpdated |
+| User story/capability que habilita | Resuelve la observación previa #3 |
+
+**SuspendEmployeeCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | SuspendEmployeeCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Suspender temporalmente la actividad de un empleado, sin afectar el estado de sus contratos (observación previa #2). |
+| Command/Query/Evento que maneja | SuspendEmployeeCommand |
+| Repositorios y servicios que usa | EmployeeRepository |
+| Eventos que publica | EmployeeSuspended |
+| User story/capability que habilita | Resuelve la observación previa #2 |
+
+**ReactivateEmployeeCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ReactivateEmployeeCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Reactivar a un empleado previamente suspendido. |
+| Command/Query/Evento que maneja | ReactivateEmployeeCommand |
+| Repositorios y servicios que usa | EmployeeRepository |
+| Eventos que publica | EmployeeReactivated |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**DismissEmployeeCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | DismissEmployeeCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Despedir al empleado, llevándolo a su estado terminal DISMISSED, sin culminar automáticamente sus contratos (observación previa #4). |
+| Command/Query/Evento que maneja | DismissEmployeeCommand |
+| Repositorios y servicios que usa | EmployeeRepository |
+| Eventos que publica | EmployeeTerminated |
+| User story/capability que habilita | Resuelve la observación previa #4; consumido por EmployeeTerminatedEventHandler de IAM (5.1.3) |
+
 ### 5.4.4. Infrastructure Layer
 
 ### 5.4.5. Bounded Context Software Architecture Component Level Diagrams
