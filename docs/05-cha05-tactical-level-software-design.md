@@ -1262,3 +1262,38 @@ La persistencia se configura mediante `EmployeeJpaConfiguration`, que habilita l
 #### 5.4.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
+
+## 5.5. Bounded Context: Cuidado
+
+El bounded context **Cuidado** gestiona la red de cuidado de la persona con discapacidad: el registro del familiar responsable y de las labores de cuidado, la invitación y vinculación de cuidadores adicionales, y el seguimiento de horarios y asignaciones cumplidas. A diferencia de los bounded contexts anteriores (soporte o genéricos), Cuidado está clasificado como **dominio núcleo** en el Bounded Context Canvas (4.2.4): es la razón de ser diferenciadora de Alivia. El actor principal es el **Familiar** (el cliente responsable de IAM), quien registra labores de cuidado e invita cuidadores; el **Cuidador** da seguimiento a sus horarios y asignaciones. Este bounded context cierra el compromiso pendiente con Perfiles: publica `PrincipalCaregiverReplaced`, consumido por `PrincipalCaregiverReplacedEventHandler` (5.3.3).
+
+### 5.5.1. Domain Layer
+
+La Domain Layer de Cuidado modela cuatro aggregates independientes, fieles al EventStorming de Paso 10: `FamilyMember`, que representa al familiar responsable de la red de cuidado; `CareTask`, que representa una labor de cuidado asignable; `Invitation`, que representa la solicitud enviada a un cuidador; y `Caregiver`, que representa a un cuidador vinculado a una red de cuidado específica (observación previa #1).
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| FamilyMember | Aggregate Root | Representa al familiar (cliente responsable) que gestiona la red de cuidado de la persona asistida. Referencia su accountId (IAM) y su homeProfileId (Perfiles), pasados como parámetros al registrarse, sin requerir una integración entrante de otro BC. |
+| CareTask | Aggregate Root | Representa una labor de cuidado registrada por el Familiar. Toda labor se asigna a un cuidador responsable (decisión de negocio del Canvas), pero puede quedar sin responsable si este es desvinculado (observación previa #2). |
+| Invitation | Aggregate Root | Representa la solicitud enviada a un cuidador para vincularse a la red de cuidado. Una vez aceptada o rechazada queda en un estado terminal: una invitación aceptada vincula al cuidador como cuidador adicional; una rechazada no lo vincula (decisiones de negocio del Canvas). |
+| Caregiver | Aggregate Root | Representa a un cuidador vinculado a una red de cuidado específica (familyMemberId). No es un aggregate global: un mismo accountId de IAM puede estar vinculado a varios Caregiver independientes, uno por cada red de cuidado a la que fue invitado (observación previa #1). El cuidador principal puede ser reemplazado (decisión de negocio del Canvas). |
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| Schedule | Entity | Representa un turno y horario dentro del ciclo de vida de un Caregiver: un periodo en que tiene asignaciones por cumplir. No admite una hora de término anterior a la hora de inicio. |
+
+### 5.5.2. Interface Layer
+
+### 5.5.3. Application Layer
+
+### 5.5.4. Infrastructure Layer
+
+### 5.5.5. Bounded Context Software Architecture Component Level Diagrams
+
+### 5.5.6. Bounded Context Software Architecture Code Level Diagrams
+
+#### 5.5.6.1. Bounded Context Domain Layer Class Diagrams
+
+#### 5.5.6.2. Bounded Context Database Design Diagram
+
+<div style="page-break-after: always;"></div>
