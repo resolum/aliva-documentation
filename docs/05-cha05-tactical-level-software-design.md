@@ -428,6 +428,19 @@ No se declaran Enums en este bounded context: ni `Business` ni `BusinessAdminist
 | BusinessAdministratorRegistered | Se publica al registrarse un nuevo administrador; es consumido por `AdministratorRegisteredEventHandler` de IAM (5.1.3) para crear su cuenta y asignarle el rol BUSINESS_ADMIN (observación previa #2). | administratorId: Long, businessId: Long, name: String, email: String, phone: String, registeredAt: LocalDateTime |
 | BusinessAdministratorUpdated | Se publica al actualizarse los datos de un administrador; dispara la creación de su perfil en Perfiles, conforme a la decisión de negocio del Canvas (observación previa #3, a formalizar en 5.3). | administratorId: Long, name: String, email: String, phone: String, updatedAt: LocalDateTime |
 
+No se declaran Factories ni Domain Services en este bounded context: `Business` y `BusinessAdministrator` son aggregates independientes que solo se referencian por identificador (`businessId`), sin que su creación requiera colaboración ni validación cruzada en memoria entre ambos.
+
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| BusinessRepository | Business | Persiste y recupera el aggregate Business; garantiza la unicidad de la instancia activa del negocio (observación previa #1). |
+| BusinessAdministratorRepository | BusinessAdministrator | Persiste y recupera el aggregate BusinessAdministrator; expone la búsqueda por businessId para listar a los administradores de un negocio. |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| BusinessAdministrator | asociación | Business | BusinessAdministrator referencia a su negocio mediante businessId; son aggregates independientes, sin composición. |
+| BusinessRepository | depende de | Business | El repositorio persiste y recupera el aggregate Business. |
+| BusinessAdministratorRepository | depende de | BusinessAdministrator | El repositorio persiste y recupera el aggregate BusinessAdministrator. |
+
 ### 5.2.2. Interface Layer
 
 ### 5.2.3. Application Layer
