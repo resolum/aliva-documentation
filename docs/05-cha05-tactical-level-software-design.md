@@ -970,6 +970,27 @@ No se identifican Entities en este bounded context: tanto `Employee` como `Contr
 | ReactivateContractCommand | Reactiva un contrato previamente suspendido. | contractId: Long |
 | CulminateContractCommand | Culmina el contrato, llevándolo a su estado terminal CULMINATED. | contractId: Long |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GetEmployeeByIdQuery | Obtiene el detalle de un empleado. | employeeId: Long |
+| GetContractByIdQuery | Obtiene el detalle de un contrato. | contractId: Long |
+| GetContractsByEmployeeIdQuery | Lista los contratos de un empleado. | employeeId: Long |
+
+Los eventos `EmployeeRegistered`, `EmployeeUpdated` y `EmployeeTerminated` reutilizan los nombres ya comprometidos como integraciones entrantes en 5.1 (IAM) y 5.3 (Perfiles); el resto no tiene un consumidor externo declarado en el Canvas (4.2.4) y se publica para auditoría y futuras integraciones.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| EmployeeRegistered | Se publica al darse de alta un empleado; es consumido por `EmployeeRegisteredEventHandler` de IAM (5.1.3) para crear su cuenta. | employeeId: Long, name: String, email: String, phone: String, registeredAt: LocalDateTime |
+| EmployeeUpdated | Se publica al darse de alta o actualizarse los datos básicos de un empleado; es consumido por `EmployeeUpdatedEventHandler` de Perfiles (5.3.3) para inicializar o refrescar su perfil. | employeeId: Long, name: String, email: String, phone: String, updatedAt: LocalDateTime |
+| EmployeeSuspended | Se publica al suspenderse temporalmente la actividad de un empleado. | employeeId: Long, reason: String, suspendedAt: LocalDateTime |
+| EmployeeReactivated | Se publica al reactivarse un empleado suspendido. | employeeId: Long, reactivatedAt: LocalDateTime |
+| EmployeeTerminated | Se publica al despedirse un empleado; es consumido por `EmployeeTerminatedEventHandler` de IAM (5.1.3) para revocar su acceso. | employeeId: Long, reason: String, terminatedAt: LocalDateTime |
+| ContractRegistered | Se publica al registrarse un nuevo contrato. | contractId: Long, employeeId: Long, startDate: LocalDate, endDate: LocalDate, position: String, registeredAt: LocalDateTime |
+| ContractRenewed | Se publica al renovarse un contrato. | contractId: Long, newEndDate: LocalDate, renewedAt: LocalDateTime |
+| ContractSuspended | Se publica al suspenderse un contrato. | contractId: Long, reason: String, suspendedAt: LocalDateTime |
+| ContractReactivated | Se publica al reactivarse un contrato suspendido. | contractId: Long, reactivatedAt: LocalDateTime |
+| ContractCulminated | Se publica al culminarse un contrato. | contractId: Long, culminatedAt: LocalDateTime |
+
 ### 5.4.2. Interface Layer
 
 ### 5.4.3. Application Layer
