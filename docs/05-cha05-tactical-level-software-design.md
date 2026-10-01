@@ -1382,6 +1382,20 @@ La Interface Layer expone un controller por cada aggregate root: `FamilyMemberCo
 | updateFamilyMemberInfo | /{familyMemberId} (PUT) | path: familyMemberId: Long; body: UpdateFamilyMemberInfoResource { name: String } | Actualiza el nombre del familiar | UpdateFamilyMemberInfoCommand |
 | replacePrincipalCaregiver | /{familyMemberId}/principal-caregiver (PUT) | path: familyMemberId: Long; body: ReplacePrincipalCaregiverResource { newCaregiverId: Long } | Reemplaza al cuidador principal de la red de cuidado | ReplacePrincipalCaregiverCommand |
 
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | CareTaskController |
+| Categoría | Controller |
+| Propósito | Exponer el registro, la consulta y la asignación de responsables de las labores de cuidado. |
+| Aggregate/Entity relacionado | CareTask |
+| Ruta base | /api/v1/care-tasks |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| registerCareTask | / (POST) | body: RegisterCareTaskResource { familyMemberId: Long, description: String } | Registra una nueva labor de cuidado | RegisterCareTaskCommand |
+| getCareTasksByFamilyMember | /by-family-member/{familyMemberId} (GET) | path: familyMemberId: Long | Lista las labores de cuidado de una red de cuidado | GetCareTasksByFamilyMemberIdQuery |
+| assignCareTaskResponsible | /{careTaskId}/assign (POST) | path: careTaskId: Long; body: AssignCareTaskResponsibleResource { caregiverId: Long } | Asigna un cuidador responsable a la labor de cuidado | AssignCareTaskResponsibleCommand |
+
 ### 5.5.3. Application Layer
 
 ### 5.5.4. Infrastructure Layer
