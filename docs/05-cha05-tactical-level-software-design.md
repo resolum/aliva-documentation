@@ -1217,6 +1217,15 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 
 ### 5.4.4. Infrastructure Layer
 
+La Infrastructure Layer implementa los repositorios de Employee y Contract sobre PostgreSQL, consistente con el carácter transaccional y estructurado de los datos de personal, y el suscriptor del bus de eventos interno que conecta a Capital Humano con IAM.
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| EmployeeRepositoryJpa | EmployeeRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Employee. |
+| ContractRepositoryJpa | ContractRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Contract. |
+
+La persistencia se configura mediante `EmployeeJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Employee` y `Contract` sobre el motor PostgreSQL.
+
 ### 5.4.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.4.6. Bounded Context Software Architecture Code Level Diagrams
