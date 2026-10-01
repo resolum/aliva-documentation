@@ -257,6 +257,78 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | AccountReactivated |
 | User story/capability que habilita | Invocado manualmente por un Administrador |
 
+**GetAccountByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetAccountByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de una cuenta junto con sus roles vigentes. |
+| Command/Query/Evento que maneja | GetAccountByIdQuery |
+| Repositorios y servicios que usa | AccountRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta de cuenta desde el endpoint getAccountById |
+
+**VerificationCodeIssuedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | VerificationCodeIssuedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Solicitar al adaptador de Sendgrid el envío del correo correspondiente al propósito del código emitido. |
+| Command/Query/Evento que maneja | VerificationCodeIssued (evento propio de IAM) |
+| Repositorios y servicios que usa | EmailGateway |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | TS-01, TS-02, flujo de recuperación de contraseña |
+
+**EmployeeRegisteredEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | EmployeeRegisteredEventHandler |
+| Categoría | Event Handler |
+| Propósito | Crear la cuenta correspondiente a un empleado recién dado de alta y asignarle el rol operativo inicial. |
+| Command/Query/Evento que maneja | EmployeeRegistered (evento externo, BC de origen: Capital Humano) |
+| Repositorios y servicios que usa | RegisterAccountCommand, AssignRoleCommand (invocados internamente) |
+| Eventos que publica | AccountRegistered, VerificationCodeIssued, RoleAssigned (vía los commands invocados) |
+| User story/capability que habilita | Resuelve la observación previa #3 (integración entrante de Capital Humano) |
+
+**EmployeeTerminatedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | EmployeeTerminatedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Suspender la cuenta de un empleado al registrarse su despido. |
+| Command/Query/Evento que maneja | EmployeeTerminated (evento externo, BC de origen: Capital Humano) |
+| Repositorios y servicios que usa | SuspendAccountCommand (invocado internamente) |
+| Eventos que publica | AccountSuspended (vía el command invocado) |
+| User story/capability que habilita | Resuelve la observación previa #3 (integración entrante de Capital Humano) |
+
+**AdministratorRegisteredEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AdministratorRegisteredEventHandler |
+| Categoría | Event Handler |
+| Propósito | Crear la cuenta correspondiente a un administrador del negocio recién registrado y asignarle el rol BUSINESS_ADMIN. |
+| Command/Query/Evento que maneja | BusinessAdministratorRegistered (evento externo, BC de origen: Gestión del Negocio) |
+| Repositorios y servicios que usa | RegisterAccountCommand, AssignRoleCommand (invocados internamente) |
+| Eventos que publica | AccountRegistered, VerificationCodeIssued, RoleAssigned (vía los commands invocados) |
+| User story/capability que habilita | Resuelve la observación previa #5 (integración entrante de Gestión del Negocio) |
+
+**IamFacadeImpl**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | IamFacadeImpl |
+| Categoría | Facade Implementation |
+| Propósito | Implementar IamFacade para que otros bounded contexts validen tokens y obtengan un resumen de cuenta sin acceder al aggregate Account. |
+| Command/Query/Evento que maneja | No aplica (no despacha Commands/Queries; delega en AccountRepository y TokenProvider) |
+| Repositorios y servicios que usa | AccountRepository, TokenProvider |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Patrón Shared Kernel documentado en el Context Mapping (4.2.5) |
+
 ### 5.1.4. Infrastructure Layer
 
 ### 5.1.5. Bounded Context Software Architecture Component Level Diagrams
