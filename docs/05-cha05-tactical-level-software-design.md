@@ -1396,6 +1396,21 @@ La Interface Layer expone un controller por cada aggregate root: `FamilyMemberCo
 | getCareTasksByFamilyMember | /by-family-member/{familyMemberId} (GET) | path: familyMemberId: Long | Lista las labores de cuidado de una red de cuidado | GetCareTasksByFamilyMemberIdQuery |
 | assignCareTaskResponsible | /{careTaskId}/assign (POST) | path: careTaskId: Long; body: AssignCareTaskResponsibleResource { caregiverId: Long } | Asigna un cuidador responsable a la labor de cuidado | AssignCareTaskResponsibleCommand |
 
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | InvitationController |
+| Categoría | Controller |
+| Propósito | Exponer el envío, la consulta, la aceptación y el rechazo de invitaciones a cuidadores. |
+| Aggregate/Entity relacionado | Invitation |
+| Ruta base | /api/v1/invitations |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| inviteCaregiver | / (POST) | body: InviteCaregiverResource { familyMemberId: Long, invitedEmail: String } | Envía una invitación a un cuidador | InviteCaregiverCommand |
+| getInvitationById | /{invitationId} (GET) | path: invitationId: Long | Obtiene el detalle de una invitación | GetInvitationByIdQuery |
+| acceptInvitation | /{invitationId}/accept (POST) | path: invitationId: Long; body: AcceptInvitationResource { accountId: Long } | Acepta la invitación y vincula al cuidador | AcceptInvitationCommand |
+| rejectInvitation | /{invitationId}/reject (POST) | path: invitationId: Long | Rechaza la invitación | RejectInvitationCommand |
+
 ### 5.5.3. Application Layer
 
 ### 5.5.4. Infrastructure Layer
