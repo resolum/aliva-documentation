@@ -1317,6 +1317,13 @@ La Domain Layer de Cuidado modela cuatro aggregates independientes, fieles al Ev
 | UnlinkCaregiverCommand | Desvincula al cuidador de la red de cuidado. | caregiverId: Long |
 | ReplacePrincipalCaregiverCommand | Reemplaza al cuidador principal de una red de cuidado. | familyMemberId: Long, newCaregiverId: Long |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GetFamilyMemberByIdQuery | Obtiene el detalle de un familiar. | familyMemberId: Long |
+| GetCareTasksByFamilyMemberIdQuery | Lista las labores de cuidado de una red de cuidado. | familyMemberId: Long |
+| GetInvitationByIdQuery | Obtiene el detalle de una invitación. | invitationId: Long |
+| GetCaregiverByIdQuery | Obtiene el detalle de un cuidador, incluyendo sus turnos y horarios. | caregiverId: Long |
+
 ### 5.5.2. Interface Layer
 
 ### 5.5.3. Application Layer
