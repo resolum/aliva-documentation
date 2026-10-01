@@ -1226,6 +1226,33 @@ La Infrastructure Layer implementa los repositorios de Employee y Contract sobre
 
 La persistencia se configura mediante `EmployeeJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Employee` y `Contract` sobre el motor PostgreSQL.
 
+| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
+| --- | --- | --- | --- | --- |
+| DomainEventBusSubscriber | Event Subscriber | AccountRegisteredListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta el evento AccountRegistered publicado por IAM hacia AccountRegisteredEventHandler (observación previa #1). |
+
+| Tabla/Colección | Propósito |
+| --- | --- |
+| employees | Almacena el aggregate Employee: datos de contacto, estado y términos del contrato inicial pendiente. |
+| contracts | Almacena el aggregate Contract: términos, estado y referencia al empleado (employeeId). |
+
+| Objeto | BC responsable | Justificación |
+| --- | --- | --- |
+| Cuenta / credenciales | IAM | La creación y la autenticación de la cuenta del empleado son responsabilidad exclusiva de IAM, consumiendo EmployeeRegistered (observación previa, resuelto en 5.1). |
+| Perfil del empleado | Perfiles | El perfil detallado del empleado (foto, preferencias) se gestiona en Perfiles al consumir EmployeeUpdated (observación previa #3, resuelto en 5.3). |
+
+**Verificación de trazabilidad — Capital Humano**
+
+| Criterio | Cumple | Evidencia |
+| --- | --- | --- |
+| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 10 commands y las 3 queries de 5.4.1 tienen su handler correspondiente en 5.4.3. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | RegisterContractCommand se usa tanto desde el endpoint manual como desde AccountRegisteredEventHandler (observación previa #1); el resto se usa desde los endpoints de EmployeeController y ContractController. |
+| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.4.2) mapea 1:1 los parámetros del Command correspondiente. |
+| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | EmployeeController se relaciona con Employee; ContractController se relaciona con Contract. |
+| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | EmployeeRepository ↔ EmployeeRepositoryJpa; ContractRepository ↔ ContractRepositoryJpa. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | EmployeeRegistered y EmployeeTerminated los consume IAM (5.1); EmployeeUpdated lo consume Perfiles (5.3); el resto no tiene consumidor externo declarado en el Canvas (4.2.4) y se publica para auditoría. |
+| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Employee y Contract son exclusivos de este bounded context. |
+| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | Los repositorios se declaran como puertos en Domain; sus implementaciones concretas (EmployeeRepositoryJpa, ContractRepositoryJpa) están en Infrastructure (5.4.4). |
+
 ### 5.4.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.4.6. Bounded Context Software Architecture Code Level Diagrams
