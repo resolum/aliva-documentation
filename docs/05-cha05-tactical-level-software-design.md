@@ -1324,6 +1324,24 @@ La Domain Layer de Cuidado modela cuatro aggregates independientes, fieles al Ev
 | GetInvitationByIdQuery | Obtiene el detalle de una invitación. | invitationId: Long |
 | GetCaregiverByIdQuery | Obtiene el detalle de un cuidador, incluyendo sus turnos y horarios. | caregiverId: Long |
 
+Salvo `PrincipalCaregiverReplaced`, ninguno de los siguientes Domain Events tiene un consumidor externo declarado en el Bounded Context Canvas (4.2.4); se publican para auditoría y futuras integraciones.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| FamilyMemberRegistered | Se publica al registrarse un familiar. | familyMemberId: Long, accountId: Long, homeProfileId: Long, name: String, registeredAt: LocalDateTime |
+| FamilyMemberInfoUpdated | Se publica al actualizarse el nombre de un familiar. | familyMemberId: Long, name: String, updatedAt: LocalDateTime |
+| CareTaskRegistered | Se publica al registrarse una labor de cuidado. | careTaskId: Long, familyMemberId: Long, description: String, registeredAt: LocalDateTime |
+| CareTaskResponsibleAssigned | Se publica al asignarse un cuidador responsable a una labor de cuidado. | careTaskId: Long, caregiverId: Long, assignedAt: LocalDateTime |
+| CareTaskUnassigned | Se publica al quedar una labor de cuidado sin responsable, por la desvinculación del cuidador asignado (observación previa #2). | careTaskId: Long, unassignedAt: LocalDateTime |
+| CaregiverInvited | Se publica al enviarse una invitación; lo consume `CaregiverInvitedEventHandler` propio para solicitar el envío del correo mediante Sendgrid. | invitationId: Long, familyMemberId: Long, invitedEmail: String, invitedAt: LocalDateTime |
+| InvitationAccepted | Se publica al aceptarse una invitación; lo consume `InvitationAcceptedEventHandler` propio para crear al Caregiver (observación previa #3). | invitationId: Long, familyMemberId: Long, accountId: Long, acceptedAt: LocalDateTime |
+| InvitationRejected | Se publica al rechazarse una invitación. | invitationId: Long, rejectedAt: LocalDateTime |
+| CaregiverCreated | Se publica al crearse un cuidador vinculado a una red de cuidado. | caregiverId: Long, familyMemberId: Long, accountId: Long, principal: Boolean, createdAt: LocalDateTime |
+| ScheduleRegistered | Se publica al registrarse un turno y horario. | scheduleId: Long, caregiverId: Long, startTime: LocalDateTime, endTime: LocalDateTime, registeredAt: LocalDateTime |
+| CompletedAssignmentsRecorded | Se publica al registrarse el cumplimiento de las asignaciones de un turno. | caregiverId: Long, scheduleId: Long, recordedAt: LocalDateTime |
+| CaregiverUnlinked | Se publica al desvincularse un cuidador; lo consume `CaregiverUnlinkedEventHandler` propio para liberar sus labores asignadas (observación previa #2). | caregiverId: Long, unlinkedAt: LocalDateTime |
+| PrincipalCaregiverReplaced | Se publica al reemplazarse al cuidador principal; es consumido por `PrincipalCaregiverReplacedEventHandler` de Perfiles (5.3.3), cerrando el compromiso pendiente. | familyMemberId: Long, newCaregiverId: Long, previousCaregiverId: Long, replacedAt: LocalDateTime |
+
 ### 5.5.2. Interface Layer
 
 ### 5.5.3. Application Layer
