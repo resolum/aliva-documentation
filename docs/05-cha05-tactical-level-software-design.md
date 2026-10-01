@@ -79,6 +79,32 @@ No se declaran Factories ni Domain Services en este bounded context: la creació
 
 ### 5.1.2. Interface Layer
 
+La Interface Layer expone un único controller, `AccountController`, dado que `Session` y `RoleAssignment` son entidades internas del aggregate `Account` y se exponen como sub-recursos bajo su misma ruta. IAM no consume mensajería de dispositivos IoT, por lo que no declara consumers de broker; sus integraciones entrantes desde Capital Humano y Gestión del Negocio se resuelven mediante Event Handlers en la Application Layer (ver 5.1.3). Al ser un contexto de puerta de enlace, IAM expone además el facade `IamFacade` para que otros bounded contexts validen tokens sin acceder directamente al aggregate, conforme al patrón Shared Kernel documentado en el Context Mapping (4.2.5).
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AccountController |
+| Categoría | Controller |
+| Propósito | Exponer el registro, la autenticación, la recuperación de acceso y la gestión de roles de las cuentas de Alivia. |
+| Aggregate/Entity relacionado | Account (incluye los sub-recursos Session y RoleAssignment) |
+| Ruta base | /api/v1/accounts (gestión) y /api/v1/auth (autenticación, conforme a TS-01/TS-02/TS-03) |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| registerAccount | /api/v1/auth/register (POST) | body: RegisterAccountResource { name: String, email: String, phone: String, password: String, termsAccepted: Boolean, invitationId: String } | Registra una nueva cuenta en estado PENDING_VERIFICATION | RegisterAccountCommand |
+| verifyEmail | /api/v1/auth/verify-email (POST) | body: VerifyEmailResource { accountId: Long, code: String } | Activa la cuenta tras validar el código de verificación | VerifyEmailCommand |
+| resendVerificationCode | /api/v1/auth/resend-verification (POST) | body: ResendVerificationResource { email: String } | Reenvía el código de verificación de correo | ResendVerificationCodeCommand |
+| login | /api/v1/auth/login (POST) | body: LoginResource { email: String, password: String } | Autentica la cuenta y emite los tokens de acceso | LoginCommand |
+| refreshSession | /api/v1/auth/refresh (POST) | body: RefreshSessionResource { refreshToken: String } | Renueva el par de tokens de una sesión vigente | RefreshSessionCommand |
+| logout | /api/v1/auth/logout (POST) | body: LogoutResource { sessionId: Long } | Cierra la sesión activa de la cuenta | LogoutCommand |
+| requestPasswordRecovery | /api/v1/auth/password-recovery (POST) | body: RequestPasswordRecoveryResource { email: String } | Solicita el restablecimiento de contraseña | RequestPasswordRecoveryCommand |
+| resetPassword | /api/v1/auth/password-reset (POST) | body: ResetPasswordResource { accountId: Long, code: String, newPassword: String } | Restablece la contraseña usando el código vigente | ResetPasswordCommand |
+| getAccountById | /{accountId} (GET) | path: accountId: Long | Obtiene el detalle de una cuenta y sus roles vigentes | GetAccountByIdQuery |
+| assignRole | /{accountId}/roles (POST) | path: accountId: Long; body: AssignRoleResource { role: String } | Asigna un rol adicional a la cuenta | AssignRoleCommand |
+| revokeRole | /{accountId}/roles/{role} (DELETE) | path: accountId: Long, role: String | Retira un rol previamente asignado a la cuenta | RevokeRoleCommand |
+| suspendAccount | /{accountId}/suspend (POST) | path: accountId: Long; body: SuspendAccountResource { reason: String } | Suspende manualmente una cuenta | SuspendAccountCommand |
+| reactivateAccount | /{accountId}/reactivate (POST) | path: accountId: Long | Reactiva una cuenta previamente suspendida | ReactivateAccountCommand |
+
 ### 5.1.3. Application Layer
 
 ### 5.1.4. Infrastructure Layer
