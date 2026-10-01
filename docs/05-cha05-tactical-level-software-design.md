@@ -936,7 +936,7 @@ La Domain Layer de Capital Humano modela dos aggregates independientes, fieles a
 
 | Nombre | Categoría | Descripción |
 | --- | --- | --- |
-| Employee | Aggregate Root | Representa a la persona contratada que trabaja para el negocio. No permite operaciones de negocio una vez despedido (estado terminal DISMISSED); su suspensión es independiente del estado de sus contratos (observación previa #2). |
+| Employee | Aggregate Root | Representa a la persona contratada que trabaja para el negocio. No permite operaciones de negocio una vez despedido (estado terminal DISMISSED); su suspensión es independiente del estado de sus contratos (observación previa #2). Retiene los términos de su contrato inicial hasta que IAM confirme la creación de la cuenta, momento en el que se emite el Contract correspondiente (observación previa #1). |
 | Contract | Aggregate Root | Representa el acuerdo laboral de un empleado, referenciado mediante employeeId. No permite renovarse ni suspenderse una vez culminado (estado terminal CULMINATED); su ciclo de vida no se sincroniza automáticamente con el estado del Employee asociado (observación previa #2 y #4). |
 
 No se identifican Entities en este bounded context: tanto `Employee` como `Contract` son aggregates simples sin componentes internos con identidad propia.
@@ -956,7 +956,7 @@ No se identifican Entities en este bounded context: tanto `Employee` como `Contr
 
 | Nombre | Descripción | Parámetros |
 | --- | --- | --- |
-| CreateEmployeeCommand | Da de alta a un nuevo empleado en estado ACTIVE. | name: String, email: String, phone: String |
+| CreateEmployeeCommand | Da de alta a un nuevo empleado en estado ACTIVE, capturando además los términos de su contrato inicial, que quedan a la espera de que IAM confirme la creación de la cuenta (observación previa #1). | name: String, email: String, phone: String, startDate: LocalDate, endDate: LocalDate, position: String |
 | UpdateEmployeeInfoCommand | Actualiza los datos básicos de contacto del empleado. | employeeId: Long, name: String, email: String, phone: String |
 | SuspendEmployeeCommand | Suspende temporalmente la actividad del empleado. | employeeId: Long, reason: String |
 | ReactivateEmployeeCommand | Reactiva a un empleado previamente suspendido. | employeeId: Long |
@@ -1018,7 +1018,7 @@ La Interface Layer expone dos controllers independientes, uno por cada aggregate
 
 | Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
 | --- | --- | --- | --- | --- |
-| createEmployee | / (POST) | body: CreateEmployeeResource { name: String, email: String, phone: String } | Da de alta a un nuevo empleado | CreateEmployeeCommand |
+| createEmployee | / (POST) | body: CreateEmployeeResource { name: String, email: String, phone: String, startDate: LocalDate, endDate: LocalDate, position: String } | Da de alta a un nuevo empleado junto con los términos de su contrato inicial | CreateEmployeeCommand |
 | getEmployeeById | /{employeeId} (GET) | path: employeeId: Long | Obtiene el detalle de un empleado | GetEmployeeByIdQuery |
 | updateEmployeeInfo | /{employeeId} (PUT) | path: employeeId: Long; body: UpdateEmployeeInfoResource { name: String, email: String, phone: String } | Actualiza los datos básicos del empleado | UpdateEmployeeInfoCommand |
 | suspendEmployee | /{employeeId}/suspend (POST) | path: employeeId: Long; body: SuspendEmployeeResource { reason: String } | Suspende temporalmente al empleado | SuspendEmployeeCommand |
@@ -1044,6 +1044,20 @@ La Interface Layer expone dos controllers independientes, uno por cada aggregate
 | culminateContract | /{contractId}/culminate (POST) | path: contractId: Long | Culmina el contrato | CulminateContractCommand |
 
 ### 5.4.3. Application Layer
+
+La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante un Event Handler la integración entrante identificada en la observación previa #1: el registro automático del contrato al crearse la cuenta del empleado en IAM.
+
+**AccountRegisteredEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AccountRegisteredEventHandler |
+| Categoría | Event Handler |
+| Propósito | Localizar al empleado por el correo recibido en el evento, y registrar automáticamente su contrato usando los términos capturados en CreateEmployeeCommand, conforme a la decisión de negocio del Canvas: "al crearse la cuenta del empleado se registra su contrato". |
+| Command/Query/Evento que maneja | AccountRegistered (evento externo, BC de origen: IAM, ver 5.1.1) |
+| Repositorios y servicios que usa | EmployeeRepository (para localizar al empleado por correo), RegisterContractCommand (invocado internamente) |
+| Eventos que publica | ContractRegistered (vía el command invocado) |
+| User story/capability que habilita | Resuelve la observación previa #1 |
 
 ### 5.4.4. Infrastructure Layer
 
