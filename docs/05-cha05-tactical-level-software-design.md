@@ -105,6 +105,10 @@ La Interface Layer expone un único controller, `AccountController`, dado que `S
 | suspendAccount | /{accountId}/suspend (POST) | path: accountId: Long; body: SuspendAccountResource { reason: String } | Suspende manualmente una cuenta | SuspendAccountCommand |
 | reactivateAccount | /{accountId}/reactivate (POST) | path: accountId: Long | Reactiva una cuenta previamente suspendida | ReactivateAccountCommand |
 
+| Nombre | Métodos expuestos | Propósito |
+| --- | --- | --- |
+| IamFacade | validateAccessToken(token: String): AuthenticatedPrincipal; getAccountSummary(accountId: Long): AccountSummaryResource | Permite que otros bounded contexts (Perfiles, Cuidado, Pagos y Suscripciones, entre otros) validen los tokens emitidos por IAM y obtengan un resumen mínimo de la cuenta sin acceder directamente al aggregate Account, implementando el patrón Shared Kernel acordado en el Context Mapping. |
+
 ### 5.1.3. Application Layer
 
 ### 5.1.4. Infrastructure Layer
