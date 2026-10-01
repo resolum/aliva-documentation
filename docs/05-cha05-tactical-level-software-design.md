@@ -622,6 +622,20 @@ No se identifican Entities en este bounded context: tanto `Profile` como `HomePr
 | AssistedPersonName | Value Object | Nombre de la persona asistida asociada a un HomeProfile; no admite valores vacíos. |
 | HomeLocation | Value Object | Ubicación geocodificada del hogar (dirección, latitud y longitud) obtenida mediante Google Maps; no admite coordenadas nulas ni fuera de los rangos válidos (-90 a 90 de latitud, -180 a 180 de longitud). |
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| PreferredChannel | Enum | Canal de comunicación preferido por el titular del perfil: PUSH, EMAIL, SMS. No exhibe transiciones; es un valor categórico que puede reemplazarse libremente mediante UpdateCommunicationPreferencesCommand. |
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| InitializeProfileCommand | Crea o refresca de forma idempotente el perfil genérico de un titular de cuenta, disparado automáticamente al crearse o actualizarse su cuenta en IAM, Capital Humano o Gestión del Negocio (observación previa #1). | accountId: Long, name: String |
+| UpdateProfilePersonalDataCommand | Actualiza los datos personales del perfil; solo puede ser invocado por el propio titular (observación previa #3). | profileId: Long, name: String |
+| UpdateProfilePhotoCommand | Actualiza la foto de perfil, almacenándola en Cloudinary. | profileId: Long, photoUrl: String |
+| UpdateCommunicationPreferencesCommand | Actualiza el canal de comunicación preferido del titular. | profileId: Long, preferredChannel: PreferredChannel |
+| CreateHomeProfileCommand | Crea el perfil de hogar de la persona asistida, geocodificando su dirección y asignando al Cuidador creador como cuidador principal. | accountId: Long, assistedPersonName: String, address: String, latitude: Double, longitude: Double |
+| UpdateHomeProfileCommand | Actualiza los datos o la ubicación del perfil de hogar. | homeProfileId: Long, assistedPersonName: String, address: String, latitude: Double, longitude: Double |
+| ReplacePrincipalCaregiverCommand | Reemplaza al cuidador principal del perfil de hogar, disparado al consumir el evento de reemplazo publicado por Cuidado (observación previa #4). | homeProfileId: Long, newPrincipalCaregiverAccountId: Long |
+
 ### 5.3.2. Interface Layer
 
 ### 5.3.3. Application Layer
