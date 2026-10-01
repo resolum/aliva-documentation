@@ -525,6 +525,30 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | BusinessAdministratorUpdated |
 | User story/capability que habilita | Resuelve la observación previa #3 (integración saliente hacia Perfiles) |
 
+**GetBusinessByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetBusinessByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle del negocio, incluyendo su perfil y ubicación. |
+| Command/Query/Evento que maneja | GetBusinessByIdQuery |
+| Repositorios y servicios que usa | BusinessRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getBusiness |
+
+**GetBusinessAdministratorByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetBusinessAdministratorByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un administrador del negocio. |
+| Command/Query/Evento que maneja | GetBusinessAdministratorByIdQuery |
+| Repositorios y servicios que usa | BusinessAdministratorRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getBusinessAdministratorById |
+
 ### 5.2.4. Infrastructure Layer
 
 ### 5.2.5. Bounded Context Software Architecture Component Level Diagrams
