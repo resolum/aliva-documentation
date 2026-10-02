@@ -1502,6 +1502,42 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | CareTaskResponsibleAssigned |
 | User story/capability que habilita | Decisión de negocio del Canvas |
 
+**InviteCaregiverCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | InviteCaregiverCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear la invitación en estado SENT y disparar el envío del correo de invitación. |
+| Command/Query/Evento que maneja | InviteCaregiverCommand |
+| Repositorios y servicios que usa | InvitationRepository |
+| Eventos que publica | CaregiverInvited |
+| User story/capability que habilita | Supuesto del Canvas: "Sendgrid envía los correos de invitación" |
+
+**AcceptInvitationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AcceptInvitationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Aceptar la invitación, llevándola a su estado terminal ACCEPTED. |
+| Command/Query/Evento que maneja | AcceptInvitationCommand |
+| Repositorios y servicios que usa | InvitationRepository |
+| Eventos que publica | InvitationAccepted |
+| User story/capability que habilita | Decisión de negocio del Canvas: "una invitación aceptada vincula al cuidador como cuidador adicional" |
+
+**RejectInvitationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RejectInvitationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Rechazar la invitación, llevándola a su estado terminal REJECTED. |
+| Command/Query/Evento que maneja | RejectInvitationCommand |
+| Repositorios y servicios que usa | InvitationRepository |
+| Eventos que publica | InvitationRejected |
+| User story/capability que habilita | Decisión de negocio del Canvas: "una invitación rechazada no vincula al cuidador" |
+
 ### 5.5.4. Infrastructure Layer
 
 ### 5.5.5. Bounded Context Software Architecture Component Level Diagrams
