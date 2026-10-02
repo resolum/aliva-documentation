@@ -1428,6 +1428,32 @@ La Interface Layer expone un controller por cada aggregate root: `FamilyMemberCo
 
 ### 5.5.3. Application Layer
 
+La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante dos Event Handlers propios las observaciones previas #2 y #3: ninguno consume eventos de otro bounded context, ya que ambas reacciones son políticas internas de Cuidado.
+
+**InvitationAcceptedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | InvitationAcceptedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Crear al Caregiver correspondiente cuando una invitación es aceptada, con el accountId ya disponible en el evento. |
+| Command/Query/Evento que maneja | InvitationAccepted (evento propio de Cuidado) |
+| Repositorios y servicios que usa | CreateCaregiverCommand (invocado internamente) |
+| Eventos que publica | CaregiverCreated (vía el command invocado) |
+| User story/capability que habilita | Resuelve la observación previa #3 |
+
+**CaregiverUnlinkedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | CaregiverUnlinkedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Liberar las labores de cuidado que tenían como responsable al cuidador desvinculado. |
+| Command/Query/Evento que maneja | CaregiverUnlinked (evento propio de Cuidado) |
+| Repositorios y servicios que usa | CareTaskRepository |
+| Eventos que publica | CareTaskUnassigned (uno por cada CareTask liberada) |
+| User story/capability que habilita | Resuelve la observación previa #2 |
+
 ### 5.5.4. Infrastructure Layer
 
 ### 5.5.5. Bounded Context Software Architecture Component Level Diagrams
