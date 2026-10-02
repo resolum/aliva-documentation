@@ -1109,143 +1109,143 @@ Pantalla de inicio del administrador con saludo, sede, fecha y hora. Presenta cu
 
 ![Inicio](https://i.imgur.com/ckuNhqp.png)
 
-Gestión de Empleados - Rediseño Ligero Alivia Admin
+Gestión de empleados
 
 Listado de empleados técnicos y gestores de la sede. Muestra indicadores (total de empleados, técnicos activos, gestores activos y configuraciones pendientes), un buscador, filtros por rol y una tabla con el empleado y su código, rol, estado del contrato, horario y disponibilidad. Incluye las acciones Exportar listado y Registrar empleado, además de paginación.
 
-![Gestión de Empleados - Rediseño Ligero Alivia Admin](https://i.imgur.com/Ojxjpgq.png)
+![Gestión de empleados](https://i.imgur.com/Ojxjpgq.png)
 
-Registrar Empleado - Alivia Admin
+Registrar empleado - Paso 1: Información personal
 
 Primer paso (de 4) del asistente para registrar un empleado: información personal. El formulario pide tipo y número de documento (con validación automática de DNI), nombres, apellidos, teléfono celular y correo personal. Ofrece las acciones Guardar borrador, Cancelar y Continuar.
 
-![Registrar Empleado - Alivia Admin](https://i.imgur.com/GfT2qgL.png)
+![Registrar empleado - Paso 1: Información personal](https://i.imgur.com/GfT2qgL.png)
 
-Registrar-Empleado
+Registrar empleado - Paso 2: Información laboral
 
 Segundo paso (de 4) del asistente de registro: información laboral. Permite elegir el rol operativo (Técnico de campo o Gestor de suscripciones), el contrato asignado, el horario laboral con su fecha de inicio y observaciones operativas opcionales.
 
-![Registrar-Empleado](https://i.imgur.com/TMVjTJw.png)
+![Registrar empleado - Paso 2: Información laboral](https://i.imgur.com/TMVjTJw.png)
 
-Registrar Empleado - Paso 3: Acceso a la Plataforma
+Registrar empleado - Paso 3: Acceso a la plataforma
 
 Tercer paso (de 4): acceso a la plataforma. Se define el correo institucional del colaborador (con confirmación y validación de disponibilidad) y se informa del envío automático de la invitación para crear su contraseña, con un enlace de vigencia limitada. Incluye una vista previa del correo de bienvenida que recibirá el empleado.
 
-![Registrar Empleado - Paso 3: Acceso a la Plataforma](https://i.imgur.com/G4V1qP4.png)
+![Registrar empleado - Paso 3: Acceso a la plataforma](https://i.imgur.com/G4V1qP4.png)
 
-Registrar Empleado - Paso 4: Revisión y Confirmación
+Registrar empleado - Paso 4: Revisión y confirmación
 
 Cuarto y último paso: resumen y confirmación del registro. Muestra los datos de información personal, información laboral y acceso a la plataforma, cada bloque con la opción de editar su paso. Al final, el administrador marca la casilla de confirmación y presiona Registrar empleado.
 
-![Registrar Empleado - Paso 4: Revisión y Confirmación](https://i.imgur.com/Hn4Skde.png)
+![Registrar empleado - Paso 4: Revisión y confirmación](https://i.imgur.com/Hn4Skde.png)
 
-Contratos - Alivia Administración General
+Contratos
 
 Listado de contratos laborales de Alivia. Muestra indicadores (total, vigentes, próximos a vencer y vencidos), un aviso de contratos por vencer, buscador y filtros por estado y modalidad, y una tabla con contrato y código, posición, modalidad y horas, vigencia, estado y acciones. Permite exportar el listado y registrar un contrato.
 
-![Contratos - Alivia Administración General](https://i.imgur.com/OYB7okD.png)
+![Contratos](https://i.imgur.com/OYB7okD.png)
 
-Registrar contrato - Alivia Administración General
+Registrar contrato
 
 Formulario para registrar un contrato laboral. Incluye código autogenerado, cargo o rol contractual, modalidad contractual, horas contratadas por semana, fecha de inicio y de término (con la duración calculada), estado inicial del contrato y observaciones o cláusulas particulares. Ofrece las acciones Guardar borrador, Cancelar y Registrar contrato.
 
-![Registrar contrato - Alivia Administración General](https://i.imgur.com/iZR3JXJ.png)
+![Registrar contrato](https://i.imgur.com/iZR3JXJ.png)
 
-Detalle del Contrato - Alivia Administración General
+Detalle del contrato
 
 Vista de detalle de un contrato. Muestra las condiciones del contrato (código, cargo, sede, modalidad, horas semanales, fechas, estado legal, creación y última modificación) y la lista de empleados asignados a ese contrato. Permite volver al listado y editar el contrato.
 
-![Detalle del Contrato - Alivia Administración General](https://i.imgur.com/1KUuX3w.png)
+![Detalle del contrato](https://i.imgur.com/1KUuX3w.png)
 
-Horarios Laborales - Alivia Administración General (Rediseño)
+Horarios laborales
 
 Listado de horarios laborales de los empleados. Presenta indicadores (horarios configurados, personal con turno y promedio semanal de horas), buscador, filtros por rol y vigencia, y una tabla con empleado, horario y código, vigencia, días laborales, horas y acciones. Resalta con una alerta los horarios que exceden la jornada permitida y permite registrar un nuevo horario.
 
-![Horarios Laborales - Alivia Administración General (Rediseño)](https://i.imgur.com/uaEDjSy.png)
+![Horarios laborales](https://i.imgur.com/uaEDjSy.png)
 
-Registrar-Horario-Laboral
+Registrar horario laboral
 
 Formulario para registrar un horario laboral. Se define el nombre del horario, su vigencia y estado de aplicación, y luego la jornada semanal día por día con uno o varios bloques de trabajo. Un resumen en tiempo real compara las horas contratadas con las configuradas. Ofrece las acciones Guardar borrador, Cancelar y Registrar horario laboral.
 
-![Registrar-Horario-Laboral](https://i.imgur.com/D2jxYuH.png)
+![Registrar horario laboral](https://i.imgur.com/D2jxYuH.png)
 
-Editar Horario Laboral - Alivia Administración General
+Editar horario laboral
 
 Formulario para modificar un horario laboral existente. Permite ajustar el nombre, la vigencia y la jornada semanal por bloques, y muestra el resumen de jornada y la última modificación. Además de guardar los cambios, ofrece Guardar como borrador, Descartar cambios, Dar de baja horario y Guardar como nueva versión.
 
-![Editar Horario Laboral - Alivia Administración General](https://i.imgur.com/stJE3Ft.png)
+![Editar horario laboral](https://i.imgur.com/stJE3Ft.png)
 
-Detalle de Horario
+Detalle del horario
 
 Panel lateral con el detalle de un horario. Muestra al empleado, el total semanal de horas, la vigencia operativa, los bloques horarios configurados por día, el contrato asociado con su estado de cumplimiento, las órdenes técnicas del día y la disponibilidad calculada. Incluye los botones Cerrar y Editar horario.
 
-![Detalle de Horario](https://i.imgur.com/wyQ0Xix.png)
+![Detalle del horario](https://i.imgur.com/wyQ0Xix.png)
 
-Órdenes Técnicas
+Órdenes técnicas
 
 Listado de solicitudes de evaluación, instalación e incidencias. Muestra contadores por estado, pestañas (Todas, Pendientes, Asignadas, En proceso y Completadas), filtros por tipo y una tabla agrupada por día con orden, tipo, hogar, horario, técnico, estado y acción (Asignar o Ver). Incluye buscador y paginación.
 
-![Órdenes Técnicas](https://i.imgur.com/wA9qXFF.png)
+![Órdenes técnicas](https://i.imgur.com/wA9qXFF.png)
 
-Detalle-Orden-tecnica
+Detalle de la orden técnica
 
 Detalle de una orden técnica pendiente de asignación. Presenta el resumen de la solicitud (tipo, fecha, bloque horario, prioridad y descripción), los datos de contacto del cuidador principal y de la persona asistida, el hogar con su dirección, referencia y mapa, y la sección del técnico sin asignar con el botón Asignar técnico.
 
-![Detalle-Orden-tecnica](https://i.imgur.com/peJYaMD.png)
+![Detalle de la orden técnica](https://i.imgur.com/peJYaMD.png)
 
-Asignar-Empleado
+Asignar empleado
 
 Ventana modal para asignar un técnico a una orden. Muestra la fecha y el bloque horario solicitados (no modificables), la lista de técnicos elegibles con su disponibilidad, horario y órdenes previas, y un resumen de la asignación. Se confirma con Confirmar asignación o se descarta con Cancelar.
 
-![Asignar-Empleado](https://i.imgur.com/EGlL1mm.png)
+![Asignar empleado](https://i.imgur.com/EGlL1mm.png)
 
-Hogares - Alivia Administración General
+Hogares
 
 Listado de hogares registrados. Presenta indicadores (total de hogares, suscripción activa, pendientes de evaluación, pendientes de instalación e incidencias activas), buscador, filtros por distrito y estado, y una tabla con alias del hogar, responsable principal, dirección, distrito, teléfono, plan y estado de la suscripción. Permite exportar el listado.
 
-![Hogares - Alivia Administración General](https://i.imgur.com/QamKnLv.png)
+![Hogares](https://i.imgur.com/QamKnLv.png)
 
-Detalle del Hogar - Hogar Villanueva - Alivia Admin
+Detalle del hogar - Información
 
 Detalle de un hogar, pestaña 1 (Información). Muestra los datos generales del hogar (identificación y contacto, servicio y cobertura, canales de comunicación preferidos) junto con la ubicación y cobertura: mapa, dirección normalizada, distrito, código postal, coordenadas y referencia. Las pestañas permiten pasar a Suscripción, Dispositivos y Órdenes técnicas.
 
-![Detalle del Hogar - Hogar Villanueva - Alivia Admin](https://i.imgur.com/jYSbY0Q.png)
+![Detalle del hogar - Información](https://i.imgur.com/jYSbY0Q.png)
 
-Detalle del Hogar - Suscripción - Alivia Admin
+Detalle del hogar - Suscripción
 
 Detalle de un hogar, pestaña 2 (Suscripción). Muestra el plan contratado, la tarifa mensual, el estado de pago, las fechas de inicio y de próxima facturación, el método de pago registrado, el titular de facturación y los datos de facturación, junto con la ubicación y cobertura del hogar.
 
-![Detalle del Hogar - Suscripción - Alivia Admin](https://i.imgur.com/hVpP0Ii.png)
+![Detalle del hogar - Suscripción](https://i.imgur.com/hVpP0Ii.png)
 
-Detalle del Hogar - Dispositivos - Alivia Admin
+Detalle del hogar - Dispositivos
 
 Detalle de un hogar, pestaña 3 (Dispositivos). Lista los dispositivos instalados (gateway, sensores y botón de auxilio) con su estado, y muestra la batería promedio y la señal de red. A la derecha mantiene la ubicación y cobertura del hogar.
 
-![Detalle del Hogar - Dispositivos - Alivia Admin](https://i.imgur.com/P39K9fu.png)
+![Detalle del hogar - Dispositivos](https://i.imgur.com/P39K9fu.png)
 
-Detalle del Hogar - Órdenes Técnicas - Alivia Admin
+Detalle del hogar - Órdenes técnicas
 
 Detalle de un hogar, pestaña 4 (Órdenes técnicas). Lista las órdenes del hogar con su estado (en curso o completada) y el acceso Ver orden, y resume las órdenes atendidas y la orden activa. A la derecha mantiene la ubicación y cobertura del hogar.
 
-![Detalle del Hogar - Órdenes Técnicas - Alivia Admin](https://i.imgur.com/W1NvlpW.png)
+![Detalle del hogar - Órdenes técnicas](https://i.imgur.com/W1NvlpW.png)
 
-Dispositivos - Inventario por Categorías Alivia Admin
+Dispositivos
 
 Inventario general de dispositivos. Muestra los totales (total, disponibles, reservados y asignados), buscador y filtros, y los dispositivos agrupados por categoría: Nodos Edge, Micrófonos, Luces, Puertas y Ventanas. Cada categoría muestra tarjetas de dispositivos (alias, código, MAC, estado y ubicación) con acceso a Ver detalle. Incluye el botón Registrar dispositivo.
 
-![Dispositivos - Inventario por Categorías Alivia Admin](https://i.imgur.com/4bZ8F7R.png)
+![Dispositivos](https://i.imgur.com/4bZ8F7R.png)
 
-Micrófonos - Inventario Alivia Admin
+Micrófonos
 
 Vista del inventario de dispositivos filtrada por la categoría Micrófonos, que se gestiona como un tipo de dispositivo más. Presenta los totales por estado (disponibles, reservados, asignados y en mantenimiento), buscador por código, serie, MAC o modelo, filtros y tarjetas por dispositivo con su ubicación y acceso a Ver detalle. Incluye paginación y los botones Volver al inventario y Registrar dispositivo.
 
-![Micrófonos - Inventario Alivia Admin](https://i.imgur.com/lP02aHj.png)
+![Micrófonos](https://i.imgur.com/lP02aHj.png)
 
-Registrar Dispositivo - Alivia Admin
+Registrar dispositivo
 
 Ventana modal para registrar un dispositivo (por ejemplo, un micrófono, un sensor de puerta o de ventana) en el inventario. Solicita el alias del dispositivo y su dirección MAC (en hexadecimal). Se confirma con Registrar dispositivo o se descarta con Cancelar.
 
-![Registrar Dispositivo - Alivia Admin](https://i.imgur.com/VUKPuaW.png)
+![Registrar dispositivo](https://i.imgur.com/VUKPuaW.png)
 
 Planes
 
@@ -1265,35 +1265,35 @@ Listado de suscripciones activas de los hogares. Muestra indicadores (activas, r
 
 ![Suscripciones](https://i.imgur.com/MGxpQHK.png)
 
-Metricas
+Métricas
 
 Resumen general de métricas con selector de periodo (hoy, semana, 30 días y trimestre) y opción de exportar. Presenta tarjetas clave (hogares activos, órdenes pendientes, suscripciones activas e incidencias críticas) y los paneles Operación técnica, Estado del servicio, Evolución comercial y Capacidad técnica por técnico.
 
-![Metricas](https://i.imgur.com/HUOJhdg.png)
+![Métricas](https://i.imgur.com/HUOJhdg.png)
 
-Perfil del Negocio - Alivia Admin
+Perfil del negocio - Identidad del negocio
 
 Perfil del negocio, pestaña Identidad del negocio. Muestra el logotipo institucional, el nombre comercial, la razón social, el RUC, la actividad económica y la descripción institucional, con su estado de validación. Incluye el botón Editar perfil y la nota de permisos del administrador general.
 
-![Perfil del Negocio - Alivia Admin](https://i.imgur.com/CyQXGY8.png)
+![Perfil del negocio - Identidad del negocio](https://i.imgur.com/CyQXGY8.png)
 
-Perfil del Negocio - Información de Contacto
+Perfil del negocio - Información de contacto
 
 Perfil del negocio, pestaña Información de contacto. Muestra el correo de contacto institucional, el teléfono principal corporativo, el teléfono móvil o de guardia y el sitio web corporativo, con el indicador de canales activos. Incluye el botón Editar perfil.
 
-![Perfil del Negocio - Información de Contacto](https://i.imgur.com/On8hmY8.png)
+![Perfil del negocio - Información de contacto](https://i.imgur.com/On8hmY8.png)
 
-Perfil del Negocio - Información para Clientes
+Perfil del negocio - Información para clientes
 
 Perfil del negocio, pestaña Información para clientes. Muestra el horario de atención al público, el correo de la mesa de ayuda y soporte técnico, la central de emergencias con WhatsApp oficial y el lema usado en las comunicaciones. Incluye el botón Editar perfil.
 
-![Perfil del Negocio - Información para Clientes](https://i.imgur.com/097pBOz.png)
+![Perfil del negocio - Información para clientes](https://i.imgur.com/097pBOz.png)
 
-Perfil del Negocio - Ubicación Corporativa
+Perfil del negocio - Ubicación corporativa
 
 Perfil del negocio, pestaña Ubicación corporativa. Muestra la dirección principal de la sede, el distrito, la provincia, el departamento y la referencia de ubicación, junto con un mapa y las coordenadas. Incluye el botón Editar perfil.
 
-![Perfil del Negocio - Ubicación Corporativa](https://i.imgur.com/jmXHiWi.png)
+![Perfil del negocio - Ubicación corporativa](https://i.imgur.com/jmXHiWi.png)
 
 Mi perfil
 
@@ -1315,11 +1315,17 @@ Pantalla de inicio del técnico de campo con saludo, turno y zona de trabajo. Pr
 
 ![Inicio](https://i.imgur.com/81rWnIV.png)
 
-Mis Órdenes - Portal Técnico Alivia (Simplificada)
+Mis órdenes
 
 Listado de las órdenes técnicas asignadas al técnico, en tarjetas. Muestra contadores (programadas hoy, en proceso y atrasadas), buscador y filtros por tipo, estado y fecha. Cada orden indica su código, tipo, horario, estado, hogar y distrito, con el botón Ver orden. Permite alternar entre la vista de tarjetas y la de calendario.
 
-![Mis Órdenes - Portal Técnico Alivia (Simplificada)](https://i.imgur.com/igXMges.png)
+![Mis órdenes](https://i.imgur.com/igXMges.png)
+
+Detalle de la orden técnica
+
+Panel lateral con el detalle de una orden técnica, mostrado sobre el listado Mis órdenes. Presenta el código y tipo de la orden (por ejemplo, instalación) y su estado (en ruta hacia el domicilio), el hogar con su dirección, distancia y horario, la ruta estimada en mapa con acceso a Waze, y el contacto autorizado con botón de llamada. Incluye el botón Confirmar llegada y el enlace Ver expediente completo.
+
+![Detalle de la orden técnica](https://i.imgur.com/UWdH61n.png)
 
 Calendario
 
@@ -1327,59 +1333,59 @@ Calendario semanal del técnico (con vistas Día, Semana y Mes y filtros). Muest
 
 ![Calendario](https://i.imgur.com/koGo7as.png)
 
-Metricas
+Métricas
 
 Panel Mi jornada del técnico. Muestra el estado de servicio con GPS y el turno, indicadores del día (órdenes de hoy, pendientes, completadas y tiempo promedio) y la orden en ruta con su destino, equipamiento asignado y mapa, con los botones Ver ruta en mapa, Ver orden de trabajo y Llamar cuidador. Incluye la agenda semanal, el estado semanal de las órdenes y el rendimiento por día.
 
-![Metricas](https://i.imgur.com/Sgu6mJE.png)
+![Métricas](https://i.imgur.com/Sgu6mJE.png)
 
-Hogares - Alivia Administración General
+Hogares
 
 Listado de hogares registrados. Presenta indicadores (total de hogares, suscripción activa, pendientes de evaluación, pendientes de instalación e incidencias activas), buscador, filtros por distrito y estado, y una tabla con alias del hogar, responsable principal, dirección, distrito, teléfono, plan y estado de la suscripción. Permite exportar el listado.
 
-![Hogares - Alivia Administración General](https://i.imgur.com/4z2jlBW.png)
+![Hogares](https://i.imgur.com/4z2jlBW.png)
 
-Detalle del Hogar - Hogar Villanueva - Alivia Admin
+Detalle del hogar - Información
 
 Detalle de un hogar, pestaña 1 (Información). Muestra los datos generales del hogar (identificación y contacto, servicio y cobertura, canales de comunicación preferidos) junto con la ubicación y cobertura: mapa, dirección normalizada, distrito, código postal, coordenadas y referencia. Las pestañas permiten pasar a Suscripción, Dispositivos y Órdenes técnicas.
 
-![Detalle del Hogar - Hogar Villanueva - Alivia Admin](https://i.imgur.com/ehedQhO.png)
+![Detalle del hogar - Información](https://i.imgur.com/ehedQhO.png)
 
-Detalle del Hogar - Suscripción - Alivia Admin
+Detalle del hogar - Suscripción
 
 Detalle de un hogar, pestaña 2 (Suscripción). Muestra el plan contratado, la tarifa mensual, el estado de pago, las fechas de inicio y de próxima facturación, el método de pago registrado, el titular de facturación y los datos de facturación, junto con la ubicación y cobertura del hogar.
 
-![Detalle del Hogar - Suscripción - Alivia Admin](https://i.imgur.com/oY7OCM2.png)
+![Detalle del hogar - Suscripción](https://i.imgur.com/oY7OCM2.png)
 
-Detalle del Hogar - Dispositivos - Alivia Admin
+Detalle del hogar - Dispositivos
 
 Detalle de un hogar, pestaña 3 (Dispositivos). Lista los dispositivos instalados (gateway, sensores y botón de auxilio) con su estado, y muestra la batería promedio y la señal de red. A la derecha mantiene la ubicación y cobertura del hogar.
 
-![Detalle del Hogar - Dispositivos - Alivia Admin](https://i.imgur.com/ENWDRaO.png)
+![Detalle del hogar - Dispositivos](https://i.imgur.com/ENWDRaO.png)
 
-Detalle del Hogar - Órdenes Técnicas - Alivia Admin
+Detalle del hogar - Órdenes técnicas
 
 Detalle de un hogar, pestaña 4 (Órdenes técnicas). Lista las órdenes del hogar con su estado (en curso o completada) y el acceso Ver orden, y resume las órdenes atendidas y la orden activa. A la derecha mantiene la ubicación y cobertura del hogar.
 
-![Detalle del Hogar - Órdenes Técnicas - Alivia Admin](https://i.imgur.com/bAeRzvH.png)
+![Detalle del hogar - Órdenes técnicas](https://i.imgur.com/bAeRzvH.png)
 
-Dispositivos - Inventario por Categorías Alivia Admin
+Dispositivos
 
 Inventario general de dispositivos. Muestra los totales (total, disponibles, reservados y asignados), buscador y filtros, y los dispositivos agrupados por categoría: Nodos Edge, Micrófonos, Luces, Puertas y Ventanas. Cada categoría muestra tarjetas de dispositivos (alias, código, MAC, estado y ubicación) con acceso a Ver detalle. Incluye el botón Registrar dispositivo.
 
-![Dispositivos - Inventario por Categorías Alivia Admin](https://i.imgur.com/YC7qXVH.png)
+![Dispositivos](https://i.imgur.com/YC7qXVH.png)
 
-Micrófonos - Inventario Alivia Admin
+Micrófonos
 
 Vista del inventario de dispositivos filtrada por la categoría Micrófonos, que se gestiona como un tipo de dispositivo más. Presenta los totales por estado (disponibles, reservados, asignados y en mantenimiento), buscador por código, serie, MAC o modelo, filtros y tarjetas por dispositivo con su ubicación y acceso a Ver detalle. Incluye paginación y los botones Volver al inventario y Registrar dispositivo.
 
-![Micrófonos - Inventario Alivia Admin](https://i.imgur.com/5feRtAv.png)
+![Micrófonos](https://i.imgur.com/5feRtAv.png)
 
-Registrar Dispositivo - Alivia Admin
+Registrar dispositivo
 
 Ventana modal para registrar un dispositivo (por ejemplo, un micrófono, un sensor de puerta o de ventana) en el inventario. Solicita el alias del dispositivo y su dirección MAC (en hexadecimal). Se confirma con Registrar dispositivo o se descarta con Cancelar.
 
-![Registrar Dispositivo - Alivia Admin](https://i.imgur.com/Z6Gg1aD.png)
+![Registrar dispositivo](https://i.imgur.com/Z6Gg1aD.png)
 
 Mi perfil
 
@@ -1413,17 +1419,18 @@ Listado de suscripciones activas de los hogares. Muestra indicadores (activas, r
 
 ![Suscripciones](https://i.imgur.com/MGxpQHK.png)
 
-Analiticas
+Analíticas
 
 Panel Resumen comercial con selector de periodo (7 días, 30 días, trimestre y personalizado) y opción de exportar. Presenta tarjetas clave (contrataciones en proceso, suscripciones activas, renovaciones próximas y pagos pendientes), el embudo de contratación por etapas, la distribución por plan con el ratio de adopción adaptada y la evolución de suscripciones (nuevas, renovadas y bajas).
 
-![Analiticas](https://i.imgur.com/G11kdDi.png)
+![Analíticas](https://i.imgur.com/G11kdDi.png)
 
 Perfil
 
 Perfil personal del administrador. Muestra su foto, rol, estado de cuenta, información personal (nombres, apellidos, documento y teléfono), información de contacto, preferencias del sistema (canales de notificación, zona horaria y formato de fecha) y el acceso a Cambiar contraseña. Se guardan los cambios con Guardar cambios o se descartan.
 
 ![Perfil](https://i.imgur.com/328ZapD.png)
+
 
 
 ### 6.4.4. Applications User-flow Diagrams
