@@ -1659,6 +1659,36 @@ La Infrastructure Layer implementa los repositorios de los cuatro aggregates sob
 
 La persistencia se configura mediante `CuidadoJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de los cuatro aggregates sobre el motor PostgreSQL.
 
+| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
+| --- | --- | --- | --- | --- |
+| SendgridEmailGateway | Gateway | EmailGateway | Sendgrid | Envía el correo de invitación a un cuidador. |
+
+| Tabla/Colección | Propósito |
+| --- | --- |
+| family_members | Almacena el aggregate FamilyMember: datos del familiar y referencias a accountId y homeProfileId. |
+| care_tasks | Almacena el aggregate CareTask: descripción, estado y referencia al cuidador responsable (nulo si quedó sin asignar). |
+| invitations | Almacena el aggregate Invitation: correo invitado, estado y referencia al familiar. |
+| caregivers | Almacena el aggregate Caregiver: referencia a accountId y familyMemberId, y si es principal. |
+| caregiver_schedules | Almacena la entidad Schedule: turnos y horarios de cada cuidador. |
+
+| Objeto | BC responsable | Justificación |
+| --- | --- | --- |
+| Cuenta / credenciales | IAM | La autenticación y el estado de acceso de las cuentas de familiares y cuidadores son responsabilidad de IAM; Cuidado solo referencia accountId. |
+| Perfil de usuario / perfil de hogar | Perfiles | Los datos personales y la ubicación del hogar se gestionan en Perfiles; Cuidado solo referencia homeProfileId y publica PrincipalCaregiverReplaced para mantener sincronizado al cuidador principal (observación previa #5). |
+
+**Verificación de trazabilidad — Cuidado**
+
+| Criterio | Cumple | Evidencia |
+| --- | --- | --- |
+| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 12 commands y las 4 queries de 5.5.1 tienen su handler correspondiente en 5.5.3. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | CreateCaregiverCommand se usa exclusivamente desde InvitationAcceptedEventHandler (justificado en 5.5.2); el resto se usa desde los endpoints de los cuatro controllers. |
+| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.5.2) mapea 1:1 los parámetros del Command correspondiente. |
+| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | Cada uno de los cuatro controllers se relaciona con su aggregate root correspondiente. |
+| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | Los cuatro repositorios de 5.5.1 tienen su implementación Jpa correspondiente en 5.5.4. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | CaregiverInvited lo consume el adaptador de Sendgrid; InvitationAccepted y CaregiverUnlinked los consumen los Event Handlers propios (5.5.3); PrincipalCaregiverReplaced lo consume Perfiles (5.3.3); el resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría. |
+| Ningún aggregate de este BC es aggregate root en otro BC | Sí | FamilyMember, CareTask, Invitation y Caregiver son exclusivos de este bounded context. |
+| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | EmailGateway se declara como puerto en Domain; su implementación concreta (SendgridEmailGateway) está en Infrastructure (5.5.4). |
+
 ### 5.5.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.5.6. Bounded Context Software Architecture Code Level Diagrams
