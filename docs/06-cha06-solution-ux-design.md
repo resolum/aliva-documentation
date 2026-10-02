@@ -1057,7 +1057,7 @@ Esta sección detalla el diseño de las interfaces operativas de la plataforma A
 
 Se presentan los esquemas estructurales de las aplicaciones, los cuales definen la lógica de navegación y la distribución de los componentes funcionales. Estos wireframes validan la usabilidad de los flujos de acceso y recuperación de credenciales del portal, organizando los campos de autenticación, los mensajes de validación y las acciones principales de manera coherente, antes de proceder con la implementación de estilos visuales definitivos.
 
-### Web Application
+### Web Application - Administrador
 
 En esta sección se presentan los wireframes de la aplicación web del negocio, los cuales definen la arquitectura de la información y la disposición estructural de los elementos clave del flujo de autenticación. Estos diagramas establecen la jerarquía visual y el flujo de navegación sin elementos distractores de diseño, y sirven como base técnica para el desarrollo posterior de los mockups de alta fidelidad.
 
@@ -1486,6 +1486,706 @@ En esta sección se presentan los wireframes de la aplicación web del negocio, 
 </div>
 
 **Descripción:** Esquema de la cuarta pestaña del detalle de hogar, con el registro cronológico de las órdenes técnicas asociadas a la vivienda. Cada orden se representa con su código, estado (en curso o completada), descripción, fecha y enlace "Ver orden". Debajo se ubican dos tarjetas de resumen (órdenes atendidas y orden activa) y una nota sobre el protocolo de SLA técnico. La columna lateral mantiene el panel de ubicación y cobertura.
+
+### Web Application - Vista del cuidador
+
+**Inicio del cuidador**
+
+<div align="center">
+  <img src="https://imgur.com/glCgObh.png" alt="Esquema del inicio del cuidador con alerta de dispositivos, persona asistida, actividades de hoy y próximo evento" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla de inicio de la web del cuidador, con el menú lateral propio del perfil (Inicio, Persona asistida, Red de cuidado, Actividades, Mi hogar, Dispositivos, Suscripción, Incidencias, Métricas, Mi perfil y Cerrar sesión). Presenta un saludo con la fecha actual y las acciones "Reportar incidencia" y "Nueva actividad". Debajo se ubica una franja de alerta con la situación prioritaria de dispositivos (por ejemplo, batería baja de un sensor) y el acceso "Ver dispositivo". El contenido se organiza en dos columnas: a la izquierda, una tarjeta de la persona asistida con acceso a su perfil y el bloque "Hoy" con la línea de tiempo de actividades programadas, su responsable y su estado (completada, pendiente o programada); a la derecha, la tarjeta "Próximo evento" con el horario de la visita técnica, el técnico asignado y el botón "Ver seguimiento".
+
+**Persona asistida**
+
+<div align="center">
+  <img src="https://imgur.com/KvZ3M4y.png" alt="Esquema de la vista de persona asistida con información personal y asociada" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de consulta de la persona a cargo. Muestra el encabezado con avatar, nombre, estado de perfil completo, edad y hogar, junto con el botón "Editar información". El contenido se divide en dos bloques: información personal (nombres, apellidos, tipo y número de documento con indicador de validación, fecha de nacimiento y parentesco) e información asociada (hogar relacionado, cuidador principal con su relación y teléfono de contacto).
+
+**Red de cuidado**
+
+<div align="center">
+  <img src="https://imgur.com/bCQ9vqH.png" alt="Esquema de la red de cuidado con cuidador principal y cuidadores adicionales en distintos estados" height="400">
+</div>
+
+**Descripción:** Esquema del listado de personas autorizadas a apoyar el cuidado del hogar, con el botón "Invitar cuidador". Se divide en el bloque del cuidador principal (titular del servicio), con avatar, relación, datos de contacto y acceso "Ver responsabilidades", y la lista de cuidadores adicionales con su contador. Cada cuidador muestra su estado (activo, invitación pendiente o invitación vencida) y las acciones correspondientes: "Ver responsabilidades", "Reenviar" y un menú adicional.
+
+**Invitar cuidador (panel lateral)**
+
+<div align="center">
+  <img src="https://imgur.com/Wsb9lJj.png" alt="Esquema del panel lateral para invitar a un cuidador con correo, relación y responsabilidades" height="400">
+</div>
+
+**Descripción:** Esquema del panel lateral deslizante que se superpone a la red de cuidado, mientras el fondo se atenúa. Incluye el campo de correo electrónico, el selector de relación con la persona asistida y una lista de casillas de responsabilidades asignadas (consultar actividades, gestionar actividades, recibir notificaciones, consultar dispositivos y recibir alertas de dispositivos). El pie agrupa las acciones "Cancelar" y "Enviar invitación".
+
+**Aceptación de invitación a la red de cuidado**
+
+<div align="center">
+  <img src="https://imgur.com/tq62Bj2.png" alt="Esquema de la pantalla de invitación a una red de cuidado con responsabilidades e inicio de sesión" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla pública que recibe el cuidador invitado. En una tarjeta centrada se muestran el título, la información del hogar con la etiqueta "Invitación activa", la persona asistida, quién invita y las responsabilidades asignadas en forma de chips. Debajo se ubican el correo electrónico precargado y de solo lectura, el campo de contraseña con enlace de recuperación, el botón "Iniciar sesión y aceptar" y la acción secundaria "Rechazar invitación". El pie incluye los enlaces legales.
+
+**Actividades (vista semanal)**
+
+<div align="center">
+  <img src="https://imgur.com/rm7GI8Y.png" alt="Esquema del calendario semanal de actividades con bloques por estado y aviso de superposición de horario" height="400">
+</div>
+
+**Descripción:** Esquema del calendario semanal de actividades de cuidado. Incluye el título, el selector de vista (Hoy, Semana, Lista), el botón "Nueva actividad", los controles de navegación temporal, el rango de la semana y los filtros por responsable, tipo y estado. La cuadrícula muestra los días con franjas horarias, donde cada actividad se representa como un bloque con hora, nombre, ícono de tipo, responsable y estado (completada, programada, pendiente o vencida). Se resaltan el día actual con una línea de hora en curso, la actividad vencida con borde punteado y las superposiciones de horario agrupadas en un mismo bloque.
+
+**Nueva actividad (panel lateral)**
+
+<div align="center">
+  <img src="https://imgur.com/qi9N42D.png" alt="Esquema del panel lateral de nueva actividad con campos de programación, responsable y recordatorio" height="400">
+</div>
+
+**Descripción:** Esquema del panel lateral para programar una tarea o recordatorio de cuidado. Contiene los campos nombre de la actividad, tipo de actividad, persona asistida (solo lectura), fecha y hora, duración opcional, repetición, cuidador responsable, recordatorio e indicaciones opcionales con contador de caracteres. El pie incluye "Cancelar" y "Guardar actividad".
+
+**Actividades (vista diaria)**
+
+<div align="center">
+  <img src="https://imgur.com/lFz8WY0.png" alt="Esquema de la vista diaria de actividades agrupadas por mañana, tarde y noche con acciones por estado" height="400">
+</div>
+
+**Descripción:** Esquema de la vista "Hoy" de actividades, con el selector Hoy / Semana / Lista, la navegación por fecha, el acceso "Ir a hoy", el botón "Filtros" y la acción "Nueva actividad". Las actividades se agrupan por franja del día (mañana, tarde y noche), cada una con su contador. Cada fila muestra hora, ícono, nombre, responsable, duración o nota, etiqueta de estado y la acción contextual: "Ver detalle" para completadas o canceladas, "Completar" para pendientes y "Reprogramar" para vencidas. Las actividades canceladas se muestran atenuadas y tachadas, y la actividad de medicamento incluye la etiqueta "Previamente indicado".
+
+**Detalle de actividad (panel lateral)**
+
+<div align="center">
+  <img src="https://imgur.com/X073pWY.png" alt="Esquema del panel lateral de detalle de actividad con datos de programación e indicaciones" height="400">
+</div>
+
+**Descripción:** Esquema del panel lateral con el detalle de una actividad, que se superpone al cronograma del turno. En el encabezado se muestran las etiquetas de tipo y estado, el título y una descripción breve. El contenido lista persona asistida, horario, frecuencia, cuidador asignado y recordatorio, además de un recuadro con las indicaciones. El pie ofrece la acción principal "Marcar como completada", las acciones secundarias "Reprogramar" y "Editar" y el enlace "Cancelar actividad".
+
+**Dispositivos del hogar**
+
+<div align="center">
+  <img src="https://imgur.com/IFxjVQ0.png" alt="Esquema de dispositivos del hogar agrupados por habitación con estado y nivel de batería" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de consulta de dispositivos instalados, con el título, la hora de la última actualización y el botón "Reportar un problema". Una fila de chips resume el estado global (operativos, requieren atención y sin conexión). Los dispositivos se agrupan por habitación y se presentan como tarjetas con ícono, nombre, descripción, etiqueta de estado, tipo de alimentación o nivel de batería con barra de progreso, estado actual, tiempo desde la última actualización y el botón "Ver detalle". La tarjeta que requiere atención se resalta y ofrece "Ver detalle y recambio".
+
+**Incidencias (listado)**
+
+<div align="center">
+  <img src="https://imgur.com/IrK6XIJ.png" alt="Esquema del listado de incidencias con pestañas por estado, buscador y tarjetas de seguimiento" height="400">
+</div>
+
+**Descripción:** Esquema del listado de incidencias del hogar, con el botón "Reportar incidencia". Incluye pestañas "En curso" y "Resueltas" con contadores, un buscador por código o dispositivo y filtros por estado y dispositivo. Cada incidencia se muestra como una tarjeta con ícono del dispositivo, código, etiqueta de estado (visita programada, en atención o en evaluación), nombre del dispositivo y ubicación, fecha de registro, información de visita o diagnóstico y el enlace "Ver detalle".
+
+**Reportar incidencia (panel lateral)**
+
+<div align="center">
+  <img src="https://imgur.com/odqQhsK.png" alt="Esquema del panel lateral para reportar una incidencia con dispositivo, descripción, evidencias y ubicación" height="400">
+</div>
+
+**Descripción:** Esquema del panel lateral para registrar un problema, con la etiqueta de soporte de equipamiento y el título. Contiene los campos dispositivo afectado, tipo de problema, descripción con contador de caracteres, fecha y hora del incidente y un área para adjuntar hasta tres fotografías como evidencia opcional. Un recuadro muestra la dirección registrada del hogar donde se realizará la atención e indica que puede modificarse desde "Mi hogar". El pie incluye "Cancelar" y "Enviar incidencia".
+
+**Confirmación de incidencia registrada**
+
+<div align="center">
+  <img src="https://imgur.com/eUGs5Dj.png" alt="Esquema de la confirmación de incidencia registrada con código de ticket y resumen del reporte" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla de cierre del reporte, con un ícono de confirmación, el título "Incidencia registrada" y un mensaje que informa la revisión por soporte técnico. Una tarjeta resume el código de ticket con su estado, el dispositivo afectado, el tipo de problema, la fecha y hora reportadas y la ubicación del servicio, junto con un aviso de notificaciones por el portal y el teléfono registrado. Las acciones son "Ver seguimiento" y "Volver a incidencias", y el pie ofrece la línea de asistencia para casos críticos.
+
+**Detalle de incidencia - Visita programada**
+
+<div align="center">
+  <img src="https://imgur.com/mX0fw71.png" alt="Esquema del detalle de incidencia con visita programada, línea de progreso y evidencias" height="400">
+</div>
+
+**Descripción:** Esquema del seguimiento de una incidencia en estado "Visita programada", con el código, el dispositivo, la ubicación y la acción "Descargar ficha". Una línea de progreso de cinco pasos (registrada, en evaluación, visita programada, en atención y resuelta) indica los pasos completados con su fecha. Un bloque destaca la visita técnica en domicilio con fecha, horario, técnico asignado y el botón "Reprogramar visita". Debajo se presentan el detalle del reporte (tipo de problema, fecha y descripción) y las evidencias y entorno (fotografía adjunta y ubicación de la atención). El pie muestra el protocolo de seguridad con el enlace "Ver normas de visita".
+
+**Detalle de incidencia - En atención**
+
+<div align="center">
+  <img src="https://imgur.com/aPfcHyd.png" alt="Esquema del detalle de incidencia en atención con técnico asignado y nota de la intervención" height="400">
+</div>
+
+**Descripción:** Esquema del seguimiento de la incidencia cuando el técnico ya inició la intervención, con el acceso "Ver dispositivo". La línea de progreso marca la cuarta etapa como activa. Un bloque destacado indica "Atención técnica en curso" con el técnico asignado y la hora de inicio. Debajo se ubican dos tarjetas: el detalle del reporte (dispositivo, tipo de problema, fecha, descripción y evidencias con opción "Ampliar") y la atención en curso (técnico, inicio, estado actual, nota de la intervención y ubicación del servicio).
+
+**Detalle de incidencia - Resuelta**
+
+<div align="center">
+  <img src="https://imgur.com/adRPVIQ.png" alt="Esquema del detalle de incidencia resuelta con detalle de resolución y registro fotográfico" height="400">
+</div>
+
+**Descripción:** Esquema del seguimiento de una incidencia resuelta, con la acción "Descargar reporte". Todos los pasos de la línea de progreso aparecen completados con su fecha. Un bloque resume el estado del caso con fecha y hora de cierre, técnico asignado y estado general del dispositivo. Dos tarjetas presentan la incidencia reportada (dispositivo, tipo, descripción y ubicación) y el detalle de resolución (trabajo realizado, fecha y hora de finalización, técnico responsable y registro fotográfico del servicio con las imágenes de reporte y resolución). El pie ofrece "Ver dispositivo", "Reportar nuevamente" y "Volver a incidencias".
+
+**Actualizar fotografía de perfil (modal)**
+
+<div align="center">
+  <img src="https://imgur.com/3QlAAJY.png" alt="Esquema del modal para actualizar la fotografía de perfil con vista previa y área de carga" height="400">
+</div>
+
+**Descripción:** Esquema del modal que se superpone a la vista "Mi perfil" mientras el fondo se atenúa. Presenta el título, una vista previa circular de la imagen, un área de carga con arrastrar y soltar o selección de archivo (JPG o PNG de hasta 5 MB) y las acciones "Reemplazar" y "Eliminar foto actual". El pie incluye "Cancelar" y "Guardar foto".
+
+**Mi perfil del cuidador**
+
+<div align="center">
+  <img src="https://imgur.com/SJP1HTr.png" alt="Esquema de Mi perfil del cuidador con datos personales editables y correo verificado de solo lectura" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de perfil personal del cuidador, con el título "Mi perfil", la descripción del módulo y la insignia "Modo edición activo". Una tarjeta superior muestra el avatar con acceso a cámara, el nombre, las etiquetas de rol (cuidador principal) y de correo verificado, y el botón "Cambiar foto". El bloque "Datos personales" contiene los campos nombres, apellidos, tipo y número de documento, teléfono de contacto y correo electrónico, este último bloqueado como verificado y no editable, con la indicación de contactar a soporte para modificarlo. El pie del formulario incluye "Cancelar" y "Guardar cambios".
+
+**Contratación guiada - Paso 1: Elige tu plan**
+
+<div align="center">
+  <img src="https://imgur.com/iQpIbJ2.png" alt="Esquema de la selección de plan con tarjetas comparativas del Plan Base y el Plan Personalizado" height="400">
+</div>
+
+**Descripción:** Esquema del primer paso del flujo público de contratación, con un indicador de progreso de cinco pasos (plan, cuenta, hogar, configuración y evaluación). Presenta el título, un interruptor de facturación mensual o anual con el ahorro indicado y dos tarjetas comparativas: Plan Base, con precio fijo, características incluidas y el botón "Elegir Plan Base", y Plan Personalizado, destacado como máxima flexibilidad, con precio desde, características modulares y el botón "Personalizar plan". Debajo se incluye un bloque de garantía de adaptación y privacidad, y un enlace de ayuda con el horario de atención.
+
+**Contratación guiada - Paso 2: Crea tu cuenta**
+
+<div align="center">
+  <img src="https://imgur.com/DmyNsw9.png" alt="Esquema del formulario de creación de cuenta dentro del flujo de contratación" height="400">
+</div>
+
+**Descripción:** Esquema del segundo paso, con un resumen del plan elegido y la opción "Cambiar plan", y un selector de estados simulados del formulario. La tarjeta central contiene los campos nombres, apellidos, documento de identidad con tipo y número, teléfono celular, correo electrónico y contraseña con requisitos mínimos, una casilla de aceptación de términos y privacidad conforme a la Ley N.º 29733 y el botón "Crear cuenta".
+
+**Contratación guiada - Paso 3: Hogar (persona asistida)**
+
+<div align="center">
+  <img src="https://imgur.com/Z2WGWmW.png" alt="Esquema del registro de la persona asistida con perfil de accesibilidad y contacto de emergencia" height="400">
+</div>
+
+**Descripción:** Esquema de la segunda sección del paso Hogar, titulada "¿Quién utilizará Alivia?". Incluye los campos nombres, apellidos, fecha de nacimiento, documento de identidad opcional, relación con el cuidador principal y teléfono directo opcional. Un bloque de perfil de accesibilidad rápida permite elegir el nivel de movilidad y el tipo de comunicación por voz mediante opciones excluyentes. Se añaden el contacto secundario de emergencia opcional, la casilla de confirmación de autorización y las acciones "Volver a ubicación" y "Guardar y continuar".
+
+**Contratación guiada - Paso 3: Hogar (ubicación)**
+
+<div align="center">
+  <img src="https://imgur.com/Ve8Fklz.png" alt="Esquema del registro de ubicación del hogar con mapa, dirección normalizada y referencia" height="400">
+</div>
+
+**Descripción:** Esquema de la primera sección del paso Hogar, titulada "¿Dónde instalaremos Alivia?". Contiene el alias del hogar con sugerencias rápidas, teléfono y correo de contacto, el campo de dirección con Google Maps y la acción "Usar mi ubicación", un mapa con pin ajustable, un recuadro de dirección normalizada detectada y un campo opcional de referencia para la llegada. Cierra con "Atrás" y "Confirmar ubicación".
+
+**Contratación guiada - Paso 4: Configuración Base**
+
+<div align="center">
+  <img src="https://imgur.com/rzSj6ZH.png" alt="Esquema de la configuración del Plan Base con habitación y dispositivos incluidos" height="400">
+</div>
+
+**Descripción:** Esquema de la configuración para el Plan Base, con el resumen del plan, el subpaso "Revisa tu plan" y una tarjeta de asignación inicial. Muestra indicadores de importe, espacio, equipos y modalidad, y el detalle de la habitación incluida con sus dispositivos (iluminación adaptativa, puerta motorizada y micrófono asistencial con altavoz) y su cantidad. Ofrece el enlace "Ver qué incluye cada dispositivo", la opción "Cambiar a Personalizado" y las acciones "Atrás" y "Continuar".
+
+**Contratación guiada - Paso 4: Configuración Personalizada (habitaciones)**
+
+<div align="center">
+  <img src="https://imgur.com/B5a9yq9.png" alt="Esquema de la selección de habitaciones del Plan Personalizado con acciones de edición" height="400">
+</div>
+
+**Descripción:** Esquema del primer subpaso de configuración del Plan Personalizado. Presenta la lista de habitaciones configuradas con nombre, descripción, etiqueta de primer espacio y acciones de editar y eliminar, la acción "Agregar otra habitación" y una barra de resumen con el número de habitaciones, el precio base estimado y el guardado automático. Cierra con "Atrás" y "Elegir dispositivos".
+
+**Contratación guiada - Paso 4: Configuración Personalizada (dispositivos)**
+
+<div align="center">
+  <img src="https://imgur.com/bD6YzJx.png" alt="Esquema de la configuración de dispositivos por habitación con cantidades y cuota mensual" height="400">
+</div>
+
+**Descripción:** Esquema del segundo subpaso, "Configura cada habitación". Incluye pestañas por habitación con contador de selecciones y tarjetas de control para iluminación, puerta, ventana y micrófono con altavoz asistencial, cada una con su estado (activo o desactivado) y selector de cantidad, salvo el micrófono, que es fijo por habitación. Se muestran un aviso de validación técnica incluida, una barra de resumen con equipos, total de dispositivos y cuota mensual, y las acciones "Volver a habitaciones" y "Revisar configuración".
+
+**Contratación guiada - Paso 4: Revisión de la configuración**
+
+<div align="center">
+  <img src="https://imgur.com/oVFpdte.png" alt="Esquema del resumen final de configuración con distribución por ambiente y compromiso de cobro" height="400">
+</div>
+
+**Descripción:** Esquema del tercer subpaso, "Revisa tu configuración". Resume el plan, la facturación, el importe estimado, el hogar, el número de habitaciones y de dispositivos, seguido de la distribución por ambiente en bloques desplegables con acción "Editar" y la posibilidad de agregar dispositivos. Un recuadro de compromiso de cobro transparente indica que el importe final se confirma tras la evaluación. Cierra con "Modificar dispositivos", "Continuar a Evaluación" y garantías de protocolo, soporte y cancelación gratuita.
+
+**Contratación guiada - Medio de pago**
+
+<div align="center">
+  <img src="https://imgur.com/cZCpxkl.png" alt="Esquema del registro del medio de pago con autorización temporal y resumen del plan" height="400">
+</div>
+
+**Descripción:** Esquema del registro del medio de pago mediante autorización temporal. En la columna principal se ubican nombre del titular, correo de facturación y el formulario seguro de tarjeta, con una casilla de aceptación de términos y las acciones "Autorizar y continuar" y "Volver al resumen". La columna lateral muestra el resumen del plan (ambientes, equipamiento y cuota estimada) y el bloque de autorización temporal con cobro de hoy en S/ 0.00.
+
+**Contratación guiada - Paso 5: Programa la evaluación**
+
+<div align="center">
+  <img src="https://imgur.com/7zsGY8N.png" alt="Esquema de la programación de la evaluación con calendario, bloques horarios y destino de inspección" height="400">
+</div>
+
+**Descripción:** Esquema del primer subpaso de evaluación. Combina un calendario mensual con los días con disponibilidad marcados y una lista de bloques horarios del día elegido (disponible, último cupo o no disponible). Debajo se presenta el destino de inspección con dirección, modalidad y duración, y la acción "Editar ubicación". Cierra con "Volver a configuración" y "Revisar evaluación".
+
+**Contratación guiada - Paso 5: Confirma tu visita**
+
+<div align="center">
+  <img src="https://imgur.com/0B4p9UI.png" alt="Esquema de la confirmación de la visita de evaluación con cita, hogar, servicio y receptor" height="400">
+</div>
+
+**Descripción:** Esquema del último paso. Muestra cuatro tarjetas con la cita reservada y la acción "Cambiar horario", el hogar con dirección y mapa, el tipo de servicio con duración e importe preautorizado, y el receptor de la visita con teléfono y recordatorio por SMS. Incluye un campo opcional de indicaciones para llegar, la casilla de confirmación de una persona adulta disponible y las acciones "Cambiar horario" y "Confirmar evaluación".
+
+**Seguimiento de contratación - Evaluación**
+
+<div align="center">
+  <img src="https://imgur.com/VwQm4Dp.png" alt="Esquema del seguimiento de contratación en etapa de evaluación con visita técnica programada" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla de seguimiento con el código de contratación y una línea de progreso de cuatro etapas (evaluación, confirmación, instalación y activación), con la primera en proceso. Un bloque de evaluación técnica presencial muestra la fecha programada, la ventana de llegada y el lugar de inspección, con la acción "Reprogramar visita", el enlace "Ver requerimientos previos" y un contacto de ayuda.
+
+**Seguimiento de contratación - Confirmación**
+
+<div align="center">
+  <img src="https://imgur.com/mpgpWpg.png" alt="Esquema del seguimiento en etapa de confirmación con resultado de evaluación y plan resultante" height="400">
+</div>
+
+**Descripción:** Esquema de la segunda etapa del seguimiento, que requiere acción del cliente. Presenta el mensaje "Configuración lista para confirmar", una imagen de la inspección con su identificador, el resultado de la evaluación (viable con adaptación técnica y la adaptación validada) y el plan resultante con su cuota mensual. Incluye el enlace "Solicitar ayuda" y el botón "Revisar y confirmar".
+
+**Seguimiento de contratación - Instalación**
+
+<div align="center">
+  <img src="https://imgur.com/Pjg1VRH.png" alt="Esquema del seguimiento en etapa de instalación con fecha, técnico asignado y credencial" height="400">
+</div>
+
+**Descripción:** Esquema de la tercera etapa, con las dos primeras completadas. Muestra la instalación programada con fecha, rango horario, dirección de asistencia y una tarjeta del técnico con credencial activa, además de un aviso sobre la presencia de un adulto responsable. Ofrece "Reprogramar visita" y "Ver detalles de instalación", y un enlace de asistencia.
+
+**Seguimiento de contratación - Activación**
+
+<div align="center">
+  <img src="https://imgur.com/uLpfSWo.png" alt="Esquema del seguimiento en etapa de activación con sincronización de dispositivos en curso" height="400">
+</div>
+
+**Descripción:** Esquema de la cuarta etapa, con las tres primeras completadas y la activación en proceso. Un bloque "Activando el servicio" muestra un indicador de carga de la sincronización de telemetría y sensores, un aviso de confirmación por correo y SMS y el acceso a soporte solo en caso de demora. Tres tarjetas inferiores resumen la activación en la nube, el aviso simultáneo y la instalación certificada.
+
+**Seguimiento de contratación - Servicio activo**
+
+<div align="center">
+  <img src="https://imgur.com/4GzR3Zk.png" alt="Esquema de la confirmación de servicio activo con resumen de activación y accesos al hogar y dispositivos" height="400">
+</div>
+
+**Descripción:** Esquema de cierre del proceso, con las cuatro etapas completadas. Muestra el mensaje "Tu servicio está activo", un resumen con fecha de activación, plan activo y hogar conectado, una vista previa con el indicador de sensores enlazados y las acciones "Ir a mi hogar" y "Ver dispositivos", junto con la línea de soporte disponible.
+
+**Mi hogar**
+
+<div align="center">
+  <img src="https://imgur.com/xmbVRsZ.png" alt="Esquema de Mi hogar con datos generales, ubicación y mapa" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de consulta del hogar del cuidador, con el botón "Editar información". Una tarjeta resume el alias, el estado de ubicación validada, el cuidador principal y la persona asistida. Se presentan los bloques de datos generales (alias, teléfono y correo asociados) y de ubicación (dirección normalizada, distrito y referencia), acompañados de un mapa con el marcador del hogar y el acceso "Ver en Google Maps".
+
+**Editar información del hogar (panel lateral)**
+
+<div align="center">
+  <img src="https://imgur.com/VI20AG4.png" alt="Esquema del panel lateral para editar los datos de contacto del hogar" height="400">
+</div>
+
+**Descripción:** Esquema del panel lateral que se superpone a Mi hogar. Incluye los campos alias del hogar con contador de caracteres, teléfono asociado y correo asociado, y un recuadro de ubicación actual validada que indica que la dirección se gestiona en un flujo independiente, con el enlace "Actualizar ubicación". El pie ofrece "Cancelar" y "Guardar cambios".
+
+**Suscripción**
+
+<div align="center">
+  <img src="https://imgur.com/k9JArTp.png" alt="Esquema de la suscripción con plan contratado, cobertura, medio de pago y último pago" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de suscripción del cuidador, con el estado activo y la fecha y monto del próximo cobro. La tarjeta "Tu plan" muestra el plan, su precio, las fechas de inicio y renovación, la cobertura incluida y las acciones "Cambiar plan", "Ver detalles del plan", "Suspender suscripción" y "Cancelar suscripción". La tarjeta "Facturación y medio de pago" presenta la tarjeta registrada con cobro automático, la acción "Actualizar medio de pago" y el último pago con monto, fecha, método y la acción "Descargar comprobante".
+
+**Resumen de autonomía (Métricas)**
+
+<div align="center">
+  <img src="https://imgur.com/LFa91st.png" alt="Esquema del resumen de autonomía con gráfico semanal, nivel de autonomía y uso por dispositivo" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de métricas del cuidador, con el título "Resumen de autonomía", una insignia que indica cuántos dispositivos requieren atención, la hora de la última actualización y un selector de periodo (Hoy, 7 días, 30 días). El bloque "Autonomía semanal" muestra un gráfico de barras apiladas por día de la semana que distingue las acciones autónomas de las realizadas con asistencia, con el día actual resaltado. A su derecha, la tarjeta "Nivel de autonomía" presenta un gráfico circular con el porcentaje global y el desglose entre acciones autónomas y con asistencia. En la parte inferior, el bloque "Uso por dispositivo" lista cada dispositivo (luz del dormitorio, micrófono asistencial, puerta principal, ventana del dormitorio y luz del pasillo) con una barra de proporción y su indicador de uso (tiempo, comandos, aperturas o acciones).
+
+**Panel de notificaciones del cuidador**
+
+<div align="center">
+  <img src="https://imgur.com/Lt5AbX0.png" alt="Esquema del panel de notificaciones del cuidador con solicitud de asistencia, batería baja y actividad próxima" height="400">
+</div>
+
+**Descripción:** Esquema del panel desplegable de notificaciones que se superpone a la vista de resumen del hogar, accesible desde el ícono de campana del encabezado. En la vista de fondo se observan la tarjeta del plan activo con la persona asistida vinculada, los indicadores de dispositivos activos y de estado del adulto, y la bitácora de eventos recientes en tiempo real con hora de cada evento. El panel muestra el contador de notificaciones nuevas, las acciones "Ver vacío", "Marcar todas como leídas" y cerrar, y pestañas de filtrado (Todas y Sin leer). Las notificaciones del día se presentan como tarjetas con ícono, título, tiempo transcurrido y descripción: la solicitud de asistencia, destacada con el botón "Ver solicitud", la batería baja con el enlace "Ver dispositivo" y la actividad próxima con el enlace "Ver actividad". Al pie se ubica la sección "Anteriores" con las notificaciones leídas.
+
+### Web Application - Usuarios - Cuidador (Invitados)
+
+**Inicio del cuidador invitado**
+
+<div align="center">
+  <img src="https://imgur.com/2KJIPEy.png" alt="Esquema de la pantalla de inicio del cuidador invitado con saludo de bienvenida y tarjeta de próxima actividad" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla de inicio del cuidador invitado. La barra lateral muestra la marca Alivia con el rol de cuidador y la insignia "Invitado", e incluye los accesos a Inicio, Persona asistida, Actividades y Mi perfil, además de la opción de cerrar sesión. En el encabezado se ubican el selector de hogar y persona asistida con la etiqueta "Cuidador de apoyo", el ícono de campana de notificaciones y los datos del usuario. En el contenido principal se observan la fecha actual, el saludo de bienvenida y una etiqueta con la persona a cargo. Debajo se presenta la tarjeta de "Próxima actividad" con su estado "En curso", la hora, el nombre de la actividad, la persona asistida y una breve indicación de apoyo, junto con el botón "Ver actividad" y el enlace "Ver mis actividades".
+
+**Mis actividades - Vista de horarios**
+
+<div align="center">
+  <img src="https://imgur.com/EtrkPAC.png" alt="Esquema de la vista semanal de horarios de actividades del cuidador invitado" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de calendario semanal de las actividades asignadas al cuidador invitado. En la parte superior se encuentra el selector que alterna entre las vistas "Lista" y "Horarios", los controles de navegación entre semanas con el botón "Hoy", el rango de fechas de la semana, el filtro por estado y la persona asistida. La cuadrícula muestra los días de lunes a domingo con el día actual resaltado, las franjas horarias y una línea que indica la hora actual. Las actividades aparecen como bloques con su hora, nombre y persona asistida, y se distinguen por estado: completada, pendiente (resaltada), vencida con ícono de alerta, programada y cancelada con texto tachado. Al pie de la barra lateral se muestra el indicador de conexión.
+
+**Mis actividades - Vista de lista**
+
+<div align="center">
+  <img src="https://imgur.com/YV0D215.png" alt="Esquema de la vista de lista de actividades del cuidador invitado agrupadas por día" height="400">
+</div>
+
+**Descripción:** Esquema de la vista de lista de las actividades asignadas al cuidador invitado, accesible desde el selector "Lista". Incluye una barra de filtros por periodo ("Esta semana") y por estado ("Todos los estados"), junto con la persona asistida. Las actividades se agrupan en secciones por día (Hoy, Mañana y Próximas) con el contador de actividades de cada grupo. Cada fila muestra la hora, el nombre de la actividad, un ícono de recurrencia, la persona asistida y una etiqueta de estado (Completada, Pendiente, Vencida, Programada o Cancelada), además de una flecha para abrir el detalle. Las actividades canceladas se presentan con un tono atenuado.
+
+**Detalle de actividad en modo solo lectura**
+
+<div align="center">
+  <img src="https://imgur.com/q6hH0Ii.png" alt="Esquema de la ventana de consulta de una actividad en modo solo lectura" height="400">
+</div>
+
+**Descripción:** Esquema de la ventana modal de consulta de una actividad, que se abre al seleccionar una fila de la lista de actividades. Muestra el título de la actividad y la persona asistida a la que está asignada, junto con un cuadro de estado (por ejemplo, "Completada"). Debajo se detallan el horario programado, la categoría, la frecuencia y las indicaciones registradas para la actividad. Al final se incluye un aviso de "Modo solo lectura", que indica que la actividad es gestionada por la cuidadora titular y que cualquier reprogramación o consulta clínica debe coordinarse directamente con ella. La ventana se cierra con el botón "Cerrar" o con el ícono de la esquina superior.
+
+**Persona asistida**
+
+<div align="center">
+  <img src="https://imgur.com/YKtbbED.png" alt="Esquema de la pantalla de consulta de la persona asistida con su información personal y asociada" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla de consulta de la información registrada de la persona asistida. La barra lateral organiza la navegación en las secciones Principal, Cuidado (Persona asistida, Red de cuidado y Actividades), Hogar (Mi hogar y Dispositivos) y Servicio (Contratación, Suscripción e Incidencias), con los accesos a Mi perfil y Cerrar sesión al pie. En el encabezado se observan la ruta de navegación, el ícono de campana y los datos del usuario con su rol. El contenido principal presenta una tarjeta con la foto, el nombre completo, la etiqueta "Perfil completo", la edad y el hogar de la persona asistida, junto con el botón "Editar información". Debajo se detallan dos bloques: la información personal (nombres, apellidos, tipo y número de documento con la etiqueta "Documento validado", fecha de nacimiento y parentesco) y la información asociada (hogar relacionado con su alias, cuidador principal con su parentesco y teléfono de contacto).
+
+**Mi perfil - Modo edición**
+
+<div align="center">
+  <img src="https://imgur.com/VPnvpKL.png" alt="Esquema del formulario de edición de datos personales del cuidador" height="400">
+</div>
+
+**Descripción:** Esquema de la pantalla "Mi perfil" con el indicador "Modo edición activo". En la parte superior se muestra una tarjeta con la foto de perfil, el nombre completo, las etiquetas "Cuidador principal" y "Correo verificado" y el botón "Cambiar foto". Debajo, el bloque "Datos personales" con la marca "Edición requerida" contiene el formulario con los campos de nombres, apellidos, tipo de documento (selector), número de documento, teléfono de contacto y correo electrónico. Cada campo incluye un texto de ayuda, y los obligatorios se marcan con asterisco. El correo aparece bloqueado con la etiqueta "Verificado (no editable)" e indica que, para modificarlo, se debe contactar con soporte. El formulario cierra con los botones "Cancelar" y "Guardar cambios".
+
+**Actualizar fotografía**
+
+<div align="center">
+  <img src="https://imgur.com/AkbRPRd.png" alt="Esquema de la ventana modal para actualizar la fotografía de perfil" height="400">
+</div>
+
+**Descripción:** Esquema de la ventana modal "Actualizar fotografía", que se superpone a la pantalla "Mi perfil" y se abre desde el botón "Cambiar foto". La ventana muestra una vista previa circular de la imagen seleccionada y una zona para arrastrar o seleccionar un archivo, con la indicación de formatos JPG o PNG y un tamaño máximo de 5 MB. Debajo se ubican las acciones "Reemplazar" y "Eliminar foto actual", y al pie los botones "Cancelar" y "Guardar foto". La ventana se puede cerrar con el ícono de la esquina superior, mientras que el fondo de la pantalla se muestra atenuado.
+
+**Panel de notificaciones del cuidador**
+
+<div align="center">
+  <img src="https://imgur.com/Lt5AbX0.png" alt="Esquema del panel de notificaciones del cuidador con solicitud de asistencia, batería baja y actividad próxima" height="400">
+</div>
+
+**Descripción:** Esquema del panel desplegable de notificaciones que se superpone a la vista de resumen del hogar, accesible desde el ícono de campana del encabezado. En la vista de fondo se observan la tarjeta del plan activo con la persona asistida vinculada, los indicadores de dispositivos activos y de estado del adulto, y la bitácora de eventos recientes en tiempo real con hora de cada evento. El panel muestra el contador de notificaciones nuevas, las acciones "Ver vacío", "Marcar todas como leídas" y cerrar, y pestañas de filtrado (Todas y Sin leer). Las notificaciones del día se presentan como tarjetas con ícono, título, tiempo transcurrido y descripción: la solicitud de asistencia, destacada con el botón "Ver solicitud", la batería baja con el enlace "Ver dispositivo" y la actividad próxima con el enlace "Ver actividad". Al pie se ubica la sección "Anteriores" con las notificaciones leídas.
+
+### Mobile Application
+
+En esta sección se presentan los esquemas de media fidelidad diseñados para la aplicación móvil de Alivia. El enfoque principal de estos wireframes es el acceso seguro a la cuenta y la recepción oportuna de notificaciones, de modo que técnicos y cuidadores puedan reaccionar con rapidez ante solicitudes de auxilio, fallas de dispositivos y cambios en sus actividades. La arquitectura de información busca reducir los pasos en cada flujo y mostrar solo lo necesario en pantallas pequeñas, cuidando además la privacidad de los datos de la persona asistida cuando el teléfono está bloqueado.
+
+**Pantalla de carga inicial**
+
+<div align="center">
+  <img src="https://imgur.com/t5e63GV.png" alt="Esquema de la pantalla de carga inicial con el logotipo de Alivia y el mensaje Iniciando sistema" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de carga que se muestra al abrir la aplicación. Presenta el logotipo de Alivia centrado, un indicador de progreso circular en la parte inferior y el mensaje "Iniciando sistema...", mientras la aplicación se prepara para mostrar la pantalla de acceso.
+
+**Inicio de Sesión**
+
+<div align="center">
+  <img src="https://imgur.com/0ABAfzB.png" alt="Esquema de la pantalla de inicio de sesión con campos de correo electrónico y contraseña" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de inicio de sesión con el mensaje de bienvenida y dos campos de acceso: correo electrónico, con un texto de ayuda que indica que se puede usar el correo institucional o de cuidador, y contraseña, con ícono para mostrar u ocultar el texto. Incluye el enlace "¿Olvidaste tu contraseña?" y el botón principal "Ingresar".
+
+**Recuperar contraseña**
+
+<div align="center">
+  <img src="https://imgur.com/Vqig3Lh.png" alt="Esquema de la pantalla de recuperación de contraseña con campo de correo y mensaje de código enviado" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla para iniciar la recuperación de la cuenta. Contiene una indicación de que se enviará un código de verificación de 6 dígitos al correo asociado, el campo de correo electrónico, el botón "Enviar código" y el enlace "Volver al inicio de sesión". Tras el envío, se muestra un mensaje emergente en la parte inferior con el texto "Código enviado a tu correo" y la acción "Cerrar". La flecha superior permite regresar a la pantalla anterior.
+
+**Verificación de correo**
+
+<div align="center">
+  <img src="https://imgur.com/oPF7HqJ.png" alt="Esquema de la pantalla de verificación con seis casillas para el código y temporizador de reenvío" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de verificación del código enviado al correo del usuario, que se muestra parcialmente oculto por privacidad. Presenta seis casillas individuales para ingresar el código, con la casilla activa resaltada, y una nota sobre la compatibilidad con el autocompletado desde SMS o correo. Debajo se ubica un temporizador para reenviar el código junto al enlace "Reenviar código", que permanece deshabilitado hasta que termina la cuenta regresiva, y el botón "Verificar".
+
+**Nueva contraseña**
+
+<div align="center">
+  <img src="https://imgur.com/Pc0LvlG.png" alt="Esquema de la pantalla de nueva contraseña con requisitos de seguridad" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla para crear una nueva contraseña durante la recuperación de la cuenta. Incluye los campos "Nueva contraseña" y "Confirmar contraseña", ambos con ícono para mostrar u ocultar el texto, y un bloque de requisitos de seguridad (mínimo de 8 caracteres, al menos una letra mayúscula y al menos un número) con indicadores de cumplimiento. Finaliza con el botón "Cambiar contraseña".
+
+**Contraseña actualizada**
+
+<div align="center">
+  <img src="https://imgur.com/jpaTUSN.png" alt="Esquema de la pantalla de confirmación de contraseña actualizada" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de confirmación que se muestra al completar el cambio de contraseña. Presenta un ícono de verificación centrado, el título "Contraseña actualizada", un mensaje que indica que ya se puede ingresar con las nuevas credenciales y el botón "Volver a iniciar sesión".
+
+**Establecer contraseña**
+
+<div align="center">
+  <img src="https://imgur.com/GIGAjAl.png" alt="Esquema de la pantalla para establecer contraseña con mensaje de confirmación" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla para definir la contraseña de la cuenta, con la indicación de ingresar una clave segura para protegerla. Contiene los campos "Nueva contraseña" y "Confirmar contraseña" con ícono para mostrar u ocultar el texto, una lista con los requisitos mínimos (8 caracteres, una mayúscula y un número) y el botón "Actualizar contraseña". Al guardar, aparece un mensaje emergente en la parte inferior con el texto "Contraseña actualizada correctamente".
+
+**Notificaciones dentro de la aplicación**
+
+<div align="center">
+  <img src="https://imgur.com/AQ6V5gl.png" alt="Esquema de la pantalla de notificaciones con filtros y avisos agrupados por día" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de notificaciones dentro de la aplicación. En el encabezado se ubican la flecha de retroceso, el título y la acción "Marcar todas". Debajo se encuentran las pestañas de filtrado "Todas", "No leídas" y "Críticas", cada una con su contador. Las notificaciones se agrupan por día (Hoy y Ayer) y se presentan como filas con ícono según el tipo de aviso, título, hora, descripción y un indicador de no leída. Se muestran ejemplos de una falla de actuador en una puerta, una nueva evaluación técnica asignada y un mantenimiento de firmware ya leído.
+
+**Notificaciones push en Android**
+
+<div align="center">
+  <img src="https://imgur.com/iPDLQxx.png" alt="Esquema de las notificaciones push de Alivia en Android con alertas, acciones y agrupación por hogar" height="600">
+</div>
+
+**Descripción:** Esquema del panel de notificaciones del sistema en Android, entregadas mediante FCM, con la acción "Borrar todo". La primera tarjeta corresponde a una alerta de prioridad alta por una solicitud de auxilio, con las acciones "Atenderé" y "Ver alerta". Le siguen las tarjetas de actividad próxima (con "Ver actividad") y de nueva actividad asignada (con "Ver detalle"). Los avisos de dispositivo sin conexión y batería baja se agrupan por hogar en un bloque expandible, cada uno con la acción "Ver dispositivo". También se incluye el aviso de horario actualizado con la acción "Ver cambio". Al pie, una nota describe el Modo Bloqueo Seguro: con el teléfono bloqueado solo se muestra un mensaje genérico, sin datos de la persona ni del hogar.
+
+**Notificaciones push en iOS**
+
+<div align="center">
+  <img src="https://imgur.com/KnwFL21.png" alt="Esquema de las notificaciones push de Alivia en iOS con banner, alerta crítica, pila agrupada y protección de datos" height="600">
+</div>
+
+**Descripción:** Esquema de los tipos de notificación push de Alivia en iOS, organizado en cuatro casos siguiendo las pautas de Apple. El primero es el banner superior que aparece con el teléfono desbloqueado, con un aviso de actividad próxima. El segundo es la alerta crítica expandida, marcada como urgente, con las acciones "Atenderé" y "Ver alerta". El tercero es la pila agrupada por hogar en el Centro de notificaciones, con la opción de tocar para desplegar más avisos. El cuarto muestra las notificaciones de dispositivo sin conexión, batería baja y horario actualizado. Al pie, un recuadro de protección de datos sensibles indica que, antes de autenticarse con Face ID, solo se muestra un mensaje genérico de nueva alerta.
+
+#### Usuarios - Cuidador o Familiar (Principal)
+
+**Inicio**
+
+<div align="center">
+  <img src="https://imgur.com/C21rxmx.png" alt="Esquema de la pantalla de inicio del cuidador principal con resumen de actividad, red de cuidado y persona asistida" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de inicio del cuidador principal, con un saludo personalizado, un mensaje de bienvenida y el ícono de notificaciones con indicador. Presenta tres tarjetas de resumen: la próxima actividad, con su estado, fecha, hora, persona a cargo y el enlace "Ver actividades"; la red de cuidado, con el número de vinculados, sus avatares, el cuidador principal y el enlace "Ver red de cuidado"; y la persona asistida, con su edad, la etiqueta "Sin alertas" y el enlace "Ver perfil". La barra inferior da acceso a Inicio, Actividades, Dispositivos, Historial y Perfil.
+
+**Red de cuidado**
+
+<div align="center">
+  <img src="https://imgur.com/7CesmI9.png" alt="Esquema de la pantalla de red de cuidado con cuidador principal y cuidadores de apoyo" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla que muestra a los cuidadores vinculados a la persona asistida. En la parte superior se identifican la persona y su hogar, junto con un contador de cuidadores vinculados. El listado se divide en "Cuidador principal" y "Otros cuidadores"; cada fila incluye avatar o iniciales, nombre, rol o parentesco, estado de vinculación y una flecha de detalle. Al pie, un aviso informa que la gestión de cuidadores se realiza desde la plataforma web y ofrece el enlace "Ir a la web".
+
+**Perfil de la persona asistida**
+
+<div align="center">
+  <img src="https://imgur.com/JKjQRC0.png" alt="Esquema de la pantalla de perfil de la persona asistida con información personal y asociada" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de consulta del perfil de la persona asistida, accesible desde el enlace "Ver perfil" del inicio. En la parte superior se muestran la foto con indicador de verificación, el nombre completo, la etiqueta "Perfil completo", la edad y el hogar. Debajo se organizan dos bloques de solo consulta: información personal (nombres, apellidos, documento con la etiqueta "Validado", fecha de nacimiento y parentesco) e información asociada (hogar relacionado, cuidador principal, relación y teléfono de contacto).
+
+**Actividades - Vista de lista**
+
+<div align="center">
+  <img src="https://imgur.com/BhJ3ckz.png" alt="Esquema de la pantalla de actividades en lista agrupadas por día y estado" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de actividades en formato de lista. En la parte superior se encuentran el título, el ícono de notificaciones, el acceso al perfil y una tarjeta con el paciente asignado y la etiqueta "Turno Activo". Debajo se ubican el selector entre las vistas "Lista" y "Calendario", el botón de filtros y el botón para crear una actividad. Las tareas se agrupan en las secciones Hoy, Mañana, Próximas y Anteriores, con un contador por grupo. Cada fila muestra la hora, un ícono según el tipo de actividad, el nombre, el responsable y una etiqueta de estado (Completada, Pendiente u Omitida), junto con una flecha para abrir el detalle.
+
+**Actividades - Vista de calendario**
+
+<div align="center">
+  <img src="https://imgur.com/yd3A8jz.png" alt="Esquema de la pantalla de actividades en calendario con listado del día seleccionado" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de actividades en formato de calendario. Incluye la tarjeta de la persona asistida con su hogar y habitación, un botón para cambiar de persona, el selector Lista/Calendario y el botón "Nueva". El calendario mensual muestra el número de semana, el botón "Hoy", las flechas de navegación, puntos en los días con actividades y el día seleccionado resaltado. Debajo se listan las actividades del día elegido con un contador, y cada una muestra hora, ícono, nombre, responsable y estado. La actividad pendiente más próxima aparece resaltada con el tiempo restante y el botón "Marcar" para registrarla.
+
+**Nueva programación - Paso 1: Actividad**
+
+<div align="center">
+  <img src="https://imgur.com/uTwWDCL.png" alt="Esquema del primer paso para programar una actividad con tipo de actividad y detalle" height="600">
+</div>
+
+**Descripción:** Esquema del primer paso del flujo para programar una actividad. En el encabezado se muestran la flecha de retroceso, el título, el indicador "Paso 1 de 2" y el acceso al perfil, seguidos de un selector de pasos (Actividad y Programación). El formulario presenta la persona asistida con su hogar, los tipos de actividad como chips desplazables (Rutina, Medicamento y Alimentación, entre otros) y un bloque de detalle con el nombre de la actividad y el medicamento por seleccionar. Una nota indica que el medicamento se elige del catálogo autorizado para la persona. El flujo continúa con el botón "Continuar".
+
+**Nueva programación - Paso 2: Programación (propuesta A)**
+
+<div align="center">
+  <img src="https://imgur.com/AfIAEqh.png" alt="Esquema del segundo paso de programación con fecha, hora, periodicidad y responsable" height="600">
+</div>
+
+**Descripción:** Esquema del segundo paso del flujo de programación, con el paso 1 marcado como completado. Muestra una tarjeta resumen del medicamento y la persona asistida, los selectores de fecha y hora de toma, la periodicidad ("No se repite") y el responsable en turno, con la opción "Delegar". Incluye un campo opcional para la instrucción del momento de la toma, con contador de 140 caracteres, y un aviso sobre la alerta sonora de alta prioridad que se envía 15 minutos antes al móvil del cuidador en turno. Al pie se ubican los botones "Atrás" y "Confirmar Programación".
+
+**Nueva programación - Paso 2: Programación (propuesta B)**
+
+<div align="center">
+  <img src="https://imgur.com/wvrHJBc.png" alt="Variante del segundo paso de programación con secciones de fecha, frecuencia, repetición y responsable" height="600">
+</div>
+
+**Descripción:** Variante del segundo paso del flujo de programación, con una barra de progreso segmentada y un enlace para volver al paso anterior. La pantalla organiza la información en secciones: la tarjeta de la actividad con la persona asistida y su hogar; fecha y hora fijadas; frecuencia registrada ("Pauta registrada"); repetición; y responsable. Incluye un campo opcional de instrucción, con límite de 120 caracteres y la nota "Visible para el relevo de turno", y un aviso que indica que la actividad generará una notificación prioritaria en el panel diario. Finaliza con los botones "Atrás" y "Confirmar Programación".
+
+**Detalle de actividad**
+
+<div align="center">
+  <img src="https://imgur.com/7Veo4PF.png" alt="Esquema de la pantalla de detalle de una actividad con responsable, frecuencia e instrucción" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de detalle de una actividad. Un banner superior indica el modo de permisos del cuidador y la etiqueta "Turno Activo". La tarjeta principal muestra las etiquetas de tipo y estado (con el tiempo restante), el nombre de la actividad y su programación. Debajo se presentan las secciones de persona asistida, fecha y horario, tipo de actividad con la pauta registrada, responsable del turno, frecuencia y ciclo, e instrucción clínica breve. El botón "Registrar resultado" se ubica al pie, con una nota que indica que solo está disponible para tareas pendientes durante el turno asignado.
+
+**Dispositivos**
+
+<div align="center">
+  <img src="https://imgur.com/nTGvhBM.png" alt="Esquema de la pantalla de dispositivos agrupados por habitación con indicadores de incidencia y batería" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de supervisión de dispositivos del hogar. En la parte superior se muestra el estado de sincronización en tiempo real y el hogar, seguidos de tres indicadores de resumen: dispositivos vinculados, dispositivos con incidencia y dispositivos con batería baja. Debajo, bajo el título "Prioridad de supervisión", los equipos se agrupan por habitación con un contador. Cada tarjeta muestra el nombre del dispositivo, su estado (en línea, conectado, desconectado, abierta o cerrada), una descripción breve, el protocolo de conexión y la fuente de energía o nivel de batería. Los dispositivos con problemas aparecen primero.
+
+**Detalle del dispositivo - Operativo**
+
+<div align="center">
+  <img src="https://imgur.com/dKLouHW.png" alt="Esquema del detalle de un dispositivo operativo con conectividad y batería normales" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de detalle de un dispositivo que funciona con normalidad. Presenta el ícono, el nombre, el tipo y la ubicación del dispositivo, junto con la etiqueta "Operativo". Una tarjeta de estado confirma el correcto funcionamiento y el tiempo de la última actualización. El bloque "Información esencial" detalla el estado actual, la conectividad, el nivel de batería y la última actualización. Al final se ubica el acceso "Ver historial del dispositivo", y en el encabezado, el menú de opciones.
+
+**Detalle del dispositivo - Desconectado**
+
+<div align="center">
+  <img src="https://imgur.com/28ljJ8u.png" alt="Esquema del detalle de un dispositivo desconectado con último estado conocido y problema detectado" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de detalle de un dispositivo sin conexión. La tarjeta destacada informa "Conexión interrumpida" y la hora de la última señal recibida. Debajo se muestran el estado actual, la conectividad, el nivel de batería bajo y la última actualización. El bloque "Último estado conocido" indica la última posición registrada del dispositivo y advierte que pudo haber cambiado durante la desconexión. Se incluye además un resumen del problema detectado y el acceso "Ver historial del dispositivo".
+
+**Historial**
+
+<div align="center">
+  <img src="https://imgur.com/Ry4mbm7.png" alt="Esquema de la pantalla de historial con eventos agrupados por día" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de historial de eventos de la persona asistida. En el encabezado se ubican el título, el ícono de notificaciones y el acceso al perfil, seguidos de un selector de persona con su hogar y los filtros "Todos" y "Filtrar". Los eventos se agrupan en Hoy, Ayer y Anteriores, y se presentan como filas con ícono, descripción, detalle, hora y una flecha para abrir el registro. Entre ellos se incluyen comandos de voz, actividades completadas, aperturas de puertas, ajustes de ventanas y solicitudes de auxilio atendidas. Al final aparece un indicador de carga de eventos anteriores.
+
+**Mi suscripción - Plan Base**
+
+<div align="center">
+  <img src="https://imgur.com/WEChBgr.png" alt="Esquema de la pantalla de suscripción con Plan Base, facturación y configuración incluida" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de consulta de la suscripción para un hogar con Plan Base. La tarjeta superior muestra el nombre del plan, la etiqueta "Activa", la indicación de configuración fija y el hogar asociado. Debajo se resalta la próxima facturación con su monto, periodicidad y fecha. Luego se detalla la información del servicio (estado, fecha de inicio, periodicidad, próxima facturación, monto de renovación y hogar asociado) y la configuración incluida con el total de dispositivos: habitaciones, cubo de voz, luces, puertas y ventanas. Al pie se ubica el botón "Gestionar en la web", acompañado de una nota que indica que los cambios de cobertura o facturación se realizan en la plataforma web.
+
+**Mi suscripción - Plan Personalizado**
+
+<div align="center">
+  <img src="https://imgur.com/t8Q1UyE.png" alt="Esquema de la pantalla de suscripción con Plan Personalizado y configuración actual" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de consulta de la suscripción para un hogar con Plan Personalizado. La tarjeta superior muestra el nombre del plan, la etiqueta "Activa", el hogar y la fecha de próxima renovación. El bloque de información del servicio detalla el estado de sincronización, la fecha de inicio, la renovación, la periodicidad y el hogar asociado. La configuración actual lista las habitaciones configuradas con sus nombres, el total de dispositivos y la cantidad de cada tipo (cubo de voz, luces, puertas y ventanas). La pantalla cierra con el botón "Gestionar en la web" y la nota sobre modificaciones en la plataforma web.
+
+**Perfil del usuario**
+
+<div align="center">
+  <img src="https://imgur.com/7kLJQY6.png" alt="Esquema de la pantalla de perfil del usuario con información personal y acceso a la suscripción" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de perfil del usuario de la aplicación. Muestra la foto con el botón de cámara, el nombre completo y el rol, junto con el bloque de información personal (nombres, apellidos, documento de identidad, teléfono móvil y correo electrónico) y el botón "Editar". Debajo se ubica la tarjeta "Mi suscripción", que da acceso a los detalles y la cobertura del plan, y al final, la opción "Cerrar sesión". La barra inferior marca la sección Perfil como activa.
+
+#### Usuarios - Técnico
+
+**Inicio**
+
+<div align="center">
+  <img src="https://imgur.com/gPijL82.png" alt="Esquema de la pantalla de inicio del técnico con jornada activa, estado vacío y últimas órdenes" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de inicio del técnico en campo, con el saludo, la fecha y el ícono de notificaciones. Una barra de estado muestra la jornada activa, el horario laboral y el número de órdenes del día. Cuando no hay asignaciones, se presenta un estado vacío con un mensaje informativo y el botón "Ver mi horario". Debajo se ubica la sección "Últimas órdenes", con los servicios finalizados recientemente; cada tarjeta indica el código de orden, la fecha, el estado "Completada", el tipo de servicio y el hogar. La barra inferior da acceso a Inicio, Órdenes, Horario y Perfil.
+
+**Órdenes - Vista de lista**
+
+<div align="center">
+  <img src="https://imgur.com/MyVCOgn.png" alt="Esquema de la pantalla de órdenes en lista agrupadas por día con filtros por tipo de servicio" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de órdenes en formato de lista. En el encabezado se muestran el título, el resumen de órdenes por día, el ícono de notificaciones y el acceso al perfil. Debajo se ubican el selector entre las vistas "Lista" y "Calendario" y los filtros por tipo de servicio (Todas, Revisiones, Instalaciones e Incidencias). Las órdenes se agrupan en Hoy, Mañana y Próximas, con un contador por grupo. Cada tarjeta muestra el hogar, el tipo de servicio con su horario, el distrito y una etiqueta de estado (En proceso, Programada, Pendiente o Completada); la orden que sigue en la jornada se destaca con la marca "Siguiente".
+
+**Órdenes - Vista de calendario**
+
+<div align="center">
+  <img src="https://imgur.com/LsgD7Bu.png" alt="Esquema de la pantalla de órdenes en calendario semanal con leyenda por tipo de servicio" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de órdenes en formato de calendario semanal. Incluye el mes, el número de semana, las flechas de navegación y los días de la semana con el día actual resaltado y puntos que indican la cantidad y el tipo de órdenes. Una leyenda diferencia incidencias, instalaciones y revisiones, y los filtros por tipo se mantienen debajo. Las órdenes del día seleccionado se listan con un contador y, en cada tarjeta, se muestran el hogar, el tipo de servicio, el horario, la dirección, el estado y un dato complementario como el equipo asociado, la prioridad o el kit asignado. La orden en curso aparece marcada como "Siguiente" y las demás indican el tiempo restante o el motivo del servicio.
+
+**Mi horario**
+
+<div align="center">
+  <img src="https://imgur.com/Q7gVKye.png" alt="Esquema de la pantalla de horario diario con línea de tiempo de visitas y espacios disponibles" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de horario diario del técnico. En la parte superior se muestran el rango de la semana, las flechas de navegación, el botón "Hoy" y la tira de días con el día actual resaltado. Un resumen indica la jornada laboral, el número de órdenes y las horas libres. Debajo se presenta una línea de tiempo vertical que parte del inicio de jornada y termina en el fin de jornada, con tarjetas por cada visita (tipo de servicio, hogar y distrito) y los espacios "Disponible" entre ellas, con su duración. Al pie se indica que el horario es administrado por Alivia, por lo que el técnico solo lo consulta.
+
+**Detalle de orden (propuesta A)**
+
+<div align="center">
+  <img src="https://imgur.com/vsLUFuo.png" alt="Esquema del detalle de una orden de servicio con datos de la visita y solicitud" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de detalle de una orden de servicio. En el encabezado se muestran la flecha de retroceso, el título y el código de la orden, seguidos de las etiquetas de tipo y estado, el hogar, el distrito y el horario programado. El bloque "Visita" reúne al responsable en el domicilio con el botón "Llamar", la dirección con el enlace "Abrir en Maps" y la referencia de acceso con el enlace "Ver indicaciones completas". El bloque "Solicitud" presenta el dispositivo, su ubicación, el problema reportado con su descripción y la fotografía adjunta con opción de ampliarla. Al pie se ubica el botón "Iniciar atención", con una nota que indica que se pedirá confirmación antes de cambiar la orden a "En proceso".
+
+**Detalle de orden (propuesta B)**
+
+<div align="center">
+  <img src="https://imgur.com/WMzf4l7.png" alt="Variante del detalle de orden con indicaciones desplegables y fotografía adjunta" height="600">
+</div>
+
+**Descripción:** Variante de la pantalla de detalle de orden con la misma estructura de visita y solicitud. En esta versión, el botón "Llamar" se destaca con color sólido y la referencia de acceso se muestra resumida, con un control para desplegar las indicaciones completas. El bloque de problema reportado resalta su título y la fotografía adjunta se abre al tocar la fila completa. El botón "Iniciar atención" se mantiene fijo al pie de la pantalla, acompañado de una nota sobre la confirmación previa.
+
+**Confirmación de inicio de atención**
+
+<div align="center">
+  <img src="https://imgur.com/X5RsL40.png" alt="Esquema de la hoja de confirmación para iniciar la atención de una orden" height="600">
+</div>
+
+**Descripción:** Esquema de la hoja inferior de confirmación que aparece al pulsar "Iniciar atención", superpuesta a la pantalla de detalle, que se muestra atenuada. Presenta un ícono de herramienta, el título "¿Iniciar atención?" y una breve instrucción. Un resumen muestra el código de orden, el tipo de servicio, el hogar beneficiario y el horario programado. Una nota informa que la orden pasará al estado "En proceso" y que se registrará la hora exacta de inicio para efectos de trazabilidad. Las acciones disponibles son "Iniciar atención" y "Cancelar".
+
+**Registro de dispositivo**
+
+<div align="center">
+  <img src="https://imgur.com/05jVb9M.png" alt="Esquema del registro de dispositivo con alias, dirección MAC y validaciones" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de registro de dispositivos durante una instalación. El encabezado muestra el título, el paso del flujo y las acciones de cerrar y acceso a la cuenta. Una tarjeta de progreso indica el paso actual (Dispositivos), el código de la orden y el porcentaje completado. Debajo se presenta el hogar asignado con la etiqueta "Verificado", su dirección y la opción "Cambiar". El formulario incluye el alias del dispositivo, como identificador único con un texto de ayuda, y la dirección MAC, con la opción "Escanear QR", mensajes de validación de formato y de verificación de duplicados. Una nota recuerda que los campos con asterisco son obligatorios. Al pie se ubican los botones "Registrar dispositivo" y "Cancelar".
+
+**Incidencia - Paso 1: Diagnóstico**
+
+<div align="center">
+  <img src="https://imgur.com/Y8VMi0Q.png" alt="Esquema del paso de diagnóstico técnico de una incidencia con verificaciones en sitio" height="600">
+</div>
+
+**Descripción:** Esquema del primer paso del flujo de atención de una incidencia, con la etiqueta "En proceso" y un indicador de tres pasos (Diagnóstico, Evidencias y Resultado). Una tarjeta resume el dispositivo con su estado de conexión, tipo, dirección MAC, ubicación, dirección y hora de inicio, junto con el problema reportado y la foto adjunta por el cuidador. El formulario incluye el diagnóstico técnico, obligatorio y con contador de caracteres, y la acción correctiva realizada, opcional y con atajos de texto. Se muestra un aviso de avance guardado automáticamente y una lista de verificaciones rápidas en sitio. Al pie se ubica el botón "Continuar a evidencias".
+
+**Incidencia - Paso 2: Evidencias**
+
+<div align="center">
+  <img src="https://imgur.com/6xDGmBz.png" alt="Esquema del paso de evidencias fotográficas con imágenes cargadas y opción de agregar más" height="600">
+</div>
+
+**Descripción:** Esquema del segundo paso del flujo de atención, con el paso 1 marcado como completado. Indica que se deben adjuntar fotografías del dispositivo reparado, pruebas de enlace o estado físico final, y ofrece los botones "Cámara" y "Galería". La sección "Evidencias cargadas" muestra un contador con el máximo de fotos permitido y una tarjeta por cada imagen, con su vista previa, nombre de archivo, tamaño, descripción, indicador de validez y opción para eliminarla. Un recuadro punteado permite agregar otra foto mientras no se alcance el límite. Se incluye una nota sobre el guardado automático y el almacenamiento seguro de las imágenes. Al pie se ubican el botón de retroceso y "Continuar a resultado".
+
+**Incidencia - Paso 3: Resultado**
+
+<div align="center">
+  <img src="https://imgur.com/llUhkiX.png" alt="Esquema del paso de determinación de resultado con opciones resuelta y no resuelta" height="600">
+</div>
+
+**Descripción:** Esquema del tercer y último paso del flujo de atención, con los pasos anteriores completados y el progreso general al 100 %. Una tarjeta muestra el dispositivo atendido y la hora de su último ping. El campo obligatorio "Resultado de la atención" ofrece dos opciones excluyentes: "Resuelta", marcada como recomendada, y "No resuelta", cada una con su descripción. Debajo se incluye un campo opcional de observaciones finales, con contador de caracteres y la nota de que serán visibles para el equipo de supervisión, y una tarjeta con el cuidador responsable presente en el sitio. Al pie se muestra el aviso de guardado automático y el botón "Revisar y finalizar".
+
+**Orden completada**
+
+<div align="center">
+  <img src="https://imgur.com/4ph3YC9.png" alt="Esquema de la pantalla de confirmación de orden completada con resumen de la atención" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de confirmación que se muestra al cerrar una orden. Presenta un ícono de verificación centrado, el título "Orden completada" y un mensaje que indica que la información se registró correctamente. Un resumen muestra el código de la orden, el tipo de orden, el resultado final y la fecha y hora de finalización. Una nota informa que la orden se sincronizó y estará disponible en el historial. Las acciones disponibles son "Volver a órdenes" y "Ver resumen".
+
+**Perfil del técnico**
+
+<div align="center">
+  <img src="https://imgur.com/FnW45w6.png" alt="Esquema de la pantalla de perfil del técnico con información personal y cierre de sesión" height="600">
+</div>
+
+**Descripción:** Esquema de la pantalla de perfil del técnico. Muestra la foto con el botón de cámara, el nombre completo y el rol, junto con el bloque de información personal (nombres, apellidos, documento de identidad, teléfono móvil y correo electrónico) y el botón "Editar". Al pie se ubica la opción "Cerrar sesión". La barra inferior marca la sección Perfil como activa.
 
 ### 6.4.2. Applications Wire-flow Diagrams
 
