@@ -1431,8 +1431,6 @@ Perfil personal del administrador. Muestra su foto, rol, estado de cuenta, infor
 
 ![Perfil](https://i.imgur.com/328ZapD.png)
 
-### 6.4.3. Applications Mockups (continuación)
-
 #### Aplicación web del cuidador - Pantallas compartidas por el cuidador principal y los cuidadores invitados
 
 Inicio de sesión
