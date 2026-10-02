@@ -1431,6 +1431,331 @@ Perfil personal del administrador. Muestra su foto, rol, estado de cuenta, infor
 
 ![Perfil](https://i.imgur.com/328ZapD.png)
 
+### 6.4.3. Applications Mockups (continuación)
+
+#### Aplicación web del cuidador - Pantallas compartidas por el cuidador principal y los cuidadores invitados
+
+Inicio de sesión
+
+Pantalla de acceso al Portal del cuidador, común al cuidador principal y a los cuidadores invitados. A la izquierda muestra el mensaje de bienvenida, los campos de correo electrónico y contraseña (con opción de mostrarla), la casilla Recordarme en este dispositivo, el enlace ¿Olvidaste tu contraseña?, el botón Iniciar sesión y el acceso Conoce nuestros planes para quienes aún no tienen cuenta. A la derecha presenta una ilustración del hogar con dispositivos conectados y el lema "Más autonomía. Más tranquilidad."
+
+![Inicio de sesión](https://i.imgur.com/SZL6bDl.png)
+
+Recuperar contraseña - Solicitar código
+
+Primer paso para recuperar el acceso. La persona ingresa su correo y solicita un código de verificación, que se le envía para continuar el proceso.
+
+![Recuperar contraseña - Solicitar código](https://i.imgur.com/nFGtGWO.png)
+
+Recuperar contraseña - Crear nueva contraseña
+
+Segundo paso: tras verificar el código, la persona define una nueva contraseña y la confirma. La pantalla lista los requisitos de seguridad (mínimo de caracteres, mayúscula, minúscula, número y carácter especial).
+
+![Recuperar contraseña - Crear nueva contraseña](https://i.imgur.com/Tvyalm2.png)
+
+Recuperar contraseña - Contraseña actualizada
+
+Pantalla de éxito que confirma que la contraseña se cambió correctamente y permite volver a iniciar sesión.
+
+![Recuperar contraseña - Contraseña actualizada](https://i.imgur.com/s0rqONn.png)
+
+#### Aplicación web del cuidador - Vista del cuidador principal
+
+Aceptar invitación a red de cuidado
+
+Pantalla de invitación a una red de cuidado, en una tarjeta centrada. Muestra los datos del hogar (estado "Invitación activa", persona asistida, quién invita y las responsabilidades asignadas como chips: consultar, gestionar actividades y recibir notificaciones). Incluye el correo bloqueado, el campo de contraseña con enlace "¿Olvidaste tu contraseña?", el botón "Iniciar sesión y aceptar" y la opción "Rechazar invitación".
+
+![Aceptar invitación a red de cuidado](https://i.imgur.com/W9XfyC0.png)
+
+Calendario semanal de actividades
+
+Vista semanal de actividades de cuidado en forma de calendario, con pestañas Hoy / Semana / Lista, botón "Nueva actividad", navegación por semana y filtros por responsable, tipo y estado. Las actividades aparecen como bloques de colores por hora y día, según su estado (completada, pendiente, programada, vencida), con una línea de hora actual y un aviso de superposición de horario. El menú lateral tiene la sección Actividades resaltada.
+
+![Calendario semanal de actividades](https://i.imgur.com/S8JMJRv.png)
+
+Lista de actividades del día
+
+Listado de las actividades del día agrupadas por franjas (Mañana, Tarde, Noche), cada una con su contador de actividades. Cada fila muestra hora, ícono, nombre, responsable y detalle, junto con su estado (completada, pendiente, vencida, cancelada) y una acción como Ver detalle, Completar o Reprogramar. Arriba hay pestañas Hoy / Semana / Lista, navegación de fecha, botón Filtros, "Ver estado vacío" y "Nueva actividad".
+
+![Lista de actividades del día](https://i.imgur.com/gz1SUNY.png)
+
+Cambiar foto de perfil
+
+Ventana modal "Actualizar fotografía" sobre la pantalla Mi perfil desenfocada. Muestra la vista previa circular de la imagen, una zona para arrastrar o seleccionar archivo (JPG o PNG, máximo 5MB) y las acciones Reemplazar y Eliminar foto actual. Termina con los botones Cancelar y Guardar foto.
+
+![Cambiar foto de perfil](https://i.imgur.com/X6EQdnH.png)
+
+Configuración base del plan (flujo de contratación)
+
+Paso 4 de 5 del flujo de contratación, con barra de progreso y resumen del plan elegido (Plan Base Asistivo, S/ 99 al mes) con opción "Cambiar plan". Muestra un resumen de importe, espacio, equipos y modalidad, y el detalle del dormitorio incluido con tres dispositivos de una unidad cada uno (iluminación, puerta motorizada, micrófono). Incluye el enlace "Ver qué incluye cada dispositivo" y los botones Atrás, Cambiar a Personalizado y Continuar.
+
+![Configuración base del plan (flujo de contratación)](https://i.imgur.com/ldaZ2zo.png)
+
+Confirmar visita de evaluación (flujo de contratación)
+
+Último paso del flujo de contratación, "Confirma tu visita", con barra de progreso. Muestra en tarjetas la cita reservada (fecha y horario, con opción de cambiar), la dirección del hogar con mapa, el tipo de servicio (evaluación técnica presencial, duración, importe preautorizado) y quién recibe la visita con su teléfono. Incluye un campo opcional de indicaciones para llegar, una casilla de confirmación de que habrá un adulto presente y los botones Cambiar horario y Confirmar evaluación.
+
+![Confirmar visita de evaluación (flujo de contratación)](https://i.imgur.com/3CtGxMf.png)
+
+Crear cuenta
+
+Formulario de registro, paso 2 del flujo de contratación, con barra de progreso y resumen del plan elegido. Tiene campos de nombres, apellidos, documento de identidad (tipo y número), teléfono celular, correo y contraseña con requisitos, además de la casilla de términos y política de privacidad y el botón "Crear cuenta". Arriba hay un selector para simular estados (Inicial, Completado, Duplicado, Cargando, Éxito OTP).
+
+![Crear cuenta](https://i.imgur.com/UaV4xvz.png)
+
+Detalle de actividad
+
+Panel lateral con el detalle de una actividad de cuidado sobre la lista del día desenfocada. Muestra la categoría y el estado (Alimentación, Pendiente), el título, la persona asistida, el horario, la frecuencia, el cuidador asignado, el recordatorio y las indicaciones. Al pie tiene las acciones Marcar como completada, Reprogramar, Editar y Cancelar actividad.
+
+![Detalle de actividad](https://i.imgur.com/0QWTp2d.png)
+
+Detalle de incidencia en atención
+
+Detalle de una incidencia en estado "En atención", con enlaces para volver y ver el dispositivo. Muestra una línea de tiempo de 5 etapas con la cuarta activa, un resumen de la atención técnica en curso con técnico e inicio, y dos paneles: el detalle del reporte (dispositivo, tipo de problema, fecha, descripción y foto ampliable) y la atención en curso (técnico, hora de inicio, estado actual, nota de la intervención y ubicación del servicio).
+
+![Detalle de incidencia en atención](https://i.imgur.com/G4o8fZP.png)
+
+Detalle de incidencia resuelta
+
+Detalle de una incidencia en estado "Resuelta", con botón "Descargar reporte" y línea de tiempo completa con las cinco etapas marcadas. Muestra un resumen del caso (fecha y hora de cierre, técnico, estado del dispositivo operativo) y dos paneles: la incidencia reportada (dispositivo, tipo, descripción y ubicación) y el detalle de resolución (trabajo realizado, fecha de finalización, técnico y fotos del reporte y de la resolución). Al pie hay Ver dispositivo, Reportar nuevamente y Volver a incidencias.
+
+![Detalle de incidencia resuelta](https://i.imgur.com/1fayMj8.png)
+
+Detalle de incidencia con visita programada
+
+Detalle de una incidencia en estado "Visita programada", con botón "Descargar ficha" y línea de tiempo donde la tercera etapa está activa y las dos últimas pendientes. Destaca un bloque con la visita técnica (fecha, horario y técnico asignado) y el botón "Reprogramar visita". Debajo muestra el detalle del reporte (tipo de problema, fecha y descripción) y las evidencias (foto adjunta y ubicación), con un aviso del protocolo de seguridad y el enlace "Ver normas de visita".
+
+![Detalle de incidencia con visita programada](https://i.imgur.com/uxmWVfY.png)
+
+Detalle de red de cuidado
+
+Panel lateral con el detalle de un cuidador de la red: avatar con iniciales, nombre, parentesco (hija de la persona asistida) y etiqueta de cuidador principal. Muestra datos de contacto (correo, teléfono móvil, estado de vinculación Activo y fecha de registro) y la lista de responsabilidades asignadas con check. Incluye los botones Cerrar y Editar responsabilidades.
+
+![Detalle de red de cuidado](https://i.imgur.com/GmT4R8r.png)
+
+Detalle de dispositivo
+
+Panel de detalle de un sensor de ventana de un dormitorio, con alerta amarilla de batería baja (18%) que recomienda recambio sin costo adicional. Muestra estado y especificaciones (estado actual, nivel de batería, conectividad, última sincronización), la instalación (habitación y técnico asignado) y un historial reciente de eventos con indicadores de color. Ofrece los botones Solicitar recambio de batería, Reportar problema y Cerrar.
+
+![Detalle de dispositivo](https://i.imgur.com/FJPtSX4.png)
+
+Configuración de dispositivos por habitación
+
+Paso de configuración del flujo de contratación de un plan personalizado, con barra de progreso por pasos y resumen del plan con costo estimado mensual. Presenta pestañas de habitaciones y tarjetas por tipo de dispositivo (iluminación, puerta, ventana, micrófono y altavoz asistencial) con estado Activo/Desactivado y contadores con botones más y menos. Incluye un aviso de validación técnica, la cuota mensual con total de dispositivos y los botones Volver a habitaciones y Revisar configuración.
+
+![Configuración de dispositivos por habitación](https://i.imgur.com/fbPilcG.png)
+
+Listado de dispositivos
+
+Listado de los dispositivos del hogar agrupados por habitación, en tarjetas, con menú lateral de navegación y botón Reportar un problema. Muestra contadores por estado (operativos, requieren atención, sin conexión) y, en cada tarjeta, nombre, tipo, alimentación o nivel de batería, estado actual, última actualización y botón Ver detalle. Una tarjeta se resalta en amarillo por batería baja con la acción Ver detalle y recambio.
+
+![Listado de dispositivos](https://i.imgur.com/nt8a053.png)
+
+Editar información del hogar
+
+Panel lateral de edición sobre la pantalla Mi hogar desenfocada al fondo. Contiene un formulario con alias del hogar (con contador de caracteres), teléfono asociado con prefijo +51 y correo asociado, cada uno con texto de ayuda. Muestra una tarjeta de ubicación actual validada, con enlace para actualizarla, y los botones Cancelar y Guardar cambios.
+
+![Editar información del hogar](https://i.imgur.com/9mKSu9Q.png)
+
+Elección de plan
+
+Primer paso de la contratación guiada, con barra de progreso de cinco pasos y selector de facturación mensual o anual. Compara dos tarjetas de plan, Plan Base y Plan Personalizado, con precio, lista de características y botón de elección. Debajo incluye un bloque de garantía de adaptación con imagen, un enlace de ayuda y el pie de página.
+
+![Elección de plan](https://i.imgur.com/F2OH9fN.png)
+
+Fecha y horario de evaluación
+
+Quinto paso de la contratación para programar la visita técnica presencial al hogar, con barra de progreso. Muestra un calendario mensual con días disponibles marcados y un día seleccionado, junto a los bloques horarios de ese día con estados Disponible, Último cupo y No disponible. Incluye la tarjeta de destino de inspección con dirección, modalidad y duración, y los botones Volver a configuración y Revisar evaluación.
+
+![Fecha y horario de evaluación](https://i.imgur.com/erOpnRL.png)
+
+Selección de habitaciones
+
+Paso de configuración del plan personalizado donde se eligen los espacios a adaptar, con barra de progreso y resumen del plan. Lista las habitaciones configuradas, cada una con icono, descripción y botones de editar y quitar, además del botón Agregar otra habitación. Muestra el resumen con cantidad de habitaciones y precio base estimado, indicador de guardado automático y los botones Atrás y Elegir dispositivos.
+
+![Selección de habitaciones](https://i.imgur.com/nBzjCMV.png)
+
+Confirmación de incidencia registrada
+
+Pantalla de confirmación tras reportar una incidencia, con ícono de éxito y mensaje de que el equipo técnico revisará el reporte. Muestra una tarjeta con código de ticket, estado Registrada, dispositivo afectado, tipo de problema, fecha y hora reportadas, ubicación del servicio y un aviso de notificaciones. Incluye los botones Ver seguimiento y Volver a incidencias, y un texto con la línea de asistencia para casos críticos.
+
+![Confirmación de incidencia registrada](https://i.imgur.com/x3DyUcu.png)
+
+Listado de incidencias
+
+Listado de las incidencias del hogar en tarjetas, con pestañas En curso y Resueltas con contadores, buscador y filtros por estado y por dispositivo. Cada tarjeta muestra código, estado, dispositivo y habitación, fecha de reporte y un dato de seguimiento (visita programada con técnico, diagnóstico remoto o sin visita), con enlace Ver detalle. Incluye el botón Reportar incidencia.
+
+![Listado de incidencias](https://i.imgur.com/HoHzrix.png)
+
+Inicio
+
+Pantalla de inicio con saludo, fecha y botones Reportar incidencia y Nueva actividad. Muestra una alerta de dispositivo con batería baja con enlace Ver dispositivo, la tarjeta de la persona asistida con la agenda de hoy (actividades con hora, responsable y estado: completada, pendiente, programada) y el enlace Ver agenda completa. A la derecha, una tarjeta de próximo evento con visita técnica, técnico asignado y botón Ver seguimiento.
+
+![Inicio](https://i.imgur.com/ZFUy4wU.png)
+
+Invitar cuidador
+
+Panel lateral modal sobre la pantalla Red de cuidado (desenfocada al fondo, con contadores de cuidadores activos e invitaciones pendientes). Contiene el formulario con correo electrónico, selector de relación con la persona asistida (Familiar) y casillas de responsabilidades asignadas: consultar y gestionar actividades y recibir notificaciones marcadas, consultar dispositivos y recibir alertas de dispositivos sin marcar. Incluye los botones Cancelar y Enviar invitación.
+
+![Invitar cuidador](https://i.imgur.com/mYGAGmU.png)
+
+Métricas de autonomía
+
+Panel de analítica titulado Resumen de autonomía, con una alerta de que 1 dispositivo requiere atención y un selector de periodo (Hoy, 7 días, 30 días). Muestra un gráfico de barras semanal de acciones autónomas vs. con asistencia, un indicador circular con 78 % autónoma (22 % con asistencia) y un listado de uso por dispositivo con barras de progreso (luces, micrófono asistencial, puerta, ventana) y su consumo en minutos, comandos, aperturas o acciones.
+
+![Métricas de autonomía](https://i.imgur.com/dTjTVpW.png)
+
+Mi hogar
+
+Ficha de consulta del hogar, con el botón Editar información. Muestra la tarjeta Hogar Don Alberto con la etiqueta Ubicación validada, el cuidador principal y la persona asistida, una sección de Datos generales (alias, teléfono y correo asociados) y otra de Ubicación (dirección normalizada, distrito y referencia). Al final incluye un mapa con el marcador del hogar y el enlace Ver en Google Maps.
+
+![Mi hogar](https://i.imgur.com/JxG5cpL.png)
+
+Mi perfil
+
+Pantalla de perfil del cuidador en modo de edición activo, con la foto de perfil y el botón Cambiar foto, y las etiquetas Cuidador principal y Correo verificado. El formulario de Datos personales incluye nombres, apellidos, tipo y número de documento y teléfono de contacto, todos editables, y el correo electrónico verificado en solo lectura con una nota para contactar a soporte. Cierra con los botones Cancelar y Guardar cambios.
+
+![Mi perfil](https://i.imgur.com/WF7vKwC.png)
+
+Notificaciones
+
+Panel desplegable de notificaciones sobre la pantalla de Suscripción (desenfocada al fondo), con el contador de 3 nuevas, las pestañas Todas y Sin leer, y las opciones Marcar todas como leídas y Ver vacío. Lista las alertas de hoy con hora relativa: solicitud de asistencia por pulsador SOS (botón Ver solicitud), batería baja del sensor de ventana (Ver dispositivo) y actividad próxima de medicamento (Ver actividad). Al final aparece la sección Anteriores como leídas.
+
+![Notificaciones](https://i.imgur.com/qLeGqFV.png)
+
+Nueva actividad
+
+Panel lateral modal para programar una tarea o recordatorio de cuidado, sobre la vista de Actividades del día (desenfocada al fondo). El formulario incluye nombre y tipo de actividad, persona asistida, fecha, hora, duración opcional, repetición, cuidador responsable, recordatorio e indicaciones opcionales con contador de caracteres. Incluye los botones Cancelar y Guardar actividad.
+
+![Nueva actividad](https://i.imgur.com/yDiKkc3.png)
+
+Registro de medio de pago
+
+Paso 4 Configuración del proceso de registro, con barra de progreso de cinco pasos y subpasos (Configurar plan, Revisar resumen, Medio de pago). El formulario pide titular, correo de facturación y datos de tarjeta (número, vencimiento, código, país) procesados por Stripe, con casilla de aceptación de términos y botones Autorizar y continuar y Volver al resumen. Un resumen lateral del Plan Personalizado muestra ambientes, equipamiento, cuota mensual estimada y el cobro de hoy de S/ 0.00 como autorización temporal.
+
+![Registro de medio de pago](https://i.imgur.com/oaDZl1m.png)
+
+Persona asistida
+
+Ficha de consulta de la persona a cargo, con foto, nombre, etiqueta Perfil completo, edad, hogar y el botón Editar información. Presenta la Información personal (nombres, apellidos, tipo y número de documento validado, fecha de nacimiento, parentesco) y la Información asociada (hogar relacionado, cuidador principal y teléfono de contacto).
+
+![Persona asistida](https://i.imgur.com/2RLYpZQ.png)
+
+Red de cuidado
+
+Listado de las personas autorizadas para apoyar el cuidado en el hogar, con el botón Invitar cuidador. Muestra la tarjeta del cuidador principal (titular del servicio) con el botón Ver responsabilidades y una sección de cuidadores adicionales (3) con su relación y correo. Cada uno tiene un estado: Activo, Invitación pendiente o Invitación vencida, esta última con el botón Reenviar, además de un menú de opciones por fila.
+
+![Red de cuidado](https://i.imgur.com/5etFp1w.png)
+
+Registro de hogar
+
+Paso 3 Hogar (1 de 2, Ubicación) del proceso de registro, con barra de progreso y un banner del plan elegido con opción Cambiar plan. El formulario pide alias del hogar con sugerencias, teléfono y correo de contacto y dirección con Google Maps (botón Usar mi ubicación), con un mapa de pin arrastrable y la dirección normalizada detectada. Incluye una referencia opcional de llegada y los botones Atrás y Confirmar ubicación.
+
+![Registro de hogar](https://i.imgur.com/pGFBSYo.png)
+
+Registro de persona asistida
+
+Paso 3 Hogar (2 de 2, Persona asistida) del proceso de registro, con barra de progreso y un banner del plan elegido. El formulario recoge nombres, apellidos, fecha de nacimiento, documento y teléfono opcionales y relación con el cuidador principal, además de un perfil de accesibilidad rápida con selección de nivel de movilidad y de comunicación por voz. Incluye un contacto secundario de emergencia opcional, una casilla de confirmación de autorización y los botones Volver a ubicación y Guardar y continuar.
+
+![Registro de persona asistida](https://i.imgur.com/1kFvLHI.png)
+
+Reportar incidencia
+
+Panel lateral de formulario superpuesto sobre la pantalla de gestión de incidencias del hogar, con etiqueta "Soporte de Equipamiento" y botón para cerrar. Incluye selector de dispositivo afectado, selector de tipo de problema, descripción con contador de 0/500, fecha y hora del incidente, y carga opcional de hasta 3 fotos (JPG o PNG hasta 5MB). Muestra una tarjeta con el hogar principal y su dirección, donde se realizará la atención, y los botones Cancelar y Enviar incidencia.
+
+![Reportar incidencia](https://i.imgur.com/J8jTyS4.png)
+
+Resumen de configuración
+
+Último paso del flujo de contratación (paso 4 de 5, Configuración) con barra de progreso y sub-pasos Habitaciones, Dispositivos y Resumen final. Muestra una tarjeta con el plan personalizado, facturación mensual, importe estimado en soles por mes, el hogar y los totales de habitaciones y dispositivos. Detalla la distribución por ambiente en secciones desplegables con botón Editar y de agregar dispositivo, un aviso de cobro transparente, y los botones Modificar dispositivos y Continuar a Evaluación.
+
+![Resumen de configuración](https://i.imgur.com/0KxQFAb.png)
+
+Seguimiento de contratación: Activación
+
+Pantalla de seguimiento de contratación con el código del contrato y una línea de progreso de cuatro pasos (Evaluación, Confirmación e Instalación completadas; Activación en proceso). Muestra la tarjeta "Activando el servicio" con indicador de validación en curso, la sincronización de telemetría y sensores como proceso automático, y un aviso de que se enviará confirmación por correo y SMS. Incluye un enlace para contactar soporte en caso de demora y tres tarjetas informativas inferiores.
+
+![Seguimiento de contratación: Activación](https://i.imgur.com/nyEUlm3.png)
+
+Seguimiento de contratación: Confirmación
+
+Pantalla de seguimiento con el código del contrato y una línea de progreso donde la Evaluación está realizada y la Confirmación requiere revisión. Muestra la tarjeta "Configuración lista para confirmar" con etiquetas de evaluación completada y acción requerida, una imagen del domicilio con ubicación e ID de inspección, el resultado de la evaluación (viable con adaptación técnica) y el plan resultante con la inversión mensual. Incluye el enlace para solicitar ayuda y el botón Revisar y confirmar.
+
+![Seguimiento de contratación: Confirmación](https://i.imgur.com/aKx2I84.png)
+
+Seguimiento de contratación: Evaluación
+
+Pantalla de seguimiento con el código del contrato y una línea de progreso de cuatro pasos donde la Evaluación está en proceso. Muestra la tarjeta "Evaluación técnica presencial" con estado pendiente de visita técnica, fecha programada, ventana de llegada y lugar de inspección. Incluye el enlace Ver requerimientos previos, el botón Reprogramar visita y una línea de contacto telefónico con su horario de atención.
+
+![Seguimiento de contratación: Evaluación](https://i.imgur.com/pLvjbOv.png)
+
+Seguimiento de contratación: Instalación
+
+Pantalla de seguimiento con el código del contrato y una línea de progreso donde Evaluación y Confirmación están completadas e Instalación está programada. Muestra la tarjeta "Instalación programada" con fecha, rango horario y dirección de asistencia, además de la ficha del técnico de campo asignado con credencial activa. Incluye un aviso para que una persona adulta esté presente, los botones Reprogramar visita y Ver detalles de instalación, y un enlace para hablar con asistencia.
+
+![Seguimiento de contratación: Instalación](https://i.imgur.com/mb49Zoa.png)
+
+Seguimiento de contratación: Servicio activo
+
+Pantalla de seguimiento con proceso finalizado, el código del contrato y los cuatro pasos de la línea de progreso completados. Muestra un mensaje de confirmación de que el servicio está activo, con fecha de activación, plan activo y hogar conectado, junto a una imagen del hogar con la nota de sensores y panel central enlazados. Incluye los botones Ir a mi hogar y Ver dispositivos, y una nota sobre la línea de soporte clínico 24/7.
+
+![Seguimiento de contratación: Servicio activo](https://i.imgur.com/QAwhdRT.png)
+
+Suscripción
+
+Pantalla de suscripción del panel del cuidador, con migas de pan, estado Activa y la fecha y monto del próximo cobro. Muestra una tarjeta del plan con su precio mensual, fechas de inicio y renovación, cobertura incluida (habitaciones y dispositivos), los botones Cambiar plan y Ver detalles, y los enlaces Suspender y Cancelar suscripción. A la derecha presenta la facturación y medio de pago con tarjeta y cobro automático, y el último pago con monto, fecha, método y enlace para descargar el comprobante.
+
+![Suscripción](https://i.imgur.com/sZkKZ0J.png)
+
+#### Aplicación web del cuidador - Vista de los cuidadores invitados
+
+Calendario de actividades
+
+Vista semanal de las actividades asignadas al cuidador, con la pestaña Horarios activa (alterna con Lista). Incluye navegación por semana con el botón Hoy, filtro por estado y la persona asistida. Muestra las actividades por día y hora, diferenciadas por estado (completada, pendiente, vencida, programada y cancelada), con una línea que marca la hora actual.
+
+![Calendario de actividades](https://i.imgur.com/5PDXgSU.png)
+
+Lista de actividades
+
+Vista en lista de las actividades asignadas, con filtros por periodo y estado. Las agrupa por Hoy, Mañana y Próximas, indicando la cantidad de actividades de cada grupo. Cada fila muestra la hora, el nombre de la actividad, si es recurrente, la persona asistida y su estado (completada, pendiente, vencida, programada o cancelada).
+
+![Lista de actividades](https://i.imgur.com/GRezp1q.png)
+
+Cambiar foto de perfil
+
+Ventana emergente Actualizar fotografía sobre la pantalla Mi perfil. Muestra la vista previa de la imagen actual, una zona para arrastrar o seleccionar una imagen (JPG o PNG, máximo 5 MB), las opciones Reemplazar y Eliminar foto actual, y los botones Cancelar y Guardar foto.
+
+![Cambiar foto de perfil](https://i.imgur.com/HsN3kS8.png)
+
+Detalle de actividad
+
+Panel lateral de consulta de una actividad. Muestra su nombre, la persona asignada, el estado, el horario programado, la categoría, la frecuencia y las indicaciones registradas. Funciona en modo solo lectura: avisa que la actividad la gestiona el cuidador principal y que cualquier cambio debe coordinarse con él. Incluye el botón Cerrar.
+
+![Detalle de actividad](https://i.imgur.com/O9Y5jDL.png)
+
+Inicio
+
+Pantalla de inicio del cuidador invitado, con la etiqueta Invitado, el hogar y la persona asistida que cuida. Muestra un saludo de bienvenida y la tarjeta Próxima actividad (hora, nombre, persona asistida, descripción y estado) con los accesos Ver actividad y Ver mis actividades. El menú lateral incluye Inicio, Persona asistida, Actividades y Mi perfil.
+
+![Inicio](https://i.imgur.com/OJOXv97.png)
+
+Mi perfil
+
+Perfil personal del cuidador, con foto, nombre, rol y estado de correo verificado, y el botón Cambiar foto. En Datos personales se editan nombres, apellidos, tipo y número de documento y teléfono de contacto; el correo electrónico aparece verificado y no editable. Incluye los botones Cancelar y Guardar cambios.
+
+![Mi perfil](https://i.imgur.com/BK6uxhJ.png)
+
+Notificaciones
+
+Panel desplegable de notificaciones sobre la pantalla de suscripción. Permite alternar entre Todas y Sin leer, marcar todas como leídas y revisar las alertas del día: solicitud de asistencia desde el pulsador SOS, batería baja de un sensor y actividad próxima, cada una con su acceso (Ver solicitud, Ver dispositivo, Ver actividad). Al final separa las notificaciones anteriores ya leídas.
+
+![Notificaciones](https://i.imgur.com/jP9wlXk.png)
+
+Persona asistida
+
+Ficha de solo consulta de la persona a cargo, con foto, nombre, estado del perfil, edad y hogar. Presenta la información personal (nombres, apellidos, tipo y número de documento validado, fecha de nacimiento y parentesco) y la información asociada (hogar relacionado, cuidador principal y teléfono de contacto). Incluye el botón Editar información.
+
+![Persona asistida](https://i.imgur.com/XsFJ5UM.png)
 
 
 ### 6.4.4. Applications User-flow Diagrams
