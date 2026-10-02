@@ -1648,6 +1648,17 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 
 ### 5.5.4. Infrastructure Layer
 
+La Infrastructure Layer implementa los repositorios de los cuatro aggregates sobre PostgreSQL, consistente con el carácter transaccional y estructurado de los datos de la red de cuidado, y el adaptador hacia Sendgrid para el correo de invitación. A diferencia de los bounded contexts anteriores, no declara un suscriptor del bus de eventos interno: ninguna de sus integraciones entrantes proviene de otro BC (observación previa #3).
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| FamilyMemberRepositoryJpa | FamilyMemberRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate FamilyMember. |
+| CareTaskRepositoryJpa | CareTaskRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate CareTask. |
+| InvitationRepositoryJpa | InvitationRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Invitation. |
+| CaregiverRepositoryJpa | CaregiverRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Caregiver junto con su entidad interna Schedule. |
+
+La persistencia se configura mediante `CuidadoJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de los cuatro aggregates sobre el motor PostgreSQL.
+
 ### 5.5.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.5.6. Bounded Context Software Architecture Code Level Diagrams
