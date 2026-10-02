@@ -1454,6 +1454,54 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | CareTaskUnassigned (uno por cada CareTask liberada) |
 | User story/capability que habilita | Resuelve la observación previa #2 |
 
+**RegisterFamilyMemberCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterFamilyMemberCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Registrar al familiar responsable, referenciando su cuenta en IAM y su perfil de hogar en Perfiles. |
+| Command/Query/Evento que maneja | RegisterFamilyMemberCommand |
+| Repositorios y servicios que usa | FamilyMemberRepository |
+| Eventos que publica | FamilyMemberRegistered |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**UpdateFamilyMemberInfoCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | UpdateFamilyMemberInfoCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Actualizar el nombre del familiar. |
+| Command/Query/Evento que maneja | UpdateFamilyMemberInfoCommand |
+| Repositorios y servicios que usa | FamilyMemberRepository |
+| Eventos que publica | FamilyMemberInfoUpdated |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**RegisterCareTaskCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterCareTaskCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Registrar una nueva labor de cuidado para la red de cuidado. |
+| Command/Query/Evento que maneja | RegisterCareTaskCommand |
+| Repositorios y servicios que usa | CareTaskRepository |
+| Eventos que publica | CareTaskRegistered |
+| User story/capability que habilita | Decisión de negocio del Canvas: "toda labor de cuidado se asigna a un cuidador responsable" |
+
+**AssignCareTaskResponsibleCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AssignCareTaskResponsibleCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Asignar un cuidador responsable a una labor de cuidado. |
+| Command/Query/Evento que maneja | AssignCareTaskResponsibleCommand |
+| Repositorios y servicios que usa | CareTaskRepository, CaregiverRepository |
+| Eventos que publica | CareTaskResponsibleAssigned |
+| User story/capability que habilita | Decisión de negocio del Canvas |
+
 ### 5.5.4. Infrastructure Layer
 
 ### 5.5.5. Bounded Context Software Architecture Component Level Diagrams
