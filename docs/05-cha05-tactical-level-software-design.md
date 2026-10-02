@@ -1598,6 +1598,54 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | PrincipalCaregiverReplaced |
 | User story/capability que habilita | Decisión de negocio del Canvas; consumido por PrincipalCaregiverReplacedEventHandler de Perfiles (5.3.3) |
 
+**GetFamilyMemberByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetFamilyMemberByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un familiar. |
+| Command/Query/Evento que maneja | GetFamilyMemberByIdQuery |
+| Repositorios y servicios que usa | FamilyMemberRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getFamilyMemberById |
+
+**GetCareTasksByFamilyMemberIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetCareTasksByFamilyMemberIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Listar las labores de cuidado de una red de cuidado. |
+| Command/Query/Evento que maneja | GetCareTasksByFamilyMemberIdQuery |
+| Repositorios y servicios que usa | CareTaskRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getCareTasksByFamilyMember |
+
+**GetInvitationByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetInvitationByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de una invitación. |
+| Command/Query/Evento que maneja | GetInvitationByIdQuery |
+| Repositorios y servicios que usa | InvitationRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getInvitationById |
+
+**GetCaregiverByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetCaregiverByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un cuidador, incluyendo sus turnos y horarios. |
+| Command/Query/Evento que maneja | GetCaregiverByIdQuery |
+| Repositorios y servicios que usa | CaregiverRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getCaregiverById |
+
 ### 5.5.4. Infrastructure Layer
 
 ### 5.5.5. Bounded Context Software Architecture Component Level Diagrams
