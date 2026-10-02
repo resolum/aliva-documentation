@@ -1538,6 +1538,66 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | InvitationRejected |
 | User story/capability que habilita | Decisión de negocio del Canvas: "una invitación rechazada no vincula al cuidador" |
 
+**CreateCaregiverCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | CreateCaregiverCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear al Caregiver vinculado a la red de cuidado, scoped por familyMemberId (observación previa #1). |
+| Command/Query/Evento que maneja | CreateCaregiverCommand |
+| Repositorios y servicios que usa | CaregiverRepository |
+| Eventos que publica | CaregiverCreated |
+| User story/capability que habilita | Resuelve la observación previa #1 y #3; invocado únicamente por InvitationAcceptedEventHandler |
+
+**RegisterScheduleCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterScheduleCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Registrar un nuevo turno y horario para el cuidador. |
+| Command/Query/Evento que maneja | RegisterScheduleCommand |
+| Repositorios y servicios que usa | CaregiverRepository |
+| Eventos que publica | ScheduleRegistered |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**RecordCompletedAssignmentsCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RecordCompletedAssignmentsCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Registrar el cumplimiento de las asignaciones de un turno. |
+| Command/Query/Evento que maneja | RecordCompletedAssignmentsCommand |
+| Repositorios y servicios que usa | CaregiverRepository |
+| Eventos que publica | CompletedAssignmentsRecorded |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**UnlinkCaregiverCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | UnlinkCaregiverCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Desvincular al cuidador de la red de cuidado. |
+| Command/Query/Evento que maneja | UnlinkCaregiverCommand |
+| Repositorios y servicios que usa | CaregiverRepository |
+| Eventos que publica | CaregiverUnlinked |
+| User story/capability que habilita | Resuelve la observación previa #2; consumido por CaregiverUnlinkedEventHandler |
+
+**ReplacePrincipalCaregiverCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ReplacePrincipalCaregiverCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Reemplazar al cuidador principal de una red de cuidado. |
+| Command/Query/Evento que maneja | ReplacePrincipalCaregiverCommand |
+| Repositorios y servicios que usa | CaregiverRepository |
+| Eventos que publica | PrincipalCaregiverReplaced |
+| User story/capability que habilita | Decisión de negocio del Canvas; consumido por PrincipalCaregiverReplacedEventHandler de Perfiles (5.3.3) |
+
 ### 5.5.4. Infrastructure Layer
 
 ### 5.5.5. Bounded Context Software Architecture Component Level Diagrams
