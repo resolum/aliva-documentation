@@ -1801,6 +1801,19 @@ La Interface Layer expone un controller por cada aggregate root: `SubscriptionCo
 | acceptAdaptation | /{subscriptionId}/adaptation/accept (POST) | path: subscriptionId: Long | Acepta la adaptación propuesta | AcceptAdaptationCommand |
 | rejectAdaptation | /{subscriptionId}/adaptation/reject (POST) | path: subscriptionId: Long | Rechaza la adaptación propuesta y cancela la suscripción | RejectAdaptationCommand |
 
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | PaymentController |
+| Categoría | Controller |
+| Propósito | Exponer la consulta del detalle de pagos y de los pagos asociados a una suscripción. |
+| Aggregate/Entity relacionado | Payment |
+| Ruta base | /api/v1/payments |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getPaymentById | /{paymentId} (GET) | path: paymentId: Long | Obtiene el detalle de un pago | GetPaymentByIdQuery |
+| getPaymentsBySubscription | /by-subscription/{subscriptionId} (GET) | path: subscriptionId: Long | Lista los pagos asociados a una suscripción | GetPaymentsBySubscriptionIdQuery |
+
 ### 5.6.3. Application Layer
 
 ### 5.6.4. Infrastructure Layer
