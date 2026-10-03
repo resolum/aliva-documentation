@@ -1854,6 +1854,30 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | PaymentChargeRejected (vía el command invocado) |
 | User story/capability que habilita | Resuelve la observación previa #4 |
 
+**PaymentChargedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | PaymentChargedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Activar la suscripción cuando su pago asociado queda cobrado. |
+| Command/Query/Evento que maneja | PaymentCharged (evento propio de Pagos y Suscripciones) |
+| Repositorios y servicios que usa | ActivateSubscriptionCommand (invocado internamente) |
+| Eventos que publica | SubscriptionActivated (vía el command invocado) |
+| User story/capability que habilita | Decisión de negocio del Canvas: "la cuenta se habilita y la suscripción se activa al confirmarse el cobro" |
+
+**PaymentChargeRejectedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | PaymentChargeRejectedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Cancelar la suscripción cuando su pago asociado es rechazado. |
+| Command/Query/Evento que maneja | PaymentChargeRejected (evento propio de Pagos y Suscripciones) |
+| Repositorios y servicios que usa | CancelSubscriptionCommand (invocado internamente) |
+| Eventos que publica | SubscriptionCancelled (vía el command invocado) |
+| User story/capability que habilita | Decisión de negocio del Canvas |
+
 ### 5.6.4. Infrastructure Layer
 
 ### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
