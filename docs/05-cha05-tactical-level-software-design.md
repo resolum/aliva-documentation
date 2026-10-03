@@ -1698,3 +1698,34 @@ La persistencia se configura mediante `CuidadoJpaConfiguration`, que habilita lo
 #### 5.5.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
+
+## 5.6. Bounded Context: Pagos y Suscripciones
+
+El bounded context **Pagos y Suscripciones** gestiona la comparación y contratación de planes, el procesamiento de pagos en dos etapas (preautorización y cobro) vía Stripe, y la adaptación del plan cuando la vivienda resulta solo parcialmente viable. Es un subdominio de soporte orientado a ingresos. Participan el **Visitante** (compara planes), el **Cuidador** (confirma la contratación con sus datos de pago) y el **Gestor de suscripciones** (ajusta planes desde el dashboard). Este bounded context depende de dos integraciones entrantes desde Soporte Técnico que el Canvas no declara explícitamente pero que el flujo requiere (observaciones previas #3 y #4): el resultado de la evaluación de viabilidad de la vivienda, y la confirmación o el fallo de la instalación. Ambas se formalizarán del lado de Soporte Técnico en 5.7.
+
+### 5.6.1. Domain Layer
+
+La Domain Layer modela dos aggregates independientes: `Subscription`, que representa el contrato de servicio elegido para la persona asistida, y `Payment`, que representa el procesamiento del pago asociado. El catálogo de planes no se modela como aggregate: no se identificaron comandos que gestionen su ciclo de vida en el material disponible, por lo que se trata como un read model estático consultado por `GetAvailablePlansQuery`.
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| Subscription | Aggregate Root | Representa el contrato de servicio elegido para la persona asistida. No se activa sin un Payment confirmado (`CHARGED`); si la vivienda resulta parcialmente viable, requiere que la adaptación del plan sea aceptada antes de continuar (decisiones de negocio del Canvas). |
+| Payment | Aggregate Root | Representa el procesamiento del pago de una Subscription en dos etapas: preautorización y cobro. Un cobro rechazado libera el importe retenido y devuelve el monto (decisión de negocio del Canvas); no almacena datos bancarios, solo una referencia al método de pago en Stripe (Supuesto del Canvas). |
+
+No se identifican Entities en este bounded context: ambos aggregates son simples, sin componentes internos con identidad propia.
+
+### 5.6.2. Interface Layer
+
+### 5.6.3. Application Layer
+
+### 5.6.4. Infrastructure Layer
+
+### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
+
+### 5.6.6. Bounded Context Software Architecture Code Level Diagrams
+
+#### 5.6.6.1. Bounded Context Domain Layer Class Diagrams
+
+#### 5.6.6.2. Bounded Context Database Design Diagram
+
+<div style="page-break-after: always;"></div>
