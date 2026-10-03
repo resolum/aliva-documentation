@@ -1816,6 +1816,44 @@ La Interface Layer expone un controller por cada aggregate root: `SubscriptionCo
 
 ### 5.6.3. Application Layer
 
+La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante cinco Event Handlers las integraciones identificadas en las Observaciones Previas: tres consumen eventos externos de Soporte Técnico (observaciones previas #3 y #4, a formalizar en 5.7), y dos reaccionan a eventos propios de Payment.
+
+**HomeViabilityEvaluatedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | HomeViabilityEvaluatedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Según el resultado de la evaluación, proponer la adaptación del plan (parcialmente viable) o cancelar la suscripción (no viable); si es viable, no realiza ninguna acción adicional. |
+| Command/Query/Evento que maneja | HomeViabilityEvaluated (evento externo, BC de origen: Soporte Técnico, a formalizar en 5.7) |
+| Repositorios y servicios que usa | ProposeAdaptationCommand, CancelSubscriptionCommand (invocados internamente) |
+| Eventos que publica | PlanAdaptationProposed o SubscriptionCancelled (vía los commands invocados) |
+| User story/capability que habilita | Resuelve la observación previa #3 |
+
+**InstallationCompletedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | InstallationCompletedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Confirmar el cobro del pago asociado a la suscripción instalada. |
+| Command/Query/Evento que maneja | InstallationCompleted (evento externo, BC de origen: Soporte Técnico, a formalizar en 5.7) |
+| Repositorios y servicios que usa | PaymentRepository (para localizar el Payment por subscriptionId), ConfirmChargeCommand (invocado internamente) |
+| Eventos que publica | PaymentCharged (vía el command invocado) |
+| User story/capability que habilita | Resuelve la observación previa #4; Supuesto del Canvas: "Soporte técnico solicita el cobro cuando la instalación queda completada" |
+
+**InstallationFailedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | InstallationFailedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Rechazar el cobro del pago asociado cuando la instalación no pudo completarse. |
+| Command/Query/Evento que maneja | InstallationFailed (evento externo, BC de origen: Soporte Técnico, a formalizar en 5.7) |
+| Repositorios y servicios que usa | PaymentRepository (para localizar el Payment por subscriptionId), RejectChargeCommand (invocado internamente) |
+| Eventos que publica | PaymentChargeRejected (vía el command invocado) |
+| User story/capability que habilita | Resuelve la observación previa #4 |
+
 ### 5.6.4. Infrastructure Layer
 
 ### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
