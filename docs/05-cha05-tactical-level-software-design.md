@@ -2048,6 +2048,16 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 
 ### 5.6.4. Infrastructure Layer
 
+La Infrastructure Layer implementa los repositorios de Subscription y Payment sobre PostgreSQL, consistente con el carácter transaccional de cuentas y suscripciones (TS-47), el adaptador hacia Stripe, y el suscriptor del bus de eventos interno que conecta a Pagos y Suscripciones con Soporte Técnico.
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| SubscriptionRepositoryJpa | SubscriptionRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Subscription. |
+| PaymentRepositoryJpa | PaymentRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Payment. |
+| PlanCatalogReadModelJpa | PlanCatalogReadModel | Spring Data JPA sobre PostgreSQL | Expone el catálogo estático de planes consultado por GetAvailablePlansQuery; no gestiona su ciclo de vida (5.6.1). |
+
+La persistencia se configura mediante `PagosSuscripcionesJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Subscription` y `Payment` sobre el motor PostgreSQL.
+
 ### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.6.6. Bounded Context Software Architecture Code Level Diagrams
