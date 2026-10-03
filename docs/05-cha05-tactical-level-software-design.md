@@ -1737,6 +1737,12 @@ No se identifican Entities en este bounded context: ambos aggregates son simples
 | ActivateSubscriptionCommand | Activa la suscripción al confirmarse el cobro, invocado únicamente por PaymentChargedEventHandler. | subscriptionId: Long |
 | CancelSubscriptionCommand | Cancela la suscripción, invocado por la vivienda no viable, el rechazo de la adaptación o el rechazo del cobro. | subscriptionId: Long, reason: String |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| PreauthorizePaymentCommand | Crea el Payment y preautoriza el monto en Stripe, invocado únicamente por ConfirmContractingCommandHandler. | subscriptionId: Long, amount: Money, paymentMethodReference: String |
+| ConfirmChargeCommand | Confirma el cobro tras completarse la instalación, invocado únicamente por InstallationCompletedEventHandler (observación previa #4). | paymentId: Long |
+| RejectChargeCommand | Rechaza el cobro y libera/devuelve el importe retenido, invocado únicamente por InstallationFailedEventHandler (observación previa #4). | paymentId: Long, reason: String |
+
 ### 5.6.2. Interface Layer
 
 ### 5.6.3. Application Layer
