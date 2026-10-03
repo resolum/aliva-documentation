@@ -3237,6 +3237,172 @@ Perfil del técnico con foto de avatar (con botón de cámara), nombre completo 
 
 ### 6.4.4. Applications User-flow Diagrams
 
+#### Aplicación Web de Negocio
+
+**User Flow 1:** Iniciar sesión
+
+**User Goal:** Como usuario del negocio (administrador, técnico o gestor de suscripciones), quiero iniciar sesión con mi correo y contraseña, para acceder a las funciones de mi rol.
+
+<div align="center">
+  <img src="https://i.imgur.com/Nfn35op.png" alt="Iniciar sesión"/>
+</div>
+
+El usuario abre la pantalla de inicio de sesión, ingresa su correo y contraseña y llega al inicio de su rol. En el camino alterno, si ingresa datos no válidos, el sistema muestra la pantalla de inicio de sesión con errores de validación y el usuario corrige los datos para volver a intentar.
+
+**User Flow 2:** Recuperar contraseña
+
+**User Goal:** Como usuario del negocio (administrador, técnico o gestor de suscripciones), quiero recuperar mi contraseña cuando la olvido, para volver a entrar a mi cuenta.
+
+<div align="center">
+  <img src="https://i.imgur.com/A1q3Aq2.png" alt="Recuperar contraseña"/>
+</div>
+
+Desde el inicio de sesión, el usuario elige recuperar su contraseña, ingresa su correo para solicitar el código, define y confirma la nueva contraseña, ve la confirmación de contraseña actualizada y regresa al inicio de sesión. En el camino alterno, si el correo no es válido o la nueva clave no cumple los requisitos, el sistema muestra la pantalla correspondiente con errores y el usuario corrige el dato para reintentar.
+
+**User Flow 3:** Registrar un empleado
+
+**User Goal:** Como administrador, quiero registrar un empleado con sus datos personales, laborales y de acceso, para que pueda operar en la plataforma.
+
+<div align="center">
+  <img src="https://i.imgur.com/J70fHXT.png" alt="Registrar un empleado"/>
+</div>
+
+Desde la gestión de empleados, el administrador elige registrar un empleado y completa la información personal, la información laboral y el acceso a la plataforma. Luego revisa los datos, confirma y regresa a la gestión de empleados. En el camino alterno, si avanza con datos incompletos en el primer o el segundo paso, el sistema muestra el paso con errores y el administrador corrige el dato para continuar.
+
+**User Flow 4:** Registrar un contrato y su horario laboral
+
+**User Goal:** Como administrador, quiero registrar el contrato y el horario laboral de un empleado, para definir cuándo y bajo qué condiciones trabaja.
+
+<div align="center">
+  <img src="https://i.imgur.com/GaUiMkQ.png" alt="Registrar un contrato y su horario laboral"/>
+</div>
+
+Desde la lista de contratos, el administrador registra un contrato, lo guarda y revisa su detalle. Después va a los horarios laborales, registra un horario, lo guarda y revisa su detalle. En el camino alterno, si guarda el contrato o el horario con datos incompletos, el sistema muestra el formulario con errores y el administrador corrige el dato. También puede editar un horario ya registrado desde su detalle y guardar los cambios.
+
+**User Flow 5:** Atender una orden técnica
+
+**User Goal:** Como administrador, quiero asignar un técnico a una orden pendiente, para que el servicio se atienda a tiempo.
+
+<div align="center">
+  <img src="https://i.imgur.com/BX9jPMu.png" alt="Atender una orden técnica"/>
+</div>
+
+Desde las órdenes técnicas, el administrador selecciona una orden, abre su detalle, elige asignar un técnico, escoge al empleado, confirma y regresa a la lista de órdenes. En el camino alterno, si no hay ningún técnico disponible en ese horario, aparece un aviso en la ventana y el administrador elige otro técnico u otro horario.
+
+**User Flow 6:** Configurar el perfil del negocio
+
+**User Goal:** Como administrador, quiero configurar la información del negocio, para que clientes y equipo vean datos correctos.
+
+<div align="center">
+  <img src="https://i.imgur.com/Q8RZLlC.png" alt="Configurar el perfil del negocio"/>
+</div>
+
+El administrador abre el perfil del negocio y recorre las secciones de identidad, información de contacto, información para clientes y ubicación corporativa, completando los datos de cada una. En el camino alterno, si guarda un dato no válido (correo, teléfono o RUC), aparece un error junto al campo y el administrador corrige el dato.
+
+**User Flow 7:** Atender una orden desde la web
+
+**User Goal:** Como técnico, quiero consultar mis órdenes asignadas y su detalle, para llegar preparado a cada visita.
+
+<div align="center">
+  <img src="https://i.imgur.com/nwTOkh9.png" alt="Atender una orden desde la web"/>
+</div>
+
+Desde el inicio, el técnico entra a sus órdenes, selecciona una orden para ver su detalle y consulta el calendario desde el menú. En el camino alterno, si no tiene órdenes asignadas, la lista muestra un mensaje de lista vacía.
+
+**User Flow 8:** Consultar inventario y registrar un dispositivo
+
+**User Goal:** Como técnico, quiero consultar el inventario y registrar un dispositivo, para dejar el servicio instalado y documentado.
+
+<div align="center">
+  <img src="https://i.imgur.com/9HH2V6G.png" alt="Consultar inventario y registrar un dispositivo"/>
+</div>
+
+El técnico abre el inventario de dispositivos por categorías, entra a la categoría de micrófonos, elige registrar un dispositivo, completa los datos, guarda y vuelve al inventario actualizado. En el camino alterno, si el código está repetido o los datos están incompletos, el sistema muestra el formulario con errores y el técnico corrige los datos. También se contemplan los casos en que el inventario no carga, la categoría no tiene registros o un filtro no encuentra coincidencias.
+
+#### Aplicación Web de Cuidadores
+
+**User Flow 1:** Contratar el plan Base
+
+**User Goal:** Como cuidador o familiar, quiero contratar el plan Base para mi hogar, para recibir asistencia domiciliaria.
+
+<div align="center">
+  <img src="https://i.imgur.com/4Gv7HHP.png" alt="Contratar el plan Base"/>
+</div>
+
+La persona elige el plan Base, crea su cuenta, registra su hogar, revisa la configuración del plan, elige día y hora de la evaluación, confirma la visita y realiza el pago. En el camino alterno, si envía datos no válidos al crear la cuenta, si la dirección no tiene cobertura técnica o si la tarjeta es rechazada, el sistema muestra la pantalla de error correspondiente y la persona corrige los datos, cambia la dirección o usa otro medio de pago. También se contemplan un error al cargar la configuración y un horario no disponible.
+
+**User Flow 2:** Contratar el plan Personalizado
+
+**User Goal:** Como cuidador o familiar, quiero armar un plan personalizado por habitaciones y dispositivos, para adaptar el servicio a mi hogar.
+
+<div align="center">
+  <img src="https://i.imgur.com/iVSvAPJ.png" alt="Contratar el plan Personalizado"/>
+</div>
+
+La persona elige el plan Personalizado, selecciona las habitaciones y los dispositivos que necesita, revisa el resumen de la configuración, elige día y hora de la evaluación y confirma. En el camino alterno, si continúa sin elegir ninguna habitación o ningún dispositivo, o si elige un horario ocupado, aparece un aviso en la pantalla y la persona corrige su elección.
+
+**User Flow 3:** Seguir el servicio contratado
+
+**User Goal:** Como cuidador o familiar, quiero seguir el avance de mi servicio, para saber cuándo quedará activo en mi hogar.
+
+<div align="center">
+  <img src="https://i.imgur.com/if7al1P.png" alt="Seguir el servicio contratado"/>
+</div>
+
+La persona consulta el seguimiento de su servicio en cada etapa: confirmación, evaluación, instalación y activación, hasta ver el servicio activo. En el camino alterno, si la visita debe reprogramarse, la instalación no puede completarse o el estado no carga, el seguimiento muestra un aviso y la persona elige otro horario, coordina una nueva visita o reintenta.
+
+**User Flow 4:** Gestionar actividades
+
+**User Goal:** Como cuidador o familiar, quiero programar y revisar las actividades diarias, para organizar el cuidado en el hogar.
+
+<div align="center">
+  <img src="https://i.imgur.com/7G2UQbi.png" alt="Gestionar actividades"/>
+</div>
+
+Desde el inicio, la persona abre la lista de actividades, crea una nueva actividad, completa los datos y guarda, revisa el detalle de la actividad y consulta el calendario. En el camino alterno, si programa una actividad en un horario ocupado, el sistema muestra el conflicto de horario y la persona cambia el horario. También se contemplan los casos de lista o calendario sin actividades.
+
+**User Flow 5:** Invitar a la red de cuidado
+
+**User Goal:** Como cuidador o familiar, quiero invitar a otros cuidadores a la red de cuidado, para compartir el cuidado de la persona asistida.
+
+<div align="center">
+  <img src="https://i.imgur.com/0F8WJJU.png" alt="Invitar a la red de cuidado"/>
+</div>
+
+La persona abre la red de cuidado, elige invitar a un cuidador, envía la invitación y revisa el detalle de la red. El invitado abre su enlace para aceptar la invitación. En el camino alterno, si envía datos no válidos, el sistema muestra el formulario con errores y la persona los corrige. También se contemplan una red sin cuidadores y una invitación vencida, en la que se solicita una nueva.
+
+**User Flow 6:** Consultar y revisar dispositivos
+
+**User Goal:** Como cuidador o familiar, quiero consultar los dispositivos instalados, para saber que todo funciona en mi hogar.
+
+<div align="center">
+  <img src="https://i.imgur.com/Hevc6GM.png" alt="Consultar y revisar dispositivos"/>
+</div>
+
+Desde el inicio, la persona abre la lista de dispositivos y selecciona uno para ver su detalle. En el camino alterno, si el hub está desconectado, el sistema muestra los dispositivos con ese aviso y la persona restablece la conexión. También se contempla un error al cargar el detalle del dispositivo.
+
+**User Flow 7:** Reportar una incidencia
+
+**User Goal:** Como cuidador o familiar, quiero reportar una incidencia y seguir su atención, para recibir ayuda cuando algo falla.
+
+<div align="center">
+  <img src="https://i.imgur.com/bP9eK3v.png" alt="Reportar una incidencia"/>
+</div>
+
+La persona abre la lista de incidencias, elige reportar una, completa los datos y envía. Luego revisa el detalle de la incidencia registrada, la sigue mientras está en atención y ve cuándo queda resuelta. En el camino alterno, si aún no tiene reportes, la lista aparece vacía. También se contemplan el envío del formulario sin completar y un error al enviar la incidencia.
+
+**User Flow 8:** Consultar actividades (cuidador de apoyo)
+
+**User Goal:** Como cuidador de apoyo, quiero consultar las actividades asignadas, para cumplir mis tareas de cuidado.
+
+<div align="center">
+  <img src="https://i.imgur.com/EKUBvqj.png" alt="Consultar actividades (cuidador de apoyo)"/>
+</div>
+
+Desde el inicio, el cuidador de apoyo abre la lista de actividades, selecciona una para ver su detalle y consulta el calendario. En el camino alterno, si no tiene actividades asignadas o el calendario está vacío, se muestra un mensaje de lista vacía. También se contempla un error al cargar el detalle de la actividad.
+
+
+
 ## 6.5. IoT Device Design
 
 **12 Pasos para el diseño de dispositivos IoT**
