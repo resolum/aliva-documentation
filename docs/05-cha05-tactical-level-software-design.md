@@ -2063,6 +2063,31 @@ La persistencia se configura mediante `PagosSuscripcionesJpaConfiguration`, que 
 | StripePaymentGateway | Gateway | PaymentGateway | Stripe | Preautoriza, cobra y devuelve montos sin almacenar datos bancarios localmente (Supuesto del Canvas). |
 | DomainEventBusSubscriber | Event Subscriber | HomeViabilityEvaluatedListener, InstallationCompletedListener, InstallationFailedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por Soporte Técnico hacia los Event Handlers de Pagos y Suscripciones (observaciones previas #3 y #4). |
 
+| Tabla/Colección | Propósito |
+| --- | --- |
+| subscriptions | Almacena el aggregate Subscription: plan elegido, estado y referencias a accountId y homeProfileId. |
+| payments | Almacena el aggregate Payment: montos, estado y referencia a subscriptionId. |
+| plan_catalog | Almacena el catálogo estático de planes consultado por GetAvailablePlansQuery (5.6.1). |
+
+| Objeto | BC responsable | Justificación |
+| --- | --- | --- |
+| Cuenta / credenciales | IAM | La autenticación y el estado de acceso de la cuenta son responsabilidad de IAM; Pagos y Suscripciones solo referencia accountId. |
+| Perfil de hogar | Perfiles | Los datos y la ubicación del hogar se gestionan en Perfiles; Pagos y Suscripciones solo referencia homeProfileId. |
+| Evaluación de viabilidad / instalación | Soporte Técnico | La evaluación técnica de la vivienda y la instalación de dispositivos son responsabilidad de Soporte Técnico; Pagos y Suscripciones solo reacciona a sus eventos (observaciones previas #3 y #4, a formalizar en 5.7). |
+
+**Verificación de trazabilidad — Pagos y Suscripciones**
+
+| Criterio | Cumple | Evidencia |
+| --- | --- | --- |
+| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 10 commands y las 4 queries de 5.6.1 tienen su handler correspondiente en 5.6.3. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | ProposeAdaptationCommand se usa tanto desde el endpoint manual como desde HomeViabilityEvaluatedEventHandler (observación previa #5); PreauthorizePaymentCommand, ConfirmChargeCommand, RejectChargeCommand, ActivateSubscriptionCommand y CancelSubscriptionCommand se usan exclusivamente desde Event Handlers, justificado en 5.6.2 y 5.6.3. |
+| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.6.2) mapea 1:1 los parámetros del Command correspondiente. |
+| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | SubscriptionController se relaciona con Subscription; PaymentController se relaciona con Payment. |
+| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | SubscriptionRepository ↔ SubscriptionRepositoryJpa; PaymentRepository ↔ PaymentRepositoryJpa. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | ContractingConfirmed y PlanAdaptationAccepted los consume Soporte Técnico; PaymentPreauthorizationRejected lo consume Comunicaciones; PaymentCharged y SubscriptionActivated los consume Analíticas; PaymentCharged y PaymentChargeRejected además disparan Event Handlers propios (5.6.3); el resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría. |
+| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Subscription y Payment son exclusivos de este bounded context. |
+| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PaymentGateway se declara como puerto en Domain; su implementación concreta (StripePaymentGateway) está en Infrastructure (5.6.4). |
+
 ### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.6.6. Bounded Context Software Architecture Code Level Diagrams
