@@ -1766,6 +1766,19 @@ No se identifican Entities en este bounded context: ambos aggregates son simples
 | PaymentCharged | Se publica al confirmarse el cobro; es consumido por Analíticas y dispara internamente ActivateSubscriptionCommand. | paymentId: Long, subscriptionId: Long, chargedAt: LocalDateTime |
 | PaymentChargeRejected | Se publica al rechazarse el cobro; dispara internamente CancelSubscriptionCommand. | paymentId: Long, subscriptionId: Long, reason: String, rejectedAt: LocalDateTime |
 
+No se declaran Factories ni Domain Services en este bounded context: `Subscription` y `Payment` se referencian solo por identificador. La creación de un Payment al confirmar la contratación se resuelve en `ConfirmContractingCommandHandler` invocando `PreauthorizePaymentCommand`, sin requerir colaboración en el mismo proceso de escritura entre ambos aggregates.
+
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| SubscriptionRepository | Subscription | Persiste y recupera el aggregate Subscription. |
+| PaymentRepository | Payment | Persiste y recupera el aggregate Payment; expone la búsqueda por subscriptionId. |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| Payment | asociación | Subscription | Payment referencia a su suscripción mediante subscriptionId; son aggregates independientes, sin composición. |
+| SubscriptionRepository | depende de | Subscription | El repositorio persiste y recupera el aggregate Subscription. |
+| PaymentRepository | depende de | Payment | El repositorio persiste y recupera el aggregate Payment. |
+
 ### 5.6.2. Interface Layer
 
 ### 5.6.3. Application Layer
