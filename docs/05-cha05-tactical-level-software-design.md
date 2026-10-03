@@ -1750,6 +1750,22 @@ No se identifican Entities en este bounded context: ambos aggregates son simples
 | GetPaymentByIdQuery | Obtiene el detalle de un pago. | paymentId: Long |
 | GetPaymentsBySubscriptionIdQuery | Lista los pagos asociados a una suscripción. | subscriptionId: Long |
 
+`ContractingConfirmed` lo consume Soporte Técnico para iniciar la evaluación de viabilidad; `PaymentPreauthorizationRejected` lo consume Comunicaciones (observación previa #1); `PaymentCharged` y `SubscriptionActivated` los consume Analíticas; `PlanAdaptationAccepted` lo consume Soporte Técnico para coordinar la instalación. Estas cuatro integraciones salientes se formalizarán del lado receptor en 5.7, 5.9 y 5.10 respectivamente. El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| SubscriptionSelected | Se publica al seleccionarse un plan de suscripción. | subscriptionId: Long, accountId: Long, homeProfileId: Long, planId: Long, selectedAt: LocalDateTime |
+| ContractingConfirmed | Se publica al confirmarse la contratación; es consumido por Soporte Técnico para iniciar la evaluación de viabilidad de la vivienda. | subscriptionId: Long, confirmedAt: LocalDateTime |
+| PlanAdaptationProposed | Se publica al proponerse una adaptación del plan. | subscriptionId: Long, adaptedPlanId: Long, proposedAt: LocalDateTime |
+| PlanAdaptationAccepted | Se publica al aceptarse la adaptación; es consumido por Soporte Técnico para coordinar la fecha de instalación. | subscriptionId: Long, acceptedAt: LocalDateTime |
+| PlanAdaptationRejected | Se publica al rechazarse la adaptación (observación previa #2). | subscriptionId: Long, rejectedAt: LocalDateTime |
+| SubscriptionActivated | Se publica al activarse la suscripción; es consumido por Analíticas. | subscriptionId: Long, activatedAt: LocalDateTime |
+| SubscriptionCancelled | Se publica al cancelarse la suscripción. | subscriptionId: Long, reason: String, cancelledAt: LocalDateTime |
+| PaymentPreauthorized | Se publica al preautorizarse el pago en Stripe. | paymentId: Long, subscriptionId: Long, amount: Money, preauthorizedAt: LocalDateTime |
+| PaymentPreauthorizationRejected | Se publica al rechazar Stripe la preautorización; es consumido por Comunicaciones para notificar al usuario, sin reintento automático (observación previa #1). | paymentId: Long, subscriptionId: Long, rejectedAt: LocalDateTime |
+| PaymentCharged | Se publica al confirmarse el cobro; es consumido por Analíticas y dispara internamente ActivateSubscriptionCommand. | paymentId: Long, subscriptionId: Long, chargedAt: LocalDateTime |
+| PaymentChargeRejected | Se publica al rechazarse el cobro; dispara internamente CancelSubscriptionCommand. | paymentId: Long, subscriptionId: Long, reason: String, rejectedAt: LocalDateTime |
+
 ### 5.6.2. Interface Layer
 
 ### 5.6.3. Application Layer
