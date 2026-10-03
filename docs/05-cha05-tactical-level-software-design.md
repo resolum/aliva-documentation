@@ -1781,6 +1781,26 @@ No se declaran Factories ni Domain Services en este bounded context: `Subscripti
 
 ### 5.6.2. Interface Layer
 
+La Interface Layer expone un controller por cada aggregate root: `SubscriptionController` y `PaymentController`. Este último solo expone consultas: `PreauthorizePaymentCommand`, `ConfirmChargeCommand` y `RejectChargeCommand` se invocan exclusivamente desde Event Handlers (5.6.3), nunca desde un endpoint REST, consistente con el patrón de integración por eventos entre bounded contexts usado en todo el capítulo (observación previa #4). Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: sus integraciones salientes se resuelven mediante el adaptador de Stripe y los Domain Events hacia Soporte Técnico, Comunicaciones y Analíticas.
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | SubscriptionController |
+| Categoría | Controller |
+| Propósito | Exponer la comparación de planes, la selección y contratación de suscripciones, y la aceptación o el rechazo de adaptaciones de plan. |
+| Aggregate/Entity relacionado | Subscription |
+| Ruta base | /api/v1/subscriptions |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getAvailablePlans | /plans (GET) | — | Lista el catálogo de planes disponibles | GetAvailablePlansQuery |
+| selectSubscription | / (POST) | body: SelectSubscriptionResource { accountId: Long, homeProfileId: Long, planId: Long } | Selecciona un plan de suscripción | SelectSubscriptionCommand |
+| getSubscriptionById | /{subscriptionId} (GET) | path: subscriptionId: Long | Obtiene el detalle de una suscripción | GetSubscriptionByIdQuery |
+| confirmContracting | /{subscriptionId}/confirm-contracting (POST) | path: subscriptionId: Long; body: ConfirmContractingResource { paymentMethodReference: String } | Confirma la contratación y preautoriza el pago | ConfirmContractingCommand |
+| proposeAdaptation | /{subscriptionId}/adaptation/propose (POST) | path: subscriptionId: Long; body: ProposeAdaptationResource { adaptedPlanId: Long, proposedBy: Long } | Propone una adaptación del plan (observación previa #5) | ProposeAdaptationCommand |
+| acceptAdaptation | /{subscriptionId}/adaptation/accept (POST) | path: subscriptionId: Long | Acepta la adaptación propuesta | AcceptAdaptationCommand |
+| rejectAdaptation | /{subscriptionId}/adaptation/reject (POST) | path: subscriptionId: Long | Rechaza la adaptación propuesta y cancela la suscripción | RejectAdaptationCommand |
+
 ### 5.6.3. Application Layer
 
 ### 5.6.4. Infrastructure Layer
