@@ -1101,7 +1101,9 @@ Navegación
 
 Barra lateral de navegación de la aplicación web del administrador general. Agrupa los módulos en Principal (Inicio), Capital humano (Empleados, Contratos y Horarios laborales), Operaciones técnicas (Órdenes técnicas), Clientes y servicio (Hogares y Dispositivos), Gestión comercial (Planes, Contrataciones y Suscripciones), Analítica (Métricas) y Configuración (Perfil del negocio). Resalta la opción activa y, al pie, muestra al usuario con sesión iniciada y su rol.
 
-![Navegación](https://i.imgur.com/afSKp5r.png)
+<div align="center">
+  <img src="https://i.imgur.com/afSKp5r.png" alt="Navegación"/>
+</div>
 
 Inicio
 
@@ -1155,7 +1157,9 @@ Detalle del contrato
 
 Vista de detalle de un contrato. Muestra las condiciones del contrato (código, cargo, sede, modalidad, horas semanales, fechas, estado legal, creación y última modificación) y la lista de empleados asignados a ese contrato. Permite volver al listado y editar el contrato.
 
-![Detalle del contrato](https://i.imgur.com/1KUuX3w.png)
+<div align="center">
+  <img src="https://i.imgur.com/1KUuX3w.png" alt="Detalle del contrato"/>
+</div>
 
 Horarios laborales
 
@@ -1179,7 +1183,9 @@ Detalle del horario
 
 Panel lateral con el detalle de un horario. Muestra al empleado, el total semanal de horas, la vigencia operativa, los bloques horarios configurados por día, el contrato asociado con su estado de cumplimiento, las órdenes técnicas del día y la disponibilidad calculada. Incluye los botones Cerrar y Editar horario.
 
-![Detalle del horario](https://i.imgur.com/wyQ0Xix.png)
+<div align="center">
+  <img src="https://i.imgur.com/wyQ0Xix.png" alt="Detalle del horario"/>
+</div>
 
 Órdenes técnicas
 
@@ -1191,7 +1197,9 @@ Detalle de la orden técnica
 
 Detalle de una orden técnica pendiente de asignación. Presenta el resumen de la solicitud (tipo, fecha, bloque horario, prioridad y descripción), los datos de contacto del cuidador principal y de la persona asistida, el hogar con su dirección, referencia y mapa, y la sección del técnico sin asignar con el botón Asignar técnico.
 
-![Detalle de la orden técnica](https://i.imgur.com/peJYaMD.png)
+<div align="center">
+  <img src="https://i.imgur.com/peJYaMD.png" alt="Detalle de la orden técnica"/>
+</div>
 
 Asignar empleado
 
@@ -1209,25 +1217,33 @@ Detalle del hogar - Información
 
 Detalle de un hogar, pestaña 1 (Información). Muestra los datos generales del hogar (identificación y contacto, servicio y cobertura, canales de comunicación preferidos) junto con la ubicación y cobertura: mapa, dirección normalizada, distrito, código postal, coordenadas y referencia. Las pestañas permiten pasar a Suscripción, Dispositivos y Órdenes técnicas.
 
-![Detalle del hogar - Información](https://i.imgur.com/jYSbY0Q.png)
+<div align="center">
+  <img src="https://i.imgur.com/jYSbY0Q.png" alt="Detalle del hogar - Información"/>
+</div>
 
 Detalle del hogar - Suscripción
 
 Detalle de un hogar, pestaña 2 (Suscripción). Muestra el plan contratado, la tarifa mensual, el estado de pago, las fechas de inicio y de próxima facturación, el método de pago registrado, el titular de facturación y los datos de facturación, junto con la ubicación y cobertura del hogar.
 
-![Detalle del hogar - Suscripción](https://i.imgur.com/hVpP0Ii.png)
+<div align="center">
+  <img src="https://i.imgur.com/hVpP0Ii.png" alt="Detalle del hogar - Suscripción"/>
+</div>
 
 Detalle del hogar - Dispositivos
 
 Detalle de un hogar, pestaña 3 (Dispositivos). Lista los dispositivos instalados (gateway, sensores y botón de auxilio) con su estado, y muestra la batería promedio y la señal de red. A la derecha mantiene la ubicación y cobertura del hogar.
 
-![Detalle del hogar - Dispositivos](https://i.imgur.com/P39K9fu.png)
+<div align="center">
+  <img src="https://i.imgur.com/P39K9fu.png" alt="Detalle del hogar - Dispositivos"/>
+</div>
 
 Detalle del hogar - Órdenes técnicas
 
 Detalle de un hogar, pestaña 4 (Órdenes técnicas). Lista las órdenes del hogar con su estado (en curso o completada) y el acceso Ver orden, y resume las órdenes atendidas y la orden activa. A la derecha mantiene la ubicación y cobertura del hogar.
 
-![Detalle del hogar - Órdenes técnicas](https://i.imgur.com/W1NvlpW.png)
+<div align="center">
+  <img src="https://i.imgur.com/W1NvlpW.png" alt="Detalle del hogar - Órdenes técnicas"/>
+</div>
 
 Dispositivos
 
@@ -1325,7 +1341,9 @@ Detalle de la orden técnica
 
 Panel lateral con el detalle de una orden técnica, mostrado sobre el listado Mis órdenes. Presenta el código y tipo de la orden (por ejemplo, instalación) y su estado (en ruta hacia el domicilio), el hogar con su dirección, distancia y horario, la ruta estimada en mapa con acceso a Waze, y el contacto autorizado con botón de llamada. Incluye el botón Confirmar llegada y el enlace Ver expediente completo.
 
-![Detalle de la orden técnica](https://i.imgur.com/UWdH61n.png)
+<div align="center">
+  <img src="https://i.imgur.com/UWdH61n.png" alt="Detalle de la orden técnica"/>
+</div>
 
 Calendario
 
@@ -1349,25 +1367,33 @@ Detalle del hogar - Información
 
 Detalle de un hogar, pestaña 1 (Información). Muestra los datos generales del hogar (identificación y contacto, servicio y cobertura, canales de comunicación preferidos) junto con la ubicación y cobertura: mapa, dirección normalizada, distrito, código postal, coordenadas y referencia. Las pestañas permiten pasar a Suscripción, Dispositivos y Órdenes técnicas.
 
-![Detalle del hogar - Información](https://i.imgur.com/ehedQhO.png)
+<div align="center">
+  <img src="https://i.imgur.com/ehedQhO.png" alt="Detalle del hogar - Información"/>
+</div>
 
 Detalle del hogar - Suscripción
 
 Detalle de un hogar, pestaña 2 (Suscripción). Muestra el plan contratado, la tarifa mensual, el estado de pago, las fechas de inicio y de próxima facturación, el método de pago registrado, el titular de facturación y los datos de facturación, junto con la ubicación y cobertura del hogar.
 
-![Detalle del hogar - Suscripción](https://i.imgur.com/oY7OCM2.png)
+<div align="center">
+  <img src="https://i.imgur.com/oY7OCM2.png" alt="Detalle del hogar - Suscripción"/>
+</div>
 
 Detalle del hogar - Dispositivos
 
 Detalle de un hogar, pestaña 3 (Dispositivos). Lista los dispositivos instalados (gateway, sensores y botón de auxilio) con su estado, y muestra la batería promedio y la señal de red. A la derecha mantiene la ubicación y cobertura del hogar.
 
-![Detalle del hogar - Dispositivos](https://i.imgur.com/ENWDRaO.png)
+<div align="center">
+  <img src="https://i.imgur.com/ENWDRaO.png" alt="Detalle del hogar - Dispositivos"/>
+</div>
 
 Detalle del hogar - Órdenes técnicas
 
 Detalle de un hogar, pestaña 4 (Órdenes técnicas). Lista las órdenes del hogar con su estado (en curso o completada) y el acceso Ver orden, y resume las órdenes atendidas y la orden activa. A la derecha mantiene la ubicación y cobertura del hogar.
 
-![Detalle del hogar - Órdenes técnicas](https://i.imgur.com/bAeRzvH.png)
+<div align="center">
+  <img src="https://i.imgur.com/bAeRzvH.png" alt="Detalle del hogar - Órdenes técnicas"/>
+</div>
 
 Dispositivos
 
@@ -1505,31 +1531,49 @@ Detalle de actividad
 
 Panel lateral con el detalle de una actividad de cuidado sobre la lista del día desenfocada. Muestra la categoría y el estado (Alimentación, Pendiente), el título, la persona asistida, el horario, la frecuencia, el cuidador asignado, el recordatorio y las indicaciones. Al pie tiene las acciones Marcar como completada, Reprogramar, Editar y Cancelar actividad.
 
-![Detalle de actividad](https://i.imgur.com/0QWTp2d.png)
+<div align="center">
+  <img src="https://i.imgur.com/0QWTp2d.png" alt="Detalle de actividad"/>
+</div>
 
 Detalle de incidencia en atención
 
 Detalle de una incidencia en estado "En atención", con enlaces para volver y ver el dispositivo. Muestra una línea de tiempo de 5 etapas con la cuarta activa, un resumen de la atención técnica en curso con técnico e inicio, y dos paneles: el detalle del reporte (dispositivo, tipo de problema, fecha, descripción y foto ampliable) y la atención en curso (técnico, hora de inicio, estado actual, nota de la intervención y ubicación del servicio).
 
-![Detalle de incidencia en atención](https://i.imgur.com/G4o8fZP.png)
+<div align="center">
+  <img src="https://i.imgur.com/G4o8fZP.png" alt="Detalle de incidencia en atención"/>
+</div>
 
 Detalle de incidencia resuelta
 
 Detalle de una incidencia en estado "Resuelta", con botón "Descargar reporte" y línea de tiempo completa con las cinco etapas marcadas. Muestra un resumen del caso (fecha y hora de cierre, técnico, estado del dispositivo operativo) y dos paneles: la incidencia reportada (dispositivo, tipo, descripción y ubicación) y el detalle de resolución (trabajo realizado, fecha de finalización, técnico y fotos del reporte y de la resolución). Al pie hay Ver dispositivo, Reportar nuevamente y Volver a incidencias.
 
-![Detalle de incidencia resuelta](https://i.imgur.com/1fayMj8.png)
+<div align="center">
+  <img src="https://i.imgur.com/1fayMj8.png" alt="Detalle de incidencia resuelta"/>
+</div>
 
 Detalle de incidencia con visita programada
 
 Detalle de una incidencia en estado "Visita programada", con botón "Descargar ficha" y línea de tiempo donde la tercera etapa está activa y las dos últimas pendientes. Destaca un bloque con la visita técnica (fecha, horario y técnico asignado) y el botón "Reprogramar visita". Debajo muestra el detalle del reporte (tipo de problema, fecha y descripción) y las evidencias (foto adjunta y ubicación), con un aviso del protocolo de seguridad y el enlace "Ver normas de visita".
 
-![Detalle de incidencia con visita programada](https://i.imgur.com/uxmWVfY.png)
+<div align="center">
+  <img src="https://i.imgur.com/uxmWVfY.png" alt="Detalle de incidencia con visita programada"/>
+</div>
+
+Detalle de red de cuidado
+
+Panel lateral con el detalle de un cuidador de la red: avatar con iniciales, nombre, parentesco (hija de la persona asistida) y etiqueta de cuidador principal. Muestra datos de contacto (correo, teléfono móvil, estado de vinculación Activo y fecha de registro) y la lista de responsabilidades asignadas con check. Incluye los botones Cerrar y Editar responsabilidades.
+
+<div align="center">
+  <img src="https://i.imgur.com/GmT4R8r.png" alt="Detalle de red de cuidado"/>
+</div>
 
 Detalle de dispositivo
 
 Panel de detalle de un sensor de ventana de un dormitorio, con alerta amarilla de batería baja (18%) que recomienda recambio sin costo adicional. Muestra estado y especificaciones (estado actual, nivel de batería, conectividad, última sincronización), la instalación (habitación y técnico asignado) y un historial reciente de eventos con indicadores de color. Ofrece los botones Solicitar recambio de batería, Reportar problema y Cerrar.
 
-![Detalle de dispositivo](https://i.imgur.com/FJPtSX4.png)
+<div align="center">
+  <img src="https://i.imgur.com/FJPtSX4.png" alt="Detalle de dispositivo"/>
+</div>
 
 Configuración de dispositivos por habitación
 
@@ -1718,6 +1762,14 @@ Cambiar foto de perfil
 Ventana emergente Actualizar fotografía sobre la pantalla Mi perfil. Muestra la vista previa de la imagen actual, una zona para arrastrar o seleccionar una imagen (JPG o PNG, máximo 5 MB), las opciones Reemplazar y Eliminar foto actual, y los botones Cancelar y Guardar foto.
 
 ![Cambiar foto de perfil](https://i.imgur.com/HsN3kS8.png)
+
+Detalle de actividad
+
+Panel lateral de consulta de una actividad. Muestra su nombre, la persona asignada, el estado, el horario programado, la categoría, la frecuencia y las indicaciones registradas. Funciona en modo solo lectura: avisa que la actividad la gestiona el cuidador principal y que cualquier cambio debe coordinarse con él. Incluye el botón Cerrar.
+
+<div align="center">
+  <img src="https://i.imgur.com/O9Y5jDL.png" alt="Detalle de actividad"/>
+</div>
 
 Inicio
 
