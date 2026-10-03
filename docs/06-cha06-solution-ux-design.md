@@ -1205,7 +1205,9 @@ Asignar empleado
 
 Ventana modal para asignar un técnico a una orden. Muestra la fecha y el bloque horario solicitados (no modificables), la lista de técnicos elegibles con su disponibilidad, horario y órdenes previas, y un resumen de la asignación. Se confirma con Confirmar asignación o se descarta con Cancelar.
 
-![Asignar empleado](https://i.imgur.com/EGlL1mm.png)
+<div align="center">
+  <img src="https://i.imgur.com/EGlL1mm.png" alt="Asignar empleado"/>
+</div>
 
 Hogares
 
