@@ -2058,6 +2058,11 @@ La Infrastructure Layer implementa los repositorios de Subscription y Payment so
 
 La persistencia se configura mediante `PagosSuscripcionesJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Subscription` y `Payment` sobre el motor PostgreSQL.
 
+| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
+| --- | --- | --- | --- | --- |
+| StripePaymentGateway | Gateway | PaymentGateway | Stripe | Preautoriza, cobra y devuelve montos sin almacenar datos bancarios localmente (Supuesto del Canvas). |
+| DomainEventBusSubscriber | Event Subscriber | HomeViabilityEvaluatedListener, InstallationCompletedListener, InstallationFailedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por Soporte Técnico hacia los Event Handlers de Pagos y Suscripciones (observaciones previas #3 y #4). |
+
 ### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.6.6. Bounded Context Software Architecture Code Level Diagrams
