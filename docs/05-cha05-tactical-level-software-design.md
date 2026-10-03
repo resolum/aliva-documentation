@@ -1727,6 +1727,16 @@ No se identifican Entities en este bounded context: ambos aggregates son simples
 | SubscriptionStatus | Enum | Estado de la suscripción. Transiciones permitidas: `SELECTED` → `AWAITING_EVALUATION` al confirmarse la contratación y preautorizarse el pago; `AWAITING_EVALUATION` → `ADAPTATION_PROPOSED` si la vivienda resulta parcialmente viable; `AWAITING_EVALUATION` → `CANCELLED` si la vivienda no es viable o si el cobro es rechazado; `AWAITING_EVALUATION` → `ACTIVE` al confirmarse el cobro; `ADAPTATION_PROPOSED` → `AWAITING_EVALUATION` al aceptarse la adaptación; `ADAPTATION_PROPOSED` → `CANCELLED` al rechazarse (observación previa #2). Si la preautorización es rechazada, la suscripción permanece en `SELECTED` para permitir un nuevo intento manual (observación previa #1). |
 | PaymentStatus | Enum | Estado del pago. Transiciones permitidas: (inicial) → `PREAUTHORIZED` si Stripe aprueba la preautorización, o → `PREAUTHORIZATION_REJECTED` (terminal) si la rechaza; `PREAUTHORIZED` → `CHARGED` (terminal) al confirmarse el cobro; `PREAUTHORIZED` → `CHARGE_REJECTED` (terminal) al rechazarse el cobro, liberando el importe retenido y devolviendo el monto (decisión de negocio del Canvas). |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| SelectSubscriptionCommand | Selecciona un plan de suscripción para la persona asistida de un hogar, en estado SELECTED. | accountId: Long, homeProfileId: Long, planId: Long |
+| ConfirmContractingCommand | Confirma la contratación y dispara la preautorización del pago (observación previa #1). | subscriptionId: Long, paymentMethodReference: String |
+| ProposeAdaptationCommand | Propone una adaptación del plan cuando la vivienda resulta parcialmente viable, de forma manual (Gestor de suscripciones) o automática (observación previa #3 y #5). | subscriptionId: Long, adaptedPlanId: Long, proposedBy: Long |
+| AcceptAdaptationCommand | Acepta la adaptación propuesta, retomando el proceso hacia la instalación. | subscriptionId: Long |
+| RejectAdaptationCommand | Rechaza la adaptación propuesta, cancelando la suscripción (observación previa #2). | subscriptionId: Long |
+| ActivateSubscriptionCommand | Activa la suscripción al confirmarse el cobro, invocado únicamente por PaymentChargedEventHandler. | subscriptionId: Long |
+| CancelSubscriptionCommand | Cancela la suscripción, invocado por la vivienda no viable, el rechazo de la adaptación o el rechazo del cobro. | subscriptionId: Long, reason: String |
+
 ### 5.6.2. Interface Layer
 
 ### 5.6.3. Application Layer
