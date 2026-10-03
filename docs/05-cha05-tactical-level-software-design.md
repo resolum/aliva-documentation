@@ -1962,6 +1962,42 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | SubscriptionCancelled |
 | User story/capability que habilita | Invocado por HomeViabilityEvaluatedEventHandler, RejectAdaptationCommandHandler o PaymentChargeRejectedEventHandler |
 
+**PreauthorizePaymentCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | PreauthorizePaymentCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear el Payment y preautorizar el monto en Stripe. |
+| Command/Query/Evento que maneja | PreauthorizePaymentCommand |
+| Repositorios y servicios que usa | PaymentRepository, PaymentGateway |
+| Eventos que publica | PaymentPreauthorized o PaymentPreauthorizationRejected |
+| User story/capability que habilita | Invocado únicamente por ConfirmContractingCommandHandler |
+
+**ConfirmChargeCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ConfirmChargeCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Confirmar el cobro del monto preautorizado en Stripe. |
+| Command/Query/Evento que maneja | ConfirmChargeCommand |
+| Repositorios y servicios que usa | PaymentRepository, PaymentGateway |
+| Eventos que publica | PaymentCharged |
+| User story/capability que habilita | Invocado únicamente por InstallationCompletedEventHandler |
+
+**RejectChargeCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RejectChargeCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Rechazar el cobro y liberar/devolver el importe retenido en Stripe. |
+| Command/Query/Evento que maneja | RejectChargeCommand |
+| Repositorios y servicios que usa | PaymentRepository, PaymentGateway |
+| Eventos que publica | PaymentChargeRejected |
+| User story/capability que habilita | Invocado únicamente por InstallationFailedEventHandler |
+
 ### 5.6.4. Infrastructure Layer
 
 ### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
