@@ -1998,6 +1998,54 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | PaymentChargeRejected |
 | User story/capability que habilita | Invocado únicamente por InstallationFailedEventHandler |
 
+**GetAvailablePlansQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetAvailablePlansQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el catálogo de planes disponibles para comparar. |
+| Command/Query/Evento que maneja | GetAvailablePlansQuery |
+| Repositorios y servicios que usa | PlanCatalogReadModel |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getAvailablePlans |
+
+**GetSubscriptionByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetSubscriptionByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de una suscripción. |
+| Command/Query/Evento que maneja | GetSubscriptionByIdQuery |
+| Repositorios y servicios que usa | SubscriptionRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getSubscriptionById |
+
+**GetPaymentByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetPaymentByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un pago. |
+| Command/Query/Evento que maneja | GetPaymentByIdQuery |
+| Repositorios y servicios que usa | PaymentRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getPaymentById |
+
+**GetPaymentsBySubscriptionIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetPaymentsBySubscriptionIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Listar los pagos asociados a una suscripción. |
+| Command/Query/Evento que maneja | GetPaymentsBySubscriptionIdQuery |
+| Repositorios y servicios que usa | PaymentRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getPaymentsBySubscription |
+
 ### 5.6.4. Infrastructure Layer
 
 ### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
