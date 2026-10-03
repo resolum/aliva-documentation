@@ -1743,6 +1743,13 @@ No se identifican Entities en este bounded context: ambos aggregates son simples
 | ConfirmChargeCommand | Confirma el cobro tras completarse la instalación, invocado únicamente por InstallationCompletedEventHandler (observación previa #4). | paymentId: Long |
 | RejectChargeCommand | Rechaza el cobro y libera/devuelve el importe retenido, invocado únicamente por InstallationFailedEventHandler (observación previa #4). | paymentId: Long, reason: String |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GetAvailablePlansQuery | Lista el catálogo de planes disponibles para comparar. | — |
+| GetSubscriptionByIdQuery | Obtiene el detalle de una suscripción. | subscriptionId: Long |
+| GetPaymentByIdQuery | Obtiene el detalle de un pago. | paymentId: Long |
+| GetPaymentsBySubscriptionIdQuery | Lista los pagos asociados a una suscripción. | subscriptionId: Long |
+
 ### 5.6.2. Interface Layer
 
 ### 5.6.3. Application Layer
