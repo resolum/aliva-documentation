@@ -1525,12 +1525,6 @@ Detalle de una incidencia en estado "Visita programada", con botón "Descargar f
 
 ![Detalle de incidencia con visita programada](https://i.imgur.com/uxmWVfY.png)
 
-Detalle de red de cuidado
-
-Panel lateral con el detalle de un cuidador de la red: avatar con iniciales, nombre, parentesco (hija de la persona asistida) y etiqueta de cuidador principal. Muestra datos de contacto (correo, teléfono móvil, estado de vinculación Activo y fecha de registro) y la lista de responsabilidades asignadas con check. Incluye los botones Cerrar y Editar responsabilidades.
-
-![Detalle de red de cuidado](https://i.imgur.com/GmT4R8r.png)
-
 Detalle de dispositivo
 
 Panel de detalle de un sensor de ventana de un dormitorio, con alerta amarilla de batería baja (18%) que recomienda recambio sin costo adicional. Muestra estado y especificaciones (estado actual, nivel de batería, conectividad, última sincronización), la instalación (habitación y técnico asignado) y un historial reciente de eventos con indicadores de color. Ofrece los botones Solicitar recambio de batería, Reportar problema y Cerrar.
@@ -1724,12 +1718,6 @@ Cambiar foto de perfil
 Ventana emergente Actualizar fotografía sobre la pantalla Mi perfil. Muestra la vista previa de la imagen actual, una zona para arrastrar o seleccionar una imagen (JPG o PNG, máximo 5 MB), las opciones Reemplazar y Eliminar foto actual, y los botones Cancelar y Guardar foto.
 
 ![Cambiar foto de perfil](https://i.imgur.com/HsN3kS8.png)
-
-Detalle de actividad
-
-Panel lateral de consulta de una actividad. Muestra su nombre, la persona asignada, el estado, el horario programado, la categoría, la frecuencia y las indicaciones registradas. Funciona en modo solo lectura: avisa que la actividad la gestiona el cuidador principal y que cualquier cambio debe coordinarse con él. Incluye el botón Cerrar.
-
-![Detalle de actividad](https://i.imgur.com/O9Y5jDL.png)
 
 Inicio
 
