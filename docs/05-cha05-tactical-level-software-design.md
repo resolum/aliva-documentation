@@ -1878,6 +1878,90 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | SubscriptionCancelled (vía el command invocado) |
 | User story/capability que habilita | Decisión de negocio del Canvas |
 
+**SelectSubscriptionCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | SelectSubscriptionCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear la suscripción en estado SELECTED con una copia del plan elegido. |
+| Command/Query/Evento que maneja | SelectSubscriptionCommand |
+| Repositorios y servicios que usa | SubscriptionRepository |
+| Eventos que publica | SubscriptionSelected |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**ConfirmContractingCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ConfirmContractingCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Confirmar la contratación y preautorizar el pago; si la preautorización es rechazada, la suscripción permanece en SELECTED (observación previa #1). |
+| Command/Query/Evento que maneja | ConfirmContractingCommand |
+| Repositorios y servicios que usa | SubscriptionRepository, PreauthorizePaymentCommand (invocado internamente) |
+| Eventos que publica | ContractingConfirmed |
+| User story/capability que habilita | Decisión de negocio del Canvas: "el pago se procesa en dos etapas" |
+
+**ProposeAdaptationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ProposeAdaptationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Proponer la adaptación del plan cuando la vivienda resulta parcialmente viable. |
+| Command/Query/Evento que maneja | ProposeAdaptationCommand |
+| Repositorios y servicios que usa | SubscriptionRepository |
+| Eventos que publica | PlanAdaptationProposed |
+| User story/capability que habilita | Resuelve la observación previa #5; invocado manualmente por el Gestor de suscripciones o automáticamente por HomeViabilityEvaluatedEventHandler |
+
+**AcceptAdaptationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AcceptAdaptationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Aceptar la adaptación propuesta, retomando el proceso hacia la coordinación de instalación. |
+| Command/Query/Evento que maneja | AcceptAdaptationCommand |
+| Repositorios y servicios que usa | SubscriptionRepository |
+| Eventos que publica | PlanAdaptationAccepted |
+| User story/capability que habilita | Decisión de negocio del Canvas |
+
+**RejectAdaptationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RejectAdaptationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Rechazar la adaptación propuesta y cancelar la suscripción. |
+| Command/Query/Evento que maneja | RejectAdaptationCommand |
+| Repositorios y servicios que usa | SubscriptionRepository, CancelSubscriptionCommand (invocado internamente) |
+| Eventos que publica | PlanAdaptationRejected |
+| User story/capability que habilita | Resuelve la observación previa #2 |
+
+**ActivateSubscriptionCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ActivateSubscriptionCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Activar la suscripción. |
+| Command/Query/Evento que maneja | ActivateSubscriptionCommand |
+| Repositorios y servicios que usa | SubscriptionRepository |
+| Eventos que publica | SubscriptionActivated |
+| User story/capability que habilita | Invocado únicamente por PaymentChargedEventHandler |
+
+**CancelSubscriptionCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | CancelSubscriptionCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Cancelar la suscripción. |
+| Command/Query/Evento que maneja | CancelSubscriptionCommand |
+| Repositorios y servicios que usa | SubscriptionRepository |
+| Eventos que publica | SubscriptionCancelled |
+| User story/capability que habilita | Invocado por HomeViabilityEvaluatedEventHandler, RejectAdaptationCommandHandler o PaymentChargeRejectedEventHandler |
+
 ### 5.6.4. Infrastructure Layer
 
 ### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
