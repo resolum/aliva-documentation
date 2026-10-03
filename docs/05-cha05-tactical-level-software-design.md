@@ -1714,6 +1714,14 @@ La Domain Layer modela dos aggregates independientes: `Subscription`, que repres
 
 No se identifican Entities en este bounded context: ambos aggregates son simples, sin componentes internos con identidad propia.
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| SubscriptionId | Value Object | Identificador tipado del aggregate Subscription; no admite valores nulos ni negativos. |
+| PaymentId | Value Object | Identificador tipado del aggregate Payment; no admite valores nulos ni negativos. |
+| PlanSnapshot | Value Object | Copia de los datos del plan (nombre, precio) tomada al momento de seleccionar la suscripción; no cambia aunque el catálogo se actualice después. |
+| Money | Value Object | Monto con su moneda, usado en la preautorización, el cobro y la devolución; no admite valores negativos. |
+| PaymentMethodReference | Value Object | Referencia al método de pago registrado en Stripe; no almacena datos bancarios localmente (Supuesto del Canvas). |
+
 ### 5.6.2. Interface Layer
 
 ### 5.6.3. Application Layer
