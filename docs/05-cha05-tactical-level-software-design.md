@@ -1722,6 +1722,11 @@ No se identifican Entities en este bounded context: ambos aggregates son simples
 | Money | Value Object | Monto con su moneda, usado en la preautorización, el cobro y la devolución; no admite valores negativos. |
 | PaymentMethodReference | Value Object | Referencia al método de pago registrado en Stripe; no almacena datos bancarios localmente (Supuesto del Canvas). |
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| SubscriptionStatus | Enum | Estado de la suscripción. Transiciones permitidas: `SELECTED` → `AWAITING_EVALUATION` al confirmarse la contratación y preautorizarse el pago; `AWAITING_EVALUATION` → `ADAPTATION_PROPOSED` si la vivienda resulta parcialmente viable; `AWAITING_EVALUATION` → `CANCELLED` si la vivienda no es viable o si el cobro es rechazado; `AWAITING_EVALUATION` → `ACTIVE` al confirmarse el cobro; `ADAPTATION_PROPOSED` → `AWAITING_EVALUATION` al aceptarse la adaptación; `ADAPTATION_PROPOSED` → `CANCELLED` al rechazarse (observación previa #2). Si la preautorización es rechazada, la suscripción permanece en `SELECTED` para permitir un nuevo intento manual (observación previa #1). |
+| PaymentStatus | Enum | Estado del pago. Transiciones permitidas: (inicial) → `PREAUTHORIZED` si Stripe aprueba la preautorización, o → `PREAUTHORIZATION_REJECTED` (terminal) si la rechaza; `PREAUTHORIZED` → `CHARGED` (terminal) al confirmarse el cobro; `PREAUTHORIZED` → `CHARGE_REJECTED` (terminal) al rechazarse el cobro, liberando el importe retenido y devolviendo el monto (decisión de negocio del Canvas). |
+
 ### 5.6.2. Interface Layer
 
 ### 5.6.3. Application Layer
