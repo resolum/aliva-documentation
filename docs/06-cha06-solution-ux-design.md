@@ -3401,7 +3401,61 @@ La persona abre la lista de incidencias, elige reportar una, completa los datos 
 
 Desde el inicio, el cuidador de apoyo abre la lista de actividades, selecciona una para ver su detalle y consulta el calendario. En el camino alterno, si no tiene actividades asignadas o el calendario está vacío, se muestra un mensaje de lista vacía. También se contempla un error al cargar el detalle de la actividad.
 
+#### Aplicación Móvil
 
+**User Flow 1:** Iniciar sesión
+
+**User Goal:** Como usuario de la app móvil (cuidador o técnico), quiero iniciar sesión con mi correo y contraseña, para acceder a las funciones de mi rol.
+
+<div align="center">
+  <img src="https://i.imgur.com/1AhHeRP.png" alt="Iniciar sesión"/>
+</div>
+Al abrir la app aparece la pantalla de inicio; el usuario pasa al inicio de sesión, ingresa sus datos y llega al inicio de su rol. En el camino alterno, si ingresa datos no válidos, el sistema muestra la pantalla de inicio de sesión con errores y el usuario corrige los datos para volver a intentar.
+
+**User Flow 2:** Recuperar contraseña
+
+**User Goal:** Como usuario de la app móvil (cuidador o técnico), quiero recuperar mi contraseña cuando la olvido, para volver a entrar a mi cuenta.
+
+<div align="center">
+  <img src="https://i.imgur.com/PFeCCQn.png" alt="Recuperar contraseña"/>
+</div>
+Desde el inicio de sesión, el usuario elige recuperar su contraseña, ingresa el código de verificación, crea su nueva contraseña y ve la confirmación de contraseña actualizada. En el camino alterno, si el código es incorrecto, el sistema muestra la pantalla con el error y el usuario corrige el código.
+
+**User Flow 3:** Gestionar actividades (cuidador o familiar)
+
+**User Goal:** Como cuidador o familiar, quiero programar y revisar las actividades diarias, para organizar el cuidado en el hogar.
+
+<div align="center">
+  <img src="https://i.imgur.com/OtakbEj.png" alt="Gestionar actividades"/>
+</div>
+Desde el inicio, el usuario abre la lista o el calendario de actividades, consulta el detalle de una actividad y registra una nueva con su programación. En el camino alterno, si no hay actividades, el sistema muestra el estado vacío; si el usuario descarta el registro, vuelve a la lista sin guardar cambios.
+
+**User Flow 4:** Revisar dispositivos (cuidador o familiar)
+
+**User Goal:** Como cuidador o familiar, quiero consultar el estado de los dispositivos del hogar, para saber que funcionan correctamente.
+
+<div align="center">
+  <img src="https://i.imgur.com/ilb0tnL.png" alt="Revisar dispositivos"/>
+</div>
+Desde el inicio, el usuario abre la lista de dispositivos y entra al detalle de uno para ver su estado. En el camino alterno, si ocurre un error al cargar los dispositivos, el sistema muestra el error y el usuario puede reintentar.
+
+**User Flow 5:** Atender una orden técnica
+
+**User Goal:** Como técnico, quiero consultar y atender mis órdenes técnicas, para cumplir las visitas asignadas.
+
+<div align="center">
+  <img src="https://i.imgur.com/056XpP7.png" alt="Atender una orden técnica"/>
+</div>
+Desde el inicio, el técnico abre la lista o el calendario de órdenes, revisa el detalle de una orden, la confirma y ve la pantalla de orden completada. En el camino alterno, si no hay órdenes se muestra el estado vacío; si el detalle falla, aparece el error; y si confirma sin disponibilidad, el sistema lo informa.
+
+**User Flow 6:** Instalación
+
+**User Goal:** Como técnico, quiero registrar el diagnóstico y las evidencias de la incidencia y registrar el dispositivo en el hogar, para dejar el servicio instalado y documentado.
+
+<div align="center">
+  <img src="https://i.imgur.com/Mng9f5y.png" alt="Instalación"/>
+</div>
+Desde el detalle de la orden, el técnico registra el diagnóstico, adjunta las evidencias y ve el resultado; luego consulta las instalaciones y registra el dispositivo para el hogar, dejando el servicio instalado. En el camino alterno, si descarta los cambios en las evidencias vuelve sin guardar, y si registra el dispositivo con datos incorrectos, el sistema pide corregirlos.
 
 ## 6.5. IoT Device Design
 
