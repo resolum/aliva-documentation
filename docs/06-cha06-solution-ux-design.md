@@ -3538,6 +3538,125 @@ Se descarta la conexión directa a un servicio de reconocimiento de voz en la nu
 
 ---
 
+
+## Dispositivo 2 — Accionador de Actuadores (Puertas, Ventanas y Luces)
+
+### Paso 1: Definición de los requisitos del sistema
+
+| Criterio | Especificación técnica |
+| :--- | :--- |
+| **Restricción de time-delay** | Desde que el Edge Actuador recibe el comando ya autorizado hasta que el mecanismo físico comienza a moverse, el tiempo debe ser $\le 600\text{ ms}$, de modo que sumado a los $\sim 720\text{ ms}$ del dispositivo de voz el flujo completo se mantenga por debajo del límite de $1.5\text{ s}$ definido en **QAS-05**. |
+| **Suministro de energía** | Alimentación por fuente externa $5\text{ V}$ (lógica del ESP32 y el relé) con una línea dedicada de $5\text{--}6\text{ V}$ para los servomotores, cuyo consumo pico es significativamente mayor que el de la lógica digital. A diferencia del cubo de voz, no exige batería de respaldo para este dispositivo; por eso, ante un corte eléctrico total, el mecanismo debe quedar en un estado seguro (ni forzado ni bloqueado) en lugar de intentar operar sin energía confiable. |
+| **Restricciones ambientales** | El accionador se instala de forma fija junto al marco de la puerta/ventana o junto al interruptor de luz, por lo que no enfrenta restricciones de movilidad, pero sí debe tolerar el uso mecánico repetido sin degradar la precisión de apertura/cierre. |
+
+### Paso 2: Elección de la tipología de sistema IoT
+
+Igual que el dispositivo de voz, se adopta una **tipología estrella con procesamiento en el borde**: el nodo actuador (ESP32) se conecta únicamente al Edge Actuador (Raspberry Pi), que valida permisos localmente contra una base SQLite y ejecuta la acción sin salir a Internet, tal como se definió en el diagrama de despliegue del Capítulo 4 (*"Ejecuta acciones (Python/Flask) y guarda permisos localmente"*). 
+
+El Edge Actuador y el Edge Micrófono se comunican entre sí mediante un broker MQTT local compartido, sin depender de la nube para coordinar la acción.
+
+### Paso 3: Definición de requisitos de la capa física
+
+| Parámetro | Definición y requisitos técnicos |
+| :--- | :--- |
+| **Actuadores** | Micro-servomotor para accionar la bisagra de la puerta o la ventana; módulo relé de un canal para el interruptor de luz. |
+| **Sensores de soporte** | Sensor de fin de carrera (detecta si la puerta/ventana quedó completamente abierta o cerrada) y sensor de corriente (detecta si el servo se atascó por sobrecarga mecánica). |
+| **Incertidumbre objetivo (Target Uncertainty)** | Margen de error aceptable de aproximadamente $\pm 5^\circ$ en el ángulo del servo: suficiente para abrir o cerrar el mecanismo sin requerir precisión milimétrica. |
+| **Capacidad de procesamiento local** | Una máquina de estados simple (`IDLE` $\rightarrow$ `MOVIENDO` $\rightarrow$ `ABIERTO/CERRADO/ATASCADO`) corre directamente en el ESP32; ante sobrecorriente sostenida, el nodo aborta el movimiento y reporta el atasco en lugar de forzar el mecanismo. |
+
+### Paso 4: Definición de requisitos de la capa de intercambio
+
+| Parámetro | Definición técnica |
+| :--- | :--- |
+| **Medio físico de transmisión** | Wi-Fi $2.4\text{ GHz}$ como canal principal; BLE como canal de respaldo ante la pérdida del enlace Wi-Fi (mismo mecanismo de failover que el cubo de voz, **QAS-01**). |
+| **Topología de red** | Estrella: cada nodo actuador se conecta únicamente al Edge Actuador. |
+| **Rango operativo** | Instalación fija dentro de la vivienda, dentro de la misma cobertura Wi-Fi doméstica ($\sim 15\text{--}20\text{ m}$). |
+| **Consumo máximo de potencia** | El radio consume de forma similar al cubo ($\sim 120\text{--}150\text{ mA}$ Wi-Fi en picos), pero el consumo dominante proviene del propio actuador: el servo puede alcanzar $\sim 500\text{--}700\text{ mA}$ en movimiento y el relé $\sim 70\text{ mA}$ en la bobina de accionamiento. |
+| **Criptografía y seguridad** | Mismo esquema WPA2/WPA3 de la red doméstica; adicionalmente, el Edge Actuador valida que el comando provenga de una intención autorizada antes de reenviarlo al nodo, evitando accionamientos no autorizados de puertas o ventanas. |
+
+### Paso 5: Definición de requisitos de la capa de información
+
+| Criterio | Especificación de capa |
+| :--- | :--- |
+| **Perfiles de usuario** | Persona asistida (beneficiaria directa de la acción), cuidador (configura reglas de automatización y permisos), técnico (instala y comprueba el funcionamiento de los actuadores). |
+| **Servicios que necesita cada perfil** | Persona asistida: ejecución inmediata y confiable de la acción física sobre puerta, ventana o luz. Cuidador: panel de supervisión del estado de los dispositivos y configuración de reglas de automatización y permisos. Técnico: comprobación manual de los actuadores durante instalación y mantenimiento. |
+| **Distribución de servicios** | La ejecución de la acción física es $100\,\%$ local (Nodo + Edge); el registro del resultado (éxito, falla, atasco) se sincroniza al Cloud cuando hay conexión. |
+| **Arquitectura de procesamiento y cómputo** | Nodo (ESP32): máquina de estados del servo/relé y lectura del sensor de corriente. Edge (Raspberry Pi, Python/Flask): valida permisos contra SQLite local, orquesta la secuencia de ejecución y reintenta si no recibe confirmación del nodo. Cloud: registra el evento de ejecución o falla y genera alertas técnicas cuando corresponde. |
+
+#### Información procesada por servicio y tiempo de procesamiento
+
+| Servicio | Información procesada | Nodo que la procesa | Tiempo estimado |
+| :--- | :--- | :--- | :--- |
+| **Recepción del comando reconocido** | Payload MQTT con la intención ya autorizada | Edge Actuador | $\sim 20\text{ ms}$ |
+| **Validación de permisos** | Consulta a la tabla de reglas y permisos en SQLite local | Edge Actuador | $\sim 30\text{ ms}$ |
+| **Orquestación de la secuencia de ejecución** | Selección del actuador destino y parámetros de movimiento | Edge Actuador | $\sim 50\text{ ms}$ |
+| **Ejecución física de la acción** | Máquina de estados del servo/relé y lectura del sensor de corriente | Nodo (ESP32) | $\sim 400\text{ ms}$ |
+| **Confirmación (ACK) al Edge** | Estado final del actuador (éxito, falla, atasco) | Nodo $\rightarrow$ Edge Actuador | $\sim 30\text{ ms}$ |
+| **Registro del evento y alertas técnicas** | Resultado de la ejecución, timestamp y metadatos del dispositivo | Cloud | Asíncrono, no bloqueante para la ejecución local |
+
+### Paso 6: Definición de requisitos de la capa de servicios de aplicación
+
+| Servicio | Especificación de la interfaz | Complejidad del cliente |
+| :--- | :--- | :--- |
+| **Panel de supervisión del hogar** | Aplicación web / móvil (cuidador) — tarjetas de dispositivo con badge de estado. | Baja-media — sólo consume el estado ya calculado por el backend. |
+| **Configuración de reglas de automatización y permisos** | Aplicación web (cuidador) — debe permitir crear una regla nueva en menos de 2 minutos sin asistencia técnica (*Lean UX User Assumptions*, Cap. 1). | Media — formulario guiado con validaciones. |
+| **Comprobación de actuadores durante instalación/mantenimiento** | Aplicación web empresa (técnico) — prueba manual de apertura/cierre. | Media — incluye control directo del actuador desde la interfaz. |
+
+### Paso 7: Elección de la arquitectura de las capas de intercambio de datos y de información
+
+| Origen | Destino | Protocolo / Canal | Latencia estimada | Acción operativa |
+| :--- | :--- | :--- | :--- | :--- |
+| Broker MQTT local | Edge Actuador | Suscripción MQTT (Mosquitto) | $\sim 20\text{ ms}$ | Recepción del comando ya reconocido y publicado por el Edge Micrófono |
+| Edge Actuador (local) | Edge Actuador (local) | Consulta SQLite | $\sim 30\text{ ms}$ | Validación de que el comando proviene de una intención autorizada y de que el dispositivo destino existe y está habilitado |
+| Edge Actuador | Nodo (ESP32 actuador) | Wi-Fi/BLE | $\sim 80\text{ ms}$ | Envío del comando de ejecución al nodo correspondiente |
+| Nodo (ESP32 actuador) | Mecanismo físico | PWM (servo) / GPIO (relé) | $\sim 250\text{--}400\text{ ms}$ | Activación física de la puerta, ventana o luz |
+| **Latencia total acumulada (tramo del actuador)** | | | $\approx 530\text{ ms}$ | Dentro del presupuesto de $600\text{ ms}$ definido en el Paso 1 |
+
+> Sumando el tramo de voz ($\sim 720\text{ ms}$, Dispositivo 1) y el tramo del actuador ($\sim 530\text{ ms}$), la latencia total estimada de extremo a extremo es de $\approx 1.25\text{ s}$, por debajo del límite de $1.5\text{ s}$ exigido por **QAS-05**. Se descartó centralizar la validación de permisos en el Cloud porque añadiría una dependencia de Internet incompatible con la ejecución de acciones esenciales sin conexión.
+
+### Paso 8: Elección de sensores y actuadores
+
+| Parámetro físico | Modelo de componente | Justificación e integración técnica |
+| :--- | :--- | :--- |
+| **Apertura/cierre de puerta o ventana** | Micro-servomotor (p. ej. SG90, $\sim 1.8\text{ kg}\cdot\text{cm}$ de torque, $0\text{--}180^\circ$) acoplado a la bisagra | Suficiente torque para mecanismos livianos de puerta interior o ventana corredera; controlable por PWM directamente desde el ESP32. |
+| **Encendido/apagado de luz** | Módulo relé de 1 canal, $5\text{ V}$ | Permite conmutar el circuito de iluminación existente sin modificar la instalación eléctrica del hogar. |
+| **Detección de posición** | Sensor de fin de carrera (micro switch) | Confirma si el mecanismo llegó a la posición de "abierto" o "cerrado" antes de reportar éxito al Edge. |
+| **Detección de atasco** | Sensor de corriente (p. ej. INA219) en la línea del servo | Detecta sobrecorriente sostenida (bloqueo mecánico) y permite abortar el movimiento antes de dañar el mecanismo o forzar la puerta. |
+
+### Paso 9: Elección del microcontrolador y transceptores de radio del dispositivo
+
+| Rol en la red | Modelo de hardware | Transceptor integrado | Justificación metodológica |
+| :--- | :--- | :--- | :--- |
+| **Nodo (actuador)** | ESP32-WROOM-32 | Wi-Fi $2.4\text{ GHz}$ + BLE integrados | Mismo SoC que el cubo de voz, lo que estandariza el firmware y el stock de repuestos del prototipo; sus salidas PWM controlan el servo y sus GPIO digitales controlan el relé sin necesidad de hardware adicional. |
+| **Concentrador (Edge Actuador)** | Raspberry Pi 4 Model B | Wi-Fi Dual Band + Ethernet | Ejecuta el servicio Python/Flask de validación de permisos, mantiene la base SQLite local de dispositivos habilitados y actúa como cliente del broker MQTT compartido con el Edge Micrófono. |
+
+### Paso 10: Definición de los algoritmos de procesamiento de datos
+
+| Ubicación | Algoritmo | Responsabilidad |
+| :--- | :--- | :--- |
+| **Edge Actuador** | Validación de permisos e intención | Verifica que el comando recibido por MQTT provenga de una fuente autorizada y que el dispositivo destino esté habilitado, antes de reenviarlo al nodo. |
+| **Edge Actuador** | Orquestación y reintento | Envía el comando al nodo y reintenta ante la ausencia de confirmación (ACK), evitando comandos perdidos por una falla momentánea de enlace. |
+| **Nodo (ESP32)** | Máquina de estados del actuador | Controla la secuencia `IDLE` $\rightarrow$ `MOVIENDO` $\rightarrow$ `ABIERTO/CERRADO/ATASCADO`, leyendo el sensor de corriente para abortar el movimiento si se detecta sobrecarga. |
+| **Cloud** | Registro de telemetría y alertas | Persiste el resultado de la ejecución (éxito, falla, atasco) y genera una alerta técnica para el cuidador cuando corresponde. |
+
+### Paso 11: Análisis del esfuerzo computacional de los algoritmos
+
+| Algoritmo | Complejidad | Tiempo estimado | Ubicación |
+| :--- | :--- | :--- | :--- |
+| **Validación de permisos (consulta SQLite indexada)** | $\mathcal{O}(1)$ | $\sim 30\text{ ms}$ | Edge Actuador |
+| **Máquina de estados del actuador** | $\mathcal{O}(1)$ | $\sim 5\text{ ms}$ | Nodo (ESP32) |
+| **Lectura del sensor de corriente / detección de atasco** | $\mathcal{O}(1)$ por muestra | $\sim 5\text{ ms}$ | Nodo (ESP32) |
+| **Movimiento físico del servo (tiempo mecánico, no de cómputo)** | — | $\sim 250\text{--}400\text{ ms}$ | Mecanismo físico |
+
+### Paso 12: Definición de la interfaz de usuario gráfica
+
+| Módulo de interfaz | Plataformas de visualización | Elementos clave de la UI | Justificación funcional |
+| :--- | :--- | :--- | :--- |
+| **Tarjetas de dispositivo en el panel de supervisión** | Aplicación web / móvil (cuidador) | Badge de color por estado (operativo, batería baja, falla), ícono por tipo (luz, puerta, ventana), última actualización. | Permite al cuidador reconocer de un vistazo qué dispositivo requiere atención, priorizando fallas sobre el funcionamiento normal (ver 6.4 del diseño UX). |
+| **Configurador de reglas de automatización** | Aplicación web (cuidador) | Formulario guiado para asociar un comando de voz a una acción de actuador, con confirmación en menos de 2 minutos. | Da cumplimiento al requisito de configuración adaptativa identificado en las *Feature Assumptions* del Capítulo 1. |
+| **Comprobación técnica de actuadores** | Aplicación web empresa (técnico) | Control manual de apertura/cierre/encendido y lectura en vivo del sensor de corriente. | Sustenta el mantenimiento preventivo y las pruebas de resiliencia recomendadas en las Conclusiones (Cap. 8). |
+
+
 ## 6.6. Applications Prototyping
 
 <div style="page-break-after: always;"></div>
