@@ -3411,276 +3411,132 @@ Desde el inicio, el cuidador de apoyo abre la lista de actividades, selecciona u
   <img src="https://i.imgur.com/KIXRbiB.png" alt="Flujo del diseño de dispositivos iot en 12 pasos"/>
 </div>
 
-***Paso 1: Definición de los requisitos del sistema***
+ALIVIA se apoya en dos dispositivos IoT físicos complementarios que trabajan de forma coordinada pero independiente para resolver el flujo **"comando de voz → acción física"** sin depender de Internet:
 
-<table>
-    <tr>
-        <th> Criterios </th>
-        <th> Especificación Técnica </th>
-    </tr>
-    <tr>
-        <td rowspan="3"> <strong> Capacidades de Suministro de Energía </strong> </td>
-        <td> <strong> Entorno de Operación: </strong></td>
-    </tr>
-    <tr>
-        <td> <strong> Entrada de Alimentación: </strong></td>
-    </tr>
-    <tr>
-        <td> <strong> Restricciones: </strong></td>
-    </tr>
-    <tr>
-        <td rowspan="4"> <strong> Restricciones de Latencia (Time-Delay) </strong> </td>
-        <td> <strong> Modelo Basado en Eventos: </strong>El sistema se implementa bajo un paradigma reactivo (event-driven). Los dispositivos entran en modo de espera activa y solo transmiten datos ante variaciones significativas para optimizar el ancho de banda. </td>
-    </tr>
-</table>
+1. **Dispositivo de reconocimiento de comandos de voz ("el cubo"):** capta la voz de la persona asistida, detecta la palabra de activación y transcribe el comando en el borde de la red (*Edge*), sin enviar audio a la nube.
+2. **Dispositivo accionador:** recibe la intención ya reconocida y ejecuta la acción física sobre la puerta, la ventana o la luz mediante servomotores y un relé, manteniendo el mecanismo en estado seguro ante fallas.
 
-***Paso 2: Elección de la tipología de sistema IoT***
+Ambos dispositivos comparten la misma capa *Fog* (dos procesos Edge en Python/Flask enlazados por un broker MQTT local), pero se diseñan por separado siguiendo la metodología de 12 pasos, ya que cada uno tiene requisitos físicos, energéticos y de cómputo distintos.
 
-<table>
-    <tr>
-        <th> Parámetro de Clasificación </th>
-        <th> Estructura Definida </th>
-        <th> Justificación Técnica </th>
-    </tr>
-    <tr>
-        <td> <strong> Suministro de Energía </strong> </td>
-        <td>  </td>
-        <td>  </td>
-    </tr>
-    <tr>
-        <td> <strong> Restricción de Retardo (Time-Delay) </strong> </td>
-        <td>  </td>
-        <td>  </td>
-    </tr>
-    <tr>
-        <td> <strong> Tipología Final </strong> </td>
-        <td>  </td>
-        <td>  </td>
-    </tr>
-</table>
+---
 
-***Paso 3: Definición de requisitos para la capa física***
+## Dispositivo 1 — Reconocimiento de Comandos de Voz
 
-<table>
-    <tr>
-        <th> Parámetro </th>
-        <th> Definición y Requisitos Técnicos </th>
-    </tr>
-    <tr>
-        <td> <strong> Configuración de Elementos </strong> </td>
-        <td>  
-        </td>
-    </tr>
-    <tr>
-        <td> <strong> Incertidumbre Objetivo (Target Uncertainty) </strong> </td>
-        <td> 
-        </td>
-    </tr>
-    <tr>
-        <td> <strong> Precisión del Actuador Visual </strong> </td>
-        <td> </td>
-    </tr>
-    <tr>
-        <td> <strong> Capacidad de Procesamiento Local </strong> </td>
-        <td>  
-        </td>
-    </tr>
-</table>
+### Paso 1: Definición de los requisitos del sistema
 
-***Paso 4: Definición de requisitos para la capa de intercambio de datos***
+| Criterio | Especificación técnica |
+| :--- | :--- |
+| **Restricción de time-delay** | El tramo que le corresponde a este dispositivo (captura del audio + detección de palabra de activación + transcripción local + mapeo de intención) debe completarse en $\le 900\text{ ms}$, dejando el remanente del presupuesto de $1.5\text{ s}$ definido en **QAS-05** para la publicación del comando y la ejecución física a cargo del dispositivo accionador. |
+| **Suministro de energía** | Alimentación principal con batería LiPo $502035 \cdot 3.7\text{ V} \cdot 300\text{ mAh}$, además de una batería de respaldo que permite seguir reconociendo comandos y emitiendo confirmaciones aunque falle el suministro eléctrico externo, ya que el reconocimiento debe mantenerse activo incluso sin conexión a Internet. |
+| **Restricciones ambientales** | Debe operar de forma confiable dentro de una habitación con ruido ambiental moderado, reconociendo comandos pronunciados hasta $2\text{ metros}$ de distancia con una confianza superior al $75\,\%$. |
 
-<table>
-    <tr>
-        <th> Parámetro </th>
-        <th> Definición Técnica </th>
-    </tr>
-    <tr>
-        <td> <strong> Latencia de Transporte Local </strong> </td>
-    </tr>
-    <tr>
-        <td> <strong> Medio Físico de Transmisión </strong> </td>
-    </tr>
-    <tr>
-        <td> <strong> Topología de Red </strong> </td>
-    </tr>
-    <tr>
-        <td> <strong> Rango Operativo </strong> </td>
-    </tr>
-    <tr>
-        <td> <strong> Consumo Máximo de Potencia de Radio </strong> </td>
-    </tr>
-    <tr>
-        <td> <strong> Criptografía y Seguridad </strong> </td>
-    </tr>
-</table>
+### Paso 2: Elección de la tipología de sistema IoT
 
-***Paso 5: Definición de requisitos para la capa de información***
+Se selecciona una **tipología estrella con procesamiento en el borde** (*Edge-first* / *Fog computing*): el cubo no se conecta directamente a la nube, sino a un gateway local (*Edge Micrófono*, sobre Raspberry Pi) que ejecuta el reconocimiento y sólo sincroniza eventos hacia el Cloud cuando existe conexión disponible. 
 
-<table>
-    <tr>
-        <th> Criterios </th>
-        <th> Especificación de Capa </th>
-    </tr>
-    <tr>
-        <td rowspan="2"> <strong> Perfiles de Usuario </strong> </td>
-        <td> <strong> Operador de Mantenimiento: </strong></td>
-    </tr>
-    <tr>
-        <td> <strong> Administrador del Negocio: </strong></td>
-    </tr>
-    <tr>
-        <td rowspan="2"> <strong> Distribución de Servicios </strong> </td>
-        <td> <strong> Mantenimiento: </strong></td>
-    </tr>
-    <tr>
-        <td> <strong> Operativo: </strong></td>
-    </tr>
-    <tr>
-        <td rowspan="3"> <strong> Arquitectura de Procesamiento y Cómputo </strong> </td>
-        <td> <strong> En el Nodo Sensor (ESP32): </strong></td>
-    </tr>
-    <tr>
-        <td> <strong> En el Gateway (Edge): </strong></td>
-    </tr>
-    <tr>
-        <td> <strong> En el Middleware (Cloud): </strong></td>
-    </tr>
-</table>
+Se descarta la conexión directa a un servicio de reconocimiento de voz en la nube porque violaría la restricción de privacidad de Edge Computing (**AC-07**) y añadiría una dependencia de Internet.
 
-***Paso 6: Definición de requisitos para la capa de servicios de aplicación***
+### Paso 3: Definición de requisitos de la capa física
 
-<table>
-    <tr>
-        <th> Servicio </th>
-        <th> Especificación de la Interfaz </th>
-        <th> Complejidad del Cliente </th>
-    </tr>
-    <tr>
-        <td> <strong> Nombre Servicio </strong> </td>
-        <td> Descripción (interfaz web, móvil, iot) </td>
-        <td> </td>
-    </tr>
-</table>
+| Parámetro | Definición y requisitos técnicos |
+| :--- | :--- |
+| **Sensor** | Micrófono ambiental MEMS con salida digital I2S, en modo de espera activa (*event-driven*): sólo activa el procesamiento cuando detecta energía de voz por encima de un umbral, para optimizar cómputo y energía. |
+| **Actuadores propios del cubo** | Mini-parlante para la confirmación audible del comando y para la solicitud de auxilio hablada; indicadores LED de estado de conexión y batería. |
+| **Incertidumbre objetivo (Target Uncertainty)** | Confianza de reconocimiento $> 75\,\%$ dentro de un radio de $2\text{ m}$ en un ambiente con ruido moderado (**TS-35**). Por debajo del umbral, el sistema debe abstenerse de ejecutar la acción y solicitar que el usuario repita el comando en lugar de arriesgar una ejecución incorrecta. |
+| **Capacidad de procesamiento local** | El ESP32 del cubo sólo ejecuta la detección de la palabra de activación (*wake-word*) con un modelo ligero cuantizado (TFLite Micro); la transcripción completa del comando se delega al Edge Micrófono, que cuenta con más cómputo disponible (**TS-38**). |
 
-***Paso 7: Elección de la arquitectura de las capas de intercambio de datos y de información***
+### Paso 4: Definición de requisitos de la capa de intercambio
 
-<table>
-    <tr>
-        <th> Origen </th>
-        <th> Destino </th>
-        <th> Protocolo / Canal </th>
-        <th> Latencia Estimada (ms) </th>
-        <th> Acción Operativa </th>
-    </tr>
-    <tr>
-        <td> Colocar los casos de intercambio de datos existente (Cloud - Edge - Node) </td>
-        <td>  </td>
-        <td>  </td>
-        <td>  </td>
-        <td> si </td>
-    </tr>
-    <tr>
-        <td colspan="3"> <strong> Latencia Total Acumulada (End-to-End) </strong> </td>
-        <td> <strong> 1110 ms (1.11 s) </strong> </td>
-        <td> </td>
-    </tr>
-</table>
+| Parámetro | Definición técnica |
+| :--- | :--- |
+| **Medio físico de transmisión** | Wi-Fi $2.4\text{ GHz}$ ($802.11\text{ b/g/n}$) como canal principal; Bluetooth Low Energy (BLE) como canal de respaldo ante la pérdida de Wi-Fi (**QAS-01**, **AC-08**). |
+| **Topología de red** | Estrella: el cubo se conecta únicamente al Edge Micrófono, que actúa como concentrador local. |
+| **Rango operativo** | Cobertura dentro de una vivienda residencial ($\sim 15\text{--}20\text{ m}$ en interiores, suficiente para cubrir una habitación y su entorno inmediato). |
+| **Consumo máximo de potencia de radio** | Wi-Fi: picos de $\sim 120\text{--}150\text{ mA}$ en transmisión; BLE (modo failover): $\sim 10\text{--}15\text{ mA}$, priorizado por su bajo consumo cuando el enlace principal no está disponible. |
+| **Criptografía y seguridad** | Red doméstica protegida con WPA2/WPA3; el payload transmitido al Edge se cifra para proteger la privacidad del audio y del texto reconocido, en línea con la restricción de privacidad en Edge Computing (**AC-07**). |
 
-***Paso 8: Elección de sensores y actuadores***
+### Paso 5: Definición de requisitos de la capa de información
 
-<table>
-    <tr>
-        <th> Parámetro Físico </th>
-        <th> Modelo de Componente </th>
-        <th> Justificación e Integración Técnica </th>
-    </tr>
-    <tr>
-        <td> <strong> Medición de Masa/Peso </strong> </td>
-        <td> Celda de Carga WSS-5KG + Convertidor HX711 </td>
-        <td> 
-        </td>
-    </tr>
-</table>
+| Criterio | Especificación de capa |
+| :--- | :--- |
+| **Perfiles de usuario** | Persona asistida (emite el comando), cuidador principal (recibe alertas y supervisa el historial), técnico (verifica el funcionamiento del micrófono durante instalación y mantenimiento), administrador (gestiona dispositivos). |
+| **Servicios que necesita cada perfil** | Persona asistida: confirmación audible del comando reconocido y solicitud de auxilio. Cuidador principal: notificaciones push de alertas y consulta del historial de comandos. Técnico: diagnóstico de falsos positivos, comandos rechazados y latencia del reconocimiento. Administrador: gestión y habilitación de dispositivos del hogar. |
+| **Distribución de servicios** | El reconocimiento de voz y la confirmación audible se ejecutan íntegramente en el Nodo y el Edge, sin depender de la nube (operativo). La generación de notificaciones push, el historial y la configuración de reglas se procesan en el Cloud cuando hay conectividad (mantenimiento/supervisión). |
+| **Arquitectura de procesamiento y cómputo** | Nodo (ESP32): captura de audio I2S y detección local de la palabra de activación. Gateway/Edge (Raspberry Pi, Python/Flask): transcripción del comando, mapeo a intención, verificación del umbral de confianza y publicación del comando reconocido al broker MQTT local. Cloud (backend Java/Spring Boot): persistencia del historial (MongoDB), generación de alertas y notificaciones push (Firebase Cloud Messaging) una vez sincronizado. |
 
-***Paso 9: Elección del microcontrolador y transceptores de radio del dispositivo***
+#### Información procesada por servicio y tiempo de procesamiento
 
-<table>
-    <tr>
-        <th> Rol en la Red </th>
-        <th> Modelo de Hardware </th>
-        <th> Transceptor Integrado </th>
-        <th> Justificación Metodológica </th>
-    </tr>
-    <tr>
-        <td> <strong> Nodo Sensor </strong> </td>
-        <td> ESP32 DevKitV1 </td>
-        <td> Wi-Fi 2.4 GHz (802.11 b/g/n) </td>
-        <td> 
-    Se selecciona este SoC de 32 bits de doble núcleo por sus periféricos integrados de comunicación inalámbrica y su potencia de procesamiento. Ofrece soporte nativo para buses I2C (para la pantalla LCD) y pines digitales rápidos para comunicarse con el módulo HX711 y el sensor DHT22. Además, su memoria interna (520 KB de SRAM y 4 MB de Flash) permite ejecutar de forma concurrente el stack Wi-Fi WPA2, la encriptación local y la lógica de muestreo de peso y ambiente.
-        </td>
-    </tr>
-    <tr>
-        <td> <strong> Concentrador (Edge Gateway) </strong> </td>
-        <td> Raspberry Pi 4 Model B </td>
-        <td> Wi-Fi Dual Band + Ethernet </td>
-        <td> 
-    Esta computadora de placa única (SBC) de 1.5 GHz con arquitectura ARM Cortex-A72 proporciona la capacidad de cómputo necesaria para ejecutar el broker local de mensajería (Mosquitto), la base de datos SQLite y el servicio local de borde (Edge Service). Soporta la ingesta y procesamiento de múltiples balanzas en paralelo sin pérdidas de información, encripta los datos y los sincroniza de manera segura con el Cloud Service.
-        </td>
-    </tr>
-</table>
+| Servicio | Información procesada | Nodo que la procesa | Tiempo estimado |
+| :--- | :--- | :--- | :--- |
+| **Detección de palabra de activación** | Buffer de audio I2S de los últimos $\sim 1.5\text{ s}$ | Nodo (ESP32) | $\sim 50\text{ ms}$ |
+| **Transcripción y mapeo a intención** | Segmento de audio $\rightarrow$ texto $\rightarrow$ intención reconocida | Edge (Raspberry Pi) | $\sim 400\text{ ms}$ |
+| **Verificación del umbral de confianza** | Puntaje de confianza del modelo de reconocimiento | Edge (Raspberry Pi) | $\sim 20\text{ ms}$ |
+| **Publicación del comando reconocido** | Payload con la intención y metadatos del dispositivo | Edge $\rightarrow$ broker MQTT local | $\sim 10\text{ ms}$ |
+| **Confirmación audible al usuario** | Respuesta de audio pregrabada o sintetizada | Nodo (ESP32) | $\sim 150\text{ ms}$ |
+| **Generación de alertas y notificación push** | Evento de auxilio y metadatos del hogar | Cloud (Firebase Cloud Messaging) | $\sim 200\text{ ms}$ adicionales, sólo con conectividad |
+| **Persistencia del historial** | Registro del comando, timestamp y resultado | Cloud (MongoDB) | Asíncrono, no bloqueante para la respuesta al usuario |
 
-***Paso 10: Definición de los algoritmos de procesamiento de datos***
+### Paso 6: Definición de requisitos de la capa de servicios de aplicación
 
-<table>
-    <tr>
-        <th> Nombre del Algoritmo </th>
-        <th> Responsabilidad y Lógica Matemática </th>
-        <th> Nivel de Ubicación </th>
-    </tr>
-    <tr>
-        <td> <strong> Colocar los algoritmos necesarios (Cloud, Edge o Nodo) </strong> </td>
-        <td> </td>
-        <td> Nodo Sensor (ESP32) </td>
-    </tr>
-</table>
+| Servicio | Especificación de la interfaz | Complejidad del cliente |
+| :--- | :--- | :--- |
+| **Confirmación y solicitud de auxilio por voz** | Interfaz de audio en el propio cubo (altavoz) + notificación push equivalente en la app móvil del cuidador. | Baja — el cliente móvil sólo consume la notificación ya procesada. |
+| **Configuración de comandos y umbral de confianza** | Aplicación web (React) para cuidador/administrador. | Media — formularios de configuración con validación. |
+| **Historial y diagnóstico de reconocimiento** | Aplicación web empresa (Angular) para el técnico, con métricas de falsos positivos, comandos rechazados y latencia. | Media-alta — tablas filtrables e indicadores agregados. |
 
-***Paso 11: Análisis del esfuerzo computacional de los algoritmos***
+### Paso 7: Elección de la arquitectura de las capas de intercambio de datos y de información
 
-<table>
-    <tr>
-        <th> Algoritmo </th>
-        <th> Complejidad Temporal (Big O) </th>
-        <th> Complejidad Espacial </th>
-        <th> Tiempo Estimado de Ejecución </th>
-        <th> Ubicación </th>
-    </tr>
-    <tr>
-        <td> Colocar para cada algoritmo identificado </td>
-        <td> $O(N)$ </td>
-        <td> $O(1)$ (Bajo, $< 1\text{ KB}$) </td>
-        <td> 100 ms </td>
-        <td> Nodo Sensor (ESP32) </td>
-    </tr>
-</table>
+| Origen | Destino | Protocolo / Canal | Latencia estimada | Acción operativa |
+| :--- | :--- | :--- | :--- | :--- |
+| Cubo (ESP32) | Edge Micrófono | Wi-Fi/BLE — stream I2S | $\sim 80\text{ ms}$ | Envío del audio tras detectar la palabra de activación |
+| Edge Micrófono | Edge Micrófono (local) | Proceso interno Python/Flask | $\sim 600\text{ ms}$ | Transcripción (STT ligero) + mapeo de intención + verificación de umbral de confianza |
+| Edge Micrófono | Edge Actuador | MQTT sobre broker local (Mosquitto) | $\sim 40\text{ ms}$ | Publicación del comando reconocido y autorizado |
+| **Latencia total acumulada (tramo de voz)** | | | $\approx 720\text{ ms}$ | Dentro del presupuesto de $900\text{ ms}$ definido en el Paso 1 |
 
-***Paso 12: Definición de la interfaz de usuario gráfica***
+> **Nota:** Se evaluó y descartó el uso de un servicio de reconocimiento de voz en la nube (p. ej. Google Speech-to-Text): reduciría la carga de cómputo local, pero introduciría una dependencia de Internet y un riesgo de privacidad sobre datos de audio sensibles (**AC-07**).
 
-<table>
-    <tr>
-        <th> Módulo de Interfaz </th>
-        <th> Plataformas de Visualización </th>
-        <th> Elementos Clave de la UI </th>
-        <th> Justificación Funcional </th>
-    </tr>
-    <tr>
-        <td> <strong> Monitoreo de Salud de Dispositivos </strong> </td>
-        <td> Aplicación Web / Historial local (Health Log) </td>
-        <td> Indicadores de conectividad, temperatura de CPU, voltaje y RAM libre. </td>
-        <td> Permite a los operadores realizar autodiagnósticos de hardware y prever desconexiones o fallos eléctricos en tiempo real. </td>
-    </tr>
-</table>
+### Paso 8: Elección de sensores y actuadores
 
-**Diseño físico y de circuito del dispositivo IoT**
+| Parámetro físico | Modelo de componente | Justificación e integración técnica |
+| :--- | :--- | :--- |
+| **Captura de audio** | Micrófono MEMS I2S (p. ej. INMP441) | Salida digital I2S compatible de forma nativa con el ESP32, sin ruido de cuantización analógica; adecuado para captar voz hasta $2\text{ m}$ con SNR suficiente para el umbral de confianza exigido (**TS-35**). |
+| **Confirmación audible** | Amplificador I2S + altavoz (p. ej. MAX98357A + parlante $3\text{ W}$) | Permite la confirmación verbal del comando y la emisión de mensajes de estado (batería baja, pérdida de conexión) sin depender de una señal visual, tal como se definió en el diseño UX del Capítulo 6. |
+| **Indicadores de estado** | LED de estado (conexión / batería) | Permite verificar visualmente el funcionamiento del micrófono durante la instalación y el mantenimiento. |
+
+### Paso 9: Elección del microcontrolador y transceptores de radio del dispositivo
+
+| Rol en la red | Modelo de hardware | Transceptor integrado | Justificación metodológica |
+| :--- | :--- | :--- | :--- |
+| **Nodo (cubo de voz)** | ESP32-WROOM-32 | Wi-Fi $2.4\text{ GHz}$ + BLE integrados | SoC de doble núcleo con interfaz I2S nativa para el micrófono y el amplificador, memoria suficiente ($520\text{ KB}$ SRAM / $4\text{ MB}$ Flash) para ejecutar el modelo de wake-word cuantizado y el stack Wi-Fi/BLE de forma concurrente. |
+| **Concentrador (Edge Micrófono)** | Raspberry Pi 4 Model B | Wi-Fi Dual Band + Ethernet | SBC de $1.5\text{ GHz}$ (ARM Cortex-A72) con capacidad suficiente para ejecutar el servicio Python/Flask de transcripción, el cliente del broker MQTT y la base de datos SQLite de eventos temporales, sincronizando de forma segura con el Cloud cuando hay conexión. |
+
+### Paso 10: Definición de los algoritmos de procesamiento de datos
+
+| Ubicación | Algoritmo | Responsabilidad |
+| :--- | :--- | :--- |
+| **Nodo (ESP32)** | Detección de energía de voz (VAD) + wake-word (TFLite Micro cuantizado) | Mantiene el dispositivo en espera activa y sólo despierta el flujo completo cuando detecta la palabra de activación, ahorrando energía y cómputo. |
+| **Edge Micrófono** | Reconocimiento de voz (STT ligero, p. ej. motor tipo Vosk) | Transcribe el audio recibido a texto de forma local, sin salir del hogar. |
+| **Edge Micrófono** | Mapeo de intención y verificación de umbral de confianza | Compara el texto contra el vocabulario reducido de comandos soportados; si la confianza es menor al umbral, descarta la ejecución y solicita repetir el comando en lugar de accionar por error. |
+| **Cloud** | Persistencia de historial y generación de alertas | Registra el evento sincronizado y dispara notificaciones push (Firebase) cuando corresponde. |
+
+### Paso 11: Análisis del esfuerzo computacional de los algoritmos
+
+| Algoritmo | Complejidad | Tiempo estimado | Ubicación |
+| :--- | :--- | :--- | :--- |
+| **VAD (Voice Activity Detector) + wake-word** | $\mathcal{O}(n)$ sobre la ventana de audio | $\sim 80\text{ ms}$ | Nodo (ESP32) |
+| **Transcripción (STT ligero)** | $\mathcal{O}(n)$ sobre la duración del comando | $\sim 500\text{--}550\text{ ms}$ | Edge Micrófono |
+| **Mapeo de intención + umbral de confianza** | $\mathcal{O}(1)$ — comparación contra vocabulario acotado | $\sim 20\text{--}30\text{ ms}$ | Edge Micrófono |
+| **Publicación MQTT** | $\mathcal{O}(1)$ | $\sim 10\text{ ms}$ | Edge Micrófono |
+
+### Paso 12: Definición de la interfaz de usuario gráfica
+
+| Módulo de interfaz | Plataformas de visualización | Elementos clave de la UI | Justificación funcional |
+| :--- | :--- | :--- | :--- |
+| **Retroalimentación del propio cubo** | LED de estado + confirmación por voz (sin pantalla) | Colores de estado (conectado, batería baja, sin respuesta) y mensajes hablados de confirmación o error. | La persona asistida no siempre puede leer una pantalla; el feedback debe ser accesible por voz y por una señal visual simple. |
+| **Panel de dispositivos de voz (app cuidador)** | Aplicación web / móvil | Tarjeta de dispositivo con badge de estado (operativo, batería baja, falla), historial de comandos reconocidos y rechazados. | Permite al cuidador confirmar que el sistema de voz funciona sin tener que estar presente. |
+| **Diagnóstico técnico (app empresa)** | Aplicación web | Métricas de precisión, falsos positivos y latencia de reconocimiento. | Sustenta el mantenimiento preventivo y la recomendación de validación del modelo con usuarios reales. |
+
+---
 
 ## 6.6. Applications Prototyping
 
