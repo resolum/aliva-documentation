@@ -3405,6 +3405,8 @@ Desde el inicio, el cuidador de apoyo abre la lista de actividades, selecciona u
 
 ## 6.5. IoT Device Design
 
+Para el diseño de los dispositivos IoT, se sigue la metodología de 12 pasos que permite definir los requisitos del sistema, la tipología de red, la capa física y la capa de intercambio de datos, así como la integración con la nube y la seguridad. A continuación se describen los pasos aplicados al diseño de los dispositivos ALIVIA.
+
 **12 Pasos para el diseño de dispositivos IoT**
 
 <div align="center">
