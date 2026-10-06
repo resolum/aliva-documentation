@@ -2207,7 +2207,7 @@ Un wireflow o flujo de pantallas es un diagrama que permite representar de maner
 **User Goal 1:** Como usuario del negocio (administrador, técnico o gestor de suscripciones), quiero iniciar sesión con mi correo y contraseña, para acceder a las funciones de mi rol.
 
 <div align="center">
-  <img src="https://imgur.com/82sbkP2.png" alt="Wire-flow 1: Iniciar sesión en la aplicación web de negocio"/>
+  <img src="https://imgur.com/QibWOOs.png" alt="Wire-flow 1: Iniciar sesión en la aplicación web de negocio"/>
 </div>
 
 El usuario del negocio abre la pantalla de inicio de sesión, ingresa su correo y contraseña y accede al inicio correspondiente a su rol. Si los datos no son válidos, la pantalla de inicio de sesión muestra los errores y el usuario corrige la información para volver a intentarlo.
@@ -2228,7 +2228,7 @@ El usuario del negocio abre la pantalla de inicio de sesión, ingresa su correo 
 **User Goal 2:** Como usuario del negocio (administrador, técnico o gestor de suscripciones), quiero recuperar mi contraseña cuando la olvido, para volver a entrar a mi cuenta.
 
 <div align="center">
-  <img src="https://imgur.com/AcGlzIE.png" alt="Wire-flow 2: Recuperar contraseña en la aplicación web de negocio"/>
+  <img src="https://imgur.com/7vHKUvd.png" alt="Wire-flow 2: Recuperar contraseña en la aplicación web de negocio"/>
 </div>
 
 Desde el inicio de sesión, el usuario solicita el código con su correo, crea y confirma una nueva contraseña, ve la confirmación y regresa al inicio de sesión. Si el correo no es válido o la nueva clave no cumple los requisitos, la pantalla correspondiente muestra el error y el usuario corrige el dato para reintentar.
@@ -2251,7 +2251,7 @@ Desde el inicio de sesión, el usuario solicita el código con su correo, crea y
 **User Goal 3:** Como administrador, quiero registrar un empleado con sus datos personales, laborales y de acceso, para que pueda operar en la plataforma.
 
 <div align="center">
-  <img src="https://imgur.com/CL7WCwu.png" alt="Wire-flow 3: Registrar un empleado"/>
+  <img src="https://imgur.com/HOtZdsh.png" alt="Wire-flow 3: Registrar un empleado"/>
 </div>
 
 El administrador parte del listado de empleados y recorre las cuatro pantallas del registro: información personal, información laboral, acceso a la plataforma y confirmación. Al confirmar, regresa al listado. Si avanza con datos incompletos en el primer o el segundo paso, se muestra ese paso con los errores señalados y el administrador corrige el dato para continuar.
@@ -2275,7 +2275,7 @@ El administrador parte del listado de empleados y recorre las cuatro pantallas d
 **User Goal 4:** Como administrador, quiero registrar el contrato y el horario laboral de un empleado, para definir cuándo y bajo qué condiciones trabaja.
 
 <div align="center">
-  <img src="https://imgur.com/bUFv9KC.png" alt="Wire-flow 4: Registrar un contrato y su horario laboral"/>
+  <img src="https://imgur.com/gmVfBRZ.png" alt="Wire-flow 4: Registrar un contrato y su horario laboral"/>
 </div>
 
 Desde el listado de contratos, el administrador registra un contrato y revisa su detalle; luego pasa a los horarios laborales, registra uno y consulta su detalle. Si guarda el contrato o el horario con datos incompletos, el formulario aparece con errores y el administrador corrige el dato. También puede editar un horario ya registrado desde su detalle y guardar los cambios.
@@ -2297,7 +2297,7 @@ Desde el listado de contratos, el administrador registra un contrato y revisa su
 **User Goal 5:** Como administrador, quiero asignar un técnico a una orden pendiente, para que el servicio se atienda a tiempo.
 
 <div align="center">
-  <img src="https://imgur.com/d7GhH33.png" alt="Wire-flow 5: Atender una orden técnica"/>
+  <img src="https://imgur.com/jcGXBG7.png" alt="Wire-flow 5: Atender una orden técnica"/>
 </div>
 
 El administrador selecciona una orden desde el listado de órdenes técnicas, abre su detalle y elige asignar un técnico. En la ventana de asignación escoge al empleado, confirma y regresa al listado con la orden actualizada. Si no hay técnicos disponibles en ese horario, la ventana muestra el aviso y el administrador elige otro técnico u otro horario.
@@ -2318,7 +2318,7 @@ El administrador selecciona una orden desde el listado de órdenes técnicas, ab
 **User Goal 6:** Como administrador, quiero configurar la información del negocio, para que clientes y equipo vean datos correctos.
 
 <div align="center">
-  <img src="https://imgur.com/ZAiQrX9.png" alt="Wire-flow 6: Configurar el perfil del negocio"/>
+  <img src="https://imgur.com/35xk3iy.png" alt="Wire-flow 6: Configurar el perfil del negocio"/>
 </div>
 
 El administrador abre el perfil del negocio y navega por sus pestañas: identidad, información de contacto, información para clientes y ubicación corporativa, completando los datos de cada una. Si guarda un dato no válido (correo, teléfono o RUC), aparece un error junto al campo y el administrador lo corrige.
@@ -2338,7 +2338,7 @@ El administrador abre el perfil del negocio y navega por sus pestañas: identida
 **User Goal 7:** Como técnico, quiero consultar mis órdenes asignadas y su detalle, para llegar preparado a cada visita.
 
 <div align="center">
-  <img src="https://imgur.com/hlDgXGz.png" alt="Wire-flow 7: Atender una orden desde la web"/>
+  <img src="https://imgur.com/x8iyt3H.png" alt="Wire-flow 7: Atender una orden desde la web"/>
 </div>
 
 Desde su inicio, el técnico abre el listado de sus órdenes, selecciona una para ver su detalle y luego consulta el calendario semanal. Si no tiene órdenes asignadas, el listado muestra el estado de lista vacía.
@@ -2359,7 +2359,7 @@ Desde su inicio, el técnico abre el listado de sus órdenes, selecciona una par
 **User Goal 8:** Como técnico, quiero consultar el inventario y registrar un dispositivo, para dejar el servicio instalado y documentado.
 
 <div align="center">
-  <img src="https://imgur.com/tcpNYIi.png" alt="Wire-flow 8: Consultar inventario y registrar un dispositivo"/>
+  <img src="https://imgur.com/fKm15pz.png" alt="Wire-flow 8: Consultar inventario y registrar un dispositivo"/>
 </div>
 
 El técnico recorre el inventario por categorías, abre el listado de micrófonos y registra un dispositivo desde la ventana de registro. Al guardar, vuelve al inventario con el nuevo dispositivo incluido. Si el código está repetido o los datos están incompletos, la ventana muestra los errores y el técnico los corrige. También se contemplan el inventario que no carga, la categoría sin registros y el filtro sin coincidencias.
@@ -2386,7 +2386,7 @@ El técnico recorre el inventario por categorías, abre el listado de micrófono
 **User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
 
 <div align="center">
-  <img src="https://imgur.com/VDZN9CY.png" alt="Wire-flow 1: Contratar el plan Base"/>
+  <img src="https://imgur.com/dt6SN2j.png" alt="Wire-flow 1: Contratar el plan Base"/>
 </div>
 
 El familiar elige el plan Base y avanza por la contratación guiada: crea su cuenta, registra el hogar, revisa la configuración, programa la evaluación, confirma la visita y paga. Si envía datos no válidos al crear la cuenta, si la dirección no tiene cobertura técnica o si la tarjeta es rechazada, se muestra la pantalla de error correspondiente y corrige los datos, cambia la dirección o usa otro medio de pago. También se contemplan un error al cargar la configuración y un horario no disponible.
@@ -2410,7 +2410,7 @@ El familiar elige el plan Base y avanza por la contratación guiada: crea su cue
 **User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
 
 <div align="center">
-  <img src="https://imgur.com/e0pb9wl.png" alt="Wire-flow 2: Contratar el plan Personalizado"/>
+  <img src="https://imgur.com/noqOTCk.png" alt="Wire-flow 2: Contratar el plan Personalizado"/>
 </div>
 
 El familiar elige el plan Personalizado, selecciona las habitaciones y los dispositivos que necesita, revisa el resumen, programa la evaluación y confirma la visita. Si continúa sin elegir ninguna habitación o ningún dispositivo, o si elige un horario ocupado, aparece un aviso en la pantalla y corrige su elección.
@@ -2433,7 +2433,7 @@ El familiar elige el plan Personalizado, selecciona las habitaciones y los dispo
 **User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
 
 <div align="center">
-  <img src="https://imgur.com/Z2YarAo.png" alt="Wire-flow 3: Seguir el servicio contratado"/>
+  <img src="https://imgur.com/KGTsdmj.png" alt="Wire-flow 3: Seguir el servicio contratado"/>
 </div>
 
 El familiar consulta el seguimiento de su contratación etapa por etapa (confirmación, evaluación, instalación y activación) hasta ver el servicio activo en su hogar. Si la visita debe reprogramarse, la instalación no puede completarse o el estado no carga, el seguimiento muestra un aviso y el familiar elige otro horario, coordina una nueva visita o reintenta.
@@ -2457,7 +2457,7 @@ El familiar consulta el seguimiento de su contratación etapa por etapa (confirm
 **User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
 
 <div align="center">
-  <img src="https://imgur.com/fWyPV1w.png" alt="Wire-flow 4: Gestionar actividades en la web"/>
+  <img src="https://imgur.com/7mVy4q6.png" alt="Wire-flow 4: Gestionar actividades en la web"/>
 </div>
 
 Desde el inicio, el cuidador abre la lista de actividades, crea una nueva desde el panel lateral, la guarda, revisa su detalle y consulta la vista semanal. Si programa una actividad en un horario ocupado, el formulario muestra el conflicto y el cuidador cambia la hora. También se contemplan la lista y el calendario sin actividades.
@@ -2480,7 +2480,7 @@ Desde el inicio, el cuidador abre la lista de actividades, crea una nueva desde 
 **User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
 
 <div align="center">
-  <img src="https://imgur.com/ji1DxkR.png" alt="Wire-flow 5: Invitar a la red de cuidado"/>
+  <img src="https://imgur.com/2J6S4H6.png" alt="Wire-flow 5: Invitar a la red de cuidado"/>
 </div>
 
 El cuidador abre la red de cuidado, invita a otra persona desde el panel lateral y envía la invitación; luego revisa el detalle de la red. El invitado abre su enlace y acepta la invitación. Si envía datos no válidos, el formulario muestra errores y los corrige. También se contemplan la red sin cuidadores y la invitación vencida, en la que se solicita una nueva.
@@ -2501,7 +2501,7 @@ El cuidador abre la red de cuidado, invita a otra persona desde el panel lateral
 **User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
 
 <div align="center">
-  <img src="https://imgur.com/eiBNvrW.png" alt="Wire-flow 6: Consultar y revisar dispositivos en la web"/>
+  <img src="https://imgur.com/gLfzSO9.png" alt="Wire-flow 6: Consultar y revisar dispositivos en la web"/>
 </div>
 
 Desde el inicio, el cuidador abre los dispositivos del hogar, agrupados por habitación, y selecciona uno para ver su detalle. Si el hub está desconectado, la lista aparece con ese aviso y el cuidador restablece la conexión. También se contempla un error al cargar el detalle del dispositivo.
@@ -2525,7 +2525,7 @@ Desde el inicio, el cuidador abre los dispositivos del hogar, agrupados por habi
 **User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
 
 <div align="center">
-  <img src="https://imgur.com/TlqTGpY.png" alt="Wire-flow 7: Reportar una incidencia"/>
+  <img src="https://imgur.com/t7SJklA.png" alt="Wire-flow 7: Reportar una incidencia"/>
 </div>
 
 El cuidador abre el listado de incidencias, reporta una desde el panel lateral y recibe la confirmación de registro. Después sigue su estado desde el detalle, primero en atención y luego resuelta. Si aún no tiene reportes, la lista aparece vacía. También se contemplan el envío del formulario sin completar y un error al enviar la incidencia.
@@ -2547,7 +2547,7 @@ El cuidador abre el listado de incidencias, reporta una desde el panel lateral y
 **User Persona:** Cuidador de apoyo (basado en Mariano Diaz, familiar o cuidador de persona con discapacidad).
 
 <div align="center">
-  <img src="https://imgur.com/dYMGVka.png" alt="Wire-flow 8: Consultar actividades como cuidador de apoyo"/>
+  <img src="https://imgur.com/gRC84Zi.png" alt="Wire-flow 8: Consultar actividades como cuidador de apoyo"/>
 </div>
 
 Desde su inicio, el cuidador de apoyo abre la lista de actividades asignadas, selecciona una para ver su detalle en modo solo lectura y luego consulta la vista de horarios. Si no tiene actividades asignadas o el calendario está vacío, se muestra un mensaje de lista vacía. También se contempla un error al cargar el detalle.
@@ -2569,7 +2569,7 @@ Desde su inicio, el cuidador de apoyo abre la lista de actividades asignadas, se
 **User Goal 1:** Como usuario de la app móvil (cuidador o técnico), quiero iniciar sesión con mi correo y contraseña, para acceder a las funciones de mi rol.
 
 <div align="center">
-  <img src="https://imgur.com/RYCs7xk.png" alt="Wire-flow 1: Iniciar sesión en la aplicación móvil"/>
+  <img src="https://imgur.com/vWoFcTC.png" alt="Wire-flow 1: Iniciar sesión en la aplicación móvil"/>
 </div>
 
 Al abrir la app aparece la pantalla de carga y luego el inicio de sesión, donde el usuario ingresa sus datos y llega al inicio de su rol. Si los datos no son válidos, la pantalla muestra el mensaje de error y el usuario los corrige para volver a intentar.
@@ -2589,7 +2589,7 @@ Al abrir la app aparece la pantalla de carga y luego el inicio de sesión, donde
 **User Goal 2:** Como usuario de la app móvil (cuidador o técnico), quiero recuperar mi contraseña cuando la olvido, para volver a entrar a mi cuenta.
 
 <div align="center">
-  <img src="https://imgur.com/ojKOpDk.png" alt="Wire-flow 2: Recuperar contraseña en la aplicación móvil"/>
+  <img src="https://imgur.com/5Vw8BhK.png" alt="Wire-flow 2: Recuperar contraseña en la aplicación móvil"/>
 </div>
 
 Desde el inicio de sesión, el usuario verifica el código enviado a su correo, crea y confirma la nueva contraseña y ve la pantalla de contraseña actualizada. Si el código es incorrecto, la pantalla de verificación muestra el error y el usuario lo corrige.
@@ -2614,7 +2614,7 @@ Desde el inicio de sesión, el usuario verifica el código enviado a su correo, 
 **User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
 
 <div align="center">
-  <img src="https://imgur.com/XwzhUDZ.png" alt="Wire-flow 3: Gestionar actividades en la aplicación móvil"/>
+  <img src="https://imgur.com/ZnytIDs.png" alt="Wire-flow 3: Gestionar actividades en la aplicación móvil"/>
 </div>
 
 Desde el inicio, el usuario abre la lista de actividades y registra una nueva en dos pasos: actividad y programación. Luego consulta el detalle de la actividad y revisa el calendario. Si no hay actividades, se muestra el estado vacío; si el usuario descarta el registro, confirma la salida y vuelve a la lista sin guardar cambios.
@@ -2635,7 +2635,7 @@ Desde el inicio, el usuario abre la lista de actividades y registra una nueva en
 **User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
 
 <div align="center">
-  <img src="https://imgur.com/P3soUQu.png" alt="Wire-flow 4: Revisar dispositivos en la aplicación móvil"/>
+  <img src="https://imgur.com/rDICO6u.png" alt="Wire-flow 4: Revisar dispositivos en la aplicación móvil"/>
 </div>
 
 Desde el inicio, el usuario abre la lista de dispositivos del hogar, agrupados por habitación, y entra al detalle de uno para ver su estado, conectividad y batería. Si ocurre un error al cargar los dispositivos, se muestra el aviso y el usuario puede reintentar.
@@ -2656,7 +2656,7 @@ Desde el inicio, el usuario abre la lista de dispositivos del hogar, agrupados p
 **User Goal 5:** Como técnico, quiero consultar y atender mis órdenes técnicas, para cumplir las visitas asignadas.
 
 <div align="center">
-  <img src="https://imgur.com/K1WeePB.png" alt="Wire-flow 5: Atender una orden técnica en la aplicación móvil"/>
+  <img src="https://imgur.com/FG7lFn8.png" alt="Wire-flow 5: Atender una orden técnica en la aplicación móvil"/>
 </div>
 
 Desde el inicio, el técnico consulta sus órdenes en lista o calendario, abre el detalle de una, confirma el inicio de la atención y, al finalizar, ve la pantalla de orden completada. Si no hay órdenes se muestra el estado vacío; si el detalle falla, aparece el error; y si confirma sin disponibilidad, el sistema lo informa.
@@ -2678,7 +2678,7 @@ Desde el inicio, el técnico consulta sus órdenes en lista o calendario, abre e
 **User Goal 6:** Como técnico, quiero registrar el diagnóstico y las evidencias de la incidencia y registrar el dispositivo en el hogar, para dejar el servicio instalado y documentado.
 
 <div align="center">
-  <img src="https://imgur.com/jPdhYmu.png" alt="Wire-flow 6: Instalación en la aplicación móvil"/>
+  <img src="https://imgur.com/mqMNXFu.png" alt="Wire-flow 6: Instalación en la aplicación móvil"/>
 </div>
 
 Desde el detalle de la orden, el técnico registra el diagnóstico, adjunta las evidencias fotográficas y define el resultado; luego consulta las instalaciones y registra el dispositivo del hogar, dejando el servicio instalado y documentado. Si descarta los cambios en las evidencias, vuelve sin guardar; y si registra el dispositivo con datos incorrectos, el sistema pide corregirlos.
