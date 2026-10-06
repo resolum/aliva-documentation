@@ -3410,7 +3410,9 @@ Desde el inicio, el cuidador de apoyo abre la lista de actividades, selecciona u
 <div align="center">
   <img src="https://i.imgur.com/1AhHeRP.png" alt="Iniciar sesión"/>
 </div>
+
 Al abrir la app aparece la pantalla de inicio; el usuario pasa al inicio de sesión, ingresa sus datos y llega al inicio de su rol. En el camino alterno, si ingresa datos no válidos, el sistema muestra la pantalla de inicio de sesión con errores y el usuario corrige los datos para volver a intentar.
+
 
 **User Flow 2:** Recuperar contraseña
 
@@ -3419,6 +3421,7 @@ Al abrir la app aparece la pantalla de inicio; el usuario pasa al inicio de sesi
 <div align="center">
   <img src="https://i.imgur.com/PFeCCQn.png" alt="Recuperar contraseña"/>
 </div>
+
 Desde el inicio de sesión, el usuario elige recuperar su contraseña, ingresa el código de verificación, crea su nueva contraseña y ve la confirmación de contraseña actualizada. En el camino alterno, si el código es incorrecto, el sistema muestra la pantalla con el error y el usuario corrige el código.
 
 **User Flow 3:** Gestionar actividades (cuidador o familiar)
@@ -3428,7 +3431,9 @@ Desde el inicio de sesión, el usuario elige recuperar su contraseña, ingresa e
 <div align="center">
   <img src="https://i.imgur.com/OtakbEj.png" alt="Gestionar actividades"/>
 </div>
+
 Desde el inicio, el usuario abre la lista o el calendario de actividades, consulta el detalle de una actividad y registra una nueva con su programación. En el camino alterno, si no hay actividades, el sistema muestra el estado vacío; si el usuario descarta el registro, vuelve a la lista sin guardar cambios.
+
 
 **User Flow 4:** Revisar dispositivos (cuidador o familiar)
 
@@ -3437,7 +3442,9 @@ Desde el inicio, el usuario abre la lista o el calendario de actividades, consul
 <div align="center">
   <img src="https://i.imgur.com/ilb0tnL.png" alt="Revisar dispositivos"/>
 </div>
+
 Desde el inicio, el usuario abre la lista de dispositivos y entra al detalle de uno para ver su estado. En el camino alterno, si ocurre un error al cargar los dispositivos, el sistema muestra el error y el usuario puede reintentar.
+
 
 **User Flow 5:** Atender una orden técnica
 
@@ -3446,7 +3453,9 @@ Desde el inicio, el usuario abre la lista de dispositivos y entra al detalle de 
 <div align="center">
   <img src="https://i.imgur.com/056XpP7.png" alt="Atender una orden técnica"/>
 </div>
+
 Desde el inicio, el técnico abre la lista o el calendario de órdenes, revisa el detalle de una orden, la confirma y ve la pantalla de orden completada. En el camino alterno, si no hay órdenes se muestra el estado vacío; si el detalle falla, aparece el error; y si confirma sin disponibilidad, el sistema lo informa.
+
 
 **User Flow 6:** Instalación
 
@@ -3455,6 +3464,7 @@ Desde el inicio, el técnico abre la lista o el calendario de órdenes, revisa e
 <div align="center">
   <img src="https://i.imgur.com/Mng9f5y.png" alt="Instalación"/>
 </div>
+
 Desde el detalle de la orden, el técnico registra el diagnóstico, adjunta las evidencias y ve el resultado; luego consulta las instalaciones y registra el dispositivo para el hogar, dejando el servicio instalado. En el camino alterno, si descarta los cambios en las evidencias vuelve sin guardar, y si registra el dispositivo con datos incorrectos, el sistema pide corregirlos.
 
 ## 6.5. IoT Device Design
