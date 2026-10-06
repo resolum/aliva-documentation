@@ -2189,6 +2189,500 @@ En esta sección se presentan los esquemas de media fidelidad diseñados para la
 
 ### 6.4.2. Applications Wire-flow Diagrams
 
+Un wireflow o flujo de pantallas es un diagrama que permite representar de manera visual la navegación entre las diferentes interfaces de una aplicación para alcanzar un objetivo específico del usuario. En el caso de Alivia, estos diagramas permiten visualizar la secuencia de pantallas y las posibles rutas de interacción que siguen los usuarios en las aplicaciones web y móvil, considerando las necesidades de los diferentes roles que participan en el servicio. De esta manera, los wireflows permiten comprender cómo se conectan las funcionalidades de Alivia y cómo los usuarios pueden completar tareas como iniciar sesión, gestionar actividades, consultar dispositivos, atender órdenes o realizar el seguimiento de los servicios.
+
+#### Aplicación Web de Negocio
+
+**Task Flow 1: Iniciar sesión**
+
+<div align="center">
+  <img src="https://imgur.com/gSm6uVd.png" alt="Task Flow 1: Iniciar sesión en la aplicación web de negocio"/>
+</div>
+
+**Pasos del Task Flow 1:**
+1. El usuario abre la pantalla de inicio de sesión.
+2. El usuario ingresa su correo y contraseña.
+3. El usuario llega al inicio de su rol.
+
+**User Goal 1:** Como usuario del negocio (administrador, técnico o gestor de suscripciones), quiero iniciar sesión con mi correo y contraseña, para acceder a las funciones de mi rol.
+
+<div align="center">
+  <img src="https://imgur.com/QibWOOs.png" alt="Wire-flow 1: Iniciar sesión en la aplicación web de negocio"/>
+</div>
+
+El usuario del negocio abre la pantalla de inicio de sesión, ingresa su correo y contraseña y accede al inicio correspondiente a su rol. Si los datos no son válidos, la pantalla de inicio de sesión muestra los errores y el usuario corrige la información para volver a intentarlo.
+
+**Task Flow 2: Recuperar contraseña**
+
+<div align="center">
+  <img src="https://imgur.com/eZs2Gq5.png" alt="Task Flow 2: Recuperar contraseña en la aplicación web de negocio"/>
+</div>
+
+**Pasos del Task Flow 2:**
+1. El usuario elige recuperar su contraseña desde el inicio de sesión.
+2. El usuario ingresa su correo para solicitar el código.
+3. El usuario define y confirma su nueva contraseña.
+4. El usuario ve la confirmación de contraseña actualizada.
+5. El usuario vuelve al inicio de sesión.
+
+**User Goal 2:** Como usuario del negocio (administrador, técnico o gestor de suscripciones), quiero recuperar mi contraseña cuando la olvido, para volver a entrar a mi cuenta.
+
+<div align="center">
+  <img src="https://imgur.com/7vHKUvd.png" alt="Wire-flow 2: Recuperar contraseña en la aplicación web de negocio"/>
+</div>
+
+Desde el inicio de sesión, el usuario solicita el código con su correo, crea y confirma una nueva contraseña, ve la confirmación y regresa al inicio de sesión. Si el correo no es válido o la nueva clave no cumple los requisitos, la pantalla correspondiente muestra el error y el usuario corrige el dato para reintentar.
+
+**Task Flow 3: Registrar un empleado**
+
+<div align="center">
+  <img src="https://imgur.com/EAcWVfX.png" alt="Task Flow 3: Registrar un empleado"/>
+</div>
+
+**Pasos del Task Flow 3:**
+1. El administrador abre la gestión de empleados.
+2. El administrador elige registrar un empleado.
+3. El administrador completa la información personal.
+4. El administrador completa la información laboral.
+5. El administrador define el acceso a la plataforma.
+6. El administrador revisa los datos y confirma.
+7. El administrador regresa a la gestión de empleados.
+
+**User Goal 3:** Como administrador, quiero registrar un empleado con sus datos personales, laborales y de acceso, para que pueda operar en la plataforma.
+
+<div align="center">
+  <img src="https://imgur.com/HOtZdsh.png" alt="Wire-flow 3: Registrar un empleado"/>
+</div>
+
+El administrador parte del listado de empleados y recorre las cuatro pantallas del registro: información personal, información laboral, acceso a la plataforma y confirmación. Al confirmar, regresa al listado. Si avanza con datos incompletos en el primer o el segundo paso, se muestra ese paso con los errores señalados y el administrador corrige el dato para continuar.
+
+**Task Flow 4: Registrar un contrato y su horario laboral**
+
+<div align="center">
+  <img src="https://imgur.com/WT4nBMm.png" alt="Task Flow 4: Registrar un contrato y su horario laboral"/>
+</div>
+
+**Pasos del Task Flow 4:**
+1. El administrador abre la lista de contratos.
+2. El administrador elige registrar un contrato.
+3. El administrador completa los datos y guarda.
+4. El administrador revisa el detalle del contrato.
+5. El administrador va a los horarios laborales.
+6. El administrador elige registrar un horario.
+7. El administrador completa los datos y guarda.
+8. El administrador revisa el detalle del horario.
+
+**User Goal 4:** Como administrador, quiero registrar el contrato y el horario laboral de un empleado, para definir cuándo y bajo qué condiciones trabaja.
+
+<div align="center">
+  <img src="https://imgur.com/gmVfBRZ.png" alt="Wire-flow 4: Registrar un contrato y su horario laboral"/>
+</div>
+
+Desde el listado de contratos, el administrador registra un contrato y revisa su detalle; luego pasa a los horarios laborales, registra uno y consulta su detalle. Si guarda el contrato o el horario con datos incompletos, el formulario aparece con errores y el administrador corrige el dato. También puede editar un horario ya registrado desde su detalle y guardar los cambios.
+
+**Task Flow 5: Atender una orden técnica**
+
+<div align="center">
+  <img src="https://imgur.com/cdRgof8.png" alt="Task Flow 5: Atender una orden técnica"/>
+</div>
+
+**Pasos del Task Flow 5:**
+1. El administrador abre las órdenes técnicas.
+2. El administrador selecciona una orden pendiente.
+3. El administrador revisa el detalle de la orden.
+4. El administrador elige asignar un técnico.
+5. El administrador escoge al técnico y confirma.
+6. El administrador regresa a la lista de órdenes.
+
+**User Goal 5:** Como administrador, quiero asignar un técnico a una orden pendiente, para que el servicio se atienda a tiempo.
+
+<div align="center">
+  <img src="https://imgur.com/jcGXBG7.png" alt="Wire-flow 5: Atender una orden técnica"/>
+</div>
+
+El administrador selecciona una orden desde el listado de órdenes técnicas, abre su detalle y elige asignar un técnico. En la ventana de asignación escoge al empleado, confirma y regresa al listado con la orden actualizada. Si no hay técnicos disponibles en ese horario, la ventana muestra el aviso y el administrador elige otro técnico u otro horario.
+
+**Task Flow 6: Configurar el perfil del negocio**
+
+<div align="center">
+  <img src="https://imgur.com/jQZz4L6.png" alt="Task Flow 6: Configurar el perfil del negocio"/>
+</div>
+
+**Pasos del Task Flow 6:**
+1. El administrador abre el perfil del negocio.
+2. El administrador completa la identidad del negocio.
+3. El administrador completa la información de contacto.
+4. El administrador completa la información para clientes.
+5. El administrador completa la ubicación corporativa.
+
+**User Goal 6:** Como administrador, quiero configurar la información del negocio, para que clientes y equipo vean datos correctos.
+
+<div align="center">
+  <img src="https://imgur.com/35xk3iy.png" alt="Wire-flow 6: Configurar el perfil del negocio"/>
+</div>
+
+El administrador abre el perfil del negocio y navega por sus pestañas: identidad, información de contacto, información para clientes y ubicación corporativa, completando los datos de cada una. Si guarda un dato no válido (correo, teléfono o RUC), aparece un error junto al campo y el administrador lo corrige.
+
+**Task Flow 7: Atender una orden desde la web**
+
+<div align="center">
+  <img src="https://imgur.com/VjBlJ7I.png" alt="Task Flow 7: Atender una orden desde la web"/>
+</div>
+
+**Pasos del Task Flow 7:**
+1. El técnico abre su inicio.
+2. El técnico entra a Mis órdenes.
+3. El técnico selecciona una orden y revisa su detalle.
+4. El técnico abre el calendario desde el menú.
+
+**User Goal 7:** Como técnico, quiero consultar mis órdenes asignadas y su detalle, para llegar preparado a cada visita.
+
+<div align="center">
+  <img src="https://imgur.com/x8iyt3H.png" alt="Wire-flow 7: Atender una orden desde la web"/>
+</div>
+
+Desde su inicio, el técnico abre el listado de sus órdenes, selecciona una para ver su detalle y luego consulta el calendario semanal. Si no tiene órdenes asignadas, el listado muestra el estado de lista vacía.
+
+**Task Flow 8: Consultar inventario y registrar un dispositivo**
+
+<div align="center">
+  <img src="https://imgur.com/OH8H54B.png" alt="Task Flow 8: Consultar inventario y registrar un dispositivo"/>
+</div>
+
+**Pasos del Task Flow 8:**
+1. El técnico abre el inventario de dispositivos por categorías.
+2. El técnico entra a la categoría de micrófonos.
+3. El técnico elige registrar un dispositivo.
+4. El técnico completa los datos y guarda.
+5. El técnico ve el inventario actualizado.
+
+**User Goal 8:** Como técnico, quiero consultar el inventario y registrar un dispositivo, para dejar el servicio instalado y documentado.
+
+<div align="center">
+  <img src="https://imgur.com/fKm15pz.png" alt="Wire-flow 8: Consultar inventario y registrar un dispositivo"/>
+</div>
+
+El técnico recorre el inventario por categorías, abre el listado de micrófonos y registra un dispositivo desde la ventana de registro. Al guardar, vuelve al inventario con el nuevo dispositivo incluido. Si el código está repetido o los datos están incompletos, la ventana muestra los errores y el técnico los corrige. También se contemplan el inventario que no carga, la categoría sin registros y el filtro sin coincidencias.
+
+#### Aplicación Web de Cuidadores
+
+**Task Flow 1: Contratar el plan Base**
+
+<div align="center">
+  <img src="https://imgur.com/5QKF2RL.png" alt="Task Flow 1: Contratar el plan Base"/>
+</div>
+
+**Pasos del Task Flow 1:**
+1. El familiar elige el plan Base.
+2. El familiar crea su cuenta.
+3. El familiar registra su hogar.
+4. El familiar revisa la configuración del plan.
+5. El familiar elige el día y la hora de la evaluación.
+6. El familiar confirma la visita.
+7. El familiar realiza el pago.
+
+**User Goal 1:** Como cuidador o familiar, quiero contratar el plan Base para mi hogar, para recibir asistencia domiciliaria.
+
+**User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
+
+<div align="center">
+  <img src="https://imgur.com/dt6SN2j.png" alt="Wire-flow 1: Contratar el plan Base"/>
+</div>
+
+El familiar elige el plan Base y avanza por la contratación guiada: crea su cuenta, registra el hogar, revisa la configuración, programa la evaluación, confirma la visita y paga. Si envía datos no válidos al crear la cuenta, si la dirección no tiene cobertura técnica o si la tarjeta es rechazada, se muestra la pantalla de error correspondiente y corrige los datos, cambia la dirección o usa otro medio de pago. También se contemplan un error al cargar la configuración y un horario no disponible.
+
+**Task Flow 2: Contratar el plan Personalizado**
+
+<div align="center">
+  <img src="https://imgur.com/CAppBjP.png" alt="Task Flow 2: Contratar el plan Personalizado"/>
+</div>
+
+**Pasos del Task Flow 2:**
+1. El familiar elige el plan Personalizado.
+2. El familiar selecciona las habitaciones.
+3. El familiar selecciona los dispositivos.
+4. El familiar revisa el resumen de la configuración.
+5. El familiar elige el día y la hora de la evaluación.
+6. El familiar confirma la evaluación.
+
+**User Goal 2:** Como cuidador o familiar, quiero armar un plan personalizado por habitaciones y dispositivos, para adaptar el servicio a mi hogar.
+
+**User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
+
+<div align="center">
+  <img src="https://imgur.com/noqOTCk.png" alt="Wire-flow 2: Contratar el plan Personalizado"/>
+</div>
+
+El familiar elige el plan Personalizado, selecciona las habitaciones y los dispositivos que necesita, revisa el resumen, programa la evaluación y confirma la visita. Si continúa sin elegir ninguna habitación o ningún dispositivo, o si elige un horario ocupado, aparece un aviso en la pantalla y corrige su elección.
+
+**Task Flow 3: Seguir el servicio contratado**
+
+<div align="center">
+  <img src="https://imgur.com/11Ox050.png" alt="Task Flow 3: Seguir el servicio contratado"/>
+</div>
+
+**Pasos del Task Flow 3:**
+1. El familiar consulta la confirmación del servicio.
+2. El familiar consulta la etapa de evaluación.
+3. El familiar consulta la etapa de instalación.
+4. El familiar consulta la etapa de activación.
+5. El familiar ve el servicio activo.
+
+**User Goal 3:** Como cuidador o familiar, quiero seguir el avance de mi servicio, para saber cuándo quedará activo en mi hogar.
+
+**User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
+
+<div align="center">
+  <img src="https://imgur.com/KGTsdmj.png" alt="Wire-flow 3: Seguir el servicio contratado"/>
+</div>
+
+El familiar consulta el seguimiento de su contratación etapa por etapa (confirmación, evaluación, instalación y activación) hasta ver el servicio activo en su hogar. Si la visita debe reprogramarse, la instalación no puede completarse o el estado no carga, el seguimiento muestra un aviso y el familiar elige otro horario, coordina una nueva visita o reintenta.
+
+**Task Flow 4: Gestionar actividades**
+
+<div align="center">
+  <img src="https://imgur.com/gxmgQvS.png" alt="Task Flow 4: Gestionar actividades en la web"/>
+</div>
+
+**Pasos del Task Flow 4:**
+1. El cuidador abre el inicio.
+2. El cuidador abre la lista de actividades.
+3. El cuidador elige crear una nueva actividad.
+4. El cuidador completa los datos y guarda.
+5. El cuidador revisa el detalle de la actividad.
+6. El cuidador consulta el calendario.
+
+**User Goal 4:** Como cuidador o familiar, quiero programar y revisar las actividades diarias, para organizar el cuidado en el hogar.
+
+**User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
+
+<div align="center">
+  <img src="https://imgur.com/7mVy4q6.png" alt="Wire-flow 4: Gestionar actividades en la web"/>
+</div>
+
+Desde el inicio, el cuidador abre la lista de actividades, crea una nueva desde el panel lateral, la guarda, revisa su detalle y consulta la vista semanal. Si programa una actividad en un horario ocupado, el formulario muestra el conflicto y el cuidador cambia la hora. También se contemplan la lista y el calendario sin actividades.
+
+**Task Flow 5: Invitar a la red de cuidado**
+
+<div align="center">
+  <img src="https://imgur.com/zmRnP5r.png" alt="Task Flow 5: Invitar a la red de cuidado"/>
+</div>
+
+**Pasos del Task Flow 5:**
+1. El cuidador abre la red de cuidado.
+2. El cuidador elige invitar a un cuidador.
+3. El cuidador envía la invitación.
+4. El cuidador revisa el detalle de la red.
+5. El invitado abre su enlace y acepta la invitación.
+
+**User Goal 5:** Como cuidador o familiar, quiero invitar a otros cuidadores a la red de cuidado, para compartir el cuidado de la persona asistida.
+
+**User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
+
+<div align="center">
+  <img src="https://imgur.com/2J6S4H6.png" alt="Wire-flow 5: Invitar a la red de cuidado"/>
+</div>
+
+El cuidador abre la red de cuidado, invita a otra persona desde el panel lateral y envía la invitación; luego revisa el detalle de la red. El invitado abre su enlace y acepta la invitación. Si envía datos no válidos, el formulario muestra errores y los corrige. También se contemplan la red sin cuidadores y la invitación vencida, en la que se solicita una nueva.
+
+**Task Flow 6: Consultar y revisar dispositivos**
+
+<div align="center">
+  <img src="https://imgur.com/xoyhG3Z.png" alt="Task Flow 6: Consultar y revisar dispositivos en la web"/>
+</div>
+
+**Pasos del Task Flow 6:**
+1. El cuidador abre el inicio.
+2. El cuidador abre la lista de dispositivos.
+3. El cuidador selecciona un dispositivo y revisa su detalle.
+
+**User Goal 6:** Como cuidador o familiar, quiero consultar los dispositivos instalados, para saber que todo funciona en mi hogar.
+
+**User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
+
+<div align="center">
+  <img src="https://imgur.com/gLfzSO9.png" alt="Wire-flow 6: Consultar y revisar dispositivos en la web"/>
+</div>
+
+Desde el inicio, el cuidador abre los dispositivos del hogar, agrupados por habitación, y selecciona uno para ver su detalle. Si el hub está desconectado, la lista aparece con ese aviso y el cuidador restablece la conexión. También se contempla un error al cargar el detalle del dispositivo.
+
+**Task Flow 7: Reportar una incidencia**
+
+<div align="center">
+  <img src="https://imgur.com/piUQt21.png" alt="Task Flow 7: Reportar una incidencia"/>
+</div>
+
+**Pasos del Task Flow 7:**
+1. El cuidador abre la lista de incidencias.
+2. El cuidador elige reportar una incidencia.
+3. El cuidador completa los datos y envía.
+4. El cuidador revisa la incidencia registrada.
+5. El cuidador sigue la incidencia mientras está en atención.
+6. El cuidador ve la incidencia resuelta.
+
+**User Goal 7:** Como cuidador o familiar, quiero reportar una incidencia y seguir su atención, para recibir ayuda cuando algo falla.
+
+**User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
+
+<div align="center">
+  <img src="https://imgur.com/t7SJklA.png" alt="Wire-flow 7: Reportar una incidencia"/>
+</div>
+
+El cuidador abre el listado de incidencias, reporta una desde el panel lateral y recibe la confirmación de registro. Después sigue su estado desde el detalle, primero en atención y luego resuelta. Si aún no tiene reportes, la lista aparece vacía. También se contemplan el envío del formulario sin completar y un error al enviar la incidencia.
+
+**Task Flow 8: Consultar actividades (cuidador de apoyo)**
+
+<div align="center">
+  <img src="https://imgur.com/S7geNmc.png" alt="Task Flow 8: Consultar actividades como cuidador de apoyo"/>
+</div>
+
+**Pasos del Task Flow 8:**
+1. El cuidador de apoyo abre el inicio.
+2. El cuidador de apoyo abre la lista de actividades.
+3. El cuidador de apoyo selecciona una actividad y revisa su detalle.
+4. El cuidador de apoyo consulta el calendario.
+
+**User Goal 8:** Como cuidador de apoyo, quiero consultar las actividades asignadas, para cumplir mis tareas de cuidado.
+
+**User Persona:** Cuidador de apoyo (basado en Mariano Diaz, familiar o cuidador de persona con discapacidad).
+
+<div align="center">
+  <img src="https://imgur.com/gRC84Zi.png" alt="Wire-flow 8: Consultar actividades como cuidador de apoyo"/>
+</div>
+
+Desde su inicio, el cuidador de apoyo abre la lista de actividades asignadas, selecciona una para ver su detalle en modo solo lectura y luego consulta la vista de horarios. Si no tiene actividades asignadas o el calendario está vacío, se muestra un mensaje de lista vacía. También se contempla un error al cargar el detalle.
+
+#### Aplicación Móvil
+
+**Task Flow 1: Iniciar sesión**
+
+<div align="center">
+  <img src="https://imgur.com/6wZpC9b.png" alt="Task Flow 1: Iniciar sesión en la aplicación móvil"/>
+</div>
+
+**Pasos del Task Flow 1:**
+1. El usuario abre la app y ve la pantalla de carga.
+2. El usuario pasa al inicio de sesión.
+3. El usuario ingresa su correo y contraseña.
+4. El usuario llega al inicio de su rol.
+
+**User Goal 1:** Como usuario de la app móvil (cuidador o técnico), quiero iniciar sesión con mi correo y contraseña, para acceder a las funciones de mi rol.
+
+<div align="center">
+  <img src="https://imgur.com/vWoFcTC.png" alt="Wire-flow 1: Iniciar sesión en la aplicación móvil"/>
+</div>
+
+Al abrir la app aparece la pantalla de carga y luego el inicio de sesión, donde el usuario ingresa sus datos y llega al inicio de su rol. Si los datos no son válidos, la pantalla muestra el mensaje de error y el usuario los corrige para volver a intentar.
+
+**Task Flow 2: Recuperar contraseña**
+
+<div align="center">
+  <img src="https://imgur.com/Yt12r3u.png" alt="Task Flow 2: Recuperar contraseña en la aplicación móvil"/>
+</div>
+
+**Pasos del Task Flow 2:**
+1. El usuario elige recuperar su contraseña desde el inicio de sesión.
+2. El usuario ingresa el código de verificación.
+3. El usuario crea su nueva contraseña.
+4. El usuario ve la confirmación de contraseña actualizada.
+
+**User Goal 2:** Como usuario de la app móvil (cuidador o técnico), quiero recuperar mi contraseña cuando la olvido, para volver a entrar a mi cuenta.
+
+<div align="center">
+  <img src="https://imgur.com/5Vw8BhK.png" alt="Wire-flow 2: Recuperar contraseña en la aplicación móvil"/>
+</div>
+
+Desde el inicio de sesión, el usuario verifica el código enviado a su correo, crea y confirma la nueva contraseña y ve la pantalla de contraseña actualizada. Si el código es incorrecto, la pantalla de verificación muestra el error y el usuario lo corrige.
+
+**Task Flow 3: Gestionar actividades (cuidador o familiar)**
+
+<div align="center">
+  <img src="https://imgur.com/G0sM2yJ.png" alt="Task Flow 3: Gestionar actividades en la aplicación móvil"/>
+</div>
+
+**Pasos del Task Flow 3:**
+1. El usuario abre el inicio.
+2. El usuario abre la lista de actividades.
+3. El usuario elige registrar una actividad.
+4. El usuario define la actividad.
+5. El usuario completa la programación y guarda.
+6. El usuario revisa el detalle de la actividad.
+7. El usuario abre el calendario.
+
+**User Goal 3:** Como cuidador o familiar, quiero programar y revisar las actividades diarias, para organizar el cuidado en el hogar.
+
+**User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
+
+<div align="center">
+  <img src="https://imgur.com/ZnytIDs.png" alt="Wire-flow 3: Gestionar actividades en la aplicación móvil"/>
+</div>
+
+Desde el inicio, el usuario abre la lista de actividades y registra una nueva en dos pasos: actividad y programación. Luego consulta el detalle de la actividad y revisa el calendario. Si no hay actividades, se muestra el estado vacío; si el usuario descarta el registro, confirma la salida y vuelve a la lista sin guardar cambios.
+
+**Task Flow 4: Revisar dispositivos (cuidador o familiar)**
+
+<div align="center">
+  <img src="https://imgur.com/UdzzibC.png" alt="Task Flow 4: Revisar dispositivos en la aplicación móvil"/>
+</div>
+
+**Pasos del Task Flow 4:**
+1. El usuario abre el inicio.
+2. El usuario abre la lista de dispositivos.
+3. El usuario selecciona un dispositivo y revisa su estado.
+
+**User Goal 4:** Como cuidador o familiar, quiero consultar el estado de los dispositivos del hogar, para saber que funcionan correctamente.
+
+**User Persona:** Mariano Diaz (familiar o cuidador de persona con discapacidad).
+
+<div align="center">
+  <img src="https://imgur.com/rDICO6u.png" alt="Wire-flow 4: Revisar dispositivos en la aplicación móvil"/>
+</div>
+
+Desde el inicio, el usuario abre la lista de dispositivos del hogar, agrupados por habitación, y entra al detalle de uno para ver su estado, conectividad y batería. Si ocurre un error al cargar los dispositivos, se muestra el aviso y el usuario puede reintentar.
+
+**Task Flow 5: Atender una orden técnica**
+
+<div align="center">
+  <img src="https://imgur.com/DfWmfGH.png" alt="Task Flow 5: Atender una orden técnica en la aplicación móvil"/>
+</div>
+
+**Pasos del Task Flow 5:**
+1. El técnico abre el inicio.
+2. El técnico abre la lista o el calendario de órdenes.
+3. El técnico revisa el detalle de una orden.
+4. El técnico confirma el inicio de la atención.
+5. El técnico ve la orden completada.
+
+**User Goal 5:** Como técnico, quiero consultar y atender mis órdenes técnicas, para cumplir las visitas asignadas.
+
+<div align="center">
+  <img src="https://imgur.com/FG7lFn8.png" alt="Wire-flow 5: Atender una orden técnica en la aplicación móvil"/>
+</div>
+
+Desde el inicio, el técnico consulta sus órdenes en lista o calendario, abre el detalle de una, confirma el inicio de la atención y, al finalizar, ve la pantalla de orden completada. Si no hay órdenes se muestra el estado vacío; si el detalle falla, aparece el error; y si confirma sin disponibilidad, el sistema lo informa.
+
+**Task Flow 6: Instalación**
+
+<div align="center">
+  <img src="https://imgur.com/CAiXG8R.png" alt="Task Flow 6: Instalación en la aplicación móvil"/>
+</div>
+
+**Pasos del Task Flow 6:**
+1. El técnico abre el detalle de la orden.
+2. El técnico registra el diagnóstico.
+3. El técnico adjunta las evidencias.
+4. El técnico define el resultado de la atención.
+5. El técnico consulta las instalaciones.
+6. El técnico registra el dispositivo en el hogar.
+
+**User Goal 6:** Como técnico, quiero registrar el diagnóstico y las evidencias de la incidencia y registrar el dispositivo en el hogar, para dejar el servicio instalado y documentado.
+
+<div align="center">
+  <img src="https://imgur.com/mqMNXFu.png" alt="Wire-flow 6: Instalación en la aplicación móvil"/>
+</div>
+
+Desde el detalle de la orden, el técnico registra el diagnóstico, adjunta las evidencias fotográficas y define el resultado; luego consulta las instalaciones y registra el dispositivo del hogar, dejando el servicio instalado y documentado. Si descarta los cambios en las evidencias, vuelve sin guardar; y si registra el dispositivo con datos incorrectos, el sistema pide corregirlos.
+
 ### 6.4.3. Applications Mockups
 
 #### Aplicación web de negocio - Pantallas compartidas por todos los roles
