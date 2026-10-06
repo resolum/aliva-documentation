@@ -4242,7 +4242,7 @@ Desde el detalle de la orden, el técnico registra el diagnóstico, adjunta las 
 
 ## 6.6. Applications Prototyping
 
-
+En esta sección se presentan los prototipos de las aplicaciones web y móvil desarrolladas para el sistema, junto con enlaces a videos demostrativos que muestran la interacción y funcionalidad de cada una.
 
 **Prototipo de la aplicación web de negocio**
 
