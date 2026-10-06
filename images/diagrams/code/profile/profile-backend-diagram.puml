@@ -1,0 +1,453 @@
+package "Profiles" #E3F2FD {
+package "Domain" #E8F5E9 {
+package "Model" #FFFDE7 {
+
+  ' =================================================
+  ' AGGREGATES
+  ' =================================================
+
+  package "Aggregates" #FFECB3 {
+
+    class UserProfile <<aggregate root>> {
+      - iamUserId: Long
+      - firstName: String
+      - lastName: String
+      - documentNumber: DocumentNumber
+      - phoneNumber: PhoneNumber
+      - profileImage: ProfileImage
+      - status: ProfileStatus
+      - completed: Boolean
+
+      + UserProfile(iamUserId: Long)
+
+      + completeProfile(
+          firstName: String,
+          lastName: String,
+          documentNumber: DocumentNumber,
+          phoneNumber: PhoneNumber
+        ): void
+
+      + updatePersonalInformation(
+          firstName: String,
+          lastName: String,
+          documentNumber: DocumentNumber,
+          phoneNumber: PhoneNumber
+        ): void
+
+      + updateProfileImage(
+          profileImage: ProfileImage
+        ): void
+
+      + removeProfileImage(): void
+      + activate(): void
+      + deactivate(): void
+      + isCompleted(): Boolean
+    }
+
+    class HouseholdProfile <<aggregate root>> {
+      - alias: HouseholdAlias
+      - associatedEmail: EmailAddress
+      - phoneNumber: PhoneNumber
+      - address: Address
+      - geographicLocation: GeographicLocation
+      - addressReference: AddressReference
+      - createdByUserId: Long
+      - locationStatus: LocationStatus
+      - status: HouseholdStatus
+
+      + HouseholdProfile(
+          alias: HouseholdAlias,
+          associatedEmail: EmailAddress,
+          phoneNumber: PhoneNumber,
+          createdByUserId: Long
+        )
+
+      + updateAlias(alias: HouseholdAlias): void
+
+      + updateContactInformation(
+          associatedEmail: EmailAddress,
+          phoneNumber: PhoneNumber
+        ): void
+
+      + updateAddressReference(
+          addressReference: AddressReference
+        ): void
+
+      + registerLocation(
+          address: Address,
+          geographicLocation: GeographicLocation
+        ): void
+
+      + validateLocation(): void
+      + requireLocationRevalidation(): void
+      + activate(): void
+      + deactivate(): void
+      + hasValidatedLocation(): Boolean
+    }
+  }
+
+  ' =================================================
+  ' VALUE OBJECTS
+  ' =================================================
+
+  package "Value Objects" #EDE7F6 {
+
+    class DocumentNumber <<value object>> {
+      - value: String
+      + DocumentNumber(value: String)
+      + value(): String
+    }
+
+    class PhoneNumber <<value object>> {
+      - value: String
+      + PhoneNumber(value: String)
+      + value(): String
+    }
+
+    class ProfileImage <<value object>> {
+      - photo: Photo
+      + ProfileImage(photo: Photo)
+      + photoUrl(): String
+      + photoPublicId(): String
+    }
+
+    class HouseholdAlias <<value object>> {
+      - value: String
+      + HouseholdAlias(value: String)
+      + value(): String
+    }
+
+    class Address <<value object>> {
+      - normalizedAddress: String
+      - district: String
+      - province: String
+      - department: String
+      - country: String
+
+      + Address(
+          normalizedAddress: String,
+          district: String,
+          province: String,
+          department: String,
+          country: String
+        )
+
+      + fullAddress(): String
+    }
+
+    class GeographicLocation <<value object>> {
+      - latitude: Double
+      - longitude: Double
+      - placeId: String
+
+      + GeographicLocation(
+          latitude: Double,
+          longitude: Double,
+          placeId: String
+        )
+    }
+
+    class AddressReference <<value object>> {
+      - value: String
+      + AddressReference(value: String)
+      + value(): String
+    }
+
+    enum ProfileStatus {
+      PENDING
+      ACTIVE
+      INACTIVE
+    }
+
+    enum LocationStatus {
+      PENDING_VALIDATION
+      VALIDATED
+      REVALIDATION_REQUIRED
+    }
+
+    enum HouseholdStatus {
+      PENDING
+      ACTIVE
+      INACTIVE
+    }
+  }
+
+  ' =================================================
+  ' COMMANDS
+  ' =================================================
+
+  package "Commands" #E1F5FE {
+
+    record InitializeUserProfileCommand {
+      iamUserId: Long
+    }
+
+    record CompleteUserProfileCommand {
+      iamUserId: Long
+      firstName: String
+      lastName: String
+      documentNumber: String
+      phoneNumber: String
+    }
+
+    record UpdateUserProfileCommand {
+      profileId: Long
+      firstName: String
+      lastName: String
+      documentNumber: String
+      phoneNumber: String
+    }
+
+    record UpdateProfileImageCommand {
+      profileId: Long
+      photoUrl: String
+      photoPublicId: String
+    }
+
+    record RemoveProfileImageCommand {
+      profileId: Long
+    }
+
+    record ChangeUserProfileStatusCommand {
+      profileId: Long
+      status: ProfileStatus
+    }
+
+    record CreateHouseholdProfileCommand {
+      createdByUserId: Long
+      alias: String
+      associatedEmail: String
+      phoneNumber: String
+      normalizedAddress: String
+      district: String
+      province: String
+      department: String
+      country: String
+      latitude: Double
+      longitude: Double
+      placeId: String
+      addressReference: String
+    }
+
+    record UpdateHouseholdContactCommand {
+      householdId: Long
+      alias: String
+      associatedEmail: String
+      phoneNumber: String
+      addressReference: String
+    }
+
+    record ChangeHouseholdLocationCommand {
+      householdId: Long
+      normalizedAddress: String
+      district: String
+      province: String
+      department: String
+      country: String
+      latitude: Double
+      longitude: Double
+      placeId: String
+    }
+
+    record ValidateHouseholdLocationCommand {
+      householdId: Long
+    }
+
+    record RequireLocationRevalidationCommand {
+      householdId: Long
+    }
+
+    record ChangeHouseholdStatusCommand {
+      householdId: Long
+      status: HouseholdStatus
+    }
+  }
+
+  ' =================================================
+  ' QUERIES
+  ' =================================================
+
+  package "Queries" #E0F2F1 {
+
+    record GetUserProfileByIdQuery {
+      profileId: Long
+    }
+
+    record GetUserProfileByIamUserIdQuery {
+      iamUserId: Long
+    }
+
+    record GetHouseholdProfileByIdQuery {
+      householdId: Long
+    }
+
+    record GetHouseholdsCreatedByUserQuery {
+      iamUserId: Long
+    }
+  }
+}
+
+' ===================================================
+' DOMAIN SERVICES
+' ===================================================
+
+package "Services" #FCE4EC {
+
+  interface UserProfileCommandService {
+    + handle(
+        command: InitializeUserProfileCommand
+      ): UserProfile
+
+    + handle(
+        command: CompleteUserProfileCommand
+      ): UserProfile
+
+    + handle(
+        command: UpdateUserProfileCommand
+      ): UserProfile
+
+    + handle(
+        command: UpdateProfileImageCommand
+      ): UserProfile
+
+    + handle(
+        command: RemoveProfileImageCommand
+      ): UserProfile
+
+    + handle(
+        command: ChangeUserProfileStatusCommand
+      ): void
+  }
+
+  interface UserProfileQueryService {
+    + handle(
+        query: GetUserProfileByIdQuery
+      ): Optional<UserProfile>
+
+    + handle(
+        query: GetUserProfileByIamUserIdQuery
+      ): Optional<UserProfile>
+  }
+
+  interface HouseholdProfileCommandService {
+    + handle(
+        command: CreateHouseholdProfileCommand
+      ): HouseholdProfile
+
+    + handle(
+        command: UpdateHouseholdContactCommand
+      ): HouseholdProfile
+
+    + handle(
+        command: ChangeHouseholdLocationCommand
+      ): HouseholdProfile
+
+    + handle(
+        command: ValidateHouseholdLocationCommand
+      ): void
+
+    + handle(
+        command: RequireLocationRevalidationCommand
+      ): void
+
+    + handle(
+        command: ChangeHouseholdStatusCommand
+      ): void
+  }
+
+  interface HouseholdProfileQueryService {
+    + handle(
+        query: GetHouseholdProfileByIdQuery
+      ): Optional<HouseholdProfile>
+
+    + handle(
+        query: GetHouseholdsCreatedByUserQuery
+      ): List<HouseholdProfile>
+  }
+}
+}
+}
+' =====================================================
+' INHERITANCE
+' =====================================================
+
+UserProfile --|> AuditableAbstractAggregateRoot
+HouseholdProfile --|> AuditableAbstractAggregateRoot
+
+' =====================================================
+' USER PROFILE COMPOSITION
+' =====================================================
+
+UserProfile *-- DocumentNumber
+UserProfile *-- PhoneNumber
+UserProfile *-- ProfileImage
+UserProfile --> ProfileStatus
+
+ProfileImage *-- Photo
+
+' =====================================================
+' HOUSEHOLD PROFILE COMPOSITION
+' =====================================================
+
+HouseholdProfile *-- HouseholdAlias
+HouseholdProfile *-- EmailAddress
+HouseholdProfile *-- PhoneNumber
+HouseholdProfile *-- Address
+HouseholdProfile *-- GeographicLocation
+HouseholdProfile *-- AddressReference
+HouseholdProfile --> LocationStatus
+HouseholdProfile --> HouseholdStatus
+
+' =====================================================
+' COMMAND TYPE DEPENDENCIES
+' =====================================================
+
+ChangeUserProfileStatusCommand --> ProfileStatus
+ChangeHouseholdStatusCommand --> HouseholdStatus
+
+' =====================================================
+' USER PROFILE SERVICES
+' =====================================================
+
+UserProfileCommandService ..> UserProfile
+UserProfileCommandService ..> InitializeUserProfileCommand
+UserProfileCommandService ..> CompleteUserProfileCommand
+UserProfileCommandService ..> UpdateUserProfileCommand
+UserProfileCommandService ..> UpdateProfileImageCommand
+UserProfileCommandService ..> RemoveProfileImageCommand
+UserProfileCommandService ..> ChangeUserProfileStatusCommand
+
+UserProfileQueryService ..> UserProfile
+UserProfileQueryService ..> GetUserProfileByIdQuery
+UserProfileQueryService ..> GetUserProfileByIamUserIdQuery
+
+' =====================================================
+' HOUSEHOLD PROFILE SERVICES
+' =====================================================
+
+HouseholdProfileCommandService ..> HouseholdProfile
+HouseholdProfileCommandService ..> CreateHouseholdProfileCommand
+HouseholdProfileCommandService ..> UpdateHouseholdContactCommand
+HouseholdProfileCommandService ..> ChangeHouseholdLocationCommand
+HouseholdProfileCommandService ..> ValidateHouseholdLocationCommand
+HouseholdProfileCommandService ..> RequireLocationRevalidationCommand
+HouseholdProfileCommandService ..> ChangeHouseholdStatusCommand
+
+HouseholdProfileQueryService ..> HouseholdProfile
+HouseholdProfileQueryService ..> GetHouseholdProfileByIdQuery
+HouseholdProfileQueryService ..> GetHouseholdsCreatedByUserQuery
+
+legend right
+|= Color |= Layer |
+|<#ECEFF1>| Shared |
+|<#E3F2FD>| Profiles Bounded Context |
+|<#E8F5E9>| Domain |
+|<#FFFDE7>| Model |
+|<#FFECB3>| Aggregates |
+|<#EDE7F6>| Value Objects and Enums |
+|<#E1F5FE>| Commands |
+|<#E0F2F1>| Queries |
+|<#FCE4EC>| Domain Services |
+endlegend
+
+@enduml
