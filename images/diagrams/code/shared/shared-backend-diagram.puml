@@ -1,0 +1,53 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+left to right direction
+
+package alivia.platform.shared {
+
+  package domain.model.aggregate {
+
+    class AuditableAbstractAggregateRoot {
+      - id : Long
+      - createdAt : LocalDateTime
+      - updatedAt : LocalDateTime
+      + addDomainEvent(event : Object) : void
+    }
+
+    class AuditableMongoAggregateRoot {
+      - id : String
+      - createdAt : LocalDateTime
+      - updatedAt : LocalDateTime
+      + addDomainEvent(event : Object) : void
+    }
+  }
+
+  package domain.model.valueobject {
+
+    class EmailAddress <<record>> {
+      - emailAddress : String
+    }
+
+    enum EmailTemplate {
+      WELCOME
+      RESET_PASSWORD
+    }
+    class Photo <<record>>{
+    - string photoUrl
+    - string photoPublicId
+    }
+
+  }
+
+  package domain.model.entities {
+
+    class AuditableModel {
+      - id : Long
+      - createdAt : Date
+      - updatedAt : Date
+    }
+
+  }
+
+}
+@enduml
