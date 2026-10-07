@@ -3043,6 +3043,33 @@ No se declaran Factories ni Domain Services en este bounded context: `Monitoring
 
 ### 5.10.2. Interface Layer
 
+La Interface Layer expone un controller por cada aggregate root: `MonitoringController` y `SynchronizationController`. `RegisterDeviceEventCommand`, `StartOfflineOperationCommand` y `SynchronizeEventsCommand` no se exponen vía REST: se invocan exclusivamente desde los Event Handlers que consumen datos del BC Bienes (5.10.3). Este bounded context no expone un facade/ACL: sus integraciones salientes se resuelven mediante el adaptador de Firebase y los Domain Events hacia Comunicaciones y Analíticas.
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | MonitoringController |
+| Categoría | Controller |
+| Propósito | Exponer la consulta del estado de monitoreo y el reporte de irregularidades de un dispositivo. |
+| Aggregate/Entity relacionado | Monitoring |
+| Ruta base | /api/v1/monitoring |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getMonitoringByDevice | /{deviceId} (GET) | path: deviceId: Long | Obtiene el estado de monitoreo de un dispositivo | GetMonitoringByDeviceIdQuery |
+| reportIrregularity | /{deviceId}/irregularities (POST) | path: deviceId: Long; body: ReportIrregularityResource { description: String, reportedBy: Long } | Reporta una irregularidad sobre un dispositivo | ReportIrregularityCommand |
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | SynchronizationController |
+| Categoría | Controller |
+| Propósito | Exponer la consulta del estado de sincronización de un dispositivo. |
+| Aggregate/Entity relacionado | Synchronization |
+| Ruta base | /api/v1/synchronization |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getSynchronizationByDevice | /{deviceId} (GET) | path: deviceId: Long | Obtiene el estado de sincronización de un dispositivo | GetSynchronizationByDeviceIdQuery |
+
 ### 5.10.3. Application Layer
 
 ### 5.10.4. Infrastructure Layer
