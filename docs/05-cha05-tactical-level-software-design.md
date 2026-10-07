@@ -3031,6 +3031,16 @@ No se declaran Factories ni Domain Services en este bounded context: `Monitoring
 | OfflineOperationStarted | Se publica al marcarse un dispositivo como operando sin conexión. | synchronizationId: Long, deviceId: Long, startedAt: LocalDateTime |
 | EventsSynchronized | Se publica al completarse la sincronización de los eventos almacenados localmente (observación previa #2: sin límite de tiempo evidenciado). | synchronizationId: Long, deviceId: Long, eventCount: Int, completedAt: LocalDateTime |
 
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| MonitoringRepository | Monitoring | Persiste y recupera el aggregate Monitoring; expone la búsqueda por deviceId. |
+| SynchronizationRepository | Synchronization | Persiste y recupera el aggregate Synchronization; expone la búsqueda por deviceId. |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| MonitoringRepository | depende de | Monitoring | El repositorio persiste y recupera el aggregate Monitoring. |
+| SynchronizationRepository | depende de | Synchronization | El repositorio persiste y recupera el aggregate Synchronization. |
+
 ### 5.10.2. Interface Layer
 
 ### 5.10.3. Application Layer
