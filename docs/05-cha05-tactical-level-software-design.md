@@ -2552,7 +2552,7 @@ La Interface Layer expone un único controller, `NotificationController`. `Gener
 
 ### 5.8.3. Application Layer
 
-La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante ocho Event Handlers las integraciones entrantes: cuatro consumen eventos de IAM (5.1.1), uno de Pagos y Suscripciones (5.6.1), uno de Soporte Técnico (5.7.1), y dos de Telemetría (a formalizar en 5.10). Todos convergen en `GenerateNotificationCommand`.
+La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante nueve Event Handlers las integraciones entrantes: cuatro consumen eventos de IAM (5.1.1), uno de Pagos y Suscripciones (5.6.1), uno de Soporte Técnico (5.7.1), y tres de Telemetría (ver 5.10.1). Todos convergen en `GenerateNotificationCommand`.
 
 **AccountEmailVerifiedEventHandler**
 
@@ -2633,7 +2633,7 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Nombre | DeviceFailureDetectedEventHandler |
 | Categoría | Event Handler |
 | Propósito | Resolver al cuidador principal del hogar vía PerfilesFacade y notificarle la falla detectada en un dispositivo. |
-| Command/Query/Evento que maneja | DeviceFailureDetected (evento externo, BC de origen: Telemetría, a formalizar en 5.10) |
+| Command/Query/Evento que maneja | DeviceFailureDetected (evento externo, BC de origen: Telemetría, ver 5.10.1) |
 | Repositorios y servicios que usa | PerfilesFacade, GenerateNotificationCommand (invocado internamente) |
 | Eventos que publica | NotificationGenerated (vía el command invocado) |
 | User story/capability que habilita | Comunicación Entrante del Canvas: "BC Telemetría (fallas y batería baja del dispositivo)" |
@@ -2645,10 +2645,22 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Nombre | LowBatteryDetectedEventHandler |
 | Categoría | Event Handler |
 | Propósito | Resolver al cuidador principal del hogar vía PerfilesFacade y notificarle la batería baja de un dispositivo. |
-| Command/Query/Evento que maneja | LowBatteryDetected (evento externo, BC de origen: Telemetría, a formalizar en 5.10) |
+| Command/Query/Evento que maneja | LowBatteryDetected (evento externo, BC de origen: Telemetría, ver 5.10.1) |
 | Repositorios y servicios que usa | PerfilesFacade, GenerateNotificationCommand (invocado internamente) |
 | Eventos que publica | NotificationGenerated (vía el command invocado) |
 | User story/capability que habilita | Comunicación Entrante del Canvas: "BC Telemetría (fallas y batería baja del dispositivo)" |
+
+**HelpAlertDetectedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | HelpAlertDetectedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Resolver al cuidador principal del hogar vía PerfilesFacade y notificarle con prioridad crítica una alerta de auxilio detectada. |
+| Command/Query/Evento que maneja | HelpAlertDetected (evento externo, BC de origen: Telemetría, ver 5.10.1) |
+| Repositorios y servicios que usa | PerfilesFacade, GenerateNotificationCommand (invocado internamente, priority = CRITICAL) |
+| Eventos que publica | NotificationGenerated (vía el command invocado) |
+| User story/capability que habilita | Resuelve la observación previa #1 de Telemetría: "si se genera una alerta de auxilio, ¿el cuidador podrá visualizar la alerta?" |
 
 **GenerateNotificationCommandHandler**
 
@@ -2660,7 +2672,7 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Command/Query/Evento que maneja | GenerateNotificationCommand |
 | Repositorios y servicios que usa | NotificationRepository, SendNotificationCommand (invocado internamente) |
 | Eventos que publica | NotificationGenerated |
-| User story/capability que habilita | Invocado por los ocho Event Handlers entrantes (5.8.3) |
+| User story/capability que habilita | Invocado por los nueve Event Handlers entrantes (5.8.3) |
 
 **SendNotificationCommandHandler**
 
@@ -2736,7 +2748,7 @@ La persistencia se configura mediante `ComunicacionesJpaConfiguration`, que habi
 | --- | --- | --- | --- | --- |
 | FirebaseCloudMessagingGateway | Gateway | PushNotificationGateway | Firebase Cloud Messaging | Envía las notificaciones push al dispositivo móvil del destinatario. |
 | NotificationExpirationScheduler | Scheduler | — (tarea programada local) | — | Detecta notificaciones CRITICAL en SENT que vencieron su tiempo límite configurable sin confirmación e invoca RepeatNotificationCommand (observación previa #2). |
-| DomainEventBusSubscriber | Event Subscriber | AccountEmailVerifiedListener, PasswordResetListener, AccountSuspendedListener, AccountReactivatedListener, PaymentPreauthorizationRejectedListener, DeviceIssueReportedListener, DeviceFailureDetectedListener, LowBatteryDetectedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos de IAM, Pagos y Suscripciones, Soporte Técnico y Telemetría hacia los ocho Event Handlers de Comunicaciones. |
+| DomainEventBusSubscriber | Event Subscriber | AccountEmailVerifiedListener, PasswordResetListener, AccountSuspendedListener, AccountReactivatedListener, PaymentPreauthorizationRejectedListener, DeviceIssueReportedListener, DeviceFailureDetectedListener, LowBatteryDetectedListener, HelpAlertDetectedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos de IAM, Pagos y Suscripciones, Soporte Técnico y Telemetría hacia los nueve Event Handlers de Comunicaciones. |
 
 | Tabla/Colección | Propósito |
 | --- | --- |
@@ -2754,7 +2766,7 @@ La persistencia se configura mediante `ComunicacionesJpaConfiguration`, que habi
 | Criterio | Cumple | Evidencia |
 | --- | --- | --- |
 | Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 4 commands y las 2 queries de 5.8.1 tienen su handler correspondiente en 5.8.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | GenerateNotificationCommand se usa desde los ocho Event Handlers entrantes; SendNotificationCommand y RepeatNotificationCommand se usan desde GenerateNotificationCommandHandler y el scheduler respectivamente, justificado en 5.8.2. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | GenerateNotificationCommand se usa desde los nueve Event Handlers entrantes; SendNotificationCommand y RepeatNotificationCommand se usan desde GenerateNotificationCommandHandler y el scheduler respectivamente, justificado en 5.8.2. |
 | Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de la tabla de endpoints (5.8.2) mapea 1:1 los parámetros del Command correspondiente. |
 | Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | NotificationController se relaciona con Notification. |
 | Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | NotificationRepository ↔ NotificationRepositoryJpa. |
@@ -2783,7 +2795,7 @@ La Domain Layer modela dos aggregates de solo registro (append-only), fieles al 
 | Nombre | Categoría | Descripción |
 | --- | --- | --- |
 | Sale | Aggregate Root | Representa una venta de suscripción concluida, relevante para el Gestor de suscripciones (lenguaje ubicuo del Canvas). Se crea al consumir SubscriptionActivated de Pagos y Suscripciones (5.6.1); no se modifica después de creada. |
-| DeviceMetric | Aggregate Root | Representa un indicador de rendimiento de un dispositivo, calculado a partir de la telemetría. Se crea al consumir el registro de métricas de Telemetría (a formalizar en 5.10); no se modifica después de creado. |
+| DeviceMetric | Aggregate Root | Representa un indicador de rendimiento de un dispositivo, calculado a partir de la telemetría. Se crea al consumir DeviceMetricsRegistered de Telemetría (ver 5.10.1); no se modifica después de creado. |
 
 No se identifican Entities ni Enums en este bounded context: ambos aggregates son registros simples sin estados ni componentes internos con identidad propia.
 
@@ -2843,7 +2855,7 @@ La Interface Layer expone un único controller, `AnalyticsController`, en lugar 
 
 ### 5.9.3. Application Layer
 
-La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante dos Event Handlers las integraciones entrantes: una con Pagos y Suscripciones (ya modelada, 5.6.1) y una con Telemetría (a formalizar en 5.10).
+La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante dos Event Handlers las integraciones entrantes: una con Pagos y Suscripciones (5.6.1) y una con Telemetría (5.10.1).
 
 **SubscriptionActivatedEventHandler**
 
@@ -2864,7 +2876,7 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Nombre | DeviceMetricsRegisteredEventHandler |
 | Categoría | Event Handler |
 | Propósito | Registrar el indicador de rendimiento calculado a partir de la telemetría de un dispositivo. |
-| Command/Query/Evento que maneja | DeviceMetricsRegistered (evento externo, BC de origen: Telemetría, a formalizar en 5.10) |
+| Command/Query/Evento que maneja | DeviceMetricsRegistered (evento externo, BC de origen: Telemetría, ver 5.10.1) |
 | Repositorios y servicios que usa | RegisterDeviceMetricCommand (invocado internamente) |
 | Eventos que publica | DeviceMetricRegistered (vía el command invocado) |
 | User story/capability que habilita | Supuesto del Canvas: "las métricas de rendimiento de dispositivos provienen del BC Telemetría" |
@@ -2952,7 +2964,7 @@ La persistencia se configura mediante `AnaliticasPersistenceConfiguration`, que 
 | Objeto | BC responsable | Justificación |
 | --- | --- | --- |
 | Suscripción / pago | Pagos y Suscripciones | El ciclo de vida comercial de la suscripción es responsabilidad de Pagos y Suscripciones; Analíticas solo registra la venta concluida al consumir SubscriptionActivated. |
-| Telemetría cruda de dispositivos | Telemetría | Los datos crudos de telemetría son responsabilidad de Telemetría; Analíticas solo registra los indicadores ya calculados (a formalizar en 5.10). |
+| Telemetría cruda de dispositivos | Telemetría | Los datos crudos de telemetría son responsabilidad de Telemetría (5.10); Analíticas solo registra los indicadores ya calculados. |
 | Datos operativos de Soporte Técnico y Bienes | Soporte Técnico / Bienes | El Context Mapping (4.2.5) menciona un patrón conformista hacia estos dos BC, pero ningún Canvas concreto (ni el de Soporte Técnico ni el de Analíticas) nombra un evento de métricas que lo sustente; no se modela para evitar inventar un contrato sin evidencia (misma brecha documentada en 5.8.4 para Comunicaciones). |
 
 **Verificación de trazabilidad — Analíticas**
