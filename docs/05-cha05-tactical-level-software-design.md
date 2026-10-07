@@ -2500,6 +2500,30 @@ No se identifican Entities en este bounded context: `Notification` es un aggrega
 | NotificationPriority | Enum | Prioridad de la notificación: `NORMAL` o `CRITICAL`. Se determina por el tipo de evento de origen (observación previa #1): eventos de Telemetría y Soporte Técnico se clasifican CRITICAL por defecto; eventos de IAM y Pagos y Suscripciones se clasifican NORMAL. No exhibe transiciones adicionales. |
 | NotificationAudience | Enum | Destinatario de la notificación: `PRINCIPAL_CAREGIVER` (requiere un recipientAccountId resuelto vía PerfilesFacade, 5.3.2) o `ADMINISTRATION` (sin accountId específico; se distribuye a un canal de administración configurado en Infrastructure). |
 
+No se declaran Factories ni Domain Services en este bounded context: `Notification` es un aggregate autónomo cuya creación no requiere colaboración con otros aggregates del mismo tipo.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GenerateNotificationCommand | Genera una notificación a partir de un evento de origen, determinando su prioridad y su destinatario. | sourceEventType: String, sourceBc: String, message: String, priority: NotificationPriority, audience: NotificationAudience, recipientAccountId: Long |
+| SendNotificationCommand | Envía la notificación vía Firebase Cloud Messaging, invocado automáticamente tras generarse. | notificationId: Long |
+| ConfirmNotificationCommand | Confirma la notificación por parte del cuidador y la cierra. | notificationId: Long, caregiverAccountId: Long |
+| RepeatNotificationCommand | Reenvía una notificación crítica no confirmada dentro del tiempo límite, invocado por el scheduler de Infrastructure (observación previa #2). | notificationId: Long |
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GetNotificationByIdQuery | Obtiene el detalle de una notificación. | notificationId: Long |
+| GetNotificationsByCaregiverIdQuery | Lista el historial de notificaciones de un cuidador, para el panel de notificaciones. | caregiverAccountId: Long |
+
+Ninguno de los siguientes Domain Events tiene un consumidor externo declarado en el Bounded Context Canvas (4.2.4): su Comunicación Saliente solo registra integraciones hacia Firebase Cloud Messaging y el panel de notificaciones interno.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| NotificationGenerated | Se publica al generarse una notificación. | notificationId: Long, sourceEventType: String, sourceBc: String, priority: NotificationPriority, audience: NotificationAudience, generatedAt: LocalDateTime |
+| NotificationSent | Se publica al enviarse la notificación vía Firebase. | notificationId: Long, sentAt: LocalDateTime |
+| NotificationConfirmed | Se publica al confirmarse la notificación. | notificationId: Long, confirmedAt: LocalDateTime |
+| NotificationClosed | Se publica al cerrarse la notificación tras su confirmación. | notificationId: Long, closedAt: LocalDateTime |
+| NotificationRepeated | Se publica al reenviarse una notificación crítica no atendida a tiempo. | notificationId: Long, repeatedAt: LocalDateTime |
+
 ### 5.8.2. Interface Layer
 
 ### 5.8.3. Application Layer
