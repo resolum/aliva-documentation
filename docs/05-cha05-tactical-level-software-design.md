@@ -2771,3 +2771,34 @@ La persistencia se configura mediante `ComunicacionesJpaConfiguration`, que habi
 #### 5.8.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
+
+## 5.9. Bounded Context: Analíticas
+
+El bounded context **Analíticas** consolida y expone las métricas del sistema —globales, de ventas y de rendimiento de dispositivos— a través de un dashboard principal, según el rol del usuario (decisión de negocio del Canvas). A diferencia de los bounded contexts anteriores (contexto de ejecución), Analíticas tiene rol de **contexto de análisis** (4.2.4): sus datos se calculan en tiempo real a partir de registros ya existentes en Pagos y Suscripciones y Telemetría, sin refresco periódico ni histórico almacenado (Supuesto del Canvas: "el dashboard se actualiza al momento de solicitar las métricas"), lo que resuelve directamente las dos preguntas abiertas del Canvas. Participan el **Administrador** (métricas globales), el **Gestor de suscripciones** (ventas) y el **Cuidador** (rendimiento de dispositivos); el BC Bienes también consulta las métricas globales como colaborador de lectura.
+
+### 5.9.1. Domain Layer
+
+La Domain Layer modela dos aggregates de solo registro (append-only), fieles al EventStorming de Paso 10: `Sale`, que representa una venta de suscripción concluida, y `DeviceMetric`, que representa un registro de rendimiento de un dispositivo. Ninguno tiene ciclo de vida con estados: ambos se crean una vez y no se modifican.
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| Sale | Aggregate Root | Representa una venta de suscripción concluida, relevante para el Gestor de suscripciones (lenguaje ubicuo del Canvas). Se crea al consumir SubscriptionActivated de Pagos y Suscripciones (5.6.1); no se modifica después de creada. |
+| DeviceMetric | Aggregate Root | Representa un indicador de rendimiento de un dispositivo, calculado a partir de la telemetría. Se crea al consumir el registro de métricas de Telemetría (a formalizar en 5.10); no se modifica después de creado. |
+
+No se identifican Entities ni Enums en este bounded context: ambos aggregates son registros simples sin estados ni componentes internos con identidad propia.
+
+### 5.9.2. Interface Layer
+
+### 5.9.3. Application Layer
+
+### 5.9.4. Infrastructure Layer
+
+### 5.9.5. Bounded Context Software Architecture Component Level Diagrams
+
+### 5.9.6. Bounded Context Software Architecture Code Level Diagrams
+
+#### 5.9.6.1. Bounded Context Domain Layer Class Diagrams
+
+#### 5.9.6.2. Bounded Context Database Design Diagram
+
+<div style="page-break-after: always;"></div>
