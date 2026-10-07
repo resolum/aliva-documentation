@@ -2177,6 +2177,22 @@ No se declaran Factories ni Domain Services en este bounded context: los tres ag
 
 ### 5.7.2. Interface Layer
 
+La Interface Layer expone un controller por cada aggregate root: `EvaluationController`, `InstallationController` e `IncidentController`. `ScheduleInstallationCommand` no se expone directamente, ya que se invoca únicamente desde Event Handlers (5.7.3). Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: sus integraciones salientes se resuelven mediante el adaptador de Google Maps y los Domain Events hacia Pagos y Suscripciones y Comunicaciones.
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | EvaluationController |
+| Categoría | Controller |
+| Propósito | Exponer la solicitud de evaluación de vivienda y el registro de su resultado. |
+| Aggregate/Entity relacionado | Evaluation |
+| Ruta base | /api/v1/evaluations |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| requestHomeEvaluation | / (POST) | body: RequestHomeEvaluationResource { subscriptionId: Long, homeProfileId: Long, address: String, requestedBy: Long } | Solicita la evaluación técnica de una vivienda | RequestHomeEvaluationCommand |
+| getEvaluationById | /{evaluationId} (GET) | path: evaluationId: Long | Obtiene el detalle de una evaluación | GetEvaluationByIdQuery |
+| recordEvaluationResult | /{evaluationId}/result (POST) | path: evaluationId: Long; body: RecordEvaluationResultResource { electricalInstallationOk: Boolean, deviceCompatible: Boolean } | Registra el resultado y determina el veredicto de viabilidad | RecordEvaluationResultCommand |
+
 ### 5.7.3. Application Layer
 
 ### 5.7.4. Infrastructure Layer
