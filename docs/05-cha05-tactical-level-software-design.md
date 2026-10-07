@@ -3184,6 +3184,44 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 
 ### 5.10.4. Infrastructure Layer
 
+La Infrastructure Layer implementa los repositorios de Monitoring y Synchronization sobre MongoDB, consistente con la decisión TS-48 de persistencia de telemetría y eventos IoT de alto volumen; el adaptador hacia Firebase para informar el estado del dispositivo; y el suscriptor del bus de eventos interno que conecta a Telemetría con Bienes.
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| MonitoringRepositoryMongo | MonitoringRepository | Spring Data MongoDB | Persiste y recupera el aggregate Monitoring. |
+| SynchronizationRepositoryMongo | SynchronizationRepository | Spring Data MongoDB | Persiste y recupera el aggregate Synchronization. |
+
+La persistencia se configura mediante `TelemetriaPersistenceConfiguration`, que habilita los repositorios Spring Data MongoDB (`@EnableMongoRepositories`) para `Monitoring` y `Synchronization`.
+
+| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
+| --- | --- | --- | --- | --- |
+| FirebaseCloudMessagingGateway | Gateway | DeviceStatusGateway | Firebase Cloud Messaging | Informa el estado del dispositivo (Supuesto del Canvas). |
+| DomainEventBusSubscriber | Event Subscriber | DeviceDataCapturedListener, DeviceConnectionLostListener, DeviceConnectionRestoredListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por Bienes hacia los Event Handlers de Telemetría. |
+
+| Tabla/Colección | Propósito |
+| --- | --- |
+| monitoring (MongoDB) | Almacena el aggregate Monitoring: eventos, fallas e irregularidades por dispositivo. |
+| synchronization (MongoDB) | Almacena el aggregate Synchronization: estado de conectividad y sincronización por dispositivo. |
+
+| Objeto | BC responsable | Justificación |
+| --- | --- | --- |
+| Dispositivo (registro, configuración) | Bienes | El registro y la configuración del dispositivo como activo son responsabilidad de Bienes; Telemetría solo referencia deviceId y consume sus eventos de datos capturados (a formalizar en 5.11). |
+| Notificación al cuidador | Comunicaciones | El envío y la confirmación de la notificación son responsabilidad de Comunicaciones; Telemetría solo publica los eventos de origen (DeviceFailureDetected, LowBatteryDetected, HelpAlertDetected). |
+| Métrica agregada del dashboard | Analíticas | El cálculo y la exposición de las métricas agregadas son responsabilidad de Analíticas; Telemetría solo publica el registro individual (DeviceMetricsRegistered). |
+
+**Verificación de trazabilidad — Telemetría**
+
+| Criterio | Cumple | Evidencia |
+| --- | --- | --- |
+| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 4 commands y las 2 queries de 5.10.1 tienen su handler correspondiente en 5.10.3. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | RegisterDeviceEventCommand, StartOfflineOperationCommand y SynchronizeEventsCommand se usan exclusivamente desde los tres Event Handlers entrantes, justificado en 5.10.2; ReportIrregularityCommand se usa desde el endpoint manual. |
+| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.10.2) mapea 1:1 los parámetros del Command correspondiente. |
+| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | MonitoringController se relaciona con Monitoring; SynchronizationController se relaciona con Synchronization. |
+| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | MonitoringRepository ↔ MonitoringRepositoryMongo; SynchronizationRepository ↔ SynchronizationRepositoryMongo. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | DeviceFailureDetected, LowBatteryDetected y HelpAlertDetected los consume Comunicaciones (5.8.3, el tercero a agregar como seguimiento); DeviceMetricsRegistered lo consume Analíticas (5.9.3); el resto se publica para auditoría. |
+| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Monitoring y Synchronization son exclusivos de este bounded context. |
+| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | DeviceStatusGateway se declara como puerto en Domain; su implementación concreta (FirebaseCloudMessagingGateway) está en Infrastructure (5.10.4). |
+
 ### 5.10.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.10.6. Bounded Context Software Architecture Code Level Diagrams
