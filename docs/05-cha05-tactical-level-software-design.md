@@ -2114,6 +2114,20 @@ La Domain Layer modela tres aggregates independientes, fieles al EventStorming d
 
 No se identifican Entities en este bounded context: los tres aggregates son simples, sin componentes internos con identidad propia.
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| EvaluationId | Value Object | Identificador tipado del aggregate Evaluation; no admite valores nulos ni negativos. |
+| InstallationId | Value Object | Identificador tipado del aggregate Installation; no admite valores nulos ni negativos. |
+| IncidentId | Value Object | Identificador tipado del aggregate Incident; no admite valores nulos ni negativos. |
+| HomeAddress | Value Object | Dirección de la vivienda a evaluar, geocodificada mediante Google Maps (Supuesto del Canvas); no admite valores vacíos. |
+| CompatibilityResult | Value Object | Resultado de evaluar la instalación eléctrica y la compatibilidad de dispositivos de una vivienda; determina el veredicto de viabilidad (observación previa #1). |
+| IncidentDescription | Value Object | Descripción del problema reportado sobre un dispositivo; no admite valores vacíos. |
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| ViabilityResult | Enum | Veredicto de una Evaluation: `VIABLE` (permite programar la instalación directamente), `PARTIALLY_VIABLE` (requiere adaptar el plan de suscripción antes de instalar), `NOT_VIABLE` (cancela la suscripción, observación previa #2). No exhibe transiciones: es el resultado final de RecordEvaluationResultCommand. |
+| InstallationStatus | Enum | Estado de la instalación. Transiciones permitidas: `SCHEDULED` → `IN_PROGRESS` al iniciarse; `IN_PROGRESS` → `COMPLETED` (terminal) al instalarse los dispositivos; `IN_PROGRESS` → `FAILED` (terminal) si no puede completarse (observación previa #5). |
+
 ### 5.7.2. Interface Layer
 
 ### 5.7.3. Application Layer
