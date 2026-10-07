@@ -426,7 +426,7 @@ No se declaran Enums en este bounded context: ni `Business` ni `BusinessAdminist
 | BusinessRegistered | Se publica al registrarse el negocio de Alivia con su ubicación geocodificada. | businessId: Long, name: String, address: String, latitude: Double, longitude: Double, registeredAt: LocalDateTime |
 | BusinessProfileUpdated | Se publica al actualizarse el perfil del negocio. | businessId: Long, updatedAt: LocalDateTime |
 | BusinessAdministratorRegistered | Se publica al registrarse un nuevo administrador; es consumido por `AdministratorRegisteredEventHandler` de IAM (5.1.3) para crear su cuenta y asignarle el rol BUSINESS_ADMIN (observación previa #2). | administratorId: Long, businessId: Long, name: String, email: String, phone: String, registeredAt: LocalDateTime |
-| BusinessAdministratorUpdated | Se publica al actualizarse los datos de un administrador; dispara la creación de su perfil en Perfiles, conforme a la decisión de negocio del Canvas (observación previa #3, a formalizar en 5.3). | administratorId: Long, name: String, email: String, phone: String, updatedAt: LocalDateTime |
+| BusinessAdministratorUpdated | Se publica al actualizarse los datos de un administrador; dispara la creación de su perfil en Perfiles, conforme a la decisión de negocio del Canvas (observación previa #3, ver 5.3). | administratorId: Long, name: String, email: String, phone: String, updatedAt: LocalDateTime |
 
 No se declaran Factories ni Domain Services en este bounded context: `Business` y `BusinessAdministrator` son aggregates independientes que solo se referencian por identificador (`businessId`), sin que su creación requiera colaboración ni validación cruzada en memoria entre ambos.
 
@@ -572,7 +572,7 @@ La persistencia se configura mediante `BusinessJpaConfiguration`, que habilita l
 | Objeto | BC responsable | Justificación |
 | --- | --- | --- |
 | Cuenta / credenciales del administrador | IAM | La creación y gestión de la cuenta de acceso del administrador es responsabilidad exclusiva de IAM, invocada mediante BusinessAdministratorRegistered (observación previa #2, resuelto en 5.1). |
-| Perfil del administrador | Perfiles | El perfil detallado del administrador (foto, preferencias) se gestiona en Perfiles al consumir BusinessAdministratorUpdated (observación previa #3, decisión de negocio del Canvas, a formalizar en 5.3). |
+| Perfil del administrador | Perfiles | El perfil detallado del administrador (foto, preferencias) se gestiona en Perfiles al consumir BusinessAdministratorUpdated (observación previa #3, decisión de negocio del Canvas, ver 5.3). |
 
 **Verificación de trazabilidad — Gestión del Negocio**
 
@@ -583,7 +583,7 @@ La persistencia se configura mediante `BusinessJpaConfiguration`, que habilita l
 | Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.2.2) mapea 1:1 los parámetros del Command correspondiente. |
 | Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | BusinessController se relaciona con Business; BusinessAdministratorController se relaciona con BusinessAdministrator. |
 | Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | BusinessRepository ↔ BusinessRepositoryJpa; BusinessAdministratorRepository ↔ BusinessAdministratorRepositoryJpa. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | BusinessAdministratorRegistered lo consume IAM (5.1.3); BusinessAdministratorUpdated lo consume Perfiles (a formalizar en 5.3); BusinessRegistered y BusinessProfileUpdated quedan disponibles para Analíticas/Comunicaciones sin un consumidor obligatorio adicional en el alcance actual. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | BusinessAdministratorRegistered lo consume IAM (5.1.3); BusinessAdministratorUpdated lo consume Perfiles (5.3.3); BusinessRegistered y BusinessProfileUpdated quedan disponibles para Analíticas/Comunicaciones sin un consumidor obligatorio adicional en el alcance actual. |
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Business y BusinessAdministrator son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | GeocodingService se declara como puerto en Domain; su implementación concreta (GoogleMapsGeocodingAdapter) está en Infrastructure (5.2.4). |
 
@@ -729,7 +729,7 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Nombre | EmployeeUpdatedEventHandler |
 | Categoría | Event Handler |
 | Propósito | Inicializar o refrescar el perfil genérico de un empleado al actualizarse su registro en Capital Humano. |
-| Command/Query/Evento que maneja | EmployeeUpdated (evento externo, BC de origen: Capital Humano, a formalizar en 5.4) |
+| Command/Query/Evento que maneja | EmployeeUpdated (evento externo, BC de origen: Capital Humano, ver 5.4.1) |
 | Repositorios y servicios que usa | InitializeProfileCommand (invocado internamente) |
 | Eventos que publica | ProfileInitialized (vía el command invocado) |
 | User story/capability que habilita | Comunicación Entrante del Canvas: "BC Capital Humano (empleado actualizado)" |
@@ -753,7 +753,7 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Nombre | PrincipalCaregiverReplacedEventHandler |
 | Categoría | Event Handler |
 | Propósito | Mantener sincronizado el cuidador principal del perfil de hogar cuando Cuidado registra su reemplazo. |
-| Command/Query/Evento que maneja | PrincipalCaregiverReplaced (evento externo, BC de origen: Cuidado, a formalizar en 5.5) |
+| Command/Query/Evento que maneja | PrincipalCaregiverReplaced (evento externo, BC de origen: Cuidado, ver 5.5.1) |
 | Repositorios y servicios que usa | ReplacePrincipalCaregiverCommand (invocado internamente) |
 | Eventos que publica | PrincipalCaregiverAssigned (vía el command invocado) |
 | User story/capability que habilita | Resuelve la observación previa #4 (gap de sincronización con Cuidado) |
