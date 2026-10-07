@@ -2323,6 +2323,90 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | InstallationFailed |
 | User story/capability que habilita | Resuelve la observación previa #5 |
 
+**ReportDeviceIssueCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ReportDeviceIssueCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear la incidencia, identificar y clasificar el dispositivo objetivo. |
+| Command/Query/Evento que maneja | ReportDeviceIssueCommand |
+| Repositorios y servicios que usa | IncidentRepository |
+| Eventos que publica | DeviceIssueReported |
+| User story/capability que habilita | Decisión de negocio del Canvas: "un dispositivo clasificado en una incidencia se avisa a la administración" |
+
+**AttendTechnicalIncidentCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AttendTechnicalIncidentCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Atender la incidencia: generar la alerta, programar mantenimiento si corresponde, diagnosticar, reparar y restablecer el servicio. |
+| Command/Query/Evento que maneja | AttendTechnicalIncidentCommand |
+| Repositorios y servicios que usa | IncidentRepository |
+| Eventos que publica | IncidentAttended |
+| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
+
+**GenerateTechnicalReportCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GenerateTechnicalReportCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Generar el informe técnico de diagnóstico y resolución de la incidencia. |
+| Command/Query/Evento que maneja | GenerateTechnicalReportCommand |
+| Repositorios y servicios que usa | IncidentRepository |
+| Eventos que publica | TechnicalReportGenerated |
+| User story/capability que habilita | Resuelve la observación previa #4 |
+
+**GetEvaluationByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetEvaluationByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de una evaluación. |
+| Command/Query/Evento que maneja | GetEvaluationByIdQuery |
+| Repositorios y servicios que usa | EvaluationRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getEvaluationById |
+
+**GetInstallationByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetInstallationByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de una instalación. |
+| Command/Query/Evento que maneja | GetInstallationByIdQuery |
+| Repositorios y servicios que usa | InstallationRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getInstallationById |
+
+**GetIncidentByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetIncidentByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de una incidencia, incluyendo su informe técnico. |
+| Command/Query/Evento que maneja | GetIncidentByIdQuery |
+| Repositorios y servicios que usa | IncidentRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getIncidentById |
+
+**GetIncidentsByDeviceIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetIncidentsByDeviceIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Listar las incidencias reportadas sobre un dispositivo. |
+| Command/Query/Evento que maneja | GetIncidentsByDeviceIdQuery |
+| Repositorios y servicios que usa | IncidentRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getIncidentsByDevice |
+
 ### 5.7.4. Infrastructure Layer
 
 ### 5.7.5. Bounded Context Software Architecture Component Level Diagrams
