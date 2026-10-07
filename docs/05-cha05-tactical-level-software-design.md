@@ -2650,6 +2650,54 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Eventos que publica | NotificationGenerated (vía el command invocado) |
 | User story/capability que habilita | Comunicación Entrante del Canvas: "BC Telemetría (fallas y batería baja del dispositivo)" |
 
+**GenerateNotificationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GenerateNotificationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear la notificación en estado GENERATED y disparar su envío. |
+| Command/Query/Evento que maneja | GenerateNotificationCommand |
+| Repositorios y servicios que usa | NotificationRepository, SendNotificationCommand (invocado internamente) |
+| Eventos que publica | NotificationGenerated |
+| User story/capability que habilita | Invocado por los ocho Event Handlers entrantes (5.8.3) |
+
+**SendNotificationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | SendNotificationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Enviar la notificación push vía Firebase Cloud Messaging al destinatario resuelto. |
+| Command/Query/Evento que maneja | SendNotificationCommand |
+| Repositorios y servicios que usa | NotificationRepository, PushNotificationGateway |
+| Eventos que publica | NotificationSent |
+| User story/capability que habilita | Supuesto del Canvas: "Firebase Cloud Messaging es el proveedor de envío" |
+
+**ConfirmNotificationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ConfirmNotificationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Confirmar la notificación por parte del cuidador y cerrarla. |
+| Command/Query/Evento que maneja | ConfirmNotificationCommand |
+| Repositorios y servicios que usa | NotificationRepository |
+| Eventos que publica | NotificationConfirmed, NotificationClosed |
+| User story/capability que habilita | Decisión de negocio del Canvas: "toda notificación registra su estado (atendida, confirmada, cerrada)" |
+
+**RepeatNotificationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RepeatNotificationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Reenviar una notificación crítica que no fue confirmada dentro del tiempo límite configurable. |
+| Command/Query/Evento que maneja | RepeatNotificationCommand |
+| Repositorios y servicios que usa | NotificationRepository, PushNotificationGateway |
+| Eventos que publica | NotificationRepeated |
+| User story/capability que habilita | Resuelve la observación previa #2; invocado únicamente por el scheduler de Infrastructure (5.8.4) |
+
 ### 5.8.4. Infrastructure Layer
 
 ### 5.8.5. Bounded Context Software Architecture Component Level Diagrams
