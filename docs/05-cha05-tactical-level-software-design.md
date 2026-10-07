@@ -670,7 +670,7 @@ No se declaran Factories ni Domain Services en este bounded context: `Profile` y
 
 ### 5.3.2. Interface Layer
 
-La Interface Layer expone dos controllers independientes, uno por cada aggregate root: `ProfileController` y `HomeProfileController`. Ninguno expone `InitializeProfileCommand` ni `ReplacePrincipalCaregiverCommand`, ya que ambos solo se invocan desde Event Handlers en la Application Layer (5.3.3), nunca desde un endpoint REST directo. Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: sus únicas integraciones salientes son hacia servicios externos (Cloudinary, Google Maps); ningún otro bounded context consume a Perfiles de forma síncrona según el Context Mapping (4.2.5).
+La Interface Layer expone dos controllers independientes, uno por cada aggregate root: `ProfileController` y `HomeProfileController`. Ninguno expone `InitializeProfileCommand` ni `ReplacePrincipalCaregiverCommand`, ya que ambos solo se invocan desde Event Handlers en la Application Layer (5.3.3), nunca desde un endpoint REST directo. Este bounded context no consume mensajería de dispositivos IoT. Expone además el facade `PerfilesFacade`, agregado para que otros bounded contexts (Comunicaciones, y más adelante Telemetría) resuelvan al cuidador principal de un hogar sin acceder directamente al aggregate `HomeProfile`, dado que `accountId` por sí solo no identifica quién es el responsable vigente de notificaciones.
 
 | Propiedad | Valor |
 | --- | --- |
@@ -701,6 +701,10 @@ La Interface Layer expone dos controllers independientes, uno por cada aggregate
 | createHomeProfile | / (POST) | body: CreateHomeProfileResource { accountId: Long, assistedPersonName: String, address: String, latitude: Double, longitude: Double } | Crea el perfil de hogar y asigna al creador como cuidador principal | CreateHomeProfileCommand |
 | getHomeProfileById | /{homeProfileId} (GET) | path: homeProfileId: Long | Obtiene el detalle del perfil de hogar | GetHomeProfileByIdQuery |
 | updateHomeProfile | /{homeProfileId} (PUT) | path: homeProfileId: Long; body: UpdateHomeProfileResource { assistedPersonName: String, address: String, latitude: Double, longitude: Double } | Actualiza los datos o la ubicación del perfil de hogar | UpdateHomeProfileCommand |
+
+| Nombre | Métodos expuestos | Propósito |
+| --- | --- | --- |
+| PerfilesFacade | getPrincipalCaregiverAccountId(homeProfileId: Long): Long | Permite que otros bounded contextos resuelvan el accountId del cuidador principal vigente de un hogar sin acceder directamente al aggregate HomeProfile. |
 
 ### 5.3.3. Application Layer
 
@@ -873,6 +877,18 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Repositorios y servicios que usa | HomeProfileRepository |
 | Eventos que publica | No aplica |
 | User story/capability que habilita | Soporta la consulta desde el endpoint getHomeProfileById |
+
+**PerfilesFacadeImpl**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | PerfilesFacadeImpl |
+| Categoría | Facade Implementation |
+| Propósito | Implementar PerfilesFacade resolviendo el cuidador principal vigente a partir del aggregate HomeProfile. |
+| Command/Query/Evento que maneja | No aplica (no despacha Commands/Queries; delega en HomeProfileRepository) |
+| Repositorios y servicios que usa | HomeProfileRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Usado por Comunicaciones (5.8) para resolver al destinatario de PaymentPreauthorizationRejected |
 
 ### 5.3.4. Infrastructure Layer
 
