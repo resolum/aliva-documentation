@@ -2164,7 +2164,7 @@ No se declaran Factories ni Domain Services en este bounded context: los tres ag
 | GetIncidentByIdQuery | Obtiene el detalle de una incidencia, incluyendo su informe técnico. | incidentId: Long |
 | GetIncidentsByDeviceIdQuery | Lista las incidencias reportadas sobre un dispositivo. | deviceId: Long |
 
-`HomeViabilityEvaluated` lo consume `HomeViabilityEvaluatedEventHandler` de Pagos y Suscripciones (5.6.3); `InstallationCompleted` e `InstallationFailed` los consumen `InstallationCompletedEventHandler` e `InstallationFailedEventHandler` de Pagos y Suscripciones (5.6.3), respectivamente; `DeviceIssueReported` lo consume Comunicaciones (a formalizar en 5.8). El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría.
+`HomeViabilityEvaluated` lo consume `HomeViabilityEvaluatedEventHandler` de Pagos y Suscripciones (5.6.3); `InstallationCompleted` e `InstallationFailed` los consumen `InstallationCompletedEventHandler` e `InstallationFailedEventHandler` de Pagos y Suscripciones (5.6.3), respectivamente; `DeviceIssueReported` lo consume `DeviceIssueReportedEventHandler` de Comunicaciones (5.8.3). El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría.
 
 | Nombre | Descripción | Parámetros |
 | --- | --- | --- |
@@ -2174,7 +2174,7 @@ No se declaran Factories ni Domain Services en este bounded context: los tres ag
 | InstallationStarted | Se publica al iniciarse la instalación. | installationId: Long, startedAt: LocalDateTime |
 | InstallationCompleted | Se publica al completarse la instalación; es consumido por Pagos y Suscripciones (5.6.3) para confirmar el cobro. | installationId: Long, subscriptionId: Long, completedAt: LocalDateTime |
 | InstallationFailed | Se publica al no poder completarse la instalación; es consumido por Pagos y Suscripciones (5.6.3) para rechazar el cobro (observación previa #5). | installationId: Long, subscriptionId: Long, reason: String, failedAt: LocalDateTime |
-| DeviceIssueReported | Se publica al reportarse y clasificarse un problema sobre un dispositivo; es consumido por Comunicaciones para avisar a la administración (decisión de negocio del Canvas, a formalizar en 5.8). | incidentId: Long, deviceId: Long, classification: String, reportedAt: LocalDateTime |
+| DeviceIssueReported | Se publica al reportarse y clasificarse un problema sobre un dispositivo; es consumido por Comunicaciones para avisar a la administración (decisión de negocio del Canvas, ver 5.8.3). | incidentId: Long, deviceId: Long, classification: String, reportedAt: LocalDateTime |
 | IncidentAttended | Se publica al completarse la atención de una incidencia (alerta, mantenimiento, diagnóstico, reparación y restablecimiento del servicio). | incidentId: Long, attendedAt: LocalDateTime |
 | TechnicalReportGenerated | Se publica al generarse el informe técnico de una incidencia (observación previa #4). | incidentId: Long, generatedAt: LocalDateTime |
 
@@ -2450,7 +2450,7 @@ La persistencia se configura mediante `SoporteTecnicoJpaConfiguration`, que habi
 | --- | --- | --- |
 | Suscripción / pago | Pagos y Suscripciones | El estado comercial de la suscripción y el procesamiento del pago son responsabilidad de Pagos y Suscripciones; Soporte Técnico solo reacciona a sus eventos y publica el veredicto de viabilidad y el resultado de la instalación (5.6). |
 | Perfil de hogar | Perfiles | Los datos y la ubicación base del hogar se gestionan en Perfiles; Soporte Técnico solo referencia homeProfileId al solicitar la evaluación. |
-| Dispositivo (bien) | Bienes | El registro y la configuración del dispositivo como activo de la vivienda son responsabilidad de Bienes; Soporte Técnico solo referencia deviceId al reportar o instalar (a formalizar en 5.11). |
+| Dispositivo (bien) | Bienes | El registro y la configuración del dispositivo como activo de la vivienda son responsabilidad de Bienes (5.11); Soporte Técnico solo referencia deviceId al reportar o instalar. |
 
 **Verificación de trazabilidad — Soporte Técnico**
 
@@ -2461,7 +2461,7 @@ La persistencia se configura mediante `SoporteTecnicoJpaConfiguration`, que habi
 | Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.7.2) mapea 1:1 los parámetros del Command correspondiente. |
 | Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | Cada uno de los tres controllers se relaciona con su aggregate root correspondiente. |
 | Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | Los tres repositorios de 5.7.1 tienen su implementación Jpa correspondiente en 5.7.4. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | HomeViabilityEvaluated, InstallationCompleted e InstallationFailed los consume Pagos y Suscripciones (5.6.3); HomeViabilityEvaluated también lo consume el propio HomeViabilityEvaluatedEventHandler (5.7.3); DeviceIssueReported lo consume Comunicaciones (a formalizar en 5.8); el resto se publica para auditoría. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | HomeViabilityEvaluated, InstallationCompleted e InstallationFailed los consume Pagos y Suscripciones (5.6.3); HomeViabilityEvaluated también lo consume el propio HomeViabilityEvaluatedEventHandler (5.7.3); DeviceIssueReported lo consume Comunicaciones (5.8.3); el resto se publica para auditoría. |
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Evaluation, Installation e Incident son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | GeocodingService se declara como puerto en Domain; su implementación concreta (GoogleMapsGeocodingAdapter) está en Infrastructure (5.7.4). |
 
