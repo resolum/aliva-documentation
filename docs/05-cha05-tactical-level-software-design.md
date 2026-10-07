@@ -2162,6 +2162,19 @@ No se declaran Factories ni Domain Services en este bounded context: los tres ag
 | IncidentAttended | Se publica al completarse la atención de una incidencia (alerta, mantenimiento, diagnóstico, reparación y restablecimiento del servicio). | incidentId: Long, attendedAt: LocalDateTime |
 | TechnicalReportGenerated | Se publica al generarse el informe técnico de una incidencia (observación previa #4). | incidentId: Long, generatedAt: LocalDateTime |
 
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| EvaluationRepository | Evaluation | Persiste y recupera el aggregate Evaluation. |
+| InstallationRepository | Installation | Persiste y recupera el aggregate Installation; expone la búsqueda por subscriptionId para los Event Handlers de Pagos y Suscripciones. |
+| IncidentRepository | Incident | Persiste y recupera el aggregate Incident; expone la búsqueda por deviceId. |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| Installation | asociación | Evaluation | Installation referencia a la evaluación que la originó mediante evaluationId. |
+| EvaluationRepository | depende de | Evaluation | El repositorio persiste y recupera el aggregate Evaluation. |
+| InstallationRepository | depende de | Installation | El repositorio persiste y recupera el aggregate Installation. |
+| IncidentRepository | depende de | Incident | El repositorio persiste y recupera el aggregate Incident. |
+
 ### 5.7.2. Interface Layer
 
 ### 5.7.3. Application Layer
