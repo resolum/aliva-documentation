@@ -3072,6 +3072,92 @@ La Interface Layer expone un controller por cada aggregate root: `MonitoringCont
 
 ### 5.10.3. Application Layer
 
+La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante tres Event Handlers las integraciones entrantes desde el BC Bienes (Supuesto del Canvas: "los datos capturados de los dispositivos llegan desde el BC Bienes"), a formalizar en 5.11.
+
+**DeviceDataCapturedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | DeviceDataCapturedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Registrar el evento capturado de un dispositivo (falla, batería baja, alerta de auxilio o actualización de estado). |
+| Command/Query/Evento que maneja | DeviceDataCaptured (evento externo, BC de origen: Bienes, a formalizar en 5.11) |
+| Repositorios y servicios que usa | RegisterDeviceEventCommand (invocado internamente) |
+| Eventos que publica | DeviceFailureDetected, LowBatteryDetected, HelpAlertDetected, DeviceStatusUpdated o DeviceMetricsRegistered, según el tipo de evento (vía el command invocado) |
+| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Bienes (datos capturados de los dispositivos) → Monitorear dispositivo" |
+
+**DeviceConnectionLostEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | DeviceConnectionLostEventHandler |
+| Categoría | Event Handler |
+| Propósito | Marcar el dispositivo como operando sin conexión. |
+| Command/Query/Evento que maneja | DeviceConnectionLost (evento externo, BC de origen: Bienes, a formalizar en 5.11) |
+| Repositorios y servicios que usa | StartOfflineOperationCommand (invocado internamente) |
+| Eventos que publica | OfflineOperationStarted (vía el command invocado) |
+| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Bienes (datos capturados de los dispositivos) → Operar sin conexión" |
+
+**DeviceConnectionRestoredEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | DeviceConnectionRestoredEventHandler |
+| Categoría | Event Handler |
+| Propósito | Sincronizar los eventos almacenados localmente durante la desconexión. |
+| Command/Query/Evento que maneja | DeviceConnectionRestored (evento externo, BC de origen: Bienes, a formalizar en 5.11) |
+| Repositorios y servicios que usa | SynchronizeEventsCommand (invocado internamente) |
+| Eventos que publica | EventsSynchronized, DeviceMetricsRegistered (vía el command invocado) |
+| User story/capability que habilita | Decisión de negocio del Canvas: "si se pierde la conexión, los eventos se almacenan localmente y se sincronizan al restablecerse" |
+
+**RegisterDeviceEventCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterDeviceEventCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Registrar el evento en Monitoring y publicar el Domain Event correspondiente según su tipo. |
+| Command/Query/Evento que maneja | RegisterDeviceEventCommand |
+| Repositorios y servicios que usa | MonitoringRepository |
+| Eventos que publica | DeviceFailureDetected, LowBatteryDetected, HelpAlertDetected, DeviceStatusUpdated o DeviceMetricsRegistered, según eventType |
+| User story/capability que habilita | Invocado únicamente por DeviceDataCapturedEventHandler |
+
+**ReportIrregularityCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ReportIrregularityCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Registrar la irregularidad reportada por el Cuidador sobre un dispositivo. |
+| Command/Query/Evento que maneja | ReportIrregularityCommand |
+| Repositorios y servicios que usa | MonitoringRepository |
+| Eventos que publica | IrregularityReported |
+| User story/capability que habilita | Comunicación Entrante del Canvas: "Cuidador → Monitorear irregularidades del dispositivo" |
+
+**StartOfflineOperationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | StartOfflineOperationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Marcar el dispositivo como OFFLINE. |
+| Command/Query/Evento que maneja | StartOfflineOperationCommand |
+| Repositorios y servicios que usa | SynchronizationRepository |
+| Eventos que publica | OfflineOperationStarted |
+| User story/capability que habilita | Invocado únicamente por DeviceConnectionLostEventHandler |
+
+**SynchronizeEventsCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | SynchronizeEventsCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Completar la sincronización de los eventos almacenados localmente y registrar las métricas resultantes. |
+| Command/Query/Evento que maneja | SynchronizeEventsCommand |
+| Repositorios y servicios que usa | SynchronizationRepository |
+| Eventos que publica | EventsSynchronized, DeviceMetricsRegistered |
+| User story/capability que habilita | Decisión de negocio del Canvas: "las métricas se registran... al completar la sincronización"; invocado únicamente por DeviceConnectionRestoredEventHandler |
+
 ### 5.10.4. Infrastructure Layer
 
 ### 5.10.5. Bounded Context Software Architecture Component Level Diagrams
