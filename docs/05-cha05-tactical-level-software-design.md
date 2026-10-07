@@ -3244,4 +3244,36 @@ La persistencia se configura mediante `TelemetriaPersistenceConfiguration`, que 
 
 <div style="page-break-after: always;"></div>
 
+## 5.11. Bounded Context: Bienes
+
+El bounded context **Bienes** gestiona el ciclo de vida de los dispositivos del hogar vinculados a Alivia: dispositivos de voz, dispositivos accionadores (puertas, ventanas, luces) y el registro general de dispositivos. Es un dominio núcleo. Participan la **Persona con discapacidad** (emite comandos de voz), el **Cuidador** (registra, configura y desactiva dispositivos) y, de forma indirecta, el **Técnico** (a través de Soporte Técnico, 5.7). Este bounded context cierra los últimos tres compromisos pendientes del capítulo: publica `DeviceDataCaptured`, `DeviceConnectionLost` y `DeviceConnectionRestored` (consumidos por Telemetría, 5.10.3), y consulta a Analíticas (5.9.2) para visualizar métricas globales, cerrando así todas las integraciones cruzadas abiertas en capítulos anteriores.
+
+### 5.11.1. Domain Layer
+
+La Domain Layer modela tres aggregates independientes, fieles al EventStorming de Paso 10: `Device`, que representa el registro general de un dispositivo (credenciales, asignación a un hogar, estado de conexión); `VoiceDevice`, que captura y procesa comandos de voz; y `ActuatorDevice`, que ejecuta acciones físicas sobre puertas, ventanas y luces.
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| Device | Aggregate Root | Representa el registro general de un dispositivo del hogar. Requiere credenciales de autorización y estar asignado a una casa antes de ejecutar comandos (decisión de negocio del Canvas); un dispositivo inactivo o desconectado no puede ejecutar acciones (Supuesto del Canvas). Al desactivarse, se detiene su telemetría y se desasigna de la casa. |
+| VoiceDevice | Aggregate Root | Representa el hardware que captura y procesa comandos hablados, referenciado mediante deviceId. Si el comando no es reconocido, el flujo termina sin reintento automático ni notificación adicional (observación previa #1); una solicitud de auxilio se trata como un comando de voz interpretado como pedido de ayuda (lenguaje ubicuo del Canvas). |
+| ActuatorDevice | Aggregate Root | Representa el dispositivo físico (puerta, ventana, luz) controlado remotamente, referenciado mediante deviceId. Cada comando dirigido a un ActuatorDevice distinto se procesa de forma independiente, sin conflicto entre comandos concurrentes dirigidos a dispositivos distintos (observación previa #2). |
+
+No se identifican Entities en este bounded context: los tres aggregates son simples, sin componentes internos con identidad propia.
+
+### 5.11.2. Interface Layer
+
+### 5.11.3. Application Layer
+
+### 5.11.4. Infrastructure Layer
+
+### 5.11.5. Bounded Context Software Architecture Component Level Diagrams
+
+### 5.11.6. Bounded Context Software Architecture Code Level Diagrams
+
+#### 5.11.6.1. Bounded Context Domain Layer Class Diagrams
+
+#### 5.11.6.2. Bounded Context Database Design Diagram
+
+<div style="page-break-after: always;"></div>
+
 <div style="page-break-after: always;"></div>
