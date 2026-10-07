@@ -2524,6 +2524,14 @@ Ninguno de los siguientes Domain Events tiene un consumidor externo declarado en
 | NotificationClosed | Se publica al cerrarse la notificación tras su confirmación. | notificationId: Long, closedAt: LocalDateTime |
 | NotificationRepeated | Se publica al reenviarse una notificación crítica no atendida a tiempo. | notificationId: Long, repeatedAt: LocalDateTime |
 
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| NotificationRepository | Notification | Persiste y recupera el aggregate Notification; expone la búsqueda por recipientAccountId para el panel de notificaciones y por estado para el proceso de reenvío. |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| NotificationRepository | depende de | Notification | El repositorio persiste y recupera el aggregate Notification. |
+
 ### 5.8.2. Interface Layer
 
 ### 5.8.3. Application Layer
