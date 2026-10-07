@@ -2825,6 +2825,22 @@ Ninguno de los siguientes Domain Events tiene un consumidor externo declarado en
 
 ### 5.9.2. Interface Layer
 
+La Interface Layer expone un único controller, `AnalyticsController`, en lugar de un controller por aggregate: ni `Sale` ni `DeviceMetric` se manipulan directamente vía REST (se crean exclusivamente desde Event Handlers, 5.9.3); lo que los actores consumen son las tres queries agregadas del dashboard. Este bounded context no consume mensajería de dispositivos IoT directamente y no expone un facade/ACL: es terminal en el flujo de datos, consumiendo de Pagos y Suscripciones y Telemetría mediante Domain Events.
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AnalyticsController |
+| Categoría | Controller |
+| Propósito | Exponer las métricas globales, de ventas y de rendimiento de dispositivos del dashboard principal. |
+| Aggregate/Entity relacionado | Sale, DeviceMetric |
+| Ruta base | /api/v1/analytics |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getGlobalMetrics | /global-metrics (GET) | — | Obtiene las métricas globales del sistema | GetGlobalMetricsQuery |
+| getSalesMetrics | /sales-metrics (GET) | — | Obtiene las métricas de ventas | GetSalesMetricsQuery |
+| getDevicePerformance | /devices/{deviceId}/performance (GET) | path: deviceId: Long | Obtiene el rendimiento de un dispositivo | GetDevicePerformanceQuery |
+
 ### 5.9.3. Application Layer
 
 ### 5.9.4. Infrastructure Layer
