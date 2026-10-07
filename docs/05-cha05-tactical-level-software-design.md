@@ -3287,6 +3287,33 @@ No se declaran Factories ni Domain Services en este bounded context: los tres ag
 | ExecuteActionCommand | Ejecuta una acción física sobre un dispositivo accionador. | actuatorDeviceId: Long, action: ActuatorAction |
 | SendDeviceDataToTelemetryCommand | Reenvía como dato capturado hacia Telemetría toda acción confirmada, comando no reconocido o solicitud de auxilio (decisión de negocio del Canvas), invocado únicamente por los Event Handlers internos (5.11.3). | deviceId: Long, dataType: String, payload: String |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GetDeviceByIdQuery | Obtiene el detalle de un dispositivo. | deviceId: Long |
+| GetDevicesByHomeProfileIdQuery | Lista los dispositivos registrados en un hogar. | homeProfileId: Long |
+| GetVoiceDeviceByIdQuery | Obtiene el detalle de un dispositivo de voz. | voiceDeviceId: Long |
+| GetActuatorDeviceByIdQuery | Obtiene el detalle de un dispositivo accionador. | actuatorDeviceId: Long |
+
+`DeviceDataCaptured`, `DeviceConnectionLost` y `DeviceConnectionRestored` los consume Telemetría (5.10.3), cerrando el último compromiso cruzado del capítulo. El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría o para los Event Handlers internos que alimentan SendDeviceDataToTelemetryCommand.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| DeviceRegistered | Se publica al registrarse un dispositivo. | deviceId: Long, homeProfileId: Long, deviceType: DeviceType, registeredAt: LocalDateTime |
+| DeviceConfigured | Se publica al configurarse y entrenarse un dispositivo. | deviceId: Long, configuredAt: LocalDateTime |
+| DeviceDeactivated | Se publica al desactivarse un dispositivo. | deviceId: Long, deactivatedAt: LocalDateTime |
+| DeviceConnectionLost | Se publica al perderse la conexión de un dispositivo; es consumido por Telemetría (5.10.3). | deviceId: Long, lostAt: LocalDateTime |
+| DeviceConnectionRestored | Se publica al restablecerse la conexión de un dispositivo; es consumido por Telemetría (5.10.3). | deviceId: Long, restoredAt: LocalDateTime |
+| VoiceCommandProcessed | Se publica al procesarse exitosamente un comando de voz, identificando el dispositivo objetivo y la acción. | voiceDeviceId: Long, targetActuatorDeviceId: Long, action: ActuatorAction, processedAt: LocalDateTime |
+| VoiceCommandNotRecognized | Se publica cuando un comando de voz no es reconocido; el flujo termina sin reintento automático (observación previa #1). | voiceDeviceId: Long, occurredAt: LocalDateTime |
+| HelpAlertRequested | Se publica al interpretarse un comando de voz como solicitud de auxilio. | voiceDeviceId: Long, requestedAt: LocalDateTime |
+| DoorOpened | Se publica al abrirse una puerta. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
+| DoorClosed | Se publica al cerrarse una puerta. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
+| WindowOpened | Se publica al abrirse una ventana. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
+| WindowClosed | Se publica al cerrarse una ventana. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
+| LightTurnedOn | Se publica al encenderse una luz. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
+| LightTurnedOff | Se publica al apagarse una luz. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
+| DeviceDataCaptured | Se publica al reenviarse un dato capturado hacia Telemetría; es consumido por Telemetría (5.10.3). | deviceId: Long, dataType: String, payload: String, capturedAt: LocalDateTime |
+
 ### 5.11.2. Interface Layer
 
 ### 5.11.3. Application Layer
