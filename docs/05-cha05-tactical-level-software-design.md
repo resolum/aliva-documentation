@@ -2977,3 +2977,36 @@ La persistencia se configura mediante `AnaliticasPersistenceConfiguration`, que 
 #### 5.9.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
+
+## 5.10. Bounded Context: Telemetría
+
+El bounded context **Telemetría** monitorea el estado y las fallas de los dispositivos del hogar, informa ese estado a cuidadores y técnicos, y garantiza la continuidad del servicio cuando se pierde la conexión mediante almacenamiento local y sincronización posterior. Es un dominio núcleo. Participan el **Técnico** (monitorea el estado) y el **Cuidador** (reporta irregularidades). Los datos capturados de los dispositivos llegan desde el BC Bienes (Supuesto del Canvas), a formalizar en 5.11. Este bounded context cierra dos compromisos pendientes: publica `DeviceMetricsRegistered` (consumido por Analíticas, 5.9.3) y `DeviceFailureDetected`/`LowBatteryDetected` (consumidos por Comunicaciones, 5.8.3); además resuelve su propia pregunta abierta sobre alertas de auxilio publicando `HelpAlertDetected`, que agrega como un tercer compromiso con Comunicaciones (observación previa #1).
+
+### 5.10.1. Domain Layer
+
+La Domain Layer modela dos aggregates independientes, fieles al EventStorming de Paso 10: `Monitoring`, que registra el seguimiento del estado y las fallas de un dispositivo, y `Synchronization`, que gestiona la operación sin conexión y la sincronización posterior de eventos.
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| Monitoring | Aggregate Root | Representa el seguimiento del estado y de las fallas de un dispositivo. Las fallas, la batería baja y las alertas de auxilio se comunican al cuidador principal (decisión de negocio del Canvas, observación previa #1); las métricas se registran al informar el estado del dispositivo. |
+| Synchronization | Aggregate Root | Representa la operación sin conexión de un dispositivo. Si se pierde la conexión, los eventos se almacenan localmente y se sincronizan al restablecerse (decisión de negocio del Canvas); no se modela un límite de tiempo ni un escalamiento adicional por desconexión prolongada (observación previa #2). |
+
+No se identifican Entities en este bounded context: ambos aggregates son simples, sin componentes internos con identidad propia.
+
+### 5.10.2. Interface Layer
+
+### 5.10.3. Application Layer
+
+### 5.10.4. Infrastructure Layer
+
+### 5.10.5. Bounded Context Software Architecture Component Level Diagrams
+
+### 5.10.6. Bounded Context Software Architecture Code Level Diagrams
+
+#### 5.10.6.1. Bounded Context Domain Layer Class Diagrams
+
+#### 5.10.6.2. Bounded Context Database Design Diagram
+
+<div style="page-break-after: always;"></div>
+
+<div style="page-break-after: always;"></div>
