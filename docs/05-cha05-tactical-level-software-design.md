@@ -2225,6 +2225,44 @@ La Interface Layer expone un controller por cada aggregate root: `EvaluationCont
 
 ### 5.7.3. Application Layer
 
+La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante tres Event Handlers las integraciones con Pagos y Suscripciones: dos consumen eventos externos (`ContractingConfirmed`, `PlanAdaptationAccepted`) y uno reacciona al propio `HomeViabilityEvaluated` para programar la instalación cuando la vivienda es viable sin necesitar la confirmación de otro bounded context.
+
+**ContractingConfirmedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ContractingConfirmedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Solicitar automáticamente la evaluación técnica de la vivienda al confirmarse la contratación. |
+| Command/Query/Evento que maneja | ContractingConfirmed (evento externo, BC de origen: Pagos y Suscripciones, ver 5.6.1) |
+| Repositorios y servicios que usa | RequestHomeEvaluationCommand (invocado internamente) |
+| Eventos que publica | HomeEvaluationRequested (vía el command invocado) |
+| User story/capability que habilita | Supuesto del Canvas: "el BC Pagos y suscripciones inicia la evaluación" |
+
+**PlanAdaptationAcceptedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | PlanAdaptationAcceptedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Programar la fecha de instalación tras aceptarse la adaptación del plan. |
+| Command/Query/Evento que maneja | PlanAdaptationAccepted (evento externo, BC de origen: Pagos y Suscripciones, ver 5.6.1) |
+| Repositorios y servicios que usa | ScheduleInstallationCommand (invocado internamente) |
+| Eventos que publica | InstallationScheduled (vía el command invocado) |
+| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Pagos y suscripciones (coordinar fecha de instalación)" |
+
+**HomeViabilityEvaluatedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | HomeViabilityEvaluatedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Programar la instalación directamente cuando la vivienda resulta viable, sin esperar una confirmación externa; si resulta parcialmente viable o no viable, no realiza ninguna acción adicional (la reacción ocurre en Pagos y Suscripciones, 5.6.3). |
+| Command/Query/Evento que maneja | HomeViabilityEvaluated (evento propio de Soporte Técnico) |
+| Repositorios y servicios que usa | ScheduleInstallationCommand (invocado internamente, solo si result = VIABLE) |
+| Eventos que publica | InstallationScheduled (vía el command invocado) |
+| User story/capability que habilita | Decisión de negocio del Canvas: "una vivienda declarada viable permite programar la fecha de instalación" |
+
 ### 5.7.4. Infrastructure Layer
 
 ### 5.7.5. Bounded Context Software Architecture Component Level Diagrams
