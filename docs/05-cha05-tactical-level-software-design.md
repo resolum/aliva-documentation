@@ -3549,6 +3549,48 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 
 ### 5.11.4. Infrastructure Layer
 
+La Infrastructure Layer implementa los repositorios de los tres aggregates sobre PostgreSQL, consistente con la decisión TS-47 de persistencia transaccional para "perfiles, devices, suscripciones"; los adaptadores hacia el hardware de voz y los servos (Supuesto del Canvas: "proveedores externos ya integrados"); y un monitor de conectividad que detecta pérdidas y restablecimientos de conexión.
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| DeviceRepositoryJpa | DeviceRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Device. |
+| VoiceDeviceRepositoryJpa | VoiceDeviceRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate VoiceDevice. |
+| ActuatorDeviceRepositoryJpa | ActuatorDeviceRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate ActuatorDevice. |
+
+La persistencia se configura mediante `BienesJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de los tres aggregates sobre el motor PostgreSQL.
+
+| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
+| --- | --- | --- | --- | --- |
+| VoiceRecognitionGateway | Gateway | VoiceRecognitionGateway (puerto homónimo) | Hardware de micrófono y altavoz (externo) | Captura y procesa el audio de los comandos de voz. |
+| ActuatorGateway | Gateway | ActuatorGateway (puerto homónimo) | Hardware con servos (externo) | Ejecuta físicamente las acciones sobre puertas, ventanas y luces. |
+| DeviceConnectivityMonitor | Scheduler | — (tarea programada local) | — | Detecta pérdidas y restablecimientos de conexión de los dispositivos e invoca MarkDeviceConnectionLostCommand / MarkDeviceConnectionRestoredCommand. |
+
+| Tabla/Colección | Propósito |
+| --- | --- |
+| devices | Almacena el aggregate Device: credenciales, tipo, estado y hogar asignado. |
+| voice_devices | Almacena el aggregate VoiceDevice: referencia a su Device. |
+| actuator_devices | Almacena el aggregate ActuatorDevice: referencia a su Device. |
+
+| Objeto | BC responsable | Justificación |
+| --- | --- | --- |
+| Hogar / persona asistida | Perfiles | Los datos del hogar y de la persona asistida son responsabilidad de Perfiles; Bienes solo referencia homeProfileId al registrar un dispositivo. |
+| Evaluación e instalación técnica | Soporte Técnico | La evaluación de viabilidad y la instalación física de los dispositivos son responsabilidad de Soporte Técnico (5.7); Bienes gestiona el ciclo de vida del dispositivo una vez instalado. |
+| Telemetría cruda y sincronización | Telemetría | El almacenamiento, el monitoreo y la sincronización de los datos de los dispositivos son responsabilidad de Telemetría (5.10); Bienes solo publica los eventos de origen. |
+| Métricas agregadas del dashboard | Analíticas | El cálculo y la exposición de las métricas agregadas son responsabilidad de Analíticas (5.9); Bienes solo las consulta como colaborador de lectura. |
+
+**Verificación de trazabilidad — Bienes**
+
+| Criterio | Cumple | Evidencia |
+| --- | --- | --- |
+| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 8 commands y las 4 queries de 5.11.1 tienen su handler correspondiente en 5.11.3. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | MarkDeviceConnectionLostCommand, MarkDeviceConnectionRestoredCommand y SendDeviceDataToTelemetryCommand se usan exclusivamente desde el monitor de conectividad y los Event Handlers internos, justificado en 5.11.2 y 5.11.3. |
+| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.11.2) mapea 1:1 los parámetros del Command correspondiente. |
+| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | Cada uno de los tres controllers se relaciona con su aggregate root correspondiente. |
+| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | Los tres repositorios de 5.11.1 tienen su implementación Jpa correspondiente en 5.11.4. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | DeviceDataCaptured, DeviceConnectionLost y DeviceConnectionRestored los consume Telemetría (5.10.3); VoiceCommandNotRecognized, HelpAlertRequested y los seis eventos de ActuatorDevice los consumen los dos Event Handlers internos (5.11.3); el resto se publica para auditoría. |
+| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Device, VoiceDevice y ActuatorDevice son exclusivos de este bounded context. |
+| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | VoiceRecognitionGateway y ActuatorGateway se declaran como puertos en Domain; sus implementaciones concretas están en Infrastructure (5.11.4). |
+
 ### 5.11.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.11.6. Bounded Context Software Architecture Code Level Diagrams
