@@ -2800,6 +2800,29 @@ No se declaran Factories ni Domain Services en este bounded context: `Sale` y `D
 | RegisterSaleCommand | Registra una venta de suscripción concluida, invocado únicamente por SubscriptionActivatedEventHandler. | subscriptionId: Long, planId: Long, amount: Money |
 | RegisterDeviceMetricCommand | Registra un indicador de rendimiento de un dispositivo, invocado únicamente por DeviceMetricsRegisteredEventHandler. | deviceId: Long, metricType: String, value: Double |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GetGlobalMetricsQuery | Calcula en tiempo real las métricas globales del sistema a partir de Sale y DeviceMetric, visibles para el Administrador (decisión de negocio del Canvas: "cada rol accede solo a las métricas relevantes para su función"). | — |
+| GetSalesMetricsQuery | Calcula en tiempo real las métricas de ventas a partir de Sale, relevantes para el Gestor de suscripciones. | — |
+| GetDevicePerformanceQuery | Calcula en tiempo real el rendimiento de un dispositivo a partir de DeviceMetric, consultable por el Cuidador. | deviceId: Long |
+
+Ninguno de los siguientes Domain Events tiene un consumidor externo declarado en el Canvas (4.2.4): este bounded context es terminal en el flujo de datos (contexto de análisis) y no alimenta a otro BC.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| SaleRegistered | Se publica al registrarse una venta de suscripción concluida. | saleId: Long, subscriptionId: Long, planId: Long, amount: Money, registeredAt: LocalDateTime |
+| DeviceMetricRegistered | Se publica al registrarse un indicador de rendimiento de un dispositivo. | metricId: Long, deviceId: Long, metricType: String, value: Double, registeredAt: LocalDateTime |
+
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| SaleRepository | Sale | Persiste y recupera el aggregate Sale. |
+| DeviceMetricRepository | DeviceMetric | Persiste y recupera el aggregate DeviceMetric; expone la búsqueda por deviceId. |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| SaleRepository | depende de | Sale | El repositorio persiste y recupera el aggregate Sale. |
+| DeviceMetricRepository | depende de | DeviceMetric | El repositorio persiste y recupera el aggregate DeviceMetric. |
+
 ### 5.9.2. Interface Layer
 
 ### 5.9.3. Application Layer
