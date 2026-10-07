@@ -2498,7 +2498,7 @@ No se identifican Entities en este bounded context: `Notification` es un aggrega
 | --- | --- | --- |
 | NotificationStatus | Enum | Estado de la notificación. Transiciones permitidas: `GENERATED` → `SENT` al enviarse vía Firebase; `SENT` → `PENDING_CRITICAL` si vence el tiempo límite sin confirmación y la prioridad es CRITICAL; `PENDING_CRITICAL` → `SENT` al reenviarse (observación previa #2); `SENT`/`PENDING_CRITICAL` → `CONFIRMED` (terminal intermedio) al confirmar el cuidador; `CONFIRMED` → `CLOSED` (terminal) al cerrarse. |
 | NotificationPriority | Enum | Prioridad de la notificación: `NORMAL` o `CRITICAL`. Se determina por el tipo de evento de origen (observación previa #1): eventos de Telemetría y Soporte Técnico se clasifican CRITICAL por defecto; eventos de IAM y Pagos y Suscripciones se clasifican NORMAL. No exhibe transiciones adicionales. |
-| NotificationAudience | Enum | Destinatario de la notificación: `PRINCIPAL_CAREGIVER` (requiere un recipientAccountId resuelto vía PerfilesFacade, 5.3.2) o `ADMINISTRATION` (sin accountId específico; se distribuye a un canal de administración configurado en Infrastructure). |
+| NotificationAudience | Enum | Destinatario de la notificación: `ACCOUNT_HOLDER` (el recipientAccountId viaja directamente en el evento de origen, como en los eventos de IAM); `PRINCIPAL_CAREGIVER` (el evento de origen solo trae homeProfileId/subscriptionId, y el recipientAccountId se resuelve vía PerfilesFacade, 5.3.2); o `ADMINISTRATION` (sin accountId específico; se distribuye a un canal de administración configurado en Infrastructure). |
 
 No se declaran Factories ni Domain Services en este bounded context: `Notification` es un aggregate autónomo cuya creación no requiere colaboración con otros aggregates del mismo tipo.
 
@@ -2551,6 +2551,56 @@ La Interface Layer expone un único controller, `NotificationController`. `Gener
 | confirmNotification | /{notificationId}/confirm (POST) | path: notificationId: Long; body: ConfirmNotificationResource { caregiverAccountId: Long } | Confirma la notificación y la cierra | ConfirmNotificationCommand |
 
 ### 5.8.3. Application Layer
+
+La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante ocho Event Handlers las integraciones entrantes: cuatro consumen eventos de IAM (5.1.1), uno de Pagos y Suscripciones (5.6.1), uno de Soporte Técnico (5.7.1), y dos de Telemetría (a formalizar en 5.10). Todos convergen en `GenerateNotificationCommand`.
+
+**AccountEmailVerifiedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AccountEmailVerifiedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Notificar al titular la activación de su cuenta. |
+| Command/Query/Evento que maneja | AccountEmailVerified (evento externo, BC de origen: IAM, ver 5.1.1) |
+| Repositorios y servicios que usa | GenerateNotificationCommand (invocado internamente) |
+| Eventos que publica | NotificationGenerated (vía el command invocado) |
+| User story/capability que habilita | Resuelve la integración declarada en 5.1.1 (Context Mapping 4.2.5) |
+
+**PasswordResetEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | PasswordResetEventHandler |
+| Categoría | Event Handler |
+| Propósito | Notificar al titular el cambio de su contraseña. |
+| Command/Query/Evento que maneja | PasswordReset (evento externo, BC de origen: IAM, ver 5.1.1) |
+| Repositorios y servicios que usa | GenerateNotificationCommand (invocado internamente) |
+| Eventos que publica | NotificationGenerated (vía el command invocado) |
+| User story/capability que habilita | Resuelve la integración declarada en 5.1.1 |
+
+**AccountSuspendedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AccountSuspendedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Notificar al titular la suspensión de su cuenta. |
+| Command/Query/Evento que maneja | AccountSuspended (evento externo, BC de origen: IAM, ver 5.1.1) |
+| Repositorios y servicios que usa | GenerateNotificationCommand (invocado internamente) |
+| Eventos que publica | NotificationGenerated (vía el command invocado) |
+| User story/capability que habilita | Resuelve la integración declarada en 5.1.1 |
+
+**AccountReactivatedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | AccountReactivatedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Notificar al titular la reactivación de su cuenta. |
+| Command/Query/Evento que maneja | AccountReactivated (evento externo, BC de origen: IAM, ver 5.1.1) |
+| Repositorios y servicios que usa | GenerateNotificationCommand (invocado internamente) |
+| Eventos que publica | NotificationGenerated (vía el command invocado) |
+| User story/capability que habilita | Resuelve la integración declarada en 5.1.1 |
 
 ### 5.8.4. Infrastructure Layer
 
