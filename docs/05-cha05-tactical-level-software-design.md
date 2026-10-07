@@ -3158,6 +3158,30 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Eventos que publica | EventsSynchronized, DeviceMetricsRegistered |
 | User story/capability que habilita | Decisión de negocio del Canvas: "las métricas se registran... al completar la sincronización"; invocado únicamente por DeviceConnectionRestoredEventHandler |
 
+**GetMonitoringByDeviceIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetMonitoringByDeviceIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el estado de monitoreo de un dispositivo. |
+| Command/Query/Evento que maneja | GetMonitoringByDeviceIdQuery |
+| Repositorios y servicios que usa | MonitoringRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getMonitoringByDevice |
+
+**GetSynchronizationByDeviceIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetSynchronizationByDeviceIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el estado de sincronización de un dispositivo. |
+| Command/Query/Evento que maneja | GetSynchronizationByDeviceIdQuery |
+| Repositorios y servicios que usa | SynchronizationRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getSynchronizationByDevice |
+
 ### 5.10.4. Infrastructure Layer
 
 ### 5.10.5. Bounded Context Software Architecture Component Level Diagrams
