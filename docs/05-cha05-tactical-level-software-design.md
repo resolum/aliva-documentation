@@ -2489,6 +2489,17 @@ La Domain Layer modela un único aggregate, `Notification`, fiel al EventStormin
 
 No se identifican Entities en este bounded context: `Notification` es un aggregate simple sin componentes internos con identidad propia.
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| NotificationId | Value Object | Identificador tipado del aggregate Notification; no admite valores nulos ni negativos. |
+| NotificationMessage | Value Object | Contenido del mensaje a enviar; no admite valores vacíos. |
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| NotificationStatus | Enum | Estado de la notificación. Transiciones permitidas: `GENERATED` → `SENT` al enviarse vía Firebase; `SENT` → `PENDING_CRITICAL` si vence el tiempo límite sin confirmación y la prioridad es CRITICAL; `PENDING_CRITICAL` → `SENT` al reenviarse (observación previa #2); `SENT`/`PENDING_CRITICAL` → `CONFIRMED` (terminal intermedio) al confirmar el cuidador; `CONFIRMED` → `CLOSED` (terminal) al cerrarse. |
+| NotificationPriority | Enum | Prioridad de la notificación: `NORMAL` o `CRITICAL`. Se determina por el tipo de evento de origen (observación previa #1): eventos de Telemetría y Soporte Técnico se clasifican CRITICAL por defecto; eventos de IAM y Pagos y Suscripciones se clasifican NORMAL. No exhibe transiciones adicionales. |
+| NotificationAudience | Enum | Destinatario de la notificación: `PRINCIPAL_CAREGIVER` (requiere un recipientAccountId resuelto vía PerfilesFacade, 5.3.2) o `ADMINISTRATION` (sin accountId específico; se distribuye a un canal de administración configurado en Infrastructure). |
+
 ### 5.8.2. Interface Layer
 
 ### 5.8.3. Application Layer
