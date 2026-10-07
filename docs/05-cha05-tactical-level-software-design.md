@@ -3274,6 +3274,19 @@ No se identifican Entities en este bounded context: los tres aggregates son simp
 | DeviceStatus | Enum | Estado del Device. Transiciones permitidas: `ACTIVE` → `INACTIVE` al desactivarse (detiene su telemetría y lo desasigna de la casa); `ACTIVE` → `DISCONNECTED` al perderse la conexión; `DISCONNECTED` → `ACTIVE` al restablecerse. Un dispositivo `INACTIVE` o `DISCONNECTED` no puede ejecutar acciones (Supuesto del Canvas). |
 | ActuatorAction | Enum | Acción física ejecutable por un ActuatorDevice: `OPEN_DOOR`, `CLOSE_DOOR`, `OPEN_WINDOW`, `CLOSE_WINDOW`, `TURN_ON_LIGHT`, `TURN_OFF_LIGHT`. No exhibe transiciones: determina qué Domain Event publica ExecuteActionCommand. |
 
+No se declaran Factories ni Domain Services en este bounded context: los tres aggregates se referencian solo por identificador (deviceId). La validación de que el Device esté ACTIVE antes de ejecutar un comando de voz o una acción se resuelve en ProcessVoiceCommandCommandHandler y ExecuteActionCommandHandler mediante DeviceRepository, sin requerir un Domain Service.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| RegisterDeviceCommand | Registra un nuevo dispositivo, asignándolo a un hogar con sus credenciales de autorización. | homeProfileId: Long, deviceType: DeviceType, credentials: String |
+| ConfigureDeviceCommand | Configura el dispositivo y lo entrena con la voz de la persona asistida (Supuesto del Canvas: "el entrenamiento de voz se realiza por dispositivo y por persona asistida"). | deviceId: Long, trainedForAssistedPerson: Boolean |
+| DeactivateDeviceCommand | Desactiva el dispositivo, deteniendo su telemetría y desasignándolo de la casa. | deviceId: Long |
+| MarkDeviceConnectionLostCommand | Marca el dispositivo como desconectado, invocado por el monitor de conectividad de Infrastructure. | deviceId: Long |
+| MarkDeviceConnectionRestoredCommand | Marca el dispositivo como reconectado, invocado por el monitor de conectividad de Infrastructure. | deviceId: Long |
+| ProcessVoiceCommandCommand | Procesa un comando de voz capturado, identificando el dispositivo objetivo y la acción, o registrando que no fue reconocido (observación previa #1). | voiceDeviceId: Long, audioReference: String |
+| ExecuteActionCommand | Ejecuta una acción física sobre un dispositivo accionador. | actuatorDeviceId: Long, action: ActuatorAction |
+| SendDeviceDataToTelemetryCommand | Reenvía como dato capturado hacia Telemetría toda acción confirmada, comando no reconocido o solicitud de auxilio (decisión de negocio del Canvas), invocado únicamente por los Event Handlers internos (5.11.3). | deviceId: Long, dataType: String, payload: String |
+
 ### 5.11.2. Interface Layer
 
 ### 5.11.3. Application Layer
