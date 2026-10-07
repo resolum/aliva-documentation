@@ -3377,6 +3377,32 @@ La Interface Layer expone un controller por cada aggregate root: `DeviceControll
 
 ### 5.11.3. Application Layer
 
+La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante dos Event Handlers internos la decisión de negocio del Canvas ("toda acción confirmada, comando no reconocido o solicitud de auxilio se envía como dato capturado a Telemetría"), convergiendo en `SendDeviceDataToTelemetryCommand`.
+
+**VoiceDeviceActivityEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | VoiceDeviceActivityEventHandler |
+| Categoría | Event Handler |
+| Propósito | Reenviar como dato capturado hacia Telemetría los comandos de voz no reconocidos y las solicitudes de auxilio. |
+| Command/Query/Evento que maneja | VoiceCommandNotRecognized, HelpAlertRequested (eventos propios de Bienes) |
+| Repositorios y servicios que usa | SendDeviceDataToTelemetryCommand (invocado internamente) |
+| Eventos que publica | DeviceDataCaptured (vía el command invocado) |
+| User story/capability que habilita | Decisión de negocio del Canvas |
+
+**ActuatorDeviceActivityEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ActuatorDeviceActivityEventHandler |
+| Categoría | Event Handler |
+| Propósito | Reenviar como dato capturado hacia Telemetría toda acción confirmada sobre un dispositivo accionador. |
+| Command/Query/Evento que maneja | DoorOpened, DoorClosed, WindowOpened, WindowClosed, LightTurnedOn, LightTurnedOff (eventos propios de Bienes) |
+| Repositorios y servicios que usa | SendDeviceDataToTelemetryCommand (invocado internamente) |
+| Eventos que publica | DeviceDataCaptured (vía el command invocado) |
+| User story/capability que habilita | Decisión de negocio del Canvas |
+
 ### 5.11.4. Infrastructure Layer
 
 ### 5.11.5. Bounded Context Software Architecture Component Level Diagrams
