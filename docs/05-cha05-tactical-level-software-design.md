@@ -2931,6 +2931,43 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 
 ### 5.9.4. Infrastructure Layer
 
+La Infrastructure Layer implementa el repositorio de Sale sobre PostgreSQL y el de DeviceMetric sobre MongoDB, honrando la persistencia políglota decidida en el capítulo 4 (TS-47/TS-48): datos transaccionales de ventas en PostgreSQL, datos de telemetría de alto volumen y esquema variable en MongoDB.
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| SaleRepositoryJpa | SaleRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Sale. |
+| DeviceMetricRepositoryMongo | DeviceMetricRepository | Spring Data MongoDB | Persiste y recupera el aggregate DeviceMetric. |
+
+La persistencia se configura mediante `AnaliticasPersistenceConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) para `Sale` y Spring Data MongoDB (`@EnableMongoRepositories`) para `DeviceMetric`.
+
+| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
+| --- | --- | --- | --- | --- |
+| DomainEventBusSubscriber | Event Subscriber | SubscriptionActivatedListener, DeviceMetricsRegisteredListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos de Pagos y Suscripciones y Telemetría hacia los Event Handlers de Analíticas. |
+
+| Tabla/Colección | Propósito |
+| --- | --- |
+| sales (PostgreSQL) | Almacena el aggregate Sale: suscripción, plan y monto de cada venta concluida. |
+| device_metrics (MongoDB) | Almacena el aggregate DeviceMetric: indicadores de rendimiento por dispositivo. |
+
+| Objeto | BC responsable | Justificación |
+| --- | --- | --- |
+| Suscripción / pago | Pagos y Suscripciones | El ciclo de vida comercial de la suscripción es responsabilidad de Pagos y Suscripciones; Analíticas solo registra la venta concluida al consumir SubscriptionActivated. |
+| Telemetría cruda de dispositivos | Telemetría | Los datos crudos de telemetría son responsabilidad de Telemetría; Analíticas solo registra los indicadores ya calculados (a formalizar en 5.10). |
+| Datos operativos de Soporte Técnico y Bienes | Soporte Técnico / Bienes | El Context Mapping (4.2.5) menciona un patrón conformista hacia estos dos BC, pero ningún Canvas concreto (ni el de Soporte Técnico ni el de Analíticas) nombra un evento de métricas que lo sustente; no se modela para evitar inventar un contrato sin evidencia (misma brecha documentada en 5.8.4 para Comunicaciones). |
+
+**Verificación de trazabilidad — Analíticas**
+
+| Criterio | Cumple | Evidencia |
+| --- | --- | --- |
+| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 2 commands y las 3 queries de 5.9.1 tienen su handler correspondiente en 5.9.3. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | RegisterSaleCommand y RegisterDeviceMetricCommand se usan exclusivamente desde sus Event Handlers respectivos, justificado en 5.9.2; las 3 queries se usan desde AnalyticsController. |
+| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada endpoint de la tabla (5.9.2) mapea 1:1 los parámetros de la Query correspondiente. |
+| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | AnalyticsController se relaciona con Sale y DeviceMetric, justificado como excepción deliberada en 5.9.2. |
+| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | SaleRepository ↔ SaleRepositoryJpa; DeviceMetricRepository ↔ DeviceMetricRepositoryMongo. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | SaleRegistered y DeviceMetricRegistered no tienen consumidor externo declarado en el Canvas (4.2.4): este bounded context es terminal en el flujo de datos (contexto de análisis). |
+| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Sale y DeviceMetric son exclusivos de este bounded context. |
+| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | Los repositorios se declaran como puertos en Domain; sus implementaciones concretas (SaleRepositoryJpa, DeviceMetricRepositoryMongo) están en Infrastructure (5.9.4). |
+
 ### 5.9.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.9.6. Bounded Context Software Architecture Code Level Diagrams
