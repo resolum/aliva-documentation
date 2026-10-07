@@ -3403,6 +3403,66 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Eventos que publica | DeviceDataCaptured (vía el command invocado) |
 | User story/capability que habilita | Decisión de negocio del Canvas |
 
+**RegisterDeviceCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterDeviceCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Registrar el dispositivo en estado ACTIVE, asignado al hogar con sus credenciales. |
+| Command/Query/Evento que maneja | RegisterDeviceCommand |
+| Repositorios y servicios que usa | DeviceRepository |
+| Eventos que publica | DeviceRegistered |
+| User story/capability que habilita | Comunicación Entrante del Canvas: "Cuidador → Registrar nuevo dispositivo" |
+
+**ConfigureDeviceCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ConfigureDeviceCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Configurar y entrenar el dispositivo con la voz de la persona asistida. |
+| Command/Query/Evento que maneja | ConfigureDeviceCommand |
+| Repositorios y servicios que usa | DeviceRepository |
+| Eventos que publica | DeviceConfigured |
+| User story/capability que habilita | Supuesto del Canvas: "el entrenamiento de voz se realiza por dispositivo y por persona asistida" |
+
+**DeactivateDeviceCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | DeactivateDeviceCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Desactivar el dispositivo, detener su telemetría y desasignarlo de la casa. |
+| Command/Query/Evento que maneja | DeactivateDeviceCommand |
+| Repositorios y servicios que usa | DeviceRepository |
+| Eventos que publica | DeviceDeactivated |
+| User story/capability que habilita | Decisión de negocio del Canvas: "al desactivar un dispositivo se detiene su telemetría y se desasigna de la casa" |
+
+**MarkDeviceConnectionLostCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | MarkDeviceConnectionLostCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Marcar el dispositivo como desconectado. |
+| Command/Query/Evento que maneja | MarkDeviceConnectionLostCommand |
+| Repositorios y servicios que usa | DeviceRepository |
+| Eventos que publica | DeviceConnectionLost |
+| User story/capability que habilita | Invocado únicamente por el monitor de conectividad de Infrastructure (5.11.4) |
+
+**MarkDeviceConnectionRestoredCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | MarkDeviceConnectionRestoredCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Marcar el dispositivo como reconectado. |
+| Command/Query/Evento que maneja | MarkDeviceConnectionRestoredCommand |
+| Repositorios y servicios que usa | DeviceRepository |
+| Eventos que publica | DeviceConnectionRestored |
+| User story/capability que habilita | Invocado únicamente por el monitor de conectividad de Infrastructure (5.11.4) |
+
 ### 5.11.4. Infrastructure Layer
 
 ### 5.11.5. Bounded Context Software Architecture Component Level Diagrams
