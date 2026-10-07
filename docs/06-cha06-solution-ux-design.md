@@ -4242,4 +4242,30 @@ Desde el detalle de la orden, el técnico registra el diagnóstico, adjunta las 
 
 ## 6.6. Applications Prototyping
 
+En esta sección se presentan los prototipos de las aplicaciones web y móvil desarrolladas para el sistema, junto con enlaces a videos demostrativos que muestran la interacción y funcionalidad de cada una.
+
+**Prototipo de la aplicación web de negocio**
+
+<div align="center">
+  <img src="https://i.imgur.com/Iw7QBBk.png" alt="Aplicación Web de Negocio"/>
+</div>
+
+Video demostrativo de la aplicación web de negocio: [https://acortar.link/9WjG3f](https://acortar.link/9WjG3f)
+
+**Prototipo de la aplicación web del cuidador**
+
+<div align="center">
+  <img src="https://i.imgur.com/z3YZjzb.png" alt="Aplicación Web del Cuidador"/>
+</div>
+
+Video demostrativo de la aplicación web del cuidador: [https://acortar.link/Ll932j](https://acortar.link/Ll932j)
+
+**Prototipo de la aplicación móvil**
+
+<div align="center">
+  <img src="https://i.imgur.com/FtTDWGY.png" alt="Aplicación Móvil"/>
+</div>
+
+Video demostrativo de la aplicación móvil: [https://acortar.link/8xokpN](https://acortar.link/8xokpN)
+
 <div style="page-break-after: always;"></div>
