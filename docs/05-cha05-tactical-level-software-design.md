@@ -2474,3 +2474,33 @@ La persistencia se configura mediante `SoporteTecnicoJpaConfiguration`, que habi
 #### 5.7.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
+
+## 5.8. Bounded Context: Comunicaciones
+
+El bounded context **Comunicaciones** gestiona la generación, priorización y envío de notificaciones y alertas hacia el cuidador principal, asegurando que se registre su confirmación y que las notificaciones críticas se reenvíen si no son atendidas a tiempo. Es un dominio núcleo orientado a interacción. El Context Mapping (4.2.5) lo describe como nodo central alimentado por seis bounded contexts proveedores (IAM, Cuidado, Bienes, Telemetría, Pagos y Suscripciones, Soporte Técnico), mientras que su propio Bounded Context Canvas (4.2.4) solo detalla explícitamente a dos de ellos (Telemetría y Soporte Técnico) además del actor Cuidador. Este capítulo honra el Context Mapping como fuente de verdad sobre qué bounded contexts integran, formalizando las integraciones concretas con los que ya fueron modelados (IAM, Pagos y Suscripciones, Soporte Técnico, Telemetría); Cuidado y Bienes quedan fuera del alcance actual por no tener un evento de origen nombrado en ningún Canvas (ver "Objetos excluidos", 5.8.4).
+
+### 5.8.1. Domain Layer
+
+La Domain Layer modela un único aggregate, `Notification`, fiel al EventStorming de Paso 10, con un campo `audience` que distingue si el destinatario es el cuidador principal de un hogar o la administración del negocio (observación previa #1, criterio de prioridad), evitando que este bounded context necesite conocer la estructura interna de los bounded contexts que lo alimentan.
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| Notification | Aggregate Root | Representa un mensaje generado para alertar sobre un evento relevante. Toda notificación registra su estado (enviada, atendida, confirmada, cerrada) en el historial (decisión de negocio del Canvas); si es de prioridad CRITICAL y no se confirma dentro del tiempo límite configurable, se repite (observación previa #2). |
+
+No se identifican Entities en este bounded context: `Notification` es un aggregate simple sin componentes internos con identidad propia.
+
+### 5.8.2. Interface Layer
+
+### 5.8.3. Application Layer
+
+### 5.8.4. Infrastructure Layer
+
+### 5.8.5. Bounded Context Software Architecture Component Level Diagrams
+
+### 5.8.6. Bounded Context Software Architecture Code Level Diagrams
+
+#### 5.8.6.1. Bounded Context Domain Layer Class Diagrams
+
+#### 5.8.6.2. Bounded Context Database Design Diagram
+
+<div style="page-break-after: always;"></div>
