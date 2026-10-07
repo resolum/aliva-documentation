@@ -2141,6 +2141,27 @@ No se declaran Factories ni Domain Services en este bounded context: los tres ag
 | AttendTechnicalIncidentCommand | Atiende la incidencia: genera la alerta, programa mantenimiento si corresponde, diagnostica, repara y restablece el servicio. | incidentId: Long |
 | GenerateTechnicalReportCommand | Genera el informe técnico que resume el diagnóstico y la resolución de la incidencia (observación previa #4). | incidentId: Long |
 
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GetEvaluationByIdQuery | Obtiene el detalle de una evaluación. | evaluationId: Long |
+| GetInstallationByIdQuery | Obtiene el detalle de una instalación. | installationId: Long |
+| GetIncidentByIdQuery | Obtiene el detalle de una incidencia, incluyendo su informe técnico. | incidentId: Long |
+| GetIncidentsByDeviceIdQuery | Lista las incidencias reportadas sobre un dispositivo. | deviceId: Long |
+
+`HomeViabilityEvaluated` lo consume `HomeViabilityEvaluatedEventHandler` de Pagos y Suscripciones (5.6.3); `InstallationCompleted` e `InstallationFailed` los consumen `InstallationCompletedEventHandler` e `InstallationFailedEventHandler` de Pagos y Suscripciones (5.6.3), respectivamente; `DeviceIssueReported` lo consume Comunicaciones (a formalizar en 5.8). El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| HomeEvaluationRequested | Se publica al solicitarse la evaluación de una vivienda y programarse la visita técnica. | evaluationId: Long, subscriptionId: Long, homeProfileId: Long, address: String, requestedAt: LocalDateTime |
+| HomeViabilityEvaluated | Se publica al determinarse el veredicto de viabilidad; es consumido por Pagos y Suscripciones (5.6.3) para activar, adaptar o cancelar la suscripción. | evaluationId: Long, subscriptionId: Long, result: ViabilityResult, evaluatedAt: LocalDateTime |
+| InstallationScheduled | Se publica al programarse la fecha de instalación. | installationId: Long, evaluationId: Long, subscriptionId: Long, scheduledDate: LocalDateTime |
+| InstallationStarted | Se publica al iniciarse la instalación. | installationId: Long, startedAt: LocalDateTime |
+| InstallationCompleted | Se publica al completarse la instalación; es consumido por Pagos y Suscripciones (5.6.3) para confirmar el cobro. | installationId: Long, subscriptionId: Long, completedAt: LocalDateTime |
+| InstallationFailed | Se publica al no poder completarse la instalación; es consumido por Pagos y Suscripciones (5.6.3) para rechazar el cobro (observación previa #5). | installationId: Long, subscriptionId: Long, reason: String, failedAt: LocalDateTime |
+| DeviceIssueReported | Se publica al reportarse y clasificarse un problema sobre un dispositivo; es consumido por Comunicaciones para avisar a la administración (decisión de negocio del Canvas, a formalizar en 5.8). | incidentId: Long, deviceId: Long, classification: String, reportedAt: LocalDateTime |
+| IncidentAttended | Se publica al completarse la atención de una incidencia (alerta, mantenimiento, diagnóstico, reparación y restablecimiento del servicio). | incidentId: Long, attendedAt: LocalDateTime |
+| TechnicalReportGenerated | Se publica al generarse el informe técnico de una incidencia (observación previa #4). | incidentId: Long, generatedAt: LocalDateTime |
+
 ### 5.7.2. Interface Layer
 
 ### 5.7.3. Application Layer
