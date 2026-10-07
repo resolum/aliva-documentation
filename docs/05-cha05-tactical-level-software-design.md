@@ -1750,7 +1750,7 @@ No se identifican Entities en este bounded context: ambos aggregates son simples
 | GetPaymentByIdQuery | Obtiene el detalle de un pago. | paymentId: Long |
 | GetPaymentsBySubscriptionIdQuery | Lista los pagos asociados a una suscripción. | subscriptionId: Long |
 
-`ContractingConfirmed` lo consume Soporte Técnico para iniciar la evaluación de viabilidad; `PaymentPreauthorizationRejected` lo consume Comunicaciones (observación previa #1); `PaymentCharged` y `SubscriptionActivated` los consume Analíticas; `PlanAdaptationAccepted` lo consume Soporte Técnico para coordinar la instalación. Estas cuatro integraciones salientes se formalizarán del lado receptor en 5.7, 5.9 y 5.10 respectivamente. El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría.
+`ContractingConfirmed` lo consume Soporte Técnico para iniciar la evaluación de viabilidad; `PaymentPreauthorizationRejected` lo consume Comunicaciones (observación previa #1); `PaymentCharged` y `SubscriptionActivated` los consume Analíticas; `PlanAdaptationAccepted` lo consume Soporte Técnico para coordinar la instalación. Estas cuatro integraciones salientes se formalizarán del lado receptor en 5.7 (Soporte Técnico), 5.8 (Comunicaciones) y 5.9 (Analíticas) respectivamente. El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría.
 
 | Nombre | Descripción | Parámetros |
 | --- | --- | --- |
