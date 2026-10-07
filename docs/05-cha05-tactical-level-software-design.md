@@ -2128,6 +2128,19 @@ No se identifican Entities en este bounded context: los tres aggregates son simp
 | ViabilityResult | Enum | Veredicto de una Evaluation: `VIABLE` (permite programar la instalación directamente), `PARTIALLY_VIABLE` (requiere adaptar el plan de suscripción antes de instalar), `NOT_VIABLE` (cancela la suscripción, observación previa #2). No exhibe transiciones: es el resultado final de RecordEvaluationResultCommand. |
 | InstallationStatus | Enum | Estado de la instalación. Transiciones permitidas: `SCHEDULED` → `IN_PROGRESS` al iniciarse; `IN_PROGRESS` → `COMPLETED` (terminal) al instalarse los dispositivos; `IN_PROGRESS` → `FAILED` (terminal) si no puede completarse (observación previa #5). |
 
+No se declaran Factories ni Domain Services en este bounded context: los tres aggregates se referencian solo por identificador (subscriptionId, homeProfileId), sin colaboración síncrona entre ellos en el mismo proceso de escritura.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| RequestHomeEvaluationCommand | Solicita la evaluación técnica de una vivienda y programa la visita del técnico, de forma manual (Cuidador) o automática al confirmarse la contratación. | subscriptionId: Long, homeProfileId: Long, address: String, requestedBy: Long |
+| RecordEvaluationResultCommand | Registra el resultado de la visita técnica y determina el veredicto de viabilidad (observación previa #1). | evaluationId: Long, electricalInstallationOk: Boolean, deviceCompatible: Boolean |
+| ScheduleInstallationCommand | Programa la fecha de instalación, invocado automáticamente tras una vivienda viable o una adaptación de plan aceptada. | evaluationId: Long, subscriptionId: Long, scheduledDate: LocalDateTime |
+| InstallDevicesCommand | Instala los dispositivos en la vivienda y completa la instalación. | installationId: Long |
+| MarkInstallationAsFailedCommand | Marca la instalación como fallida (observación previa #5). | installationId: Long, reason: String |
+| ReportDeviceIssueCommand | Reporta un problema sobre un dispositivo e inicia una incidencia técnica. | deviceId: Long, description: String, reportedBy: Long |
+| AttendTechnicalIncidentCommand | Atiende la incidencia: genera la alerta, programa mantenimiento si corresponde, diagnostica, repara y restablece el servicio. | incidentId: Long |
+| GenerateTechnicalReportCommand | Genera el informe técnico que resume el diagnóstico y la resolución de la incidencia (observación previa #4). | incidentId: Long |
+
 ### 5.7.2. Interface Layer
 
 ### 5.7.3. Application Layer
