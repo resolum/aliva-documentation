@@ -2993,6 +2993,17 @@ La Domain Layer modela dos aggregates independientes, fieles al EventStorming de
 
 No se identifican Entities en este bounded context: ambos aggregates son simples, sin componentes internos con identidad propia.
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| MonitoringId | Value Object | Identificador tipado del aggregate Monitoring; no admite valores nulos ni negativos. |
+| SynchronizationId | Value Object | Identificador tipado del aggregate Synchronization; no admite valores nulos ni negativos. |
+| IrregularityDescription | Value Object | Descripción de la irregularidad reportada por el Cuidador; no admite valores vacíos. |
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| DeviceEventType | Enum | Tipo de evento capturado de un dispositivo: `DOOR_FAILURE`, `WINDOW_FAILURE`, `LIGHTING_FAILURE`, `MICROPHONE_FAILURE`, `LOW_BATTERY`, `HELP_ALERT` (observación previa #1) o `STATUS_UPDATE`. No exhibe transiciones: determina qué Domain Event publica RegisterDeviceEventCommand. |
+| SynchronizationStatus | Enum | Estado de la sincronización de un dispositivo. Transiciones permitidas: `ONLINE` → `OFFLINE` al perderse la conexión; `OFFLINE` → `SYNCING` al restablecerse; `SYNCING` → `COMPLETED` al sincronizarse los eventos almacenados; `COMPLETED` → `ONLINE`, cerrando el ciclo (decisión de negocio del Canvas). |
+
 ### 5.10.2. Interface Layer
 
 ### 5.10.3. Application Layer
