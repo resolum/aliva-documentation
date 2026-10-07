@@ -2534,6 +2534,22 @@ Ninguno de los siguientes Domain Events tiene un consumidor externo declarado en
 
 ### 5.8.2. Interface Layer
 
+La Interface Layer expone un único controller, `NotificationController`. `GenerateNotificationCommand`, `SendNotificationCommand` y `RepeatNotificationCommand` no se exponen vía REST: el primero se invoca exclusivamente desde los Event Handlers de la Application Layer (5.8.3), y los otros dos son reacciones internas. Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL propio: consume el `PerfilesFacade` de Perfiles (5.3.2) para resolver destinatarios, y sus integraciones entrantes se resuelven mediante Domain Events de IAM, Pagos y Suscripciones, Soporte Técnico y Telemetría.
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | NotificationController |
+| Categoría | Controller |
+| Propósito | Exponer la consulta del historial de notificaciones y la confirmación por parte del cuidador. |
+| Aggregate/Entity relacionado | Notification |
+| Ruta base | /api/v1/notifications |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getNotificationById | /{notificationId} (GET) | path: notificationId: Long | Obtiene el detalle de una notificación | GetNotificationByIdQuery |
+| getNotificationsByCaregiver | /by-caregiver/{caregiverAccountId} (GET) | path: caregiverAccountId: Long | Lista el historial de notificaciones de un cuidador | GetNotificationsByCaregiverIdQuery |
+| confirmNotification | /{notificationId}/confirm (POST) | path: notificationId: Long; body: ConfirmNotificationResource { caregiverAccountId: Long } | Confirma la notificación y la cierra | ConfirmNotificationCommand |
+
 ### 5.8.3. Application Layer
 
 ### 5.8.4. Infrastructure Layer
