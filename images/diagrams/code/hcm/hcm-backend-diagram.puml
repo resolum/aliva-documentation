@@ -1,0 +1,126 @@
+@startuml
+' Bounded Context: hcm
+' Compact view: aggregates, services, repositories, controllers.
+' Individual commands/queries/resources/assemblers are omitted for readability.
+
+left to right direction
+skinparam linetype ortho
+skinparam nodesep 30
+skinparam ranksep 50
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+}
+package alivia.platform.hcm{
+
+
+package "domain.model.aggregates" {
+  class Employee {
+    +PersonProfileId profileId
+    +StaffStatus status
+    +StaffRole role
+    +List<Contract> contracts
+    +ContractHistory contractHistory
+  }
+}
+
+package "domain.model.entities" {
+  class Contract {
+    +ContractId id
+    +ContractPeriod period
+    +ContractStatus status
+    +TypeOfContract type
+  }
+}
+
+package "domain.model.events" {
+  class EmployeeHiredEvent
+  class EmployeeSuspendedEvent
+  class EmployeeTerminationEvent
+}
+
+package "domain.services" {
+  interface StaffCommandServices{
+
+  }
+
+  interface StaffQueryServices{
+
+  }
+}
+package domain.model.valueobjects {
+enum EmployeeStatus {
+ ACTIVE
+ VACATION
+ SUSPENDED
+ TERMINATED
+}
+
+enum EmployeeRole {
+TECH
+SUBSCRIPTION_MANAGER
+cleaning
+
+}
+enum ContractStatus{
+ACTIVE
+TERMINATED
+EXPIRED
+
+}
+enum TypeOfContract {
+FULL_TIME
+PART_TIME
+
+}
+
+class ContractPeriod <<Record>>{
+
++ ContractPeriod(LocalDate startDate, LocalDate endDate);
+
+}
+
+}
+
+package domain.model.commands {
+
+class CreateEmployeeCommand<<Record>>{
+
+}
+
+class UpdateEmployeeCommand <<Record>>{
+
+}
+
+class CreateContractCommand <<Record>>{
+
+}
+
+
+class UpdateContractStatusCommand <<Record>> {
+
+}
+
+
+}
+
+package domain.model.queries {
+
+}
+
+class GetAllEmployeesQuery<<Record>> {
+
+}
+
+
+
+}
+
+
+
+
+
+@enduml
