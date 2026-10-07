@@ -3004,6 +3004,33 @@ No se identifican Entities en este bounded context: ambos aggregates son simples
 | DeviceEventType | Enum | Tipo de evento capturado de un dispositivo: `DOOR_FAILURE`, `WINDOW_FAILURE`, `LIGHTING_FAILURE`, `MICROPHONE_FAILURE`, `LOW_BATTERY`, `HELP_ALERT` (observación previa #1) o `STATUS_UPDATE`. No exhibe transiciones: determina qué Domain Event publica RegisterDeviceEventCommand. |
 | SynchronizationStatus | Enum | Estado de la sincronización de un dispositivo. Transiciones permitidas: `ONLINE` → `OFFLINE` al perderse la conexión; `OFFLINE` → `SYNCING` al restablecerse; `SYNCING` → `COMPLETED` al sincronizarse los eventos almacenados; `COMPLETED` → `ONLINE`, cerrando el ciclo (decisión de negocio del Canvas). |
 
+No se declaran Factories ni Domain Services en este bounded context: `Monitoring` y `Synchronization` son aggregates independientes por dispositivo, sin colaboración entre sí en el mismo proceso de escritura.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| RegisterDeviceEventCommand | Registra un evento capturado de un dispositivo (falla, batería baja, alerta de auxilio o actualización de estado), invocado al consumir los datos del BC Bienes. | deviceId: Long, eventType: DeviceEventType, detail: String |
+| ReportIrregularityCommand | Reporta una irregularidad sobre un dispositivo, a solicitud del Cuidador. | deviceId: Long, description: String, reportedBy: Long |
+| StartOfflineOperationCommand | Marca un dispositivo como operando sin conexión, invocado al consumir la pérdida de conexión reportada por el BC Bienes. | deviceId: Long |
+| SynchronizeEventsCommand | Sincroniza los eventos almacenados localmente al restablecerse la conexión. | deviceId: Long, eventCount: Int |
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| GetMonitoringByDeviceIdQuery | Obtiene el estado de monitoreo de un dispositivo. | deviceId: Long |
+| GetSynchronizationByDeviceIdQuery | Obtiene el estado de sincronización de un dispositivo. | deviceId: Long |
+
+`DeviceFailureDetected`, `LowBatteryDetected` y `HelpAlertDetected` los consume Comunicaciones (5.8.3, el tercero a agregar como seguimiento de esta sección); `DeviceMetricsRegistered` lo consume Analíticas (5.9.3). El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| DeviceFailureDetected | Se publica al registrarse una falla de puerta, ventana, iluminación o micrófono; es consumido por Comunicaciones (5.8.3). | deviceId: Long, failureType: DeviceEventType, detectedAt: LocalDateTime |
+| LowBatteryDetected | Se publica al detectarse batería baja; es consumido por Comunicaciones (5.8.3). | deviceId: Long, detectedAt: LocalDateTime |
+| HelpAlertDetected | Se publica al detectarse una alerta de auxilio; resuelve la observación previa #1 y es consumido por Comunicaciones. | deviceId: Long, detectedAt: LocalDateTime |
+| DeviceStatusUpdated | Se publica al actualizarse el estado rutinario de un dispositivo. | deviceId: Long, updatedAt: LocalDateTime |
+| DeviceMetricsRegistered | Se publica al informar el estado del dispositivo o al completar una sincronización; es consumido por Analíticas (5.9.3). | deviceId: Long, metricType: String, value: Double, registeredAt: LocalDateTime |
+| IrregularityReported | Se publica al reportarse una irregularidad sobre un dispositivo. | monitoringId: Long, deviceId: Long, description: String, reportedAt: LocalDateTime |
+| OfflineOperationStarted | Se publica al marcarse un dispositivo como operando sin conexión. | synchronizationId: Long, deviceId: Long, startedAt: LocalDateTime |
+| EventsSynchronized | Se publica al completarse la sincronización de los eventos almacenados localmente (observación previa #2: sin límite de tiempo evidenciado). | synchronizationId: Long, deviceId: Long, eventCount: Int, completedAt: LocalDateTime |
+
 ### 5.10.2. Interface Layer
 
 ### 5.10.3. Application Layer
