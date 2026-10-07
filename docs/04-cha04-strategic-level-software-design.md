@@ -1939,22 +1939,17 @@ En la imagen se ven las líneas de tiempo de Telemetría y de gestión de dispos
 El tercer paso incorporó la identificación de los pain points dentro de los flujos ya organizados. Los pain points se representan con tarjetas en forma de rombo de color morado y señalan fricciones, dudas o decisiones de diseño pendientes que el equipo detectó al revisar las líneas de tiempo.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/fKvr8D1.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/tBXFsYi.png" alt="event storming paso 3 pain-point">
 </div>
 
 En esta captura se observan los flujos de registro de cuenta e inicio de sesión de IAM, junto con los eventos de asignación de rol y acceso. El pain point aparece bajo `Segundo factor de autenticación validado` y cuestiona si la autenticación de dos pasos es obligatoria.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/BnEvcKi.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/uEvCCRS.png" alt="event storming paso 3 pain-point">
 </div>
 
 En esta captura se observa la línea de tiempo de Pagos y Suscripciones con dos pain points. El primero aparece tras `Preautorización de pago rechazada` y cuestiona si existe un evento de reintento o de notificación al usuario, o si el flujo termina sin salida. El segundo aparece tras `Adaptación del plan propuesta` y plantea qué ocurre si el cliente rechaza la adaptación.
 
-<div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/dYdQfms.png" alt="event storming paso 3 pain-point">
-</div>
-
-En esta captura se muestra el flujo de ajuste del plan, con los eventos `Plan e importes ajustados` y `Cambios aceptados`. En este flujo no se identificaron pain points.
 
 <div style="display: flex; align-items: center;">
   <img src="https://imgur.com/sKc3DEk.png" alt="event storming paso 3 pain-point">
@@ -1975,16 +1970,10 @@ En esta captura se observa el flujo de Perfiles, que va de `Datos personales ing
 En esta captura se presenta el flujo de control por voz en Activos/Bienes. El pain point aparece tras `Comando de voz no reconocido` y cuestiona si se reintenta la captura, se notifica al cuidador o el flujo simplemente termina.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/3dIBIoj.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/O2VHBgS.png" alt="event storming paso 3 pain-point">
 </div>
 
-En esta captura se observa el flujo de registro y recuperación de acceso, desde `Correo ingresado` hasta `Cuenta creada`, con la derivación `Correo de recuperación enviado`. En este flujo no se identificaron pain points.
-
-<div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/faK6zXV.png" alt="event storming paso 3 pain-point">
-</div>
-
-En esta captura se muestran los flujos de asignación de roles e invitación de cuidadores. En el segundo, el pain point aparece junto a `Cuidador adicional vinculado`, `Cuidador desvinculado` y `Cuidador principal reemplazado`, y plantea qué ocurre con las responsabilidades del cuidador desvinculado.
+En esta captura se muestran los flujos de invitación de cuidadores. En el segundo, el pain point aparece junto a `Cuidador adicional vinculado`, `Cuidador desvinculado` y `Cuidador principal reemplazado`, y plantea qué ocurre con las responsabilidades del cuidador desvinculado.
 
 <div style="display: flex; align-items: center;">
 <img src="https://imgur.com/71INAkG.png" alt="event storming paso 3 pain-point">
@@ -1994,7 +1983,7 @@ En esta captura se muestran los flujos de asignación de roles e invitación de 
 En esta captura se presentan los flujos de incidencia técnica y de notificaciones con tres pain points. En la incidencia, uno cuestiona para quién es el informe técnico. En las notificaciones, uno cuestiona qué convierte una notificación en una alerta pendiente crítica y otro qué pasa si el cuidador no responde a tiempo.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/6csj9oE.png" alt="event storming paso 3 pain-point">
+  <img src="https://imgur.com/atJJjej.png" alt="event storming paso 3 pain-point">
 </div>
 
 En esta captura se observa el flujo de evaluación e instalación con tres pain points. Uno cuestiona el criterio para el veredicto de viabilidad de la vivienda, otro qué pasa cuando se declara no viable, y otro qué significa que sea parcialmente viable y que la contratación no se cancele.
@@ -2058,7 +2047,7 @@ En esta captura se muestran el flujo de ajuste del plan y el de registro y recup
 En esta captura se presenta el flujo de Perfiles, desde `Datos personales ingresados` hasta `Perfil actualizado`, junto con la recuperación de contraseña. Ambos avanzan de forma continua, sin pivotal points.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/zBTJfp6.png" alt="event storming paso 4 pivotal-point">
+  <img src="https://imgur.com/TsFZx8b.png" alt="event storming paso 4 pivotal-point">
 </div>
 
 En esta captura se observa el flujo de control por voz de Activos/Bienes. Se bifurca en resultados alternativos, como `Comando de voz no reconocido` o las acciones sobre puertas, ventanas y luces, sin un pivotal point que cambie de contexto o de responsabilidad.
@@ -2175,7 +2164,7 @@ El equipo incorporó los comandos en cada línea de tiempo de la siguiente maner
 El sexto paso incorporó al modelo los actores y las políticas del sistema. Los actores se representan con tarjetas pequeñas de color amarillo y son quienes emiten los comandos dentro de cada flujo. Las políticas son reglas de negocio automáticas que, ante la ocurrencia de un evento, disparan un nuevo comando o acción sin intervención humana directa, y se representan con tarjetas de color lila.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/AjsvCiu.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/aGMum6B.png" alt="event storming paso 6 policies-actors">
 </div>
 
 En esta captura se presentan los flujos de registro de cuenta e inicio de sesión. El actor Cuidador emite el comando Registrar cuenta, mientras que los actores Administrador, Cuidador y Empleado emiten el comando Iniciar sesión. Los flujos cubren la verificación del correo, la creación de la cuenta, la validación de credenciales, el segundo factor de autenticación y el resultado de la sesión. En estos flujos no se identificaron políticas.
@@ -2193,46 +2182,16 @@ En esta captura se observa el flujo de contratación de suscripción y pago, don
 En esta captura se muestra el flujo de operación sin conexión, iniciado por el comando Operar sin conexión a partir del evento `Conexión a Internet perdida`. El flujo recorre la detección de la pérdida de comunicación, el almacenamiento local del evento, el restablecimiento de la conexión y la sincronización. Este flujo no es iniciado por un actor humano y no se identificaron políticas, por lo que sus pain points se resolverán en los pasos posteriores.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/nGuDmjj.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/irjlhmD.png" alt="event storming paso 6 policies-actors">
 </div>
 
-En esta captura se presenta el flujo de ajuste del plan, donde el actor Gestor de suscripciones emite el comando Ajustar plan. Este comando produce los eventos `Plan e importes ajustados` y `Cambios aceptados`. En este flujo no se identificaron políticas.
+En esta captura se prensentan la gestión de asignaciones y la gestión de horarios, donde el actor Cuidador emite los comandos Crear horario, Crear asignación, Gestionar asignaciones. En este flujo se creó la política de Gestionar al cuidador creado
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/Te3VbCt.png" alt="event storming paso 6 policies-actors">
+  <img src="https://imgur.com/TRLHTLQ.png" alt="event storming paso 6 policies-actors">
 </div>
 
-En esta captura se observan los flujos de creación de perfil y de recuperación de contraseña, donde el actor Cuidador emite los comandos Crear perfil de usuario y Recuperar contraseña. El primero deriva en `Datos personales ingresados`, `Perfil de usuario creado`, `Cuidador principal asignado`, `Preferencias de comunicación registradas` y `Perfil actualizado`; el segundo, en `Recuperación de contraseña solicitada` y `Contraseña restablecida`. En estos flujos no se identificaron políticas.
-
-<div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/pphXNG7.png" alt="event storming paso 6 policies-actors">
-</div>
-
-En esta captura se muestra el flujo de registro y recuperación de acceso, donde el actor Cuidador emite el comando Registrar y recuperar acceso. A partir de él se generan los eventos `Correo ingresado`, `Contraseña ingresada`, `Correo de bienvenida enviado`, `Correo de recuperación enviado` y `Cuenta creada`. En este flujo no se identificaron políticas.
-
-<div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/dwDzOJ9.png" alt="event storming paso 6 policies-actors">
-</div>
-
-En esta captura se presenta el flujo de asignación de roles y accesos, donde el actor Administrador emite el comando Asignar rol y acceso. Este comando produce los eventos `Rol asignado`, `Empleado creado` y `Acceso asignado`. En este flujo no se identificaron políticas.
-
-<div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/C3VHat9.png" alt="event storming paso 6 policies-actors">
-</div>
-
-En esta captura se observa el flujo de gestión de turnos y horarios, donde el actor Cuidador emite el comando Gestionar turnos y horarios a partir de `Horario creado`. Este comando da lugar a la creación del turno de cuidado, el establecimiento de la relación de cuidador, la aprobación o cancelación del turno y la asignación de indicaciones de medicamentos y rutinas. En este flujo no se identificaron políticas.
-
-<div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/wNZm90h.png" alt="event storming paso 6 policies-actors">
-</div>
-
-En esta captura se muestra el flujo de creación de horarios, asignaciones y rutinas, donde el actor Cuidador emite los comandos Crear horario, Crear asignación y Programar rutina. Tras los eventos `Rutina creada` y `Cuidador asignado` se derivan la rutina de alimentación, el recordatorio de medicamento, la administración de medicamento confirmada y la rutina de higiene. En este flujo no se identificaron políticas.
-
-<div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/xjUf3za.png" alt="event storming paso 6 policies-actors">
-</div>
-
-En esta captura se observa el flujo de gestión de asignaciones, donde el actor Cuidador emite el comando Gestionar asignación. A partir de él se derivan los eventos `Superposición de turnos detectada`, `Medicamento previamente indicado registrado` y `Asignación marcada como pendiente`, que pueden concluir en `Asignación completada`, `Asignación vencida` o `Asignación eliminada`. En este flujo no se identificaron políticas.
+En esta captura se observan los flujos de creación de perfil y de recuperación de contraseña, donde el actor Cuidador emite los comandos Crear perfil de usuario y Recuperar contraseña. El primero deriva en `Datos personales ingresados`, `Perfil de usuario creado`, `Cuidador principal asignado`, `Preferencias de comunicación registradas` y `Perfil actualizado`. Se registraron una política `Inicializar perfil`.
 
 <div style="display: flex; align-items: center;">
   <img src="https://imgur.com/R9DebJM.png" alt="event storming paso 6 policies-actors">
@@ -2264,6 +2223,12 @@ En esta captura se observa el flujo de evaluación de vivienda e instalación, d
 
 En esta captura se muestran los flujos de monitoreo y reporte de dispositivos, donde el actor Técnico emite el comando Monitorear dispositivo y el actor Cuidador emite el comando Reportar dispositivo. Ambos derivan en el registro de fallas, la detección de batería baja y la actualización e información del estado del dispositivo. En estos flujos no se identificaron políticas.
 
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/dZXc97a.png" alt="event storming paso 6 policies-actors">
+</div>
+
+En esta captura se presentan los flujos de registro del familiar, gestión de labores de cuidado e invitación al cuidador. El actor Familiar emite los comandos Registrar familiar y Actualizar información del familiar, así como Registrar labor de cuidado y Asignar responsable para la asignación de labores. A partir del comando Invitar cuidador se asignan las responsabilidades del cuidador, se genera el evento `Cuidador invitado` y se envía el correo de invitación, que puede derivar en `Invitación rechazada` o en `Invitación aceptada`. En este último caso se identificó la política *Se crea una cuenta para el cuidador*, disparada tras `Invitación aceptada`, que habilita el acceso del cuidador adicional vinculado a la cuenta.
+
 El equipo identificó como actor principal al **Cuidador**, presente en la mayoría de los bounded contexts: registro de cuenta, recuperación de acceso, creación de perfil, invitación y gestión de cuidadores, contratación de suscripción, gestión de turnos, horarios y asignaciones, confirmación de notificaciones, reporte de dispositivos y solicitud de evaluación de vivienda. El **Administrador** fue identificado en IAM, tanto en el flujo de asignación de roles y acceso como en el de inicio de sesión, donde también participa el actor **Empleado**. El **Técnico** fue identificado en Seguimiento (monitoreo de dispositivos) y en Gestión de operaciones técnicas (atención de incidencias y generación del informe técnico). El **Gestor de suscripciones** fue identificado en Pagos y Suscripciones para el ajuste de planes e importes. Finalmente, la **Persona con discapacidad** fue identificada en Activos/Bienes como emisora de los comandos de voz que accionan los dispositivos del hogar.
 
 Las políticas identificadas por bounded context son las siguientes:
@@ -2284,7 +2249,7 @@ El séptimo paso consistió en identificar los modelos de lectura del sistema. L
 
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/C8ryEH4.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/ShxkaMq.png" alt="event storming paso 7 read-models">
 </div>
 
 En esta captura se observan los flujos de creación de perfil y recuperación de contraseña, donde el read model *Vista de perfil* es consultado por el Cuidador antes de emitir los comandos Crear perfil de usuario y Recuperar contraseña.
@@ -2296,46 +2261,46 @@ En esta captura se observan los flujos de creación de perfil y recuperación de
 En esta captura se muestran los flujos de monitoreo y reporte de dispositivos. El read model *Gestión de estado de dispositivo* es consultado por el Técnico antes de monitorear los dispositivos, y *Reportar incidencias* es consultado por el Cuidador antes de reportar un dispositivo.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/4q7aOnO.png" alt="event storming paso 7 read-models">
-</div>
-
-En esta captura se presentan los flujos de registro y recuperación de acceso, asignación de roles, invitación y gestión de cuidadores. Se identifican los read models *Recuperar contraseña*, consultado por el Cuidador al registrar o recuperar su acceso; *Gestión de empleados*, consultado por el Administrador al asignar roles y accesos; *Lista de cuidadores*, consultado antes de invitar a un cuidador; y *Gestión de cuidador*, consultado al desvincular o reemplazar a un cuidador.
-
-<div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/2yHw5eZ.png" alt="event storming paso 7 read-models">
-</div>
-
-En esta captura se observan el flujo de operación sin conexión y el de ajuste de plan. El flujo de operación sin conexión no requiere read models, mientras que el read model *Dashboard de gestión de suscripciones* es consultado por el Gestor de suscripciones antes de ajustar un plan.
-
-<div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/NNW1xFI.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/ADuIWQ3.png" alt="event storming paso 7 read-models">
 </div>
 
 En esta captura se muestra el flujo de contratación de suscripción, donde el read model *Planes de suscripción* es consultado por el Cuidador antes de contratar, y *Detalle de pago* es consultado antes de confirmar la contratación.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/rJkRFeQ.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/YqQK5gp.png" alt="event storming paso 7 read-models">
 </div>
 
-En esta captura se presentan los flujos de registro de cuenta e inicio de sesión. El read model *Vista de registro* es consultado por el Cuidador antes de registrar su cuenta, y *Vista de inicio de sesión* es consultado por el Cuidador, el Administrador y el Empleado antes de iniciar sesión.
+En esta captura se muestra el flujo de generación y confirmación de notificaciones. El comando Generar notificación produce `Notificación generada`, `Notificación enviada al cuidador principal` y `Prioridad de notificación asignada`, flujo donde se registró el pain point *¿Qué convierte una notificación en una alerta pendiente crítica?*. El read model *Panel de notificaciones* es consultado por el Cuidador antes de emitir el comando Confirmar notificación, que deriva en `Notificación atendida`, `Notificación repetida`, `Notificación confirmada por el cuidador`, `Notificación cerrada` y `Historial de notificaciones actualizado`; aquí se identificó el pain point *¿Qué pasa si el cuidador no responde la notificación a tiempo?*.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/ikFD5xM.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/zrjEWiS.png" alt="event storming paso 7 read-models">
 </div>
 
-En esta captura se muestra el flujo de generación y confirmación de notificaciones, donde el read model *Notificación de alerta* es consultado por el Cuidador antes de emitir el comando Confirmar notificación.
+En esta captura se presenta el flujo de atención de incidencias técnicas y generación del informe técnico, donde los read models *Reportar incidencias* y *Formulario de incidente técnico* son consultados por el Técnico antes de emitir los comandos Atender incidencia técnica y Generar informe técnico.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/gUzmmgc.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/tt6IZ3d.png" alt="event storming paso 7 read-models">
+</div>
+
+En esta captura se muestran los flujos de creación de perfil de usuario y de perfil de hogar, donde los read models *Vista de perfil* y *Vista de perfil del hogar* son consultados por el Cuidador antes de emitir los comandos Crear perfil de usuario y Crear perfil de hogar.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/yAq0WUA.png" alt="event storming paso 7 read-models">
+</div>
+
+En esta captura se observa el flujo de obtención de métricas, donde el read model *Dashboard principal* es consultado por el Administrador, el Gestor de suscripciones y el Cuidador antes de calcular métricas globales, ventas y rendimiento de dispositivos.
+
+<div style="display: flex; align-items: center;">
+  <img src="https://imgur.com/QHAY2YT.png" alt="event storming paso 7 read-models">
 </div>
 
 En esta captura se presentan los flujos de asignaciones e incidencias técnicas. Los read models *Gestor de horarios*, *Gestor de asignaciones* y *Edición de asignaciones* son consultados por el Cuidador al crear horarios, crear asignaciones, programar rutinas y gestionar asignaciones. Además, *Reportar incidencias* y *Formulario de incidente técnico* son consultados por el Técnico al atender una incidencia y generar el informe técnico.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/q0oc2Sq.png" alt="event storming paso 7 read-models">
+  <img src="https://imgur.com/hmTrwXR.png" alt="event storming paso 7 read-models">
 </div>
 
-En esta captura se observa el flujo de control por voz, donde la Persona con discapacidad emite los comandos Emitir comando de voz y Accionar dispositivo por voz. En este flujo no se identificaron read models.
+En esta captura se observan los flujos de control por voz y de gestión de dispositivos. La Persona con discapacidad emite los comandos Emitir comando de voz y Accionar dispositivo por voz, flujo donde se registró el pain point *¿Se reintenta la captura, se notifica al cuidador, o el flujo simplemente termina ahí?* ante un `Comando de voz no reconocido`. El read model *Gestión del dispositivo* es consultado por el Cuidador antes de registrar, configurar y desactivar un dispositivo. Además, se identificaron las políticas *Ejecutar acciones* y *Enviar datos capturados de los dispositivos*, que se disparan automáticamente tras eventos como `Solicitud de auxilio reconocida`, `Puerta abierta/cerrada`, `Ventana abierta/cerrada` y `Luz encendida/apagada`, junto con la política *Visualizar métricas* derivada de la telemetría de los dispositivos.
 
 El equipo incorporó los read models en los siguientes bounded contexts:
 
@@ -2360,10 +2325,10 @@ El octavo paso consistió en incorporar al modelo los sistemas externos. Los sis
 En esta captura se observa el flujo de monitoreo y reporte de dispositivos. Se identifica **Firebase Cloud Messaging**, ubicado junto a las fallas registradas y antes de `Estado del dispositivo actualizado`, encargado de enviar la notificación push al cuidador sobre el estado del dispositivo.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/rVQmDF5.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/J6xY4Fo.png" alt="event storming paso 8 external-systems">
 </div>
 
-En esta captura se muestran los flujos de registro y recuperación de acceso, asignación de roles e invitación de cuidadores. Se identifica **Sendgrid**, ubicado junto a `Invitación aceptada`, responsable del envío del correo de invitación al cuidador tras el evento `Correo enviado`.
+En esta captura se observa el flujo de invitación de cuidadores. Se identifica **Sendgrid**, asociado al comando Invitar cuidador, encargado de enviar el correo de invitación tras el evento `Cuidador invitado`.
 
 <div style="display: flex; align-items: center;">
   <img src="https://imgur.com/ktVvNnl.png" alt="event storming paso 8 external-systems">
@@ -2372,22 +2337,16 @@ En esta captura se muestran los flujos de registro y recuperación de acceso, as
 En esta captura se presentan el flujo de operación sin conexión y el de ajuste de plan. En estos flujos no se identificaron sistemas externos, ya que se resuelven íntegramente dentro del dominio de Alivia.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/PQiawBZ.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/DgSHyvO.png" alt="event storming paso 8 external-systems">
 </div>
 
-En esta captura se observan los flujos de creación de perfil y recuperación de contraseña. Se identifica **Cloudinary API**, ubicada junto a `Datos personales ingresados`, utilizada para la carga y almacenamiento de la imagen del perfil de usuario.
+En esta captura se observan los flujos de registro de cuenta e inicio de sesión de IAM. Se identifica **Sendgrid**, encargado de enviar el correo de verificación tras el registro y el código del segundo factor de autenticación, además del correo de recuperación de contraseña.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/6U4gyYv.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/7S6n0YC.png" alt="event storming paso 8 external-systems">
 </div>
 
 En esta captura se muestra el flujo de contratación de suscripción y pago. Se identifica **Stripe**, asociado al comando Contratar suscripción y a la retención temporal del importe (`Importe autorizado temporalmente`), encargado de procesar la preautorización y el cobro de la suscripción.
-
-<div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/anKPXzU.png" alt="event storming paso 8 external-systems">
-</div>
-
-En esta captura se presentan los flujos de registro de cuenta e inicio de sesión. Se identifica **Sendgrid**, ubicado entre `Credenciales validadas` y `Segundo factor de autenticación validado`, responsable del envío del código del segundo factor de autenticación.
 
 <div style="display: flex; align-items: center;">
   <img src="https://imgur.com/AC88WpI.png" alt="event storming paso 8 external-systems">
@@ -2396,16 +2355,16 @@ En esta captura se presentan los flujos de registro de cuenta e inicio de sesió
 En esta captura se observa el flujo de evaluación de vivienda e instalación. En este flujo no se identificaron sistemas externos, ya que la evaluación, la instalación y la activación se resuelven dentro del dominio de Alivia.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/9xcpjfr.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/JTWiVPb.png" alt="event storming paso 8 external-systems">
 </div>
 
-En esta captura se muestran los flujos de atención de incidencias y de notificaciones. Se identifica **Firebase Cloud Messaging** en dos puntos del flujo de notificaciones: junto a `Recordatorio generado` y junto al actor Cuidador en el comando Confirmar notificación, para el envío de notificaciones push. El flujo de incidencias no requiere sistemas externos.
+En esta captura se observa el flujo de evaluación de vivienda. Se identifica **Google Maps**, asociado al comando Solicitar y evaluar vivienda, utilizado para ubicar la vivienda antes de determinar su viabilidad.
 
 <div style="display: flex; align-items: center;">
-  <img src="https://imgur.com/bi1EBEP.png" alt="event storming paso 8 external-systems">
+  <img src="https://imgur.com/MMfvJZt.png" alt="event storming paso 8 external-systems">
 </div>
 
-En esta captura se presentan los flujos de gestión de horarios, asignaciones y rutinas. En estos flujos no se identificaron sistemas externos.
+En esta captura se observan los flujos de registro del negocio y del administrador. Se identifica **Google Maps**, asociado al comando Registrar negocio, utilizado para ubicar geográficamente el negocio registrado.
 
 <div style="display: flex; align-items: center;">
   <img src="https://imgur.com/Wy7eoDk.png" alt="event storming paso 8 external-systems">
