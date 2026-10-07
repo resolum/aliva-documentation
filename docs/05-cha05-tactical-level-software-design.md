@@ -1762,7 +1762,7 @@ No se identifican Entities en este bounded context: ambos aggregates son simples
 | SubscriptionActivated | Se publica al activarse la suscripción; es consumido por Analíticas. | subscriptionId: Long, activatedAt: LocalDateTime |
 | SubscriptionCancelled | Se publica al cancelarse la suscripción. | subscriptionId: Long, reason: String, cancelledAt: LocalDateTime |
 | PaymentPreauthorized | Se publica al preautorizarse el pago en Stripe. | paymentId: Long, subscriptionId: Long, amount: Money, preauthorizedAt: LocalDateTime |
-| PaymentPreauthorizationRejected | Se publica al rechazar Stripe la preautorización; es consumido por Comunicaciones para notificar al usuario, sin reintento automático (observación previa #1). | paymentId: Long, subscriptionId: Long, rejectedAt: LocalDateTime |
+| PaymentPreauthorizationRejected | Se publica al rechazar Stripe la preautorización; es consumido por Comunicaciones para notificar al cuidador principal del hogar, sin reintento automático (observación previa #1). Incluye homeProfileId para que Comunicaciones resuelva al destinatario vía PerfilesFacade (5.3.2), sin acceder directamente a Subscription. | paymentId: Long, subscriptionId: Long, homeProfileId: Long, rejectedAt: LocalDateTime |
 | PaymentCharged | Se publica al confirmarse el cobro; es consumido por Analíticas y dispara internamente ActivateSubscriptionCommand. | paymentId: Long, subscriptionId: Long, chargedAt: LocalDateTime |
 | PaymentChargeRejected | Se publica al rechazarse el cobro; dispara internamente CancelSubscriptionCommand. | paymentId: Long, subscriptionId: Long, reason: String, rejectedAt: LocalDateTime |
 
