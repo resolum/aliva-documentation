@@ -2698,6 +2698,30 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Eventos que publica | NotificationRepeated |
 | User story/capability que habilita | Resuelve la observación previa #2; invocado únicamente por el scheduler de Infrastructure (5.8.4) |
 
+**GetNotificationByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetNotificationByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de una notificación. |
+| Command/Query/Evento que maneja | GetNotificationByIdQuery |
+| Repositorios y servicios que usa | NotificationRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getNotificationById |
+
+**GetNotificationsByCaregiverIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetNotificationsByCaregiverIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el historial de notificaciones de un cuidador para el panel de notificaciones. |
+| Command/Query/Evento que maneja | GetNotificationsByCaregiverIdQuery |
+| Repositorios y servicios que usa | NotificationRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getNotificationsByCaregiver |
+
 ### 5.8.4. Infrastructure Layer
 
 ### 5.8.5. Bounded Context Software Architecture Component Level Diagrams
