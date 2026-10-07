@@ -2097,3 +2097,35 @@ La persistencia se configura mediante `PagosSuscripcionesJpaConfiguration`, que 
 #### 5.6.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
+
+## 5.7. Bounded Context: Soporte Técnico
+
+El bounded context **Soporte Técnico** gestiona las operaciones técnicas de campo: evaluar la viabilidad técnica de la vivienda, coordinar e instalar los dispositivos, y atender incidencias técnicas. Es un subdominio de soporte orientado a reducción de costos. Participan el **Cuidador** (solicita la evaluación, reporta dispositivos) y el **Técnico** (evalúa, instala, atiende incidencias y genera informes). Este bounded context cierra los tres compromisos pendientes con Pagos y Suscripciones (5.6): consume `ContractingConfirmed` y `PlanAdaptationAccepted`, y publica `HomeViabilityEvaluated`, `InstallationCompleted` e `InstallationFailed`.
+
+### 5.7.1. Domain Layer
+
+La Domain Layer modela tres aggregates independientes, fieles al EventStorming de Paso 10: `Evaluation`, que determina la viabilidad técnica de la vivienda; `Installation`, que despliega los dispositivos; e `Incident`, que gestiona el reporte, la atención y el informe de incidencias técnicas.
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| Evaluation | Aggregate Root | Representa el proceso de verificar si una vivienda es técnicamente viable. El veredicto se determina evaluando la instalación eléctrica y la compatibilidad de dispositivos (observación previa #1): viable, parcialmente viable o no viable. |
+| Installation | Aggregate Root | Representa el despliegue físico de los dispositivos en la vivienda. Solo se programa tras una vivienda viable o una adaptación de plan aceptada; puede fallar (observación previa #5), lo que rechaza el cobro asociado en Pagos y Suscripciones. |
+| Incident | Aggregate Root | Representa un problema reportado sobre un dispositivo que requiere atención de soporte, desde su clasificación hasta la generación del informe técnico. Un dispositivo clasificado en una incidencia se avisa a la administración (decisión de negocio del Canvas). |
+
+No se identifican Entities en este bounded context: los tres aggregates son simples, sin componentes internos con identidad propia.
+
+### 5.7.2. Interface Layer
+
+### 5.7.3. Application Layer
+
+### 5.7.4. Infrastructure Layer
+
+### 5.7.5. Bounded Context Software Architecture Component Level Diagrams
+
+### 5.7.6. Bounded Context Software Architecture Code Level Diagrams
+
+#### 5.7.6.1. Bounded Context Domain Layer Class Diagrams
+
+#### 5.7.6.2. Bounded Context Database Design Diagram
+
+<div style="page-break-after: always;"></div>
