@@ -3314,6 +3314,21 @@ No se declaran Factories ni Domain Services en este bounded context: los tres ag
 | LightTurnedOff | Se publica al apagarse una luz. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
 | DeviceDataCaptured | Se publica al reenviarse un dato capturado hacia Telemetría; es consumido por Telemetría (5.10.3). | deviceId: Long, dataType: String, payload: String, capturedAt: LocalDateTime |
 
+| Nombre | Aggregate que gestiona | Descripción |
+| --- | --- | --- |
+| DeviceRepository | Device | Persiste y recupera el aggregate Device; expone la búsqueda por homeProfileId. |
+| VoiceDeviceRepository | VoiceDevice | Persiste y recupera el aggregate VoiceDevice. |
+| ActuatorDeviceRepository | ActuatorDevice | Persiste y recupera el aggregate ActuatorDevice. |
+
+| Clase origen | Relación | Clase destino | Descripción |
+| --- | --- | --- | --- |
+| VoiceDevice | asociación | Device | VoiceDevice referencia su registro general mediante deviceId. |
+| ActuatorDevice | asociación | Device | ActuatorDevice referencia su registro general mediante deviceId. |
+| VoiceDevice | asociación | ActuatorDevice | VoiceDevice identifica al dispositivo accionador objetivo de un comando de voz procesado mediante targetActuatorDeviceId. |
+| DeviceRepository | depende de | Device | El repositorio persiste y recupera el aggregate Device. |
+| VoiceDeviceRepository | depende de | VoiceDevice | El repositorio persiste y recupera el aggregate VoiceDevice. |
+| ActuatorDeviceRepository | depende de | ActuatorDevice | El repositorio persiste y recupera el aggregate ActuatorDevice. |
+
 ### 5.11.2. Interface Layer
 
 ### 5.11.3. Application Layer
