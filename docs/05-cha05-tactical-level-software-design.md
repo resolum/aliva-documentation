@@ -2626,6 +2626,30 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Eventos que publica | NotificationGenerated (vía el command invocado) |
 | User story/capability que habilita | Decisión de negocio del Canvas de Soporte Técnico: "un dispositivo clasificado en una incidencia se avisa a la administración" |
 
+**DeviceFailureDetectedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | DeviceFailureDetectedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Resolver al cuidador principal del hogar vía PerfilesFacade y notificarle la falla detectada en un dispositivo. |
+| Command/Query/Evento que maneja | DeviceFailureDetected (evento externo, BC de origen: Telemetría, a formalizar en 5.10) |
+| Repositorios y servicios que usa | PerfilesFacade, GenerateNotificationCommand (invocado internamente) |
+| Eventos que publica | NotificationGenerated (vía el command invocado) |
+| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Telemetría (fallas y batería baja del dispositivo)" |
+
+**LowBatteryDetectedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | LowBatteryDetectedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Resolver al cuidador principal del hogar vía PerfilesFacade y notificarle la batería baja de un dispositivo. |
+| Command/Query/Evento que maneja | LowBatteryDetected (evento externo, BC de origen: Telemetría, a formalizar en 5.10) |
+| Repositorios y servicios que usa | PerfilesFacade, GenerateNotificationCommand (invocado internamente) |
+| Eventos que publica | NotificationGenerated (vía el command invocado) |
+| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Telemetría (fallas y batería baja del dispositivo)" |
+
 ### 5.8.4. Infrastructure Layer
 
 ### 5.8.5. Bounded Context Software Architecture Component Level Diagrams
