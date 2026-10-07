@@ -3463,6 +3463,90 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Eventos que publica | DeviceConnectionRestored |
 | User story/capability que habilita | Invocado únicamente por el monitor de conectividad de Infrastructure (5.11.4) |
 
+**ProcessVoiceCommandCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ProcessVoiceCommandCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Validar que el Device esté ACTIVE, interpretar el audio capturado e identificar el dispositivo accionador objetivo y la acción, o registrar que no fue reconocido. |
+| Command/Query/Evento que maneja | ProcessVoiceCommandCommand |
+| Repositorios y servicios que usa | VoiceDeviceRepository, DeviceRepository, VoiceRecognitionGateway |
+| Eventos que publica | VoiceCommandProcessed, VoiceCommandNotRecognized o HelpAlertRequested |
+| User story/capability que habilita | Resuelve la observación previa #1 |
+
+**ExecuteActionCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ExecuteActionCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Validar que el Device esté ACTIVE y ejecutar la acción física sobre el dispositivo accionador, de forma independiente para cada dispositivo (observación previa #2). |
+| Command/Query/Evento que maneja | ExecuteActionCommand |
+| Repositorios y servicios que usa | ActuatorDeviceRepository, DeviceRepository, ActuatorGateway |
+| Eventos que publica | DoorOpened, DoorClosed, WindowOpened, WindowClosed, LightTurnedOn o LightTurnedOff, según action |
+| User story/capability que habilita | Resuelve la observación previa #2; invocado directamente o por VoiceCommandProcessed |
+
+**SendDeviceDataToTelemetryCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | SendDeviceDataToTelemetryCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Publicar el dato capturado hacia Telemetría. |
+| Command/Query/Evento que maneja | SendDeviceDataToTelemetryCommand |
+| Repositorios y servicios que usa | — (no persiste estado propio) |
+| Eventos que publica | DeviceDataCaptured |
+| User story/capability que habilita | Invocado únicamente por VoiceDeviceActivityEventHandler y ActuatorDeviceActivityEventHandler |
+
+**GetDeviceByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetDeviceByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un dispositivo. |
+| Command/Query/Evento que maneja | GetDeviceByIdQuery |
+| Repositorios y servicios que usa | DeviceRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getDeviceById |
+
+**GetDevicesByHomeProfileIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetDevicesByHomeProfileIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Listar los dispositivos registrados en un hogar. |
+| Command/Query/Evento que maneja | GetDevicesByHomeProfileIdQuery |
+| Repositorios y servicios que usa | DeviceRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getDevicesByHomeProfile |
+
+**GetVoiceDeviceByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetVoiceDeviceByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un dispositivo de voz. |
+| Command/Query/Evento que maneja | GetVoiceDeviceByIdQuery |
+| Repositorios y servicios que usa | VoiceDeviceRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getVoiceDeviceById |
+
+**GetActuatorDeviceByIdQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetActuatorDeviceByIdQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Recuperar el detalle de un dispositivo accionador. |
+| Command/Query/Evento que maneja | GetActuatorDeviceByIdQuery |
+| Repositorios y servicios que usa | ActuatorDeviceRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getActuatorDeviceById |
+
 ### 5.11.4. Infrastructure Layer
 
 ### 5.11.5. Bounded Context Software Architecture Component Level Diagrams
