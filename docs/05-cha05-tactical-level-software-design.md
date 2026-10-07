@@ -2992,7 +2992,7 @@ La persistencia se configura mediante `AnaliticasPersistenceConfiguration`, que 
 
 ## 5.10. Bounded Context: Telemetría
 
-El bounded context **Telemetría** monitorea el estado y las fallas de los dispositivos del hogar, informa ese estado a cuidadores y técnicos, y garantiza la continuidad del servicio cuando se pierde la conexión mediante almacenamiento local y sincronización posterior. Es un dominio núcleo. Participan el **Técnico** (monitorea el estado) y el **Cuidador** (reporta irregularidades). Los datos capturados de los dispositivos llegan desde el BC Bienes (Supuesto del Canvas), a formalizar en 5.11. Este bounded context cierra dos compromisos pendientes: publica `DeviceMetricsRegistered` (consumido por Analíticas, 5.9.3) y `DeviceFailureDetected`/`LowBatteryDetected` (consumidos por Comunicaciones, 5.8.3); además resuelve su propia pregunta abierta sobre alertas de auxilio publicando `HelpAlertDetected`, que agrega como un tercer compromiso con Comunicaciones (observación previa #1).
+El bounded context **Telemetría** monitorea el estado y las fallas de los dispositivos del hogar, informa ese estado a cuidadores y técnicos, y garantiza la continuidad del servicio cuando se pierde la conexión mediante almacenamiento local y sincronización posterior. Es un dominio núcleo. Participan el **Técnico** (monitorea el estado) y el **Cuidador** (reporta irregularidades). Los datos capturados de los dispositivos llegan desde el BC Bienes (Supuesto del Canvas, ver 5.11). Este bounded context cierra dos compromisos pendientes: publica `DeviceMetricsRegistered` (consumido por Analíticas, 5.9.3) y `DeviceFailureDetected`/`LowBatteryDetected` (consumidos por Comunicaciones, 5.8.3); además resuelve su propia pregunta abierta sobre alertas de auxilio publicando `HelpAlertDetected`, que agrega como un tercer compromiso con Comunicaciones (observación previa #1).
 
 ### 5.10.1. Domain Layer
 
@@ -3084,7 +3084,7 @@ La Interface Layer expone un controller por cada aggregate root: `MonitoringCont
 
 ### 5.10.3. Application Layer
 
-La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante tres Event Handlers las integraciones entrantes desde el BC Bienes (Supuesto del Canvas: "los datos capturados de los dispositivos llegan desde el BC Bienes"), a formalizar en 5.11.
+La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante tres Event Handlers las integraciones entrantes desde el BC Bienes (Supuesto del Canvas: "los datos capturados de los dispositivos llegan desde el BC Bienes", ver 5.11.1).
 
 **DeviceDataCapturedEventHandler**
 
@@ -3093,7 +3093,7 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Nombre | DeviceDataCapturedEventHandler |
 | Categoría | Event Handler |
 | Propósito | Registrar el evento capturado de un dispositivo (falla, batería baja, alerta de auxilio o actualización de estado). |
-| Command/Query/Evento que maneja | DeviceDataCaptured (evento externo, BC de origen: Bienes, a formalizar en 5.11) |
+| Command/Query/Evento que maneja | DeviceDataCaptured (evento externo, BC de origen: Bienes, ver 5.11.1) |
 | Repositorios y servicios que usa | RegisterDeviceEventCommand (invocado internamente) |
 | Eventos que publica | DeviceFailureDetected, LowBatteryDetected, HelpAlertDetected, DeviceStatusUpdated o DeviceMetricsRegistered, según el tipo de evento (vía el command invocado) |
 | User story/capability que habilita | Comunicación Entrante del Canvas: "BC Bienes (datos capturados de los dispositivos) → Monitorear dispositivo" |
@@ -3105,7 +3105,7 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Nombre | DeviceConnectionLostEventHandler |
 | Categoría | Event Handler |
 | Propósito | Marcar el dispositivo como operando sin conexión. |
-| Command/Query/Evento que maneja | DeviceConnectionLost (evento externo, BC de origen: Bienes, a formalizar en 5.11) |
+| Command/Query/Evento que maneja | DeviceConnectionLost (evento externo, BC de origen: Bienes, ver 5.11.1) |
 | Repositorios y servicios que usa | StartOfflineOperationCommand (invocado internamente) |
 | Eventos que publica | OfflineOperationStarted (vía el command invocado) |
 | User story/capability que habilita | Comunicación Entrante del Canvas: "BC Bienes (datos capturados de los dispositivos) → Operar sin conexión" |
@@ -3117,7 +3117,7 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Nombre | DeviceConnectionRestoredEventHandler |
 | Categoría | Event Handler |
 | Propósito | Sincronizar los eventos almacenados localmente durante la desconexión. |
-| Command/Query/Evento que maneja | DeviceConnectionRestored (evento externo, BC de origen: Bienes, a formalizar en 5.11) |
+| Command/Query/Evento que maneja | DeviceConnectionRestored (evento externo, BC de origen: Bienes, ver 5.11.1) |
 | Repositorios y servicios que usa | SynchronizeEventsCommand (invocado internamente) |
 | Eventos que publica | EventsSynchronized, DeviceMetricsRegistered (vía el command invocado) |
 | User story/capability que habilita | Decisión de negocio del Canvas: "si se pierde la conexión, los eventos se almacenan localmente y se sincronizan al restablecerse" |
@@ -3217,7 +3217,7 @@ La persistencia se configura mediante `TelemetriaPersistenceConfiguration`, que 
 
 | Objeto | BC responsable | Justificación |
 | --- | --- | --- |
-| Dispositivo (registro, configuración) | Bienes | El registro y la configuración del dispositivo como activo son responsabilidad de Bienes; Telemetría solo referencia deviceId y consume sus eventos de datos capturados (a formalizar en 5.11). |
+| Dispositivo (registro, configuración) | Bienes | El registro y la configuración del dispositivo como activo son responsabilidad de Bienes (5.11); Telemetría solo referencia deviceId y consume sus eventos de datos capturados. |
 | Notificación al cuidador | Comunicaciones | El envío y la confirmación de la notificación son responsabilidad de Comunicaciones; Telemetría solo publica los eventos de origen (DeviceFailureDetected, LowBatteryDetected, HelpAlertDetected). |
 | Métrica agregada del dashboard | Analíticas | El cálculo y la exposición de las métricas agregadas son responsabilidad de Analíticas; Telemetría solo publica el registro individual (DeviceMetricsRegistered). |
 
