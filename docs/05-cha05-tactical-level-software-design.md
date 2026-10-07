@@ -2263,6 +2263,66 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 | Eventos que publica | InstallationScheduled (vía el command invocado) |
 | User story/capability que habilita | Decisión de negocio del Canvas: "una vivienda declarada viable permite programar la fecha de instalación" |
 
+**RequestHomeEvaluationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RequestHomeEvaluationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear la evaluación, geocodificar la dirección y programar la visita técnica. |
+| Command/Query/Evento que maneja | RequestHomeEvaluationCommand |
+| Repositorios y servicios que usa | EvaluationRepository, GeocodingService |
+| Eventos que publica | HomeEvaluationRequested |
+| User story/capability que habilita | Invocado manualmente por el Cuidador o automáticamente por ContractingConfirmedEventHandler |
+
+**RecordEvaluationResultCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RecordEvaluationResultCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Registrar el resultado de la visita técnica y determinar el veredicto de viabilidad (observación previa #1). |
+| Command/Query/Evento que maneja | RecordEvaluationResultCommand |
+| Repositorios y servicios que usa | EvaluationRepository |
+| Eventos que publica | HomeViabilityEvaluated |
+| User story/capability que habilita | Resuelve las observaciones previas #1, #2 y #3 |
+
+**ScheduleInstallationCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ScheduleInstallationCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear la instalación en estado SCHEDULED con la fecha coordinada. |
+| Command/Query/Evento que maneja | ScheduleInstallationCommand |
+| Repositorios y servicios que usa | InstallationRepository |
+| Eventos que publica | InstallationScheduled |
+| User story/capability que habilita | Invocado únicamente por HomeViabilityEvaluatedEventHandler o PlanAdaptationAcceptedEventHandler |
+
+**InstallDevicesCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | InstallDevicesCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Iniciar y completar la instalación de los dispositivos en la vivienda. |
+| Command/Query/Evento que maneja | InstallDevicesCommand |
+| Repositorios y servicios que usa | InstallationRepository |
+| Eventos que publica | InstallationStarted, InstallationCompleted |
+| User story/capability que habilita | Decisión de negocio del Canvas: "al completarse la instalación se solicita el cobro" |
+
+**MarkInstallationAsFailedCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | MarkInstallationAsFailedCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Marcar la instalación como fallida. |
+| Command/Query/Evento que maneja | MarkInstallationAsFailedCommand |
+| Repositorios y servicios que usa | InstallationRepository |
+| Eventos que publica | InstallationFailed |
+| User story/capability que habilita | Resuelve la observación previa #5 |
+
 ### 5.7.4. Infrastructure Layer
 
 ### 5.7.5. Bounded Context Software Architecture Component Level Diagrams
