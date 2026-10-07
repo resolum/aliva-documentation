@@ -2843,6 +2843,92 @@ La Interface Layer expone un único controller, `AnalyticsController`, en lugar 
 
 ### 5.9.3. Application Layer
 
+La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante dos Event Handlers las integraciones entrantes: una con Pagos y Suscripciones (ya modelada, 5.6.1) y una con Telemetría (a formalizar en 5.10).
+
+**SubscriptionActivatedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | SubscriptionActivatedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Registrar la venta concluida al activarse una suscripción. |
+| Command/Query/Evento que maneja | SubscriptionActivated (evento externo, BC de origen: Pagos y Suscripciones, ver 5.6.1) |
+| Repositorios y servicios que usa | RegisterSaleCommand (invocado internamente) |
+| Eventos que publica | SaleRegistered (vía el command invocado) |
+| User story/capability que habilita | Lenguaje ubicuo del Canvas: "Venta: transacción de suscripción concluida" |
+
+**DeviceMetricsRegisteredEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | DeviceMetricsRegisteredEventHandler |
+| Categoría | Event Handler |
+| Propósito | Registrar el indicador de rendimiento calculado a partir de la telemetría de un dispositivo. |
+| Command/Query/Evento que maneja | DeviceMetricsRegistered (evento externo, BC de origen: Telemetría, a formalizar en 5.10) |
+| Repositorios y servicios que usa | RegisterDeviceMetricCommand (invocado internamente) |
+| Eventos que publica | DeviceMetricRegistered (vía el command invocado) |
+| User story/capability que habilita | Supuesto del Canvas: "las métricas de rendimiento de dispositivos provienen del BC Telemetría" |
+
+**RegisterSaleCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterSaleCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear el registro de venta concluida. |
+| Command/Query/Evento que maneja | RegisterSaleCommand |
+| Repositorios y servicios que usa | SaleRepository |
+| Eventos que publica | SaleRegistered |
+| User story/capability que habilita | Invocado únicamente por SubscriptionActivatedEventHandler |
+
+**RegisterDeviceMetricCommandHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | RegisterDeviceMetricCommandHandler |
+| Categoría | Command Handler |
+| Propósito | Crear el registro de rendimiento de un dispositivo. |
+| Command/Query/Evento que maneja | RegisterDeviceMetricCommand |
+| Repositorios y servicios que usa | DeviceMetricRepository |
+| Eventos que publica | DeviceMetricRegistered |
+| User story/capability que habilita | Invocado únicamente por DeviceMetricsRegisteredEventHandler |
+
+**GetGlobalMetricsQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetGlobalMetricsQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Calcular en tiempo real las métricas globales agregando Sale y DeviceMetric. |
+| Command/Query/Evento que maneja | GetGlobalMetricsQuery |
+| Repositorios y servicios que usa | SaleRepository, DeviceMetricRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getGlobalMetrics, usado también por el BC Bienes |
+
+**GetSalesMetricsQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetSalesMetricsQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Calcular en tiempo real las métricas de ventas agregando Sale. |
+| Command/Query/Evento que maneja | GetSalesMetricsQuery |
+| Repositorios y servicios que usa | SaleRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getSalesMetrics |
+
+**GetDevicePerformanceQueryHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | GetDevicePerformanceQueryHandler |
+| Categoría | Query Handler |
+| Propósito | Calcular en tiempo real el rendimiento de un dispositivo agregando DeviceMetric. |
+| Command/Query/Evento que maneja | GetDevicePerformanceQuery |
+| Repositorios y servicios que usa | DeviceMetricRepository |
+| Eventos que publica | No aplica |
+| User story/capability que habilita | Soporta la consulta desde el endpoint getDevicePerformance |
+
 ### 5.9.4. Infrastructure Layer
 
 ### 5.9.5. Bounded Context Software Architecture Component Level Diagrams
