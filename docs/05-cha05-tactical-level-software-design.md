@@ -3331,6 +3331,50 @@ No se declaran Factories ni Domain Services en este bounded context: los tres ag
 
 ### 5.11.2. Interface Layer
 
+La Interface Layer expone un controller por cada aggregate root: `DeviceController`, `VoiceDeviceController` y `ActuatorDeviceController`. `MarkDeviceConnectionLostCommand`, `MarkDeviceConnectionRestoredCommand` y `SendDeviceDataToTelemetryCommand` no se exponen vía REST: se invocan desde el monitor de conectividad y desde los Event Handlers internos de la Application Layer (5.11.3). Este bounded context no expone un facade/ACL propio: consulta a Analíticas (5.9.2) de forma síncrona para visualizar métricas globales, y sus integraciones salientes hacia Telemetría se resuelven mediante Domain Events.
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | DeviceController |
+| Categoría | Controller |
+| Propósito | Exponer el registro, la configuración, la desactivación y la consulta de dispositivos. |
+| Aggregate/Entity relacionado | Device |
+| Ruta base | /api/v1/devices |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| registerDevice | / (POST) | body: RegisterDeviceResource { homeProfileId: Long, deviceType: String, credentials: String } | Registra un nuevo dispositivo | RegisterDeviceCommand |
+| getDeviceById | /{deviceId} (GET) | path: deviceId: Long | Obtiene el detalle de un dispositivo | GetDeviceByIdQuery |
+| getDevicesByHomeProfile | /by-home-profile/{homeProfileId} (GET) | path: homeProfileId: Long | Lista los dispositivos de un hogar | GetDevicesByHomeProfileIdQuery |
+| configureDevice | /{deviceId}/configure (POST) | path: deviceId: Long; body: ConfigureDeviceResource { trainedForAssistedPerson: Boolean } | Configura y entrena el dispositivo | ConfigureDeviceCommand |
+| deactivateDevice | /{deviceId}/deactivate (POST) | path: deviceId: Long | Desactiva el dispositivo | DeactivateDeviceCommand |
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | VoiceDeviceController |
+| Categoría | Controller |
+| Propósito | Exponer la consulta y el procesamiento de comandos de voz. |
+| Aggregate/Entity relacionado | VoiceDevice |
+| Ruta base | /api/v1/voice-devices |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getVoiceDeviceById | /{voiceDeviceId} (GET) | path: voiceDeviceId: Long | Obtiene el detalle de un dispositivo de voz | GetVoiceDeviceByIdQuery |
+| processVoiceCommand | /{voiceDeviceId}/process (POST) | path: voiceDeviceId: Long; body: ProcessVoiceCommandResource { audioReference: String } | Procesa un comando de voz capturado | ProcessVoiceCommandCommand |
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | ActuatorDeviceController |
+| Categoría | Controller |
+| Propósito | Exponer la consulta y la ejecución de acciones sobre dispositivos accionadores. |
+| Aggregate/Entity relacionado | ActuatorDevice |
+| Ruta base | /api/v1/actuator-devices |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getActuatorDeviceById | /{actuatorDeviceId} (GET) | path: actuatorDeviceId: Long | Obtiene el detalle de un dispositivo accionador | GetActuatorDeviceByIdQuery |
+| executeAction | /{actuatorDeviceId}/execute (POST) | path: actuatorDeviceId: Long; body: ExecuteActionResource { action: String } | Ejecuta una acción física sobre el dispositivo | ExecuteActionCommand |
+
 ### 5.11.3. Application Layer
 
 ### 5.11.4. Infrastructure Layer
