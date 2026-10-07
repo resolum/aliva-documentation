@@ -3260,6 +3260,20 @@ La Domain Layer modela tres aggregates independientes, fieles al EventStorming d
 
 No se identifican Entities en este bounded context: los tres aggregates son simples, sin componentes internos con identidad propia.
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| DeviceId | Value Object | Identificador tipado del aggregate Device; no admite valores nulos ni negativos. |
+| VoiceDeviceId | Value Object | Identificador tipado del aggregate VoiceDevice; no admite valores nulos ni negativos. |
+| ActuatorDeviceId | Value Object | Identificador tipado del aggregate ActuatorDevice; no admite valores nulos ni negativos. |
+| DeviceCredentials | Value Object | Credenciales de autorización del dispositivo; no admite valores vacíos (decisión de negocio del Canvas). |
+| AudioReference | Value Object | Referencia al audio capturado por un dispositivo de voz; no admite valores vacíos. |
+
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| DeviceType | Enum | Tipo de dispositivo: `VOICE` o `ACTUATOR`. No exhibe transiciones; se define al registrarse el Device. |
+| DeviceStatus | Enum | Estado del Device. Transiciones permitidas: `ACTIVE` → `INACTIVE` al desactivarse (detiene su telemetría y lo desasigna de la casa); `ACTIVE` → `DISCONNECTED` al perderse la conexión; `DISCONNECTED` → `ACTIVE` al restablecerse. Un dispositivo `INACTIVE` o `DISCONNECTED` no puede ejecutar acciones (Supuesto del Canvas). |
+| ActuatorAction | Enum | Acción física ejecutable por un ActuatorDevice: `OPEN_DOOR`, `CLOSE_DOOR`, `OPEN_WINDOW`, `CLOSE_WINDOW`, `TURN_ON_LIGHT`, `TURN_OFF_LIGHT`. No exhibe transiciones: determina qué Domain Event publica ExecuteActionCommand. |
+
 ### 5.11.2. Interface Layer
 
 ### 5.11.3. Application Layer
