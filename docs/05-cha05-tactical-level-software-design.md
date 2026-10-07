@@ -2409,6 +2409,46 @@ La Application Layer traduce cada Command y Query de la Domain Layer en un handl
 
 ### 5.7.4. Infrastructure Layer
 
+La Infrastructure Layer implementa los repositorios de los tres aggregates sobre PostgreSQL, el adaptador hacia Google Maps, y el suscriptor del bus de eventos interno que conecta a Soporte Técnico con Pagos y Suscripciones.
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| EvaluationRepositoryJpa | EvaluationRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Evaluation. |
+| InstallationRepositoryJpa | InstallationRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Installation. |
+| IncidentRepositoryJpa | IncidentRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Incident. |
+
+La persistencia se configura mediante `SoporteTecnicoJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de los tres aggregates sobre el motor PostgreSQL.
+
+| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
+| --- | --- | --- | --- | --- |
+| GoogleMapsGeocodingAdapter | Gateway | GeocodingService | Google Maps | Geocodifica la dirección de la vivienda a evaluar. |
+| DomainEventBusSubscriber | Event Subscriber | ContractingConfirmedListener, PlanAdaptationAcceptedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por Pagos y Suscripciones hacia los Event Handlers de Soporte Técnico. |
+
+| Tabla/Colección | Propósito |
+| --- | --- |
+| evaluations | Almacena el aggregate Evaluation: dirección, resultado de compatibilidad y veredicto de viabilidad. |
+| installations | Almacena el aggregate Installation: estado y referencias a evaluationId y subscriptionId. |
+| incidents | Almacena el aggregate Incident: clasificación del dispositivo, atención e informe técnico. |
+
+| Objeto | BC responsable | Justificación |
+| --- | --- | --- |
+| Suscripción / pago | Pagos y Suscripciones | El estado comercial de la suscripción y el procesamiento del pago son responsabilidad de Pagos y Suscripciones; Soporte Técnico solo reacciona a sus eventos y publica el veredicto de viabilidad y el resultado de la instalación (5.6). |
+| Perfil de hogar | Perfiles | Los datos y la ubicación base del hogar se gestionan en Perfiles; Soporte Técnico solo referencia homeProfileId al solicitar la evaluación. |
+| Dispositivo (bien) | Bienes | El registro y la configuración del dispositivo como activo de la vivienda son responsabilidad de Bienes; Soporte Técnico solo referencia deviceId al reportar o instalar (a formalizar en 5.11). |
+
+**Verificación de trazabilidad — Soporte Técnico**
+
+| Criterio | Cumple | Evidencia |
+| --- | --- | --- |
+| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 8 commands y las 4 queries de 5.7.1 tienen su handler correspondiente en 5.7.3. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | RequestHomeEvaluationCommand se usa desde el endpoint manual y desde ContractingConfirmedEventHandler; ScheduleInstallationCommand se usa exclusivamente desde los dos Event Handlers de viabilidad/adaptación, justificado en 5.7.2. |
+| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.7.2) mapea 1:1 los parámetros del Command correspondiente. |
+| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | Cada uno de los tres controllers se relaciona con su aggregate root correspondiente. |
+| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | Los tres repositorios de 5.7.1 tienen su implementación Jpa correspondiente en 5.7.4. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | HomeViabilityEvaluated, InstallationCompleted e InstallationFailed los consume Pagos y Suscripciones (5.6.3); HomeViabilityEvaluated también lo consume el propio HomeViabilityEvaluatedEventHandler (5.7.3); DeviceIssueReported lo consume Comunicaciones (a formalizar en 5.8); el resto se publica para auditoría. |
+| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Evaluation, Installation e Incident son exclusivos de este bounded context. |
+| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | GeocodingService se declara como puerto en Domain; su implementación concreta (GoogleMapsGeocodingAdapter) está en Infrastructure (5.7.4). |
+
 ### 5.7.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.7.6. Bounded Context Software Architecture Code Level Diagrams
