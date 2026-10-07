@@ -2193,6 +2193,36 @@ La Interface Layer expone un controller por cada aggregate root: `EvaluationCont
 | getEvaluationById | /{evaluationId} (GET) | path: evaluationId: Long | Obtiene el detalle de una evaluación | GetEvaluationByIdQuery |
 | recordEvaluationResult | /{evaluationId}/result (POST) | path: evaluationId: Long; body: RecordEvaluationResultResource { electricalInstallationOk: Boolean, deviceCompatible: Boolean } | Registra el resultado y determina el veredicto de viabilidad | RecordEvaluationResultCommand |
 
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | InstallationController |
+| Categoría | Controller |
+| Propósito | Exponer la consulta, la ejecución y el registro de fallas de la instalación de dispositivos. |
+| Aggregate/Entity relacionado | Installation |
+| Ruta base | /api/v1/installations |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| getInstallationById | /{installationId} (GET) | path: installationId: Long | Obtiene el detalle de una instalación | GetInstallationByIdQuery |
+| installDevices | /{installationId}/install (POST) | path: installationId: Long | Instala los dispositivos y completa la instalación | InstallDevicesCommand |
+| markInstallationAsFailed | /{installationId}/fail (POST) | path: installationId: Long; body: MarkInstallationAsFailedResource { reason: String } | Marca la instalación como fallida (observación previa #5) | MarkInstallationAsFailedCommand |
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | IncidentController |
+| Categoría | Controller |
+| Propósito | Exponer el reporte de dispositivos, la atención de incidencias técnicas y la generación de su informe. |
+| Aggregate/Entity relacionado | Incident |
+| Ruta base | /api/v1/incidents |
+
+| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
+| --- | --- | --- | --- | --- |
+| reportDeviceIssue | / (POST) | body: ReportDeviceIssueResource { deviceId: Long, description: String, reportedBy: Long } | Reporta un problema sobre un dispositivo | ReportDeviceIssueCommand |
+| getIncidentById | /{incidentId} (GET) | path: incidentId: Long | Obtiene el detalle de una incidencia | GetIncidentByIdQuery |
+| getIncidentsByDevice | /by-device/{deviceId} (GET) | path: deviceId: Long | Lista las incidencias reportadas sobre un dispositivo | GetIncidentsByDeviceIdQuery |
+| attendIncident | /{incidentId}/attend (POST) | path: incidentId: Long | Atiende la incidencia técnica | AttendTechnicalIncidentCommand |
+| generateTechnicalReport | /{incidentId}/report (POST) | path: incidentId: Long | Genera el informe técnico de la incidencia | GenerateTechnicalReportCommand |
+
 ### 5.7.3. Application Layer
 
 ### 5.7.4. Infrastructure Layer
