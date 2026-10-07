@@ -2724,6 +2724,44 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 
 ### 5.8.4. Infrastructure Layer
 
+La Infrastructure Layer implementa el repositorio de Notification sobre PostgreSQL, el adaptador hacia Firebase Cloud Messaging, un scheduler que detecta notificaciones críticas vencidas, y el suscriptor del bus de eventos interno que conecta a Comunicaciones con IAM, Pagos y Suscripciones, Soporte Técnico y Telemetría.
+
+| Nombre | Interfaz que implementa | Tecnología | Propósito |
+| --- | --- | --- | --- |
+| NotificationRepositoryJpa | NotificationRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Notification. |
+
+La persistencia se configura mediante `ComunicacionesJpaConfiguration`, que habilita el repositorio Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Notification` sobre el motor PostgreSQL.
+
+| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
+| --- | --- | --- | --- | --- |
+| FirebaseCloudMessagingGateway | Gateway | PushNotificationGateway | Firebase Cloud Messaging | Envía las notificaciones push al dispositivo móvil del destinatario. |
+| NotificationExpirationScheduler | Scheduler | — (tarea programada local) | — | Detecta notificaciones CRITICAL en SENT que vencieron su tiempo límite configurable sin confirmación e invoca RepeatNotificationCommand (observación previa #2). |
+| DomainEventBusSubscriber | Event Subscriber | AccountEmailVerifiedListener, PasswordResetListener, AccountSuspendedListener, AccountReactivatedListener, PaymentPreauthorizationRejectedListener, DeviceIssueReportedListener, DeviceFailureDetectedListener, LowBatteryDetectedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos de IAM, Pagos y Suscripciones, Soporte Técnico y Telemetría hacia los ocho Event Handlers de Comunicaciones. |
+
+| Tabla/Colección | Propósito |
+| --- | --- |
+| notifications | Almacena el aggregate Notification: mensaje, prioridad, audiencia, destinatario y estado. |
+
+| Objeto | BC responsable | Justificación |
+| --- | --- | --- |
+| Cuenta / credenciales | IAM | La identidad del destinatario es responsabilidad de IAM; Comunicaciones solo referencia recipientAccountId. |
+| Cuidador principal de un hogar | Perfiles | La asignación del cuidador principal es responsabilidad de Perfiles; Comunicaciones la resuelve vía PerfilesFacade (5.3.2), sin acceder directamente a HomeProfile. |
+| Invitación / vinculación de cuidadores | Cuidado | No se modela una integración entrante desde Cuidado en este capítulo: ningún Canvas (ni el de Cuidado ni el de Comunicaciones) nombra un evento concreto que la sustente, pese a que el Context Mapping (4.2.5) lo mencione como proveedor. Queda como una brecha de documentación a nivel estratégico, no resuelta aquí para no inventar un contrato sin evidencia. |
+| Alertas de dispositivos (Bienes) | Bienes | Mismo caso que Cuidado: el Context Mapping lo nombra como proveedor, pero ningún Canvas concreto nombra el evento; no se modela para evitar inventar un contrato sin evidencia (a revisar si surge evidencia en 5.11). |
+
+**Verificación de trazabilidad — Comunicaciones**
+
+| Criterio | Cumple | Evidencia |
+| --- | --- | --- |
+| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 4 commands y las 2 queries de 5.8.1 tienen su handler correspondiente en 5.8.3. |
+| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | GenerateNotificationCommand se usa desde los ocho Event Handlers entrantes; SendNotificationCommand y RepeatNotificationCommand se usan desde GenerateNotificationCommandHandler y el scheduler respectivamente, justificado en 5.8.2. |
+| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de la tabla de endpoints (5.8.2) mapea 1:1 los parámetros del Command correspondiente. |
+| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | NotificationController se relaciona con Notification. |
+| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | NotificationRepository ↔ NotificationRepositoryJpa. |
+| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | Los eventos del ciclo de vida de Notification no tienen consumidor externo declarado en el Canvas (4.2.4) y se publican para auditoría; esto es consistente con el patrón de otros bounded contexts terminales del flujo de notificación. |
+| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Notification es exclusivo de este bounded context. |
+| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PushNotificationGateway se declara como puerto en Domain; su implementación concreta (FirebaseCloudMessagingGateway) está en Infrastructure (5.8.4). |
+
 ### 5.8.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.8.6. Bounded Context Software Architecture Code Level Diagrams
