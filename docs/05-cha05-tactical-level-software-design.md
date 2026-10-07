@@ -2787,6 +2787,19 @@ La Domain Layer modela dos aggregates de solo registro (append-only), fieles al 
 
 No se identifican Entities ni Enums en este bounded context: ambos aggregates son registros simples sin estados ni componentes internos con identidad propia.
 
+| Nombre | Categoría | Descripción |
+| --- | --- | --- |
+| SaleId | Value Object | Identificador tipado del aggregate Sale; no admite valores nulos ni negativos. |
+| DeviceMetricId | Value Object | Identificador tipado del aggregate DeviceMetric; no admite valores nulos ni negativos. |
+| MetricValue | Value Object | Valor numérico de una métrica con su unidad; no admite valores nulos. |
+
+No se declaran Factories ni Domain Services en este bounded context: `Sale` y `DeviceMetric` son aggregates de solo registro, sin colaboración entre sí ni con otros aggregates en el mismo proceso de escritura. Las métricas agregadas (globales, de ventas, de rendimiento) se calculan en tiempo real dentro de los Query Handlers (5.9.3), no mediante un Domain Service, dado que no imponen ninguna regla de negocio, solo lectura y agregación.
+
+| Nombre | Descripción | Parámetros |
+| --- | --- | --- |
+| RegisterSaleCommand | Registra una venta de suscripción concluida, invocado únicamente por SubscriptionActivatedEventHandler. | subscriptionId: Long, planId: Long, amount: Money |
+| RegisterDeviceMetricCommand | Registra un indicador de rendimiento de un dispositivo, invocado únicamente por DeviceMetricsRegisteredEventHandler. | deviceId: Long, metricType: String, value: Double |
+
 ### 5.9.2. Interface Layer
 
 ### 5.9.3. Application Layer
