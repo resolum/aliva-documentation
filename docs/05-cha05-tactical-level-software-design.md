@@ -2602,6 +2602,30 @@ La Application Layer traduce cada Command y Query en un handler dedicado, y resu
 | Eventos que publica | NotificationGenerated (vía el command invocado) |
 | User story/capability que habilita | Resuelve la integración declarada en 5.1.1 |
 
+**PaymentPreauthorizationRejectedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | PaymentPreauthorizationRejectedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Resolver al cuidador principal del hogar vía PerfilesFacade y notificarle el rechazo de la preautorización, sin reintento automático (observación previa #1 de Pagos y Suscripciones). |
+| Command/Query/Evento que maneja | PaymentPreauthorizationRejected (evento externo, BC de origen: Pagos y Suscripciones, ver 5.6.1) |
+| Repositorios y servicios que usa | PerfilesFacade, GenerateNotificationCommand (invocado internamente) |
+| Eventos que publica | NotificationGenerated (vía el command invocado) |
+| User story/capability que habilita | Resuelve la integración declarada en 5.6.1 |
+
+**DeviceIssueReportedEventHandler**
+
+| Propiedad | Valor |
+| --- | --- |
+| Nombre | DeviceIssueReportedEventHandler |
+| Categoría | Event Handler |
+| Propósito | Avisar a la administración cuando un dispositivo es clasificado en una incidencia técnica. |
+| Command/Query/Evento que maneja | DeviceIssueReported (evento externo, BC de origen: Soporte Técnico, ver 5.7.1) |
+| Repositorios y servicios que usa | GenerateNotificationCommand (invocado internamente, audience = ADMINISTRATION) |
+| Eventos que publica | NotificationGenerated (vía el command invocado) |
+| User story/capability que habilita | Decisión de negocio del Canvas de Soporte Técnico: "un dispositivo clasificado en una incidencia se avisa a la administración" |
+
 ### 5.8.4. Infrastructure Layer
 
 ### 5.8.5. Bounded Context Software Architecture Component Level Diagrams
