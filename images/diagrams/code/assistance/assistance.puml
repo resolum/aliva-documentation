@@ -1,0 +1,211 @@
+@startuml
+' Bounded Context: Assistance
+' Solo capa domain: aggregate Invitation (familiar invita a cuidadores).
+' Los eventos son internos: cada evento activa el siguiente command.
+' IAM y Communication se consumen por ACL (capa application, aún no implementada).
+' AssistedPerson y FamilyMember son aggregates del mismo contexto (nombres a confirmar).
+
+left to right direction
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 70
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #B8A800
+}
+skinparam package {
+  BorderColor #888888
+  FontStyle bold
+}
+
+legend left
+  |= Color |= Significado |
+  |<#DCEBFA>   | Aggregate |
+  |<#EADCF8>   | Value Object / Enum |
+  |<#FFE4C4>   | Command (escritura) |
+  |<#D5F0D8>   | Query (lectura) |
+  |<#FFF3B0>   | Service (interface) |
+  |<#CDEFF2>   | Event (interno) |
+  |<#E0E0E0>   | Contexto externo (vía ACL) |
+endlegend
+
+package alivia.platform.Assistance {
+
+  package "domain.model.aggregates" #F4F9FE {
+
+    class Invitation #DCEBFA {
+      - Long id
+      - AssistedPerson assistedPerson
+      - Relative inviter
+      - String inviteeEmail
+      - UserId caregiverUserId
+      - InvitationStatus status
+      - LocalDateTime expiresAt
+      --
+      + assignCaregiverAccount(UserId userId)
+      + accept()
+      + revoke()
+      + isExpired() : boolean
+    }
+
+    class AssistedPerson #DCEBFA {
+    - PersonProfileId personProfileId;
+    -
+    }
+
+    class Relative #DCEBFA {
+
+    - UserId userId;
+    -PersonProfileId personProfileId;
+
+
+    }
+
+    class Caregiver  #DCEBFA {
+    - UserId userId ;
+    - AssistedPerson AssistedPersonId;
+
+    }
+
+  }
+
+  package "domain.model.entities" #FDE7EE {
+  }
+
+  package "domain.model.events" #DDF3F5 {
+
+    class InvitationCreatedEvent <<Record>> #CDEFF2 {
+      + InvitationCreatedEvent(Long invitationId)
+    }
+
+    class InvitationAccountCreatedEvent <<Record>> #CDEFF2 {
+      + InvitationAccountCreatedEvent(Long invitationId, String inviteeEmail, String passwordSetupUrl)
+    }
+
+    class InvitationAcceptedEvent <<Record>> #CDEFF2 {
+      + InvitationAcceptedEvent(Long invitationId, Long assistedPersonId, Long caregiverUserId)
+    }
+  }
+
+  package "domain.model.valueobjects" #F9F4FD {
+
+    class UserId <<Record>> #EADCF8 {
+      + UserId(Long userId)
+    }
+
+    enum InvitationStatus <<Enum>> #EADCF8 {
+      PENDING
+      ACCEPTED
+      EXPIRED
+      REVOKED
+    }
+  }
+
+  package "domain.model.commands" #FFF8EE {
+
+    class CreateInvitationCommand <<Record>> #FFE4C4 {
+      + CreateInvitationCommand(Long relativeId, Long assistedPersonId, String inviteeEmail)
+    }
+
+    class RegisterCaregiverAccountCommand <<Record>> #FFE4C4 {
+      + RegisterCaregiverAccountCommand(Long invitationId)
+    }
+
+    class SendInvitationEmailCommand <<Record>> #FFE4C4 {
+      + SendInvitationEmailCommand(Long invitationId, String inviteeEmail, String passwordSetupUrl)
+    }
+
+    class AcceptInvitationCommand <<Record>> #FFE4C4 {
+      + AcceptInvitationCommand(Long caregiverUserId)
+    }
+
+    class RevokeInvitationCommand <<Record>> #FFE4C4 {
+      + RevokeInvitationCommand(Long invitationId, Long relativeId)
+    }
+  }
+
+  package "domain.model.queries" #F3FBF4 {
+
+    class GetInvitationById <<Record>> #D5F0D8 {
+      + GetInvitationById(Long invitationId)
+    }
+
+    class GetInvitationsByAssistedPersonId <<Record>> #D5F0D8 {
+      + GetInvitationsByAssistedPersonId(Long assistedPersonId)
+    }
+  }
+
+  package "domain.services" #FFFCEA {
+
+    interface InvitationCommandService #FFF3B0 {
+      Optional<Invitation> handle(CreateInvitationCommand command)
+      Optional<Invitation> handle(RegisterCaregiverAccountCommand command)
+      void handle(SendInvitationEmailCommand command)
+      Optional<Invitation> handle(AcceptInvitationCommand command)
+      Optional<Invitation> handle(RevokeInvitationCommand command)
+    }
+
+    interface InvitationQueryService #FFF3B0 {
+      Optional<Invitation> handle(GetInvitationById query)
+      List<Invitation> handle(GetInvitationsByAssistedPersonId query)
+    }
+  }
+}
+
+package "Contexto externo" #F5F5F5 {
+
+  class "IAM Context" as IamContext #E0E0E0 {
+    + crea la cuenta del cuidador
+    + genera la url para cambiar contraseña
+    + avisa cuando la contraseña se cambió
+  }
+
+  class "Communication Context" as CommunicationContext #E0E0E0 {
+    + envía el correo con la url
+  }
+}
+
+' ---------- FLUJO DE ESCRITURA (naranja) ----------
+InvitationCommandService -[#E67E22]-> CreateInvitationCommand : "1. recibe"
+InvitationCommandService -[#E67E22]-> RegisterCaregiverAccountCommand : "recibe"
+InvitationCommandService -[#E67E22]-> SendInvitationEmailCommand : "recibe"
+InvitationCommandService -[#E67E22]-> AcceptInvitationCommand : "recibe"
+InvitationCommandService -[#E67E22]-> RevokeInvitationCommand : "recibe"
+
+' ---------- RESULTADO SOBRE EL AGGREGATE (azul) ----------
+InvitationCommandService -[#1F6FB2]-> Invitation : "2. crea / cambia estado"
+
+' ---------- FLUJO DE LECTURA (verde) ----------
+InvitationQueryService -[#2E8B57]-> GetInvitationById : "recibe"
+InvitationQueryService -[#2E8B57]-> GetInvitationsByAssistedPersonId : "recibe"
+InvitationQueryService -[#2E8B57]-> Invitation : "devuelve"
+
+' ---------- COMPOSICIÓN DEL AGGREGATE (morado / azul) ----------
+Invitation *-[#7E57C2]- UserId : "cuenta en IAM"
+Invitation *-[#7E57C2]- InvitationStatus : "estado"
+Invitation "*" -[#1F6FB2]-> "1" AssistedPerson : "da acceso a"
+Invitation "*" -[#1F6FB2]-> "1" Relative : "creada por"
+
+' ---------- EVENTOS INTERNOS (celeste): cada evento activa un command ----------
+Invitation .[#00838F].> InvitationCreatedEvent : "3. publica al crear"
+InvitationCreatedEvent .[#00838F].> RegisterCaregiverAccountCommand : "4. activa"
+
+Invitation .[#00838F].> InvitationAccountCreatedEvent : "6. publica al\nasignar cuenta"
+InvitationAccountCreatedEvent .[#00838F].> SendInvitationEmailCommand : "7. activa"
+
+Invitation .[#00838F].> InvitationAcceptedEvent : "publica al aceptar"
+
+' ---------- CONTEXTOS EXTERNOS POR ACL (gris) ----------
+RegisterCaregiverAccountCommand .[#666666].> IamContext : "5. ACL: crea cuenta con inviteeEmail\ny recibe userId + url"
+SendInvitationEmailCommand .[#666666].> CommunicationContext : "8. ACL: envía correo\ncon la url"
+IamContext .[#666666].> AcceptInvitationCommand : "9. contraseña cambiada\n→ acepta la invitación"
+
+@enduml
