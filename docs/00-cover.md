@@ -615,29 +615,50 @@ En el siguiente cuadro se describe las acciones realizadas y enunciados de concl
             <strong>TB1</strong><br>
             Explicó al equipo la visión arquitectónica de Alivia mediante los diagramas de landscape, contexto, contenedores y despliegue, comunicando con claridad cómo interactúan los usuarios, dispositivos IoT, aplicaciones y servicios externos.
             <br><br>
+            <strong>TP</strong><br>
+            Presentó los diagramas de clases de dominio por bounded context y los diagramas de componentes del backend, explicando al equipo cómo se organizan las responsabilidades del sistema y cómo se relacionan sus componentes internos.
+            <br><br>
             <strong>Coronel Espinoza, Farid Sebastian</strong><br>
             <strong>TB1</strong><br>
             Presentó los requisitos funcionales y no funcionales, el Product Backlog y las historias de usuario principales, relacionando las necesidades de las personas con discapacidad motora y sus cuidadores con las funcionalidades priorizadas de la solución.
+            <br><br>
+            <strong>TP</strong><br>
+            Expuso los mock-ups, los diagramas de flujo de usuario y el prototipo de las aplicaciones web y móvil, comunicando cómo las interfaces propuestas responden a las necesidades del administrador, el cuidador y el técnico.
             <br><br>
             <strong>Rios Piñan, Dayro Richard</strong><br>
             <strong>TB1</strong><br>
             Expuso el proceso Lean UX, el Big Picture Event Storming y los bounded contexts, explicando al equipo cómo los hallazgos obtenidos sobre los usuarios se transformaron en procesos y límites del dominio de Alivia.
             <br><br>
+            <strong>TP</strong><br>
+            Sustentó los ajustes realizados al Event Storming y a la denominación de los bounded contexts, así como los 12 pasos de IoT, explicando al equipo cómo estas decisiones mejoran la coherencia del dominio y la integración de los dispositivos en la solución.
+            <br><br>
             <strong>Juarez Leon, Nicolas Emilio Walter</strong><br>
             <strong>TB1</strong><br>
             Sustentó las tácticas arquitectónicas, el Context Mapping y los escenarios de atributos de calidad, comunicando cómo las decisiones propuestas responden a los principales drivers arquitectónicos del sistema.
+            <br><br>
+            <strong>TP</strong><br>
+            Presentó los diagramas de componentes de las aplicaciones web y móvil, comunicando cómo se estructuran sus módulos y cómo se conectan con el backend para cumplir los drivers arquitectónicos definidos.
             <br><br>
             <strong>Diaz Quispe, Matias Sebastian</strong><br>
             <strong>TB1</strong><br>
             Comunicó los resultados del análisis competitivo, el proceso de Needfinding y el Event Storming, destacando las necesidades identificadas, la posición de Alivia frente a otras soluciones y los eventos relevantes del negocio.
             <br><br>
+            <strong>TP</strong><br>
+            Explicó los wireframes y wireflows de las aplicaciones web y móvil, junto con la landing page, los sistemas de etiquetado y búsqueda y las etiquetas SEO, destacando cómo el diseño de la información facilita la navegación y la comprensión del producto por parte de los usuarios.
+            <br><br>
             <strong>Armas Sánchez, Oscar Javier</strong><br>
             <strong>TB1</strong><br>
             Presentó los resultados del Big Picture Event Storming y del Event Storming a nivel de diseño, explicando la secuencia de eventos, actores y decisiones que estructuran los principales procesos de la solución.
+            <br><br>
+            <strong>TP</strong><br>
+            Expuso la organización de las capas de dominio, interfaz, aplicación e infraestructura, explicando al equipo cómo se distribuyen las responsabilidades del sistema y cómo esta estructura sustenta el diseño de la solución.
         </td>
         <td>
             <strong>TB1</strong><br>
             El equipo comunicó oralmente los resultados de manera objetiva y ordenada, adaptando la explicación de conceptos de negocio, experiencia de usuario y arquitectura de software para facilitar su comprensión. La distribución de la exposición permitió evidenciar el dominio individual de las secciones asignadas y una visión integrada de la solución Alivia.
+            <br><br>
+            <strong>TP</strong><br>
+            El equipo comunicó oralmente los avances de diseño de manera objetiva y estructurada, adaptando la explicación de interfaces, flujos de usuario, modelos de dominio y componentes de software a un público con distintos perfiles. La exposición evidenció el dominio individual de cada sección y la coherencia entre el diseño de las aplicaciones, la arquitectura y el dominio de Alivia.
         </td>
     </tr>
     <tr>
@@ -647,29 +668,50 @@ En el siguiente cuadro se describe las acciones realizadas y enunciados de concl
             <strong>TB1</strong><br>
             Documentó los diagramas de landscape, contexto, contenedores y despliegue, acompañándolos con descripciones que permiten comprender los componentes, relaciones, responsabilidades y entornos de ejecución de la arquitectura de Alivia.
             <br><br>
+            <strong>TP</strong><br>
+            Documentó los diagramas de clases de dominio por bounded context y los diagramas de componentes del backend, describiendo las clases, atributos, relaciones y responsabilidades que sustentan la lógica del sistema.
+            <br><br>
             <strong>Coronel Espinoza, Farid Sebastian</strong><br>
             <strong>TB1</strong><br>
             Redactó y organizó los requisitos funcionales y no funcionales, el Product Backlog y las historias de usuario principales, utilizando criterios de aceptación y prioridades para mantener la trazabilidad entre necesidades y funcionalidades.
+            <br><br>
+            <strong>TP</strong><br>
+            Documentó los mock-ups, los diagramas de flujo de usuario y el prototipo de las aplicaciones web y móvil, y corrigió el Capítulo 3, manteniendo la coherencia entre las interfaces diseñadas y los requisitos previamente definidos.
             <br><br>
             <strong>Rios Piñan, Dayro Richard</strong><br>
             <strong>TB1</strong><br>
             Desarrolló la documentación del proceso Lean UX, el Big Picture Event Storming y los bounded contexts, presentando de forma estructurada la evolución desde la investigación del usuario hasta la delimitación del dominio.
             <br><br>
+            <strong>TP</strong><br>
+            Actualizó la documentación del Event Storming y de los bounded contexts, incorporando el cambio de denominación del contexto de cuidado a Asistencia médica, y documentó los 12 pasos de IoT, manteniendo la consistencia entre los modelos del dominio y la solución tecnológica.
+            <br><br>
             <strong>Juarez Leon, Nicolas Emilio Walter</strong><br>
             <strong>TB1</strong><br>
             Elaboró la sección de tácticas, el Context Mapping y los escenarios de atributos de calidad, especificando medidas verificables y justificando la relación entre los drivers y las decisiones arquitectónicas.
+            <br><br>
+            <strong>TP</strong><br>
+            Elaboró los diagramas de componentes de las aplicaciones web y móvil, representando los módulos, sus dependencias y su comunicación con el backend, de forma consistente con las decisiones arquitectónicas previas.
             <br><br>
             <strong>Diaz Quispe, Matias Sebastian</strong><br>
             <strong>TB1</strong><br>
             Redactó el análisis competitivo, el proceso de Needfinding y el Event Storming, sintetizando los hallazgos de investigación y representando de manera comprensible los eventos y necesidades del dominio.
             <br><br>
+            <strong>TP</strong><br>
+            Elaboró los wireframes y wireflows de las aplicaciones web y móvil, el wireframe y mock-up de la landing page, y la documentación de los sistemas de etiquetado, búsqueda y etiquetas SEO, organizando la información de forma clara y navegable para los distintos usuarios.
+            <br><br>
             <strong>Armas Sánchez, Oscar Javier</strong><br>
             <strong>TB1</strong><br>
             Documentó el Big Picture Event Storming y el Event Storming de diseño mediante descripciones asociadas a los diagramas, facilitando la lectura de los flujos, decisiones y responsabilidades identificadas.
+            <br><br>
+            <strong>TP</strong><br>
+            Documentó las capas de dominio, interfaz, aplicación e infraestructura, describiendo las responsabilidades de cada una y facilitando la comprensión de la estructura interna de la solución.
         </td>
         <td>
             <strong>TB1</strong><br>
             El informe evidencia una comunicación escrita objetiva, coherente y sustentada mediante requisitos, modelos, diagramas y decisiones arquitectónicas. La integración de los aportes de los seis integrantes permite que audiencias con perfiles técnicos y no técnicos comprendan el problema, la propuesta de valor y el diseño de la solución.
+            <br><br>
+            <strong>TP</strong><br>
+            El informe evidencia una comunicación escrita objetiva y consistente en el diseño de la solución, sustentada mediante wireframes, mock-ups, flujos de usuario, diagramas de dominio y de componentes. La integración de los aportes de los seis integrantes permite que audiencias técnicas y no técnicas comprendan cómo las interfaces, el dominio y la arquitectura de Alivia se articulan para atender las necesidades de los usuarios.
         </td>
     </tr>
 </table>
