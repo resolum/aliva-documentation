@@ -427,3 +427,4 @@ El siguiente Product Backlog presenta las historias funcionales, técnicas y de 
 | 135     | TS-34         | Consulta de métricas de autonomía y acciones                                              | Como Frontend Developer,<br>quiero consumir el endpoint de analítica de autonomía para consultar las métricas de las acciones solicitadas y ejecutadas por la persona asistida,<br>para visualizar su nivel de autonomía y las dificultades recurrentes con los dispositivos.                                                                                                                                                                 | 3                            |
 
 <div style="page-break-after: always;"></div>
+
