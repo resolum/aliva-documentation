@@ -379,7 +379,11 @@ La persistencia se configura mediante `AccountJpaConfiguration`, que habilita lo
 
 #### 5.1.6.1. Bounded Context Domain Layer Class Diagrams
 
+![Diagrama de clases de la capa de dominio - IAM](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/iam/iam-backend-diagram.puml)
+
 #### 5.1.6.2. Bounded Context Database Design Diagram
+
+![Diagrama de base de datos - IAM](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/iam/iam-database-diagram.puml)
 
 <div style="page-break-after: always;"></div>
 
@@ -593,7 +597,11 @@ La persistencia se configura mediante `BusinessJpaConfiguration`, que habilita l
 
 #### 5.2.6.1. Bounded Context Domain Layer Class Diagrams
 
+![Diagrama de clases de la capa de dominio - Gestión del Negocio](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/company/Business.puml)
+
 #### 5.2.6.2. Bounded Context Database Design Diagram
+
+![Diagrama de base de datos - Gestión del Negocio](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/company/Business-database.puml)
 
 <div style="page-break-after: always;"></div>
 
@@ -938,7 +946,11 @@ La persistencia se configura mediante `ProfileJpaConfiguration`, que habilita lo
 
 #### 5.3.6.1. Bounded Context Domain Layer Class Diagrams
 
+![Diagrama de clases de la capa de dominio - Perfiles](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/profile/profile-backend-diagram.puml)
+
 #### 5.3.6.2. Bounded Context Database Design Diagram
+
+![Diagrama de base de datos - Perfiles](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/profile/profile-database-diagram.puml)
 
 <div style="page-break-after: always;"></div>
 
@@ -1275,7 +1287,11 @@ La persistencia se configura mediante `EmployeeJpaConfiguration`, que habilita l
 
 #### 5.4.6.1. Bounded Context Domain Layer Class Diagrams
 
+![Diagrama de clases de la capa de dominio - Capital Humano](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/hcm/hcm-backend-diagram.puml)
+
 #### 5.4.6.2. Bounded Context Database Design Diagram
+
+![Diagrama de base de datos - Capital Humano](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/hcm/hcm-database-diagram.puml)
 
 <div style="page-break-after: always;"></div>
 
@@ -1711,7 +1727,11 @@ La persistencia se configura mediante `CuidadoJpaConfiguration`, que habilita lo
 
 #### 5.5.6.1. Bounded Context Domain Layer Class Diagrams
 
+![Diagrama de clases de la capa de dominio - Cuidado](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assistance/assistance.puml)
+
 #### 5.5.6.2. Bounded Context Database Design Diagram
+
+![Diagrama de base de datos - Cuidado](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assistance/assistance-database.puml)
 
 <div style="page-break-after: always;"></div>
 
@@ -3597,7 +3617,11 @@ La persistencia se configura mediante `BienesJpaConfiguration`, que habilita los
 
 #### 5.11.6.1. Bounded Context Domain Layer Class Diagrams
 
+![Diagrama de clases de la capa de dominio - Bienes](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assets/devices-backend-diagram.puml)
+
 #### 5.11.6.2. Bounded Context Database Design Diagram
+
+![Diagrama de base de datos - Bienes](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assets/devices-database-diagram.puml)
 
 <div style="page-break-after: always;"></div>
 
