@@ -1,0 +1,67 @@
+@startuml
+title Alivia · Database Diagram - Bounded Context Assets
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #64748B
+skinparam entity {
+  BackgroundColor #EEF2FF
+  BorderColor #4F46E5
+}
+
+' =====================================================
+' TABLES
+' =====================================================
+
+entity "devices" as devices {
+  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
+  --
+  * business_id : BIGINT <<INDEX>>
+  * mac_address : VARCHAR(17) <<UNIQUE>>
+  * device_type : VARCHAR(20)
+  * device_status : VARCHAR(20)
+  --
+  * created_at : DATETIME
+  * updated_at : DATETIME
+}
+
+' Referencia externa (otro bounded context, sin FK física)
+entity "businesses" as businesses #F1F5F9 {
+  * id : BIGINT <<PK>>
+  --
+  ...
+}
+
+' =====================================================
+' RELATIONSHIPS
+' =====================================================
+
+businesses ||..o{ devices : "business_id\n(referencia lógica)"
+
+' =====================================================
+' NOTES
+' =====================================================
+
+note right of devices
+  **device_type** (enum DeviceType):
+  EDGE, ACTUATOR, MICROPHONE
+
+  **device_status** (enum DeviceStatus):
+  OPERATIONAL, IN_USE,
+  MAINTENANCE, BROKEN
+
+  **Índices sugeridos:**
+  - UNIQUE (mac_address)
+  - INDEX (business_id)
+  - INDEX (business_id, device_status)
+end note
+
+note bottom of businesses
+  Pertenece a otro bounded context.
+  Solo se guarda su id en devices.
+end note
+
+@enduml
