@@ -1,0 +1,88 @@
+@startuml
+' Base de datos: Assistance
+' Basado en assistance.puml del repositorio: Caregiver = (user_id, assisted_person_id), sin relative_id.
+' Los aggregates se referencian por id.
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam entity {
+  BorderColor #333333
+  ArrowColor #444444
+}
+
+legend left
+  |= Símbolo |= Significado |
+  | <<PK>> | Llave primaria |
+  | <<UK>> | Único |
+  | <<FK>> | Llave foránea |
+  | <<LFK>> | Referencia lógica a otro contexto |
+endlegend
+
+entity "relatives" as relatives #DCEBFA {
+  * id : BIGINT <<PK>>
+  --
+  * user_id : BIGINT <<UK>> <<LFK>>
+  * person_profile_id : BIGINT <<LFK>>
+  ..
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "assisted_persons" as assisted_persons #DCEBFA {
+  * id : BIGINT <<PK>>
+  --
+  * person_profile_id : BIGINT <<LFK>>
+  * relative_id : BIGINT <<FK>>
+  ..
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "caregivers" as caregivers #DCEBFA {
+  * id : BIGINT <<PK>>
+  --
+  * user_id : BIGINT <<LFK>>
+  * assisted_person_id : BIGINT <<FK>>
+  * status : VARCHAR(20)
+  ..
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "invitations" as invitations #FFE4C4 {
+  * id : BIGINT <<PK>>
+  --
+  * assisted_person_id : BIGINT <<FK>>
+  * inviter_id : BIGINT <<FK>>
+  * invitee_email : VARCHAR(150)
+  caregiver_user_id : BIGINT <<LFK>>
+  * status : VARCHAR(20)
+  * expires_at : TIMESTAMP
+  ..
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+relatives ||--o{ assisted_persons : "gestiona"
+assisted_persons ||--o{ caregivers : "tiene"
+assisted_persons ||--o{ invitations : "da acceso a"
+relatives ||--o{ invitations : "inviter_id"
+
+note bottom of caregivers
+  Único sugerido: (user_id, assisted_person_id).
+  status: ACTIVE | REVOKED
+end note
+
+note bottom of invitations
+  caregiver_user_id es nulo hasta que IAM crea la cuenta.
+  status: PENDING | ACCEPTED | EXPIRED | REVOKED
+end note
+
+note bottom of relatives
+  user_id → cuenta en IAM.
+  person_profile_id → user_profiles.id en Profile.
+end note
+
+@enduml
