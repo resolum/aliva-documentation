@@ -1,0 +1,103 @@
+@startuml
+title Database Diagram - Identity And Access Management
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam ArrowColor #455A64
+skinparam entity {
+  BackgroundColor #E3F2FD
+  BorderColor #455A64
+}
+
+' =====================================================
+' TABLES
+' =====================================================
+
+entity "users" as users {
+  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
+  --
+  * email : VARCHAR(255) <<UNIQUE>>
+  * password_hash : VARCHAR(255)
+  * access_role : VARCHAR(30)
+  * status : VARCHAR(30)
+  * email_verified : BOOLEAN
+  * failed_access_attempts : INT
+  --
+  * created_at : DATETIME
+  * updated_at : DATETIME
+}
+
+entity "email_verification_tokens" as evt {
+  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
+  --
+  * user_id : BIGINT <<FK>>
+  * token_value : VARCHAR(255) <<UNIQUE>>
+  * expires_at : DATETIME
+  used_at : DATETIME
+  * created_at : DATETIME
+}
+
+entity "password_recovery_codes" as prc {
+  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
+  --
+  * user_id : BIGINT <<FK>>
+  * code_value : VARCHAR(10)
+  * channel : VARCHAR(20)
+  * expires_at : DATETIME
+  used_at : DATETIME
+  * created_at : DATETIME
+}
+
+entity "password_recovery_tokens" as prt {
+  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
+  --
+  * user_id : BIGINT <<FK>>
+  * token_value : VARCHAR(255) <<UNIQUE>>
+  * channel : VARCHAR(20)
+  * expires_at : DATETIME
+  used_at : DATETIME
+  * created_at : DATETIME
+}
+
+entity "activation_tokens" as act {
+  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
+  --
+  * user_id : BIGINT <<FK>>
+  * employee_id : BIGINT
+  * token_value : VARCHAR(255) <<UNIQUE>>
+  * expires_at : DATETIME
+  used_at : DATETIME
+  * created_at : DATETIME
+}
+
+' =====================================================
+' RELATIONSHIPS
+' =====================================================
+
+users ||--o{ evt : "verifies email"
+users ||--o{ prc : "recovers with code"
+users ||--o{ prt : "recovers with token"
+users ||--o{ act : "activates account"
+
+' =====================================================
+' NOTES
+' =====================================================
+
+note right of users
+  **access_role** (enum AccessRole):
+  ADMINISTRATOR, CAREGIVER,
+  TECHNICIAN, SUBSCRIPTION_MANAGER
+
+  **status** (enum UserStatus):
+  PENDING_VERIFICATION, ACTIVE,
+  BLOCKED, INACTIVE
+end note
+
+note bottom of prc
+  **channel** (enum RecoveryChannel):
+  MOBILE_CODE, WEB_LINK
+end note
+
+@enduml
