@@ -595,8 +595,6 @@ La persistencia se configura mediante `BusinessJpaConfiguration`, que habilita l
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Business y BusinessAdministrator son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | GeocodingService se declara como puerto en Domain; su implementación concreta (GoogleMapsGeocodingAdapter) está en Infrastructure (5.2.4). |
 
-### 5.2.5. Bounded Context Software Architecture Component Level Diagrams
-
 ### 5.2.6. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.2.6.1. Bounded Context Domain Layer Class Diagrams
@@ -2146,12 +2144,6 @@ La persistencia se configura mediante `PagosSuscripcionesJpaConfiguration`, que 
 
 ### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
 
-### 5.6.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.6.6.1. Bounded Context Domain Layer Class Diagrams
-
-#### 5.6.6.2. Bounded Context Database Design Diagram
-
 <div style="page-break-after: always;"></div>
 
 ## 5.7. Bounded Context: Soporte Técnico
@@ -2507,12 +2499,6 @@ La persistencia se configura mediante `SoporteTecnicoJpaConfiguration`, que habi
 
 ### 5.7.5. Bounded Context Software Architecture Component Level Diagrams
 
-### 5.7.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.7.6.1. Bounded Context Domain Layer Class Diagrams
-
-#### 5.7.6.2. Bounded Context Database Design Diagram
-
 <div style="page-break-after: always;"></div>
 
 ## 5.8. Bounded Context: Comunicaciones
@@ -2816,12 +2802,6 @@ La persistencia se configura mediante `ComunicacionesJpaConfiguration`, que habi
 
 ### 5.8.5. Bounded Context Software Architecture Component Level Diagrams
 
-### 5.8.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.8.6.1. Bounded Context Domain Layer Class Diagrams
-
-#### 5.8.6.2. Bounded Context Database Design Diagram
-
 <div style="page-break-after: always;"></div>
 
 ## 5.9. Bounded Context: Analíticas
@@ -3021,12 +3001,6 @@ La persistencia se configura mediante `AnaliticasPersistenceConfiguration`, que 
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | Los repositorios se declaran como puertos en Domain; sus implementaciones concretas (SaleRepositoryJpa, DeviceMetricRepositoryMongo) están en Infrastructure (5.9.4). |
 
 ### 5.9.5. Bounded Context Software Architecture Component Level Diagrams
-
-### 5.9.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.9.6.1. Bounded Context Domain Layer Class Diagrams
-
-#### 5.9.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
 
@@ -3275,12 +3249,6 @@ La persistencia se configura mediante `TelemetriaPersistenceConfiguration`, que 
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | DeviceStatusGateway se declara como puerto en Domain; su implementación concreta (FirebaseCloudMessagingGateway) está en Infrastructure (5.10.4). |
 
 ### 5.10.5. Bounded Context Software Architecture Component Level Diagrams
-
-### 5.10.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.10.6.1. Bounded Context Domain Layer Class Diagrams
-
-#### 5.10.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
 
