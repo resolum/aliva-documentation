@@ -1,0 +1,62 @@
+@startuml
+' Base de datos: Company
+' Aggregates: Business y Administrator. Los datos del negocio viven en Profile (business_profile_id).
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam entity {
+  BorderColor #333333
+  ArrowColor #444444
+}
+
+legend left
+  |= Símbolo |= Significado |
+  | <<PK>> | Llave primaria |
+  | <<UK>> | Único |
+  | <<FK>> | Llave foránea |
+  | <<LFK>> | Referencia lógica a otro contexto |
+endlegend
+
+entity "administrators" as administrators #DCEBFA {
+  * id : BIGINT <<PK>>
+  --
+  * person_profile_id : BIGINT <<LFK>>
+  * user_id : BIGINT <<UK>> <<LFK>>
+  ..
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "businesses" as businesses #DCEBFA {
+  * id : BIGINT <<PK>>
+  --
+  * business_profile_id : BIGINT <<LFK>>
+  * administrator_id : BIGINT <<FK>> <<UK>>
+  ..
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "business_profiles\n(Profile · pendiente)" as business_profiles #E0E0E0 {
+  * id : BIGINT <<PK>>
+  --
+  logo, razón social, RUC,
+  contacto, ubicación...
+}
+
+administrators ||--|| businesses : "gestiona"
+businesses }o..|| business_profiles : "business_profile_id"
+
+note bottom of administrators
+  person_profile_id → user_profiles.id en Profile.
+  user_id → cuenta en IAM.
+end note
+
+note bottom of business_profiles
+  Hoy Profile solo tiene user_profiles y household_profiles:
+  esta tabla aún no existe.
+end note
+
+@enduml

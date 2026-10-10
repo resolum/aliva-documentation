@@ -1,0 +1,269 @@
+@startuml
+' Bounded Context: Company
+' Solo capa domain: aggregates, value objects, commands, queries y services.
+' Los parámetros de cada command se detallan en notas para que se lean mejor.
+' El aggregate Business solo guarda BusinessProfileId (conecta con el contexto de Profile).
+
+left to right direction
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 70
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #B8A800
+}
+skinparam package {
+  BorderColor #888888
+  FontStyle bold
+}
+
+legend left
+  |= Color |= Significado |
+  |<#DCEBFA>   | Aggregate |
+  |<#EADCF8>   | Value Object |
+  |<#FFE4C4>   | Command (escritura) |
+  |<#D5F0D8>   | Query (lectura) |
+  |<#FFF3B0>   | Service (interface) |
+endlegend
+
+package alivia.platform.Company {
+
+  package "domain.model.aggregates" #F4F9FE {
+
+    class Business #DCEBFA {
+      + BusinessProfileId businessProfileId
+      + Administrator administrator
+    }
+
+    class Administrator #DCEBFA {
+      + PersonProfileId personProfileId
+      + UserId userId
+    }
+  }
+
+  package "domain.model.valueobjects" #F9F4FD {
+
+    class BusinessProfileId <<Record>> #EADCF8 {
+      + BusinessProfileId(Long businessProfileId)
+    }
+  }
+
+  package "domain.model.commands" #FFF8EE {
+
+    class CreateBusinessCommand <<Record>> #FFE4C4 {
+      + CreateBusinessCommand(...)
+    }
+
+    class UpdateBusinessCommand <<Record>> #FFE4C4 {
+      + UpdateBusinessCommand(...)
+    }
+
+    class CreateAdministratorCommand <<Record>> #FFE4C4 {
+      + CreateAdministratorCommand(...)
+    }
+
+    class UpdateAdministratorCommand <<Record>> #FFE4C4 {
+      + UpdateAdministratorCommand(...)
+    }
+  }
+
+  package "domain.model.queries" #F3FBF4 {
+
+    class GetBusinessByAdministratorId <<Record>> #D5F0D8 {
+      + GetBusinessByAdministratorId(Long administratorId)
+    }
+
+    class GetAdministratorById <<Record>> #D5F0D8 {
+      + GetAdministratorById(Long administratorId)
+    }
+
+    class GetBusinessById <<Record>> #D5F0D8 {
+      + GetBusinessById(Long id)
+    }
+  }
+
+  package "domain.services" #FFFCEA {
+
+    interface BusinessCommandServices #FFF3B0 {
+      Long handle(CreateBusinessCommand command)
+      Optional<Business> handle(UpdateBusinessCommand command)
+    }
+
+    interface BusinessQueryServices #FFF3B0 {
+      Optional<Business> handle(GetBusinessByAdministratorId query)
+      Optional<Business> handle(GetBusinessById query)
+    }
+
+    interface AdministratorCommandServices #FFF3B0 {
+      Long handle(CreateAdministratorCommand command)
+      Optional<Administrator> handle(UpdateAdministratorCommand command)
+    }
+
+    interface AdministratorQueryServices #FFF3B0 {
+      Optional<Administrator> handle(GetAdministratorById query)
+    }
+  }
+}
+
+' ---------- FLUJO DE ESCRITURA (naranja) ----------
+BusinessCommandServices -[#E67E22]-> CreateBusinessCommand : "1. recibe"
+
+BusinessCommandServices -[#E67E22]-> UpdateBusinessCommand : "1. recibe"
+
+AdministratorCommandServices -[#E67E22]-> CreateAdministratorCommand : "1. recibe"
+
+AdministratorCommandServices -[#E67E22]-> UpdateAdministratorCommand : "1. recibe"
+
+' ---------- FLUJO DE LECTURA (verde) ----------
+BusinessQueryServices -[#2E8B57]-> GetBusinessByAdministratorId : "recibe"
+BusinessQueryServices -[#2E8B57]-> GetBusinessById : "recibe"
+
+AdministratorQueryServices -[#2E8B57]-> GetAdministratorById : "recibe"
+
+' ---------- RESULTADO SOBRE EL AGGREGATE (azul) ----------
+BusinessCommandServices -[#1F6FB2]-> Business : "2. crea / actualiza"
+AdministratorCommandServices -[#1F6FB2]-> Administrator : "2. crea / actualiza"
+BusinessQueryServices -[#2E8B57]-> Business : "devuelve"
+AdministratorQueryServices -[#2E8B57]-> Administrator : "devuelve"
+
+' ---------- COMPOSICIÓN DEL AGGREGATE (morado) ----------
+Business *-[#7E57C2]- BusinessProfileId : "referencia al perfil"
+
+Business "1" -[#1F6FB2]-> "1" Administrator : "gestionado por"
+
+' ---------- PARÁMETROS DE LOS CONSTRUCTORES ----------
+note right of CreateBusinessCommand
+  **Parámetros**
+  --Identidad del negocio--
+  byte[] logoData
+  String logoFileName
+  String tradeName
+  String legalName
+  String ruc
+  String economicActivity
+  String institutionalDescription
+  --Información de contacto--
+  String institutionalEmail
+  String mainPhone
+  String mobilePhone
+  String website
+  --Ubicación corporativa--
+  String mainAddress
+  String district
+  String province
+  String department
+  String locationReference
+  Double latitude
+  Double longitude
+  String postalCode
+  --Información para clientes--
+  String businessHours
+  String supportEmail
+  String emergencyPhone
+  String officialWhatsapp
+  String officialSlogan
+  --Relaciones--
+  Long administratorId
+end note
+
+note right of UpdateBusinessCommand
+  **Parámetros**
+  Long businessId
+  --Identidad del negocio--
+  byte[] logoData
+  String logoFileName
+  String tradeName
+  String legalName
+  String ruc
+  String economicActivity
+  String institutionalDescription
+  --Información de contacto--
+  String institutionalEmail
+  String mainPhone
+  String mobilePhone
+  String website
+  --Ubicación corporativa--
+  String mainAddress
+  String district
+  String province
+  String department
+  String locationReference
+  Double latitude
+  Double longitude
+  String postalCode
+  --Información para clientes--
+  String businessHours
+  String supportEmail
+  String emergencyPhone
+  String officialWhatsapp
+  String officialSlogan
+  ..
+  Solo el Administrador General puede
+  modificar legalName y ruc (Ley N° 29733).
+  Los estados "Vigente y Validado" y
+  "Activo Habido" los determina el sistema
+  (SUNAT/SUNARP), no el command.
+end note
+
+note right of CreateAdministratorCommand
+  **Parámetros**
+  --Credenciales--
+  String institutionalEmail
+  String password
+  --Información personal--
+  byte[] photoData
+  String photoFileName
+  String firstName
+  String lastName
+  String documentType
+  String documentNumber
+  String mobilePhone
+  --Información de contacto--
+  String backupPersonalEmail
+  --Preferencias del sistema--
+  String notificationChannels
+  String timeZone
+  String dateFormat
+  --Relaciones--
+  Long personProfileId
+  Long userId
+end note
+
+note right of UpdateAdministratorCommand
+  **Parámetros**
+  Long administratorId
+  --Información personal--
+  byte[] photoData
+  String photoFileName
+  String firstName
+  String lastName
+  String documentType
+  String documentNumber
+  String mobilePhone
+  --Información de contacto--
+  String backupPersonalEmail
+  --Preferencias del sistema--
+  String notificationChannels
+  String timeZone
+  String dateFormat
+  ..
+  No incluye institutionalEmail (solo lectura)
+  ni password (flujo aparte). Rol, sede, 2FA,
+  ID de colaborador y estado de cuenta los
+  gestionan Administración Central y RRHH.
+end note
+
+note bottom of Business
+  Los datos del perfil se guardan en el contexto Profile,
+  referenciado solo por BusinessProfileId.
+end note
+
+@enduml

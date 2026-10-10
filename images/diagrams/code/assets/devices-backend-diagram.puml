@@ -1,0 +1,147 @@
+@startuml
+title Alivia · Bounded Context Assets
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundCorner 12
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam backgroundColor #FFFFFF
+skinparam nodesep 50
+skinparam ranksep 110
+skinparam ArrowThickness 1.6
+skinparam ArrowColor #64748B
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #475569
+skinparam ArrowFontStyle italic
+skinparam ClassBorderThickness 1.6
+skinparam ClassFontColor #0F172A
+skinparam ClassFontStyle bold
+skinparam ClassAttributeFontColor #334155
+skinparam ClassStereotypeFontColor #64748B
+skinparam PackageFontColor #334155
+skinparam PackageFontStyle bold
+skinparam TitleFontSize 20
+skinparam TitleFontColor #1E293B
+left to right direction
+
+package alivia.shared.domain.model.aggregate #F1F5F9;line:64748B;text:334155 {
+  abstract class AbstractAggregateRoot<T> #FFFFFF;line:64748B {
+    - id : Long
+    - createdAt : LocalDateTime
+    - updatedAt : LocalDateTime
+    + addDomainEvent(event : Object) : void
+  }
+}
+
+package alivia.platform.assets #FFFFFF;line:CBD5E1;line.dashed {
+
+  package domain.model.aggregate #EEF2FF;line:4F46E5;text:3730A3 {
+    class Device #FFFFFF;line:4F46E5 {
+      - macAddress : MacAddress
+      - devicesType : DevicesType
+      - deviceStatus : DevicesStatus
+      + void update(Long deviceId)
+      + void changeStatus(String newStatus)
+    }
+  }
+
+  package domain.model.valueobjects #ECFDF5;line:059669;text:047857 {
+    class BusinessId <<record>> #FFFFFF;line:059669 {
+      - value : Long
+    }
+
+    class MacAddress <<record>> #FFFFFF;line:059669 {
+      - MacAddress : String
+    }
+
+    enum DeviceType #FFFFFF;line:059669 {
+      EDGE
+      ACTUATOR
+      MICROPHONE
+    }
+
+    enum DeviceStatus #FFFFFF;line:059669 {
+      operational
+      IN_USE
+      maintenance
+      broken
+    }
+  }
+
+  package domain.services #F5F3FF;line:7C3AED;text:5B21B6 {
+    interface DeviceCommandServices #FFFFFF;line:7C3AED {
+      Long handle(RegisterDevicesCommand command);
+      Long handle(UpdateDevicesCommand command);
+      Long handle(changeDevicesStatusCommand command);
+    }
+
+    interface DeviceQueryServices #FFFFFF;line:7C3AED {
+      Optional<Device> handle(GetDeviceByIdQuery query);
+      List<Device> handle(GetAllDevicesBusinessIdQuery query);
+      List<Device> handle(GetDevicesByBusinessIdAndStatusQuery query);
+    }
+  }
+
+  package domain.exceptions #FFF1F2;line:E11D48;text:BE123C {
+    class DeviceNotFoundException <<exception>> #FFFFFF;line:E11D48 {
+      + DeviceNotFoundException(DeviceId id)
+    }
+    class DeviceAlreadyExistsException <<exception>> #FFFFFF;line:E11D48 {
+      + DeviceAlreadyExistsException(MacAddress macAddress)
+    }
+    class InvalidMacAddressException <<exception>> #FFFFFF;line:E11D48 {
+      + InvalidMacAddressException(String macAddress)
+    }
+  }
+
+  package domain.model.commands #FFFBEB;line:D97706;text:B45309 {
+    class RegisterDevicesCommand <<Record>> #FFFFFF;line:D97706 {
+      + RegisterDevicesCommand(Long businessId, String macAddress, String deviceType)
+    }
+
+    class UpdateDevicesCommand <<Record>> #FFFFFF;line:D97706 {
+      + UpdateDevicesCommand(Long deviceId, Long businessId, String macAddress, String deviceType)
+    }
+
+    class changeDevicesStatusCommand <<Record>> #FFFFFF;line:D97706 {
+      + changeDevicesStatusCommand(Long deviceId, String newStatus)
+    }
+  }
+
+  package domain.model.queries #F0F9FF;line:0284C7;text:0369A1 {
+    class GetDeviceByIdQuery <<Record>> #FFFFFF;line:0284C7 {
+      + GetDeviceByIdQuery(Long DeviceId)
+    }
+
+    class GetAllDevicesBusinessIdQuery <<Record>> #FFFFFF;line:0284C7 {
+      + GetAllDevicesBusinessIdQuery(BusinessId businessId)
+    }
+
+    class GetDevicesByBusinessIdAndStatusQuery <<Record>> #FFFFFF;line:0284C7 {
+      + GetDevicesByBusinessIdAndStatusQuery(BusinessId businessId, DeviceStatus deviceStatus)
+    }
+  }
+}
+
+' ---- Composición del agregado Device ----
+Device -[#059669]-> DeviceType : define qué rol cumple\nel dispositivo (EDGE,\nACTUATOR o MICROPHONE)
+Device -[#059669]-> DeviceStatus : indica su estado actual\n(operational, IN_USE,\nmaintenance o broken)
+Device -[#059669]-> MacAddress : lo identifica de forma\núnica en la red
+Device -[#059669]-> BusinessId : guarda a qué negocio\npertenece el dispositivo
+
+' ---- Queries: lecturas ----
+GetDeviceByIdQuery -[#0284C7]-> DeviceQueryServices : pide un solo dispositivo\npor su id
+GetAllDevicesBusinessIdQuery -[#0284C7]-> DeviceQueryServices : pide todos los dispositivos\nde un negocio
+GetDevicesByBusinessIdAndStatusQuery -[#0284C7]-> DeviceQueryServices : pide los dispositivos de un\nnegocio filtrados por estado
+
+' ---- Commands: escrituras ----
+RegisterDevicesCommand -[#D97706]-> DeviceCommandServices : ordena registrar un\ndispositivo nuevo
+UpdateDevicesCommand -[#D97706]-> DeviceCommandServices : ordena modificar los datos\nde un dispositivo existente
+changeDevicesStatusCommand -[#D97706]-> DeviceCommandServices : ordena cambiar solo el\nestado de un dispositivo
+
+' ---- Herencia ----
+Device -[#4F46E5]-|> AbstractAggregateRoot : hereda id, fechas de auditoría\ny addDomainEvent()
+
+@enduml

@@ -1,0 +1,171 @@
+@startuml
+' Bounded Context: hcm
+' Compact view: aggregates, services, repositories, controllers.
+' Individual commands/queries/resources/assemblers are omitted for readability.
+
+left to right direction
+skinparam linetype ortho
+skinparam nodesep 30
+skinparam ranksep 50
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+}
+package alivia.platform.hcm{
+
+
+package "domain.model.aggregates" {
+  class Employee {
+    +PersonProfileId profileId
+    +StaffStatus status
+    +StaffRole role
+    +List<Contract> contracts
+    +ContractHistory contractHistory
+  }
+}
+
+package "domain.model.entities" {
+  class Contract {
+    +ContractId id
+    +ContractPeriod period
+    +ContractStatus status
+    +TypeOfContract type
+  }
+}
+
+package "domain.model.events" {
+  class EmployeeHiredEvent
+  class EmployeeSuspendedEvent
+  class EmployeeTerminationEvent
+}
+
+package "domain.services" {
+  interface EmployeeCommandServices{
+
+  Long handle (CreateEmployeeCommand command);
+  Long handle (UpdateEmployeeCommand command);
+  Long handle (CreateContractCommand command);
+  Long handle (UpdateContractStatusCommand command);
+
+  }
+
+  interface EmployeeQueryServices{
+
+      + List<Employee> handle(GetAllEmployeesByBusinessIdQuery query)
+      + Optional<Employee> handle(GetEmployeeByIdQuery query)
+      + List<Contract> handle(GetAllContractsByEmployeeIdQuery query)
+      + Optional<Contract> handle(GetContractByIdQuery query)
+
+  }
+}
+package domain.model.valueobjects {
+enum EmployeeStatus {
+ ACTIVE
+ VACATION
+ SUSPENDED
+ TERMINATED
+}
+
+enum EmployeeRole {
+TECH
+SUBSCRIPTION_MANAGER
+cleaning
+
+}
+enum ContractStatus{
+ACTIVE
+TERMINATED
+EXPIRED
+
+}
+enum TypeOfContract {
+FULL_TIME
+PART_TIME
+
+}
+
+class ContractPeriod <<Record>>{
+
++ ContractPeriod(LocalDate startDate, LocalDate endDate);
+
+}
+class ContractHistory  {
+
+    - List<Contract> contracts;
++void addContract(Staff staff, LocalDate startDate, LocalDate endDate,  String typeOfContract, String staffRole, String workShift)
+
+}
+
+}
+
+package domain.model.commands {
+
+class CreateEmployeeCommand <<Record>> {
+      + CreateEmployeeCommand(Long personProfileId, EmployeeStatus status, EmployeeRole role)
+    }
+
+    class UpdateEmployeeCommand <<Record>> {
+      + UpdateEmployeeCommand(Long employeeId, EmployeeStatus status, EmployeeRole role)
+    }
+
+    class CreateContractCommand <<Record>> {
+      + CreateContractCommand(Long employeeId, LocalDate startDate, LocalDate endDate, ContractStatus status, TypeOfContract type)
+    }
+
+    class UpdateContractStatusCommand <<Record>> {
+      + UpdateContractStatusCommand(Long contractId, ContractStatus newStatus)
+    }
+
+
+}
+
+package domain.model.queries {
+
+
+ class GetAllEmployeesByBusinessIdQuery <<Record>> {
+      + GetAllEmployeesByBusinessIdQuery(Long businessId, EmployeeStatus? status, EmployeeRole? role)
+    }
+    class GetEmployeeByIdQuery <<Record>> {
+      + GetEmployeeByIdQuery(Long employeeId)
+    }
+
+
+    class GetAllContractsByEmployeeIdQuery <<Record>> {
+      + GetAllContractsByEmployeeIdQuery(Long employeeId, LocalDate? startDate, LocalDate? endDate, ContractStatus? status)
+    }
+
+    class GetContractByIdQuery <<Record>> {
+    + GetContractByIdQuery(Long contractId);
+    }
+
+
+}
+
+Employee ..> EmployeeRole
+Employee ..> EmployeeStatus
+ Employee ..> ContractHistory
+
+ Contract ..> TypeOfContract
+ Contract ..> ContractStatus
+ Contract ..> ContractPeriod
+
+EmployeeQueryServices ..>GetContractByIdQuery
+EmployeeQueryServices ..>GetAllContractsByEmployeeIdQuery
+EmployeeQueryServices ..>GetEmployeeByIdQuery
+EmployeeQueryServices ..>GetAllEmployeesByBusinessIdQuery
+
+EmployeeCommandServices ..> CreateEmployeeCommand
+EmployeeCommandServices ..> UpdateEmployeeCommand
+EmployeeCommandServices ..> CreateContractCommand
+EmployeeCommandServices ..> UpdateContractStatusCommand
+
+}
+
+
+
+
+
+@enduml
