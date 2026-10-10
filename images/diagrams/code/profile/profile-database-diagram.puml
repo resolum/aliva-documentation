@@ -1,0 +1,75 @@
+@startuml
+' Base de datos: Profile
+' Aggregates: UserProfile, HouseholdProfile (heredan id, created_at, updated_at de AuditableAbstractAggregateRoot).
+' Value objects embebidos como columnas: DocumentNumber, PhoneNumber, ProfileImage (Photo), Address, GeographicLocation, etc.
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam entity {
+  BorderColor #333333
+  ArrowColor #444444
+}
+
+legend left
+  |= Símbolo |= Significado |
+  | <<PK>> | Llave primaria |
+  | <<UK>> | Único |
+  | <<FK>> | Llave foránea |
+  | <<LFK>> | Referencia lógica (sin FK física) |
+endlegend
+
+entity "user_profiles" as user_profiles #DCEBFA {
+  * id : BIGINT <<PK>>
+  --
+  * iam_user_id : BIGINT <<UK>> <<LFK>>
+  first_name : VARCHAR(100)
+  last_name : VARCHAR(100)
+  document_number : VARCHAR(20)
+  phone_number : VARCHAR(20)
+  profile_image_url : VARCHAR(500)
+  profile_image_public_id : VARCHAR(255)
+  * status : VARCHAR(20)
+  * completed : BOOLEAN
+  ..
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "household_profiles" as household_profiles #D5F0D8 {
+  * id : BIGINT <<PK>>
+  --
+  * alias : VARCHAR(100)
+  * associated_email : VARCHAR(150)
+  * phone_number : VARCHAR(20)
+  normalized_address : VARCHAR(255)
+  district : VARCHAR(100)
+  province : VARCHAR(100)
+  department : VARCHAR(100)
+  country : VARCHAR(100)
+  latitude : DOUBLE
+  longitude : DOUBLE
+  place_id : VARCHAR(255)
+  address_reference : VARCHAR(255)
+  * created_by_user_id : BIGINT <<LFK>>
+  * location_status : VARCHAR(30)
+  * status : VARCHAR(20)
+  ..
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+user_profiles ||..o{ household_profiles : "created_by_user_id =\niam_user_id"
+
+note bottom of user_profiles
+  iam_user_id apunta a la cuenta en el contexto IAM.
+  status: PENDING | ACTIVE | INACTIVE
+end note
+
+note bottom of household_profiles
+  location_status: PENDING_VALIDATION | VALIDATED | REVALIDATION_REQUIRED
+  status: PENDING | ACTIVE | INACTIVE
+end note
+
+@enduml
