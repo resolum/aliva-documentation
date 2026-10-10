@@ -1,3 +1,24 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontSize 12
+skinparam class {
+  BorderColor #333333
+  ArrowColor #444444
+}
+
+' =====================================================
+' SHARED
+' =====================================================
+
+package "Shared" #ECEFF1 {
+  abstract class AuditableAbstractAggregateRoot {
+    - id: Long
+    - createdAt: Date
+    - updatedAt: Date
+  }
+}
+
 package "Profiles" #E3F2FD {
 package "Domain" #E8F5E9 {
 package "Model" #FFFDE7 {
@@ -20,23 +41,11 @@ package "Model" #FFFDE7 {
 
       + UserProfile(iamUserId: Long)
 
-      + completeProfile(
-          firstName: String,
-          lastName: String,
-          documentNumber: DocumentNumber,
-          phoneNumber: PhoneNumber
-        ): void
+      + completeProfile(firstName: String, lastName: String, documentNumber: DocumentNumber, phoneNumber: PhoneNumber): void
 
-      + updatePersonalInformation(
-          firstName: String,
-          lastName: String,
-          documentNumber: DocumentNumber,
-          phoneNumber: PhoneNumber
-        ): void
+      + updatePersonalInformation(firstName: String, lastName: String, documentNumber: DocumentNumber, phoneNumber: PhoneNumber): void
 
-      + updateProfileImage(
-          profileImage: ProfileImage
-        ): void
+      + updateProfileImage(profileImage: ProfileImage): void
 
       + removeProfileImage(): void
       + activate(): void
@@ -55,28 +64,15 @@ package "Model" #FFFDE7 {
       - locationStatus: LocationStatus
       - status: HouseholdStatus
 
-      + HouseholdProfile(
-          alias: HouseholdAlias,
-          associatedEmail: EmailAddress,
-          phoneNumber: PhoneNumber,
-          createdByUserId: Long
-        )
+      + HouseholdProfile(alias: HouseholdAlias, associatedEmail: EmailAddress, phoneNumber: PhoneNumber, createdByUserId: Long)
 
       + updateAlias(alias: HouseholdAlias): void
 
-      + updateContactInformation(
-          associatedEmail: EmailAddress,
-          phoneNumber: PhoneNumber
-        ): void
+      + updateContactInformation(associatedEmail: EmailAddress, phoneNumber: PhoneNumber): void
 
-      + updateAddressReference(
-          addressReference: AddressReference
-        ): void
+      + updateAddressReference(addressReference: AddressReference): void
 
-      + registerLocation(
-          address: Address,
-          geographicLocation: GeographicLocation
-        ): void
+      + registerLocation(address: Address, geographicLocation: GeographicLocation): void
 
       + validateLocation(): void
       + requireLocationRevalidation(): void
@@ -104,6 +100,20 @@ package "Model" #FFFDE7 {
       + value(): String
     }
 
+    class EmailAddress <<value object>> {
+      - value: String
+      + EmailAddress(value: String)
+      + value(): String
+    }
+
+    class Photo <<value object>> {
+      - photoUrl: String
+      - photoPublicId: String
+      + Photo(photoUrl: String, photoPublicId: String)
+      + photoUrl(): String
+      + photoPublicId(): String
+    }
+
     class ProfileImage <<value object>> {
       - photo: Photo
       + ProfileImage(photo: Photo)
@@ -124,13 +134,7 @@ package "Model" #FFFDE7 {
       - department: String
       - country: String
 
-      + Address(
-          normalizedAddress: String,
-          district: String,
-          province: String,
-          department: String,
-          country: String
-        )
+      + Address(normalizedAddress: String, district: String, province: String, department: String, country: String)
 
       + fullAddress(): String
     }
@@ -140,11 +144,7 @@ package "Model" #FFFDE7 {
       - longitude: Double
       - placeId: String
 
-      + GeographicLocation(
-          latitude: Double,
-          longitude: Double,
-          placeId: String
-        )
+      + GeographicLocation(latitude: Double, longitude: Double, placeId: String)
     }
 
     class AddressReference <<value object>> {
@@ -178,11 +178,11 @@ package "Model" #FFFDE7 {
 
   package "Commands" #E1F5FE {
 
-    record InitializeUserProfileCommand {
+    class InitializeUserProfileCommand <<record>> {
       iamUserId: Long
     }
 
-    record CompleteUserProfileCommand {
+    class CompleteUserProfileCommand <<record>> {
       iamUserId: Long
       firstName: String
       lastName: String
@@ -190,7 +190,7 @@ package "Model" #FFFDE7 {
       phoneNumber: String
     }
 
-    record UpdateUserProfileCommand {
+    class UpdateUserProfileCommand <<record>> {
       profileId: Long
       firstName: String
       lastName: String
@@ -198,22 +198,22 @@ package "Model" #FFFDE7 {
       phoneNumber: String
     }
 
-    record UpdateProfileImageCommand {
+    class UpdateProfileImageCommand <<record>> {
       profileId: Long
       photoUrl: String
       photoPublicId: String
     }
 
-    record RemoveProfileImageCommand {
+    class RemoveProfileImageCommand <<record>> {
       profileId: Long
     }
 
-    record ChangeUserProfileStatusCommand {
+    class ChangeUserProfileStatusCommand <<record>> {
       profileId: Long
       status: ProfileStatus
     }
 
-    record CreateHouseholdProfileCommand {
+    class CreateHouseholdProfileCommand <<record>> {
       createdByUserId: Long
       alias: String
       associatedEmail: String
@@ -229,7 +229,7 @@ package "Model" #FFFDE7 {
       addressReference: String
     }
 
-    record UpdateHouseholdContactCommand {
+    class UpdateHouseholdContactCommand <<record>> {
       householdId: Long
       alias: String
       associatedEmail: String
@@ -237,7 +237,7 @@ package "Model" #FFFDE7 {
       addressReference: String
     }
 
-    record ChangeHouseholdLocationCommand {
+    class ChangeHouseholdLocationCommand <<record>> {
       householdId: Long
       normalizedAddress: String
       district: String
@@ -249,15 +249,15 @@ package "Model" #FFFDE7 {
       placeId: String
     }
 
-    record ValidateHouseholdLocationCommand {
+    class ValidateHouseholdLocationCommand <<record>> {
       householdId: Long
     }
 
-    record RequireLocationRevalidationCommand {
+    class RequireLocationRevalidationCommand <<record>> {
       householdId: Long
     }
 
-    record ChangeHouseholdStatusCommand {
+    class ChangeHouseholdStatusCommand <<record>> {
       householdId: Long
       status: HouseholdStatus
     }
@@ -269,19 +269,19 @@ package "Model" #FFFDE7 {
 
   package "Queries" #E0F2F1 {
 
-    record GetUserProfileByIdQuery {
+    class GetUserProfileByIdQuery <<record>> {
       profileId: Long
     }
 
-    record GetUserProfileByIamUserIdQuery {
+    class GetUserProfileByIamUserIdQuery <<record>> {
       iamUserId: Long
     }
 
-    record GetHouseholdProfileByIdQuery {
+    class GetHouseholdProfileByIdQuery <<record>> {
       householdId: Long
     }
 
-    record GetHouseholdsCreatedByUserQuery {
+    class GetHouseholdsCreatedByUserQuery <<record>> {
       iamUserId: Long
     }
   }
@@ -294,79 +294,48 @@ package "Model" #FFFDE7 {
 package "Services" #FCE4EC {
 
   interface UserProfileCommandService {
-    + handle(
-        command: InitializeUserProfileCommand
-      ): UserProfile
+    + handle(command: InitializeUserProfileCommand): UserProfile
 
-    + handle(
-        command: CompleteUserProfileCommand
-      ): UserProfile
+    + handle(command: CompleteUserProfileCommand): UserProfile
 
-    + handle(
-        command: UpdateUserProfileCommand
-      ): UserProfile
+    + handle(command: UpdateUserProfileCommand): UserProfile
 
-    + handle(
-        command: UpdateProfileImageCommand
-      ): UserProfile
+    + handle(command: UpdateProfileImageCommand): UserProfile
 
-    + handle(
-        command: RemoveProfileImageCommand
-      ): UserProfile
+    + handle(command: RemoveProfileImageCommand): UserProfile
 
-    + handle(
-        command: ChangeUserProfileStatusCommand
-      ): void
+    + handle(command: ChangeUserProfileStatusCommand): void
   }
 
   interface UserProfileQueryService {
-    + handle(
-        query: GetUserProfileByIdQuery
-      ): Optional<UserProfile>
+    + handle(query: GetUserProfileByIdQuery): Optional<UserProfile>
 
-    + handle(
-        query: GetUserProfileByIamUserIdQuery
-      ): Optional<UserProfile>
+    + handle(query: GetUserProfileByIamUserIdQuery): Optional<UserProfile>
   }
 
   interface HouseholdProfileCommandService {
-    + handle(
-        command: CreateHouseholdProfileCommand
-      ): HouseholdProfile
+    + handle(command: CreateHouseholdProfileCommand): HouseholdProfile
 
-    + handle(
-        command: UpdateHouseholdContactCommand
-      ): HouseholdProfile
+    + handle(command: UpdateHouseholdContactCommand): HouseholdProfile
 
-    + handle(
-        command: ChangeHouseholdLocationCommand
-      ): HouseholdProfile
+    + handle(command: ChangeHouseholdLocationCommand): HouseholdProfile
 
-    + handle(
-        command: ValidateHouseholdLocationCommand
-      ): void
+    + handle(command: ValidateHouseholdLocationCommand): void
 
-    + handle(
-        command: RequireLocationRevalidationCommand
-      ): void
+    + handle(command: RequireLocationRevalidationCommand): void
 
-    + handle(
-        command: ChangeHouseholdStatusCommand
-      ): void
+    + handle(command: ChangeHouseholdStatusCommand): void
   }
 
   interface HouseholdProfileQueryService {
-    + handle(
-        query: GetHouseholdProfileByIdQuery
-      ): Optional<HouseholdProfile>
+    + handle(query: GetHouseholdProfileByIdQuery): Optional<HouseholdProfile>
 
-    + handle(
-        query: GetHouseholdsCreatedByUserQuery
-      ): List<HouseholdProfile>
+    + handle(query: GetHouseholdsCreatedByUserQuery): List<HouseholdProfile>
   }
 }
 }
 }
+
 ' =====================================================
 ' INHERITANCE
 ' =====================================================
