@@ -373,8 +373,6 @@ La persistencia se configura mediante `AccountJpaConfiguration`, que habilita lo
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Account es exclusivo de IAM; Invitación se excluyó explícitamente hacia Cuidado (observación previa #1, tabla de objetos excluidos 5.1.4). |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PasswordHash, TokenProvider y EmailGateway se declaran como puertos/value objects en Domain; sus implementaciones concretas (BcryptPasswordHasher, JwtTokenProvider, SendgridEmailGateway) están en Infrastructure (5.1.4). |
 
-### 5.1.5. Bounded Context Software Architecture Component Level Diagrams
-
 ### 5.1.6. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.1.6.1. Bounded Context Domain Layer Class Diagrams
@@ -594,8 +592,6 @@ La persistencia se configura mediante `BusinessJpaConfiguration`, que habilita l
 | Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | BusinessAdministratorRegistered lo consume IAM (5.1.3); BusinessAdministratorUpdated lo consume Perfiles (5.3.3); BusinessRegistered y BusinessProfileUpdated quedan disponibles para Analíticas/Comunicaciones sin un consumidor obligatorio adicional en el alcance actual. |
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Business y BusinessAdministrator son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | GeocodingService se declara como puerto en Domain; su implementación concreta (GoogleMapsGeocodingAdapter) está en Infrastructure (5.2.4). |
-
-### 5.2.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.2.6. Bounded Context Software Architecture Code Level Diagrams
 
@@ -948,8 +944,6 @@ La persistencia se configura mediante `ProfileJpaConfiguration`, que habilita lo
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Profile y HomeProfile son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PhotoStorageGateway y GeocodingService se declaran como puertos en Domain; sus implementaciones concretas (CloudinaryPhotoGateway, GoogleMapsGeocodingAdapter) están en Infrastructure (5.3.4). |
 
-### 5.3.5. Bounded Context Software Architecture Component Level Diagrams
-
 ### 5.3.6. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.3.6.1. Bounded Context Domain Layer Class Diagrams
@@ -1292,8 +1286,6 @@ La persistencia se configura mediante `EmployeeJpaConfiguration`, que habilita l
 | Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | EmployeeRegistered y EmployeeTerminated los consume IAM (5.1); EmployeeUpdated lo consume Perfiles (5.3); el resto no tiene consumidor externo declarado en el Canvas (4.2.4) y se publica para auditoría. |
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Employee y Contract son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | Los repositorios se declaran como puertos en Domain; sus implementaciones concretas (EmployeeRepositoryJpa, ContractRepositoryJpa) están en Infrastructure (5.4.4). |
-
-### 5.4.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.4.6. Bounded Context Software Architecture Code Level Diagrams
 
@@ -1737,8 +1729,6 @@ La persistencia se configura mediante `CuidadoJpaConfiguration`, que habilita lo
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | FamilyMember, CareTask, Invitation y Caregiver son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | EmailGateway se declara como puerto en Domain; su implementación concreta (SendgridEmailGateway) está en Infrastructure (5.5.4). |
 
-### 5.5.5. Bounded Context Software Architecture Component Level Diagrams
-
 ### 5.5.6. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.5.6.1. Bounded Context Domain Layer Class Diagrams
@@ -2144,14 +2134,6 @@ La persistencia se configura mediante `PagosSuscripcionesJpaConfiguration`, que 
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Subscription y Payment son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PaymentGateway se declara como puerto en Domain; su implementación concreta (StripePaymentGateway) está en Infrastructure (5.6.4). |
 
-### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
-
-### 5.6.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.6.6.1. Bounded Context Domain Layer Class Diagrams
-
-#### 5.6.6.2. Bounded Context Database Design Diagram
-
 <div style="page-break-after: always;"></div>
 
 ## 5.7. Bounded Context: Soporte Técnico
@@ -2505,14 +2487,6 @@ La persistencia se configura mediante `SoporteTecnicoJpaConfiguration`, que habi
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Evaluation, Installation e Incident son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | GeocodingService se declara como puerto en Domain; su implementación concreta (GoogleMapsGeocodingAdapter) está en Infrastructure (5.7.4). |
 
-### 5.7.5. Bounded Context Software Architecture Component Level Diagrams
-
-### 5.7.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.7.6.1. Bounded Context Domain Layer Class Diagrams
-
-#### 5.7.6.2. Bounded Context Database Design Diagram
-
 <div style="page-break-after: always;"></div>
 
 ## 5.8. Bounded Context: Comunicaciones
@@ -2814,14 +2788,6 @@ La persistencia se configura mediante `ComunicacionesJpaConfiguration`, que habi
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Notification es exclusivo de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PushNotificationGateway se declara como puerto en Domain; su implementación concreta (FirebaseCloudMessagingGateway) está en Infrastructure (5.8.4). |
 
-### 5.8.5. Bounded Context Software Architecture Component Level Diagrams
-
-### 5.8.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.8.6.1. Bounded Context Domain Layer Class Diagrams
-
-#### 5.8.6.2. Bounded Context Database Design Diagram
-
 <div style="page-break-after: always;"></div>
 
 ## 5.9. Bounded Context: Analíticas
@@ -3019,14 +2985,6 @@ La persistencia se configura mediante `AnaliticasPersistenceConfiguration`, que 
 | Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | SaleRegistered y DeviceMetricRegistered no tienen consumidor externo declarado en el Canvas (4.2.4): este bounded context es terminal en el flujo de datos (contexto de análisis). |
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Sale y DeviceMetric son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | Los repositorios se declaran como puertos en Domain; sus implementaciones concretas (SaleRepositoryJpa, DeviceMetricRepositoryMongo) están en Infrastructure (5.9.4). |
-
-### 5.9.5. Bounded Context Software Architecture Component Level Diagrams
-
-### 5.9.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.9.6.1. Bounded Context Domain Layer Class Diagrams
-
-#### 5.9.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
 
@@ -3273,14 +3231,6 @@ La persistencia se configura mediante `TelemetriaPersistenceConfiguration`, que 
 | Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | DeviceFailureDetected, LowBatteryDetected y HelpAlertDetected los consume Comunicaciones (5.8.3, el tercero a agregar como seguimiento); DeviceMetricsRegistered lo consume Analíticas (5.9.3); el resto se publica para auditoría. |
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Monitoring y Synchronization son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | DeviceStatusGateway se declara como puerto en Domain; su implementación concreta (FirebaseCloudMessagingGateway) está en Infrastructure (5.10.4). |
-
-### 5.10.5. Bounded Context Software Architecture Component Level Diagrams
-
-### 5.10.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.10.6.1. Bounded Context Domain Layer Class Diagrams
-
-#### 5.10.6.2. Bounded Context Database Design Diagram
 
 <div style="page-break-after: always;"></div>
 
@@ -3630,8 +3580,6 @@ La persistencia se configura mediante `BienesJpaConfiguration`, que habilita los
 | Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | DeviceDataCaptured, DeviceConnectionLost y DeviceConnectionRestored los consume Telemetría (5.10.3); VoiceCommandNotRecognized, HelpAlertRequested y los seis eventos de ActuatorDevice los consumen los dos Event Handlers internos (5.11.3); el resto se publica para auditoría. |
 | Ningún aggregate de este BC es aggregate root en otro BC | Sí | Device, VoiceDevice y ActuatorDevice son exclusivos de este bounded context. |
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | VoiceRecognitionGateway y ActuatorGateway se declaran como puertos en Domain; sus implementaciones concretas están en Infrastructure (5.11.4). |
-
-### 5.11.5. Bounded Context Software Architecture Component Level Diagrams
 
 ### 5.11.6. Bounded Context Software Architecture Code Level Diagrams
 
