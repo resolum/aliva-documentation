@@ -1,0 +1,63 @@
+@startuml
+' Base de datos: HCM
+' Aggregate: Employee. Entidad: Contract.
+' ContractPeriod se guarda como columnas start_date / end_date.
+' ContractHistory es un value object que agrupa los contratos, no tiene tabla.
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam entity {
+  BorderColor #333333
+  ArrowColor #444444
+}
+
+legend left
+  |= Símbolo |= Significado |
+  | <<PK>> | Llave primaria |
+  | <<FK>> | Llave foránea |
+  | <<LFK>> | Referencia lógica a otro contexto |
+endlegend
+
+entity "employees" as employees #DCEBFA {
+  * id : BIGINT <<PK>>
+  --
+  * person_profile_id : BIGINT <<LFK>>
+  * business_id : BIGINT <<LFK>>
+  * status : VARCHAR(20)
+  * role : VARCHAR(30)
+  ..
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "contracts" as contracts #FDE7EE {
+  * id : BIGINT <<PK>>
+  --
+  * employee_id : BIGINT <<FK>>
+  * start_date : DATE
+  end_date : DATE
+  * status : VARCHAR(20)
+  * type : VARCHAR(20)
+  ..
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+employees ||--o{ contracts : "tiene"
+
+note bottom of employees
+  person_profile_id → user_profiles.id en Profile.
+  business_id → businesses.id en Company (lo usa
+  GetAllEmployeesByBusinessIdQuery; no aparece en el aggregate).
+  status: ACTIVE | VACATION | SUSPENDED | TERMINATED
+  role: TECH | SUBSCRIPTION_MANAGER | CLEANING
+end note
+
+note bottom of contracts
+  status: ACTIVE | TERMINATED | EXPIRED
+  type: FULL_TIME | PART_TIME
+end note
+
+@enduml
