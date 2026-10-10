@@ -379,9 +379,13 @@ La persistencia se configura mediante `AccountJpaConfiguration`, que habilita lo
 
 #### 5.1.6.1. Bounded Context Domain Layer Class Diagrams
 
+El siguiente diagrama de clases presenta la capa de dominio del bounded context **IAM**. Su núcleo es el aggregate root **User**, que hereda de `AuditableAbstractAggregateRoot` (Shared) y se compone de los value objects `EmailAddress` y `PasswordHash`, además de los enums `AccessRole` y `UserStatus`. Se incluyen los value objects que soportan la verificación de correo y la recuperación de contraseña (`EmailVerificationToken`, `PasswordRecoveryCode`, `PasswordRecoveryToken`), los commands del ciclo de vida de la cuenta (registro, inicio de sesión, recuperación y cambio de contraseña, alta de accesos de empleados, asignación de rol y cambio de estado), las queries de consulta de usuarios y las interfaces `UserCommandService` y `UserQueryService` que los orquestan.
+
 ![Diagrama de clases de la capa de dominio - IAM](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/iam/iam-backend-diagram.puml)
 
 #### 5.1.6.2. Bounded Context Database Design Diagram
+
+El siguiente diagrama de base de datos muestra el modelo relacional que persiste el bounded context **IAM**. La tabla central `users` almacena las credenciales, el rol y el estado de cada cuenta, y se relaciona uno a muchos con las tablas de tokens de un solo uso: `email_verification_tokens` para la verificación de correo, `password_recovery_codes` y `password_recovery_tokens` para los dos canales de recuperación de contraseña, y `activation_tokens` para la activación de las cuentas de acceso de los empleados.
 
 ![Diagrama de base de datos - IAM](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/iam/iam-database-diagram.puml)
 
@@ -597,9 +601,13 @@ La persistencia se configura mediante `BusinessJpaConfiguration`, que habilita l
 
 #### 5.2.6.1. Bounded Context Domain Layer Class Diagrams
 
+El siguiente diagrama de clases presenta la capa de dominio del bounded context **Gestión del Negocio**. Contiene los aggregates **Business** y **Administrator**, junto con el value object `BusinessProfileId`, que referencia el perfil del negocio sin acoplarse a su modelo. Se detallan los commands para crear y actualizar tanto el negocio como sus administradores, las queries para obtener un negocio por su identificador o por su administrador, y las interfaces de servicios de comandos y consultas de cada aggregate.
+
 ![Diagrama de clases de la capa de dominio - Gestión del Negocio](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/company/Business.puml)
 
 #### 5.2.6.2. Bounded Context Database Design Diagram
+
+El siguiente diagrama de base de datos muestra el modelo relacional del bounded context **Gestión del Negocio**. La tabla `administrators` se relaciona uno a uno con `businesses`, que registra cada negocio y lo vincula con su administrador mediante la columna `administrator_id`. La tabla `business_profiles` aparece en gris porque pertenece a otro bounded context y aún está pendiente; `businesses` solo la referencia mediante la columna `business_profile_id`.
 
 ![Diagrama de base de datos - Gestión del Negocio](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/company/Business-database.puml)
 
@@ -946,9 +954,13 @@ La persistencia se configura mediante `ProfileJpaConfiguration`, que habilita lo
 
 #### 5.3.6.1. Bounded Context Domain Layer Class Diagrams
 
+El siguiente diagrama de clases presenta la capa de dominio del bounded context **Perfiles**. Está formado por dos aggregate roots que heredan de `AuditableAbstractAggregateRoot`: **UserProfile**, con los datos personales del usuario (`DocumentNumber`, `PhoneNumber`, `ProfileImage`) y su `ProfileStatus`, y **HouseholdProfile**, que modela el hogar con su alias, contacto, dirección (`Address`, `AddressReference`), ubicación geográfica (`GeographicLocation`) y los estados `LocationStatus` y `HouseholdStatus`. Se incluyen los commands para inicializar, completar y actualizar perfiles, gestionar la imagen de perfil y validar o revalidar la ubicación del hogar, las queries de consulta y las cuatro interfaces de servicios de comandos y consultas.
+
 ![Diagrama de clases de la capa de dominio - Perfiles](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/profile/profile-backend-diagram.puml)
 
 #### 5.3.6.2. Bounded Context Database Design Diagram
+
+El siguiente diagrama de base de datos muestra el modelo relacional del bounded context **Perfiles**. La tabla `user_profiles` almacena el perfil de cada usuario y `household_profiles` los datos de contacto, dirección y ubicación de cada hogar. Un usuario puede crear varios hogares; la relación es lógica, mediante la columna `created_by_user_id`, que coincide con el `iam_user_id` del perfil de usuario.
 
 ![Diagrama de base de datos - Perfiles](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/profile/profile-database-diagram.puml)
 
@@ -1287,9 +1299,13 @@ La persistencia se configura mediante `EmployeeJpaConfiguration`, que habilita l
 
 #### 5.4.6.1. Bounded Context Domain Layer Class Diagrams
 
+El siguiente diagrama de clases presenta la capa de dominio del bounded context **Capital Humano**. Su aggregate principal es **Employee**, caracterizado por los enums `EmployeeRole` y `EmployeeStatus` y por un `ContractHistory`. La entidad **Contract** registra cada vínculo laboral con su `TypeOfContract`, su `ContractStatus` y su `ContractPeriod`. Se incluyen los domain events del ciclo de vida del empleado (`EmployeeHiredEvent`, `EmployeeSuspendedEvent`, `EmployeeTerminationEvent`), los commands para crear y actualizar empleados y contratos, las queries por negocio, empleado y contrato, y las interfaces `EmployeeCommandServices` y `EmployeeQueryServices`.
+
 ![Diagrama de clases de la capa de dominio - Capital Humano](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/hcm/hcm-backend-diagram.puml)
 
 #### 5.4.6.2. Bounded Context Database Design Diagram
+
+El siguiente diagrama de base de datos muestra el modelo relacional del bounded context **Capital Humano**. Está formado por la tabla `employees`, que almacena el rol y el estado de cada empleado junto con las referencias a su perfil y a su negocio, y la tabla `contracts`, con la que mantiene una relación uno a muchos para conservar el historial de contratos de cada empleado.
 
 ![Diagrama de base de datos - Capital Humano](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/hcm/hcm-database-diagram.puml)
 
@@ -1727,9 +1743,13 @@ La persistencia se configura mediante `CuidadoJpaConfiguration`, que habilita lo
 
 #### 5.5.6.1. Bounded Context Domain Layer Class Diagrams
 
+El siguiente diagrama de clases presenta la capa de dominio del bounded context **Cuidado**. Incluye los aggregates **Relative**, **AssistedPerson**, **Caregiver** e **Invitation**, que modelan al familiar responsable, a la persona asistida, a sus cuidadores y el proceso de invitación que les da acceso. Se detallan los value objects de identidad (`UserId`, `RelativeId`, `AssistedPersonId`, `PersonProfileId`), los enums `InvitationStatus` y `CaregiverStatus`, los domain events de la invitación y de la revocación de acceso, los commands y queries correspondientes y las interfaces de servicios. También se muestran como contextos externos **IAM** y **Comunicaciones**, con los que este bounded context se integra para crear cuentas y enviar invitaciones.
+
 ![Diagrama de clases de la capa de dominio - Cuidado](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assistance/assistance.puml)
 
 #### 5.5.6.2. Bounded Context Database Design Diagram
+
+El siguiente diagrama de base de datos muestra el modelo relacional del bounded context **Cuidado**. La tabla `relatives` se relaciona uno a muchos con `assisted_persons`, y cada persona asistida se relaciona uno a muchos con `caregivers` e `invitations`. La tabla `invitations` también referencia al familiar que la emite mediante la columna `inviter_id`.
 
 ![Diagrama de base de datos - Cuidado](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assistance/assistance-database.puml)
 
@@ -3617,9 +3637,13 @@ La persistencia se configura mediante `BienesJpaConfiguration`, que habilita los
 
 #### 5.11.6.1. Bounded Context Domain Layer Class Diagrams
 
+El siguiente diagrama de clases presenta la capa de dominio del bounded context **Bienes**. Su aggregate root es **Device**, que hereda de `AbstractAggregateRoot` (Shared) y se describe con los value objects `BusinessId` y `MacAddress` y los enums `DeviceType` y `DeviceStatus`. Se incluyen los commands para registrar, actualizar y cambiar el estado de los dispositivos, las queries por identificador, por negocio y por negocio y estado, las interfaces `DeviceCommandServices` y `DeviceQueryServices`, y las excepciones de dominio `DeviceNotFoundException`, `DeviceAlreadyExistsException` e `InvalidMacAddressException`.
+
 ![Diagrama de clases de la capa de dominio - Bienes](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assets/devices-backend-diagram.puml)
 
 #### 5.11.6.2. Bounded Context Database Design Diagram
+
+El siguiente diagrama de base de datos muestra el modelo relacional del bounded context **Bienes**. La tabla `devices` almacena cada dispositivo con su tipo, estado y dirección MAC. La tabla `businesses` aparece en gris porque pertenece a Gestión del Negocio; `devices` solo la referencia de forma lógica mediante la columna `business_id`, sin clave foránea entre bounded contexts.
 
 ![Diagrama de base de datos - Bienes](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assets/devices-database-diagram.puml)
 
