@@ -32,22 +32,41 @@ package alivia.platform.shared {
       WELCOME
       RESET_PASSWORD
     }
-    class Photo <<record>>{
-    - string photoUrl
-    - string photoPublicId
+
+    class Photo <<record>> {
+      - photoUrl : String
+      - photoPublicId : String
     }
 
+    class PersonProfileId <<record>> {
+      - personProfileId : Long
+    }
+
+    class UserId <<record>> {
+      - userId : Long
+    }
+
+    class BusinessId <<record>> {
+      - businessId : Long
+    }
+
+    class TimeRange <<record>> {
+      - start : LocalTime
+      - end : LocalTime
+      + contains(time : LocalTime) : boolean
+      + contains(other : TimeRange) : boolean
+      + overlaps(other : TimeRange) : boolean
+      + duration() : Duration
+    }
   }
 
   package domain.model.entities {
 
     class AuditableModel {
       - id : Long
-      - createdAt : Date
-      - updatedAt : Date
+      - createdAt : LocalDateTime
+      - updatedAt : LocalDateTime
     }
-
   }
-
 }
 @enduml
