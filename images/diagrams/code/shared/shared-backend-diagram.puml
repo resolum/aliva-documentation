@@ -58,6 +58,10 @@ package alivia.platform.shared {
       + overlaps(other : TimeRange) : boolean
       + duration() : Duration
     }
+
+     class PhoneNumber <<Record>> {
+          + PhoneNumber(String phoneNumber)
+        }
   }
 
   package domain.model.entities {

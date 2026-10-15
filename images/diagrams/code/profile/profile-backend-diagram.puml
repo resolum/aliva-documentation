@@ -3,28 +3,72 @@ skinparam shadowing false
 skinparam packageStyle rectangle
 skinparam classAttributeIconSize 0
 skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+skinparam roundCorner 8
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 50
+skinparam ArrowThickness 1.2
+skinparam ArrowFontSize 11
+skinparam stereotypeFontSize 10
+skinparam padding 2
+
 skinparam class {
   BorderColor #333333
   ArrowColor #444444
+  BackgroundColor #FFFFFF
+  BorderThickness 1.2
+  AttributeFontSize 11
+  StereotypeFontColor #555555
+  BackgroundColor<<Record>> #E3F2FD
+  BorderColor<<Record>> #1565C0
+  BackgroundColor<<Exception>> #FFEBEE
+  BorderColor<<Exception>> #C62828
+  BackgroundColor<<Command>> #FFF3E0
+  BorderColor<<Command>> #EF6C00
+  BackgroundColor<<Query>> #E8F5E9
+  BorderColor<<Query>> #2E7D32
+  BackgroundColor<<Aggregate>> #F3E5F5
+  BorderColor<<Aggregate>> #6A1B9A
 }
 
-package alivia.platform.Profiles {
+skinparam interface {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  BorderThickness 1.2
+}
 
-  package domain.model.aggregates {
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 13
+  BorderThickness 1.2
+}
 
-    abstract Profile {
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
+  BorderThickness 1
+}
+
+package alivia.platform.Profiles #F5F5F5 {
+
+  package domain.model.aggregates #F3E5F5 {
+
+    abstract Profile <<Aggregate>> {
       + EmailAddress emailAddress
       + Photo photo
       + PhoneNumber phoneNumber
     }
 
-    class PersonProfile {
+    class PersonProfile <<Aggregate>> {
       - PersonName personName
       - Dni dni
       - BirthDate birthDate
     }
 
-    class BusinessProfile {
+    class BusinessProfile <<Aggregate>> {
       - Ruc ruc
       - BusinessName businessName
       - String description
@@ -37,7 +81,7 @@ package alivia.platform.Profiles {
     }
   }
 
-  package domain.model.valueobjects {
+  package domain.model.valueobjects #E3F2FD {
 
     class Ruc <<Record>> {
       + Ruc(Long ruc)
@@ -58,108 +102,108 @@ package alivia.platform.Profiles {
     }
 
     class Dni <<Record>> {
-      + Dni(string dni);
+      + Dni(String dni)
     }
 
     class BirthDate <<Record>> {
-      + BirthDate(LocalDate birthDate);
+      + BirthDate(LocalDate birthDate)
     }
 
-    class PhoneNumber <<Record>>{
-
-    + PhoneNumber(String phoneNumber)
-    }
   }
 
-  package domain.model.exceptions {
+  package domain.model.exceptions #FFEBEE {
 
-    class BusinessNameAlreadyExists {
+    class BusinessNameAlreadyExists <<Exception>> {
       + BusinessNameAlreadyExists()
     }
 
-    class PersonNameAlreadyExists {
+    class PersonNameAlreadyExists <<Exception>> {
       + PersonNameAlreadyExists()
     }
 
-    class RucAlreadyExists {
+    class RucAlreadyExists <<Exception>> {
       + RucAlreadyExists()
     }
 
-    class DniAlreadyExists {
+    class DniAlreadyExists <<Exception>> {
       + DniAlreadyExists()
     }
 
-    class PersonProfileNotFound {
+    class PersonProfileNotFound <<Exception>> {
       + PersonProfileNotFound()
     }
 
-    class BusinessProfileNotFound {
+    class BusinessProfileNotFound <<Exception>> {
       + BusinessProfileNotFound()
     }
 
-    class InvalidBusinessHours {
+    class InvalidBusinessHours <<Exception>> {
       + InvalidBusinessHours()
     }
-    class PhoneNumberAlreadyExists {
+
+    class PhoneNumberAlreadyExists <<Exception>> {
       + PhoneNumberAlreadyExists()
     }
-
   }
 
-  package domain.model.commands {
+  package domain.model.commands #FFF3E0 {
 
-    class CreatePersonProfileCommand <<Record>> {
+    class CreatePersonProfileCommand <<Record>> <<Command>> {
+      + CreatePersonProfileCommand(...)
     }
 
-    class CreateBusinessProfileCommand <<Record>> {
+    class CreateBusinessProfileCommand <<Record>> <<Command>> {
+      + CreateBusinessProfileCommand(...)
     }
 
-    class UpdateBusinessProfileCommand <<Record>> {
+    class UpdateBusinessProfileCommand <<Record>> <<Command>> {
+      + UpdateBusinessProfileCommand(...)
     }
 
-    class UpdatePersonProfileCommand <<Record>> {
-    }
-  }
-
-  package domain.model.queries {
-
-    class GetPersonProfileByIdQuery <<Record>> {
-      + GetPersonProfileByIdQuery(Long id);
-    }
-
-    class GetBusinessProfileByIdQuery <<Record>> {
-      + GetBusinessProfileByIdQuery(Long id);
-    }
-
-    class GetAllPersonProfilesQuery <<Record>> {
-      + GetAllPersonProfilesQuery ();
-    }
-
-    class GetAllBusinessProfileQuery <<Record>> {
-      + GetAllBusinessProfileQuery();
+    class UpdatePersonProfileCommand <<Record>> <<Command>> {
+      + UpdatePersonProfileCommand(...)
     }
   }
 
-  package domain.services {
+  package domain.model.queries #E8F5E9 {
+
+    class GetPersonProfileByIdQuery <<Record>> <<Query>> {
+      + GetPersonProfileByIdQuery(Long id)
+    }
+
+    class GetBusinessProfileByIdQuery <<Record>> <<Query>> {
+      + GetBusinessProfileByIdQuery(Long id)
+    }
+
+    class GetAllPersonProfilesQuery <<Record>> <<Query>> {
+      + GetAllPersonProfilesQuery()
+    }
+
+    class GetAllBusinessProfileQuery <<Record>> <<Query>> {
+      + GetAllBusinessProfileQuery()
+    }
+  }
+
+  package domain.services #FFFDE7 {
 
     interface PersonProfileCommandService {
-      Long handle(CreatePersonProfileCommand command);
-      Long handle (UpdatePersonProfileCommand command);
+      Long handle(CreatePersonProfileCommand command)
+      Long handle(UpdatePersonProfileCommand command)
     }
 
     interface PersonProfileQueryService {
-      Optional <PersonProfile> handle(GetPesonProfileByIdQuery query);
-      Optional<PersonProfile> handle(GetAllPersonProfilesQuery query);
+      Optional<PersonProfile> handle(GetPersonProfileByIdQuery query)
+      Optional<PersonProfile> handle(GetAllPersonProfilesQuery query)
     }
 
     interface BusinessProfileQueryService {
-      Optional<BusinessProfile> handle(GetBusinessProfileByIdQuery query);
-      Optional<BusinessProfile> handle(GetAllBusinessProfileQuery query);
+      Optional<BusinessProfile> handle(GetBusinessProfileByIdQuery query)
+      Optional<BusinessProfile> handle(GetAllBusinessProfileQuery query)
     }
 
     interface BusinessProfileCommandService {
-      Long handle (CreateBusinessProfileCommand command);
-      Long handle (UpdateBusinessProfileCommand command);
+      Long handle(CreateBusinessProfileCommand command)
+      Long handle(UpdateBusinessProfileCommand command)
     }
   }
 
@@ -172,8 +216,6 @@ package alivia.platform.Profiles {
   BusinessProfile ..> domain.model.valueobjects.Ruc
   BusinessProfile ..> BusinessHours
   BusinessHours ..> OpeningPeriod
-  Profile ..> domain.model.valueobjects.PhoneNumber
-
 
   GetAllBusinessProfileQuery --> BusinessProfileQueryService
   GetBusinessProfileByIdQuery --> BusinessProfileQueryService
@@ -187,5 +229,79 @@ package alivia.platform.Profiles {
   CreatePersonProfileCommand --> PersonProfileCommandService
   UpdatePersonProfileCommand --> PersonProfileCommandService
 }
+
+' ===== Notas con las variables de los comandos (fuera del package) =====
+
+note as N_CreatePerson
+  <b>CreatePersonProfileCommand</b>
+  --
+  String emailAddress
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  String dni
+  LocalDate birthDate
+  String formattedAddress
+  Double latitude
+  Double longitude
+  String placeId
+end note
+
+note as N_UpdatePerson
+  <b>UpdatePersonProfileCommand</b>
+  --
+  Long id
+  String emailAddress
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+end note
+
+note as N_CreateBusiness
+  <b>CreateBusinessProfileCommand</b>
+  --
+  String emailAddress
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  Long ruc
+  String businessName
+  String description
+  String mainActivity
+  String whatsappNum
+  String businessHours  // texto/JSON de periodos
+  String slogan
+  String supportEmail
+  String formattedAddress
+  Double latitude
+  Double longitude
+  String placeId
+end note
+
+note as N_UpdateBusiness
+  <b>UpdateBusinessProfileCommand</b>
+  --
+  Long id
+  String emailAddress
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String businessName
+  String description
+  String mainActivity
+  String whatsappNum
+  String businessHours  // texto/JSON de periodos
+  String slogan
+  String supportEmail
+end note
+
+CreatePersonProfileCommand .. N_CreatePerson
+UpdatePersonProfileCommand .. N_UpdatePerson
+CreateBusinessProfileCommand .. N_CreateBusiness
+UpdateBusinessProfileCommand .. N_UpdateBusiness
 
 @enduml
