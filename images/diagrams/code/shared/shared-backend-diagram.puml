@@ -1,20 +1,85 @@
+
 @startuml
+
+' ==============================
+' CONFIGURACIÓN GENERAL
+' ==============================
+left to right direction
+skinparam shadowing false
+skinparam roundcorner 12
 skinparam classAttributeIconSize 0
 skinparam packageStyle rectangle
-left to right direction
+skinparam linetype ortho
+skinparam nodesep 45
+skinparam ranksep 45
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 13
+skinparam defaultFontColor #243247
+skinparam ArrowColor #64748B
+skinparam ArrowThickness 1.4
+
+' ==============================
+' COLORES DE PAQUETES
+' ==============================
+skinparam package {
+  BackgroundColor #F1F5F9
+  BorderColor #94A3B8
+  FontColor #334155
+  FontStyle bold
+  FontSize 14
+}
+
+' ==============================
+' ESTILO DE CLASES
+' ==============================
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #64748B
+  FontColor #243247
+  AttributeFontColor #475569
+  AttributeFontSize 12
+  StereotypeFontColor #64748B
+  BorderThickness 1.2
+}
+
+' Agregados: azul
+skinparam classBackgroundColor<<AggregateRoot>> #DBEAFE
+skinparam classBorderColor<<AggregateRoot>> #2563EB
+
+' Objetos de valor: verde azulado
+skinparam classBackgroundColor<<ValueObject>> #CCFBF1
+skinparam classBorderColor<<ValueObject>> #0F766E
+
+' Enumeraciones: violeta
+skinparam classBackgroundColor<<Enumeration>> #EDE9FE
+skinparam classBorderColor<<Enumeration>> #7C3AED
+
+' Entidades: ámbar
+skinparam classBackgroundColor<<Entity>> #FEF3C7
+skinparam classBorderColor<<Entity>> #D97706
+
+' ==============================
+' NOTAS
+' ==============================
+skinparam note {
+  BackgroundColor #FFFBEB
+  BorderColor #D97706
+  FontColor #78350F
+  FontSize 12
+}
 
 package alivia.platform.shared {
 
   package domain.model.aggregate {
 
-    class AuditableAbstractAggregateRoot {
+    class AuditableAbstractAggregateRoot <<AggregateRoot>> {
       - id : Long
       - createdAt : LocalDateTime
       - updatedAt : LocalDateTime
       + addDomainEvent(event : Object) : void
     }
 
-    class AuditableMongoAggregateRoot {
+    class AuditableMongoAggregateRoot <<AggregateRoot>> {
       - id : String
       - createdAt : LocalDateTime
       - updatedAt : LocalDateTime
@@ -24,53 +89,77 @@ package alivia.platform.shared {
 
   package domain.model.valueobject {
 
-    class EmailAddress <<record>> {
-      - emailAddress : String
+    class EmailAddress <<ValueObject, record>> {
+      + EmailAddress(String emailAddress)
     }
 
-    enum EmailTemplate {
+    enum EmailTemplate <<Enumeration>> {
       WELCOME
       RESET_PASSWORD
     }
 
-    class Photo <<record>> {
-      - photoUrl : String
-      - photoPublicId : String
+    class Photo <<ValueObject, record>> {
+      + Photo(String photoUrl, String photoPublicId)
     }
 
-    class PersonProfileId <<record>> {
-      - personProfileId : Long
+    class PersonProfileId <<ValueObject, record>> {
+      + PersonProfileId(Long personProfileId)
     }
 
-    class UserId <<record>> {
-      - userId : Long
+    class UserId <<ValueObject, record>> {
+      + UserId(Long userId)
     }
 
-    class BusinessId <<record>> {
-      - businessId : Long
+    class BusinessId <<ValueObject, record>> {
+      + BusinessId(Long businessId)
     }
 
-    class TimeRange <<record>> {
-      - start : LocalTime
-      - end : LocalTime
+    class TimeRange <<ValueObject, record>> {
+      + TimeRange(LocalTime start, LocalTime end)
       + contains(time : LocalTime) : boolean
       + contains(other : TimeRange) : boolean
       + overlaps(other : TimeRange) : boolean
       + duration() : Duration
     }
 
-     class PhoneNumber <<Record>> {
-          + PhoneNumber(String phoneNumber)
-        }
+    class PhoneNumber <<ValueObject, Record>> {
+      + PhoneNumber(String phoneNumber)
+    }
+
+    class Address <<ValueObject, record>> {
+      + Address(String formattedAddress, Double latitude, Double longitude, String placeId)
+    }
   }
 
   package domain.model.entities {
 
-    class AuditableModel {
+    class AuditableModel <<Entity>> {
       - id : Long
       - createdAt : LocalDateTime
       - updatedAt : LocalDateTime
     }
   }
 }
+
+note as N_TimeRange
+  <b><color:#B45309>◷ TimeRange</color></b>
+  Representa un intervalo de horas dentro de un día,
+  desde <i>start</i> hasta <i>end</i>.
+  Lo usa BusinessHours (vía OpeningPeriod) para
+  definir los horarios de atención.
+  --
+  <b>contains(time)</b>
+  Indica si una hora está dentro del rango.
+  <b>contains(other)</b>
+  Indica si otro rango está completamente dentro
+  de este.
+  <b>overlaps(other)</b>
+  Indica si ambos rangos comparten algún tramo
+  de tiempo.
+  <b>duration()</b>
+  Devuelve el tiempo total entre start y end.
+end note
+
+TimeRange .. N_TimeRange
+
 @enduml
