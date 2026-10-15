@@ -613,6 +613,14 @@ La persistencia se configura mediante `BusinessJpaConfiguration`, que habilita l
 
 ### 5.2.5. Bounded Context Software Architecture Component Level Diagrams
 
+**Backend / API**
+
+![Diagrama de componentes de Gestión del Negocio en backend](https://i.imgur.com/tOx2GzA.png)
+
+**Aplicación Web - Administrativa**
+
+![Diagrama de componentes de IAM en web administrativa](https://i.imgur.com/oCJxnrx.png)
+
 ### 5.2.6. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.2.6.1. Bounded Context Domain Layer Class Diagrams
