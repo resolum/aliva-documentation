@@ -3,6 +3,7 @@
 ' Solo capa domain: aggregates, value objects, commands, queries y services.
 ' Los parámetros de cada command se detallan en notas para que se lean mejor.
 ' El aggregate Business solo guarda BusinessProfileId (conecta con el contexto de Profile).
+' Los nombres de las variables coinciden con los del contexto Profile.
 
 left to right direction
 skinparam linetype ortho
@@ -10,19 +11,36 @@ skinparam nodesep 40
 skinparam ranksep 70
 skinparam shadowing false
 skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
 skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+skinparam roundCorner 8
+skinparam ArrowThickness 1.2
+skinparam ArrowFontSize 11
+skinparam stereotypeFontSize 10
+skinparam padding 2
 skinparam class {
   BackgroundColor White
   ArrowColor #444444
   BorderColor #333333
+  BorderThickness 1.2
+  AttributeFontSize 11
+  StereotypeFontColor #555555
+}
+skinparam interface {
+  BorderThickness 1.2
 }
 skinparam note {
   BackgroundColor #FFFDE7
-  BorderColor #B8A800
+  BorderColor #F9A825
+  FontSize 11
+  BorderThickness 1
 }
 skinparam package {
-  BorderColor #888888
+  BorderColor #555555
   FontStyle bold
+  FontSize 13
+  BorderThickness 1.2
 }
 
 legend left
@@ -34,7 +52,7 @@ legend left
   |<#FFF3B0>   | Service (interface) |
 endlegend
 
-package alivia.platform.Company {
+package alivia.platform.Company #F5F5F5 {
 
   package "domain.model.aggregates" #F4F9FE {
 
@@ -46,6 +64,7 @@ package alivia.platform.Company {
     class Administrator #DCEBFA {
       + PersonProfileId personProfileId
       + UserId userId
+      + EmailAddress backupPersonalEmail
     }
   }
 
@@ -139,131 +158,111 @@ Business *-[#7E57C2]- BusinessProfileId : "referencia al perfil"
 
 Business "1" -[#1F6FB2]-> "1" Administrator : "gestionado por"
 
-' ---------- PARÁMETROS DE LOS CONSTRUCTORES ----------
-note right of CreateBusinessCommand
-  **Parámetros**
+' ---------- PARÁMETROS DE LOS CONSTRUCTORES (notas fuera del package) ----------
+note as N_CreateBusiness
+  **CreateBusinessCommand**
   --Identidad del negocio--
-  byte[] logoData
-  String logoFileName
-  String tradeName
+  byte[] photoData
+  String photoFileName
+  String businessName
   String legalName
-  String ruc
-  String economicActivity
-  String institutionalDescription
+  Long ruc
+  String mainActivity
+  String description
   --Información de contacto--
-  String institutionalEmail
-  String mainPhone
-  String mobilePhone
-  String website
-  --Ubicación corporativa--
-  String mainAddress
-  String district
-  String province
-  String department
-  String locationReference
+  String emailAddress
+  String phoneNumber
+  --Ubicación corporativa (Google Maps)--
+  String formattedAddress
   Double latitude
   Double longitude
-  String postalCode
+  String placeId
   --Información para clientes--
   String businessHours
   String supportEmail
   String emergencyPhone
-  String officialWhatsapp
-  String officialSlogan
+  String whatsappNum
+  String slogan
   --Relaciones--
   Long administratorId
 end note
 
-note right of UpdateBusinessCommand
-  **Parámetros**
+note as N_UpdateBusiness
+  **UpdateBusinessCommand**
   Long businessId
   --Identidad del negocio--
-  byte[] logoData
-  String logoFileName
-  String tradeName
+  byte[] photoData
+  String photoFileName
+  String businessName
   String legalName
-  String ruc
-  String economicActivity
-  String institutionalDescription
+  String mainActivity
+  String description
   --Información de contacto--
-  String institutionalEmail
-  String mainPhone
-  String mobilePhone
-  String website
-  --Ubicación corporativa--
-  String mainAddress
-  String district
-  String province
-  String department
-  String locationReference
-  Double latitude
-  Double longitude
-  String postalCode
+  String emailAddress
+  String phoneNumber
   --Información para clientes--
   String businessHours
   String supportEmail
   String emergencyPhone
-  String officialWhatsapp
-  String officialSlogan
+  String whatsappNum
+  String slogan
   ..
-  Solo el Administrador General puede
-  modificar legalName y ruc (Ley N° 29733).
-  Los estados "Vigente y Validado" y
-  "Activo Habido" los determina el sistema
-  (SUNAT/SUNARP), no el command.
+  No incluye ruc ni la ubicación corporativa
+  (son inmutables). Solo el Administrador
+  General puede modificar legalName
+  (Ley N° 29733). Los estados "Vigente y
+  Validado" y "Activo Habido" los determina
+  el sistema (SUNAT/SUNARP), no el command.
 end note
 
-note right of CreateAdministratorCommand
-  **Parámetros**
+note as N_CreateAdministrator
+  **CreateAdministratorCommand**
   --Credenciales--
-  String institutionalEmail
+  String emailAddress
   String password
   --Información personal--
   byte[] photoData
   String photoFileName
   String firstName
   String lastName
-  String documentType
-  String documentNumber
-  String mobilePhone
+  String dni
+  String phoneNumber
   --Información de contacto--
-  String backupPersonalEmail
-  --Preferencias del sistema--
-  String notificationChannels
-  String timeZone
-  String dateFormat
+  String backupPersonalEmail  // opcional
   --Relaciones--
   Long personProfileId
   Long userId
 end note
 
-note right of UpdateAdministratorCommand
-  **Parámetros**
+note as N_UpdateAdministrator
+  **UpdateAdministratorCommand**
   Long administratorId
   --Información personal--
   byte[] photoData
   String photoFileName
   String firstName
   String lastName
-  String documentType
-  String documentNumber
-  String mobilePhone
+  String phoneNumber
   --Información de contacto--
-  String backupPersonalEmail
-  --Preferencias del sistema--
-  String notificationChannels
-  String timeZone
-  String dateFormat
-  ..
-  No incluye institutionalEmail (solo lectura)
-  ni password (flujo aparte). Rol, sede, 2FA,
-  ID de colaborador y estado de cuenta los
-  gestionan Administración Central y RRHH.
+  String backupPersonalEmail  // opcional
+end note
+
+CreateBusinessCommand .. N_CreateBusiness
+UpdateBusinessCommand .. N_UpdateBusiness
+CreateAdministratorCommand .. N_CreateAdministrator
+UpdateAdministratorCommand .. N_UpdateAdministrator
+
+note bottom of Administrator
+  PersonProfileId y UserId son value objects
+  del contexto Shared (alivia.platform.shared).
+  backupPersonalEmail se guarda aquí; los demás
+  datos personales van a PersonProfile (Profile)
+  y password al contexto de iam.
 end note
 
 note bottom of Business
-  Los datos del perfil se guardan en el contexto Profile,
-  referenciado solo por BusinessProfileId.
+  Los datos del negocio se guardan en BusinessProfile
+  (contexto Profiles), referenciado solo por BusinessProfileId.
 end note
 
 @enduml

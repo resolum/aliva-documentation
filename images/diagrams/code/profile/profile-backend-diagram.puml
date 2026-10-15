@@ -71,9 +71,11 @@ package alivia.platform.Profiles #F5F5F5 {
     class BusinessProfile <<Aggregate>> {
       - Ruc ruc
       - BusinessName businessName
+      - String legalName
       - String description
       - String mainActivity
       - PhoneNumber whatsappNum
+      - PhoneNumber emergencyPhone
       - BusinessHours businessHours
       - String slogan
       - EmailAddress supportEmail
@@ -243,10 +245,6 @@ note as N_CreatePerson
   String lastName
   String dni
   LocalDate birthDate
-  String formattedAddress
-  Double latitude
-  Double longitude
-  String placeId
 end note
 
 note as N_UpdatePerson
@@ -270,9 +268,11 @@ note as N_CreateBusiness
   String phoneNumber
   Long ruc
   String businessName
+  String legalName
   String description
   String mainActivity
   String whatsappNum
+  String emergencyPhone
   String businessHours  // texto/JSON de periodos
   String slogan
   String supportEmail
@@ -291,9 +291,11 @@ note as N_UpdateBusiness
   String photoFileName
   String phoneNumber
   String businessName
+  String legalName
   String description
   String mainActivity
   String whatsappNum
+  String emergencyPhone
   String businessHours  // texto/JSON de periodos
   String slogan
   String supportEmail
@@ -303,5 +305,38 @@ CreatePersonProfileCommand .. N_CreatePerson
 UpdatePersonProfileCommand .. N_UpdatePerson
 CreateBusinessProfileCommand .. N_CreateBusiness
 UpdateBusinessProfileCommand .. N_UpdateBusiness
+
+note bottom of Profile
+  Address (solo BusinessProfile), PhoneNumber, EmailAddress
+  y Photo son value objects del contexto Shared.
+end note
+
+note as N_BusinessHours
+  <b>BusinessHours</b>
+  Horario de atención de un negocio. Agrupa una
+  lista de OpeningPeriod, uno por cada bloque
+  de días con el mismo horario.
+  En los comandos llega como String
+  (texto/JSON) y se convierte a este value object.
+  --
+  <b>isOpenAt(day, time)</b>
+  Indica si el negocio está abierto en ese día
+  y a esa hora, revisando todos sus periodos.
+end note
+
+note as N_OpeningPeriod
+  <b>OpeningPeriod</b>
+  Un bloque de atención: un conjunto de días
+  (<i>days</i>) que comparten el mismo rango de horas
+  (<i>range</i>, un TimeRange de Shared).
+  --
+  Ejemplo:
+  Lun–Vie 09:00–18:00
+  Sáb 09:00–13:00
+  (son dos OpeningPeriod dentro de BusinessHours)
+end note
+
+BusinessHours .. N_BusinessHours
+OpeningPeriod .. N_OpeningPeriod
 
 @enduml
