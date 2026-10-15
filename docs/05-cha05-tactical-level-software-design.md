@@ -1,4 +1,4 @@
-<img width="936" height="910" alt="image" src="https://github.com/user-attachments/assets/b144f2f4-d820-4128-86e1-be9acca6cef8" /># Capítulo 5: Tactical-Level Software Design
+# Capítulo 5: Tactical-Level Software Design
 
 ## 5.1. Bounded Context: IAM
 
@@ -1334,6 +1334,14 @@ La persistencia se configura mediante `EmployeeJpaConfiguration`, que habilita l
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | Los repositorios se declaran como puertos en Domain; sus implementaciones concretas (EmployeeRepositoryJpa, ContractRepositoryJpa) están en Infrastructure (5.4.4). |
 
 ### 5.4.5. Bounded Context Software Architecture Component Level Diagrams
+
+**Backend / API**
+
+![Diagrama de componentes de Capital Humano en backend](https://i.imgur.com/bSv3bA8.png)
+
+**Aplicación Web - Administrativa**
+
+![Diagrama de componentes de Capital Humano en web administrativa](https://i.imgur.com/y6bl1x8.png)
 
 ### 5.4.6. Bounded Context Software Architecture Code Level Diagrams
 
