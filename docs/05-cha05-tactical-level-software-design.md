@@ -375,6 +375,22 @@ La persistencia se configura mediante `AccountJpaConfiguration`, que habilita lo
 
 ### 5.1.5. Bounded Context Software Architecture Component Level Diagrams
 
+**Backend / API**
+
+![Diagrama de componentes de IAM en backend](https://i.imgur.com/hxbPFCk.png)
+
+**Aplicación Web - Usuarios**
+
+![Diagrama de componentes de IAM en web de usuarios](https://i.imgur.com/w6dX8AZ.png)
+
+**Aplicación Web - Administrativa**
+
+![Diagrama de componentes de IAM en web administrativa](https://i.imgur.com/xbnUvxI.png)
+
+**Aplicación Móvil**
+
+![Diagrama de componentes de IAM en backend](https://i.imgur.com/YgNGgJZ.png)
+
 ### 5.1.6. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.1.6.1. Bounded Context Domain Layer Class Diagrams
