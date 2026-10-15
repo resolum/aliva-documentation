@@ -1,4 +1,4 @@
-# Capítulo 5: Tactical-Level Software Design
+<img width="936" height="910" alt="image" src="https://github.com/user-attachments/assets/b144f2f4-d820-4128-86e1-be9acca6cef8" /># Capítulo 5: Tactical-Level Software Design
 
 ## 5.1. Bounded Context: IAM
 
@@ -973,6 +973,22 @@ La persistencia se configura mediante `ProfileJpaConfiguration`, que habilita lo
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PhotoStorageGateway y GeocodingService se declaran como puertos en Domain; sus implementaciones concretas (CloudinaryPhotoGateway, GoogleMapsGeocodingAdapter) están en Infrastructure (5.3.4). |
 
 ### 5.3.5. Bounded Context Software Architecture Component Level Diagrams
+
+**Backend / API**
+
+![Diagrama de componentes de Perfiles en backend](https://i.imgur.com/cztnZed.png)
+
+**Aplicación Web - Usuarios**
+
+![Diagrama de componentes de Perfiles en web de usuarios](https://i.imgur.com/Ex47XSp.png)
+
+**Aplicación Web - Administrativa**
+
+![Diagrama de componentes de Perfiles en web administrativa](https://i.imgur.com/IVSXxEm.png)
+
+**Aplicación Móvil**
+
+![Diagrama de componentes de Perfiles en backend](https://i.imgur.com/WQKxtlW.png)
 
 ### 5.3.6. Bounded Context Software Architecture Code Level Diagrams
 
