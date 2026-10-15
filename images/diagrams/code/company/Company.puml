@@ -5,10 +5,9 @@
 ' El aggregate Business solo guarda BusinessProfileId (conecta con el contexto de Profile).
 ' Los nombres de las variables coinciden con los del contexto Profile.
 
-left to right direction
 skinparam linetype ortho
 skinparam nodesep 40
-skinparam ranksep 70
+skinparam ranksep 50
 skinparam shadowing false
 skinparam packageStyle rectangle
 skinparam classAttributeIconSize 0
@@ -43,14 +42,6 @@ skinparam package {
   BorderThickness 1.2
 }
 
-legend left
-  |= Color |= Significado |
-  |<#DCEBFA>   | Aggregate |
-  |<#EADCF8>   | Value Object |
-  |<#FFE4C4>   | Command (escritura) |
-  |<#D5F0D8>   | Query (lectura) |
-  |<#FFF3B0>   | Service (interface) |
-endlegend
 
 package alivia.platform.Company #F5F5F5 {
 
@@ -128,6 +119,29 @@ package alivia.platform.Company #F5F5F5 {
 
     interface AdministratorQueryServices #FFF3B0 {
       Optional<Administrator> handle(GetAdministratorById query)
+    }
+  }
+
+  package "domain.model.exceptions" #FFEBEE {
+
+    class BusinessNotFound <<Exception>> #FFCDD2 {
+      + BusinessNotFound()
+    }
+
+    class AdministratorNotFound <<Exception>> #FFCDD2 {
+      + AdministratorNotFound()
+    }
+
+    class AdministratorAlreadyExists <<Exception>> #FFCDD2 {
+      + AdministratorAlreadyExists()
+    }
+
+    class BusinessAlreadyExistsForAdministrator <<Exception>> #FFCDD2 {
+      + BusinessAlreadyExistsForAdministrator()
+    }
+
+    class BackupPersonalEmailAlreadyExists <<Exception>> #FFCDD2 {
+      + BackupPersonalEmailAlreadyExists()
     }
   }
 }
