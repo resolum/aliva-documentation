@@ -10,7 +10,7 @@ skinparam class {
 
 package alivia.platform.Profiles {
 
-  package Profiles.domain.aggregates {
+  package domain.model.aggregates {
 
     abstract Profile {
       + EmailAddress emailAddress
@@ -37,7 +37,7 @@ package alivia.platform.Profiles {
     }
   }
 
-  package Profiles.domain.valueobjects {
+  package domain.model.valueobjects {
 
     class Ruc <<Record>> {
       + Ruc(Long ruc)
@@ -56,13 +56,136 @@ package alivia.platform.Profiles {
       + Set<DayOfWeek> days
       + TimeRange range
     }
+
+    class Dni <<Record>> {
+      + Dni(string dni);
+    }
+
+    class BirthDate <<Record>> {
+      + BirthDate(LocalDate birthDate);
+    }
+
+    class PhoneNumber <<Record>>{
+
+    + PhoneNumber(String phoneNumber)
+    }
+  }
+
+  package domain.model.exceptions {
+
+    class BusinessNameAlreadyExists {
+      + BusinessNameAlreadyExists()
+    }
+
+    class PersonNameAlreadyExists {
+      + PersonNameAlreadyExists()
+    }
+
+    class RucAlreadyExists {
+      + RucAlreadyExists()
+    }
+
+    class DniAlreadyExists {
+      + DniAlreadyExists()
+    }
+
+    class PersonProfileNotFound {
+      + PersonProfileNotFound()
+    }
+
+    class BusinessProfileNotFound {
+      + BusinessProfileNotFound()
+    }
+
+    class InvalidBusinessHours {
+      + InvalidBusinessHours()
+    }
+    class PhoneNumberAlreadyExists {
+      + PhoneNumberAlreadyExists()
+    }
+
+  }
+
+  package domain.model.commands {
+
+    class CreatePersonProfileCommand <<Record>> {
+    }
+
+    class CreateBusinessProfileCommand <<Record>> {
+    }
+
+    class UpdateBusinessProfileCommand <<Record>> {
+    }
+
+    class UpdatePersonProfileCommand <<Record>> {
+    }
+  }
+
+  package domain.model.queries {
+
+    class GetPersonProfileByIdQuery <<Record>> {
+      + GetPersonProfileByIdQuery(Long id);
+    }
+
+    class GetBusinessProfileByIdQuery <<Record>> {
+      + GetBusinessProfileByIdQuery(Long id);
+    }
+
+    class GetAllPersonProfilesQuery <<Record>> {
+      + GetAllPersonProfilesQuery ();
+    }
+
+    class GetAllBusinessProfileQuery <<Record>> {
+      + GetAllBusinessProfileQuery();
+    }
+  }
+
+  package domain.services {
+
+    interface PersonProfileCommandService {
+      Long handle(CreatePersonProfileCommand command);
+      Long handle (UpdatePersonProfileCommand command);
+    }
+
+    interface PersonProfileQueryService {
+      Optional <PersonProfile> handle(GetPesonProfileByIdQuery query);
+      Optional<PersonProfile> handle(GetAllPersonProfilesQuery query);
+    }
+
+    interface BusinessProfileQueryService {
+      Optional<BusinessProfile> handle(GetBusinessProfileByIdQuery query);
+      Optional<BusinessProfile> handle(GetAllBusinessProfileQuery query);
+    }
+
+    interface BusinessProfileCommandService {
+      Long handle (CreateBusinessProfileCommand command);
+      Long handle (UpdateBusinessProfileCommand command);
+    }
   }
 
   Profile <|-- PersonProfile
   Profile <|-- BusinessProfile
 
+  PersonProfile ..> domain.model.valueobjects.Dni
+  PersonProfile ..> domain.model.valueobjects.BirthDate
+  BusinessProfile ..> domain.model.valueobjects.BusinessName
+  BusinessProfile ..> domain.model.valueobjects.Ruc
+  BusinessProfile ..> BusinessHours
+  BusinessHours ..> OpeningPeriod
+  Profile ..> domain.model.valueobjects.PhoneNumber
 
+
+  GetAllBusinessProfileQuery --> BusinessProfileQueryService
+  GetBusinessProfileByIdQuery --> BusinessProfileQueryService
+
+  GetAllPersonProfilesQuery --> PersonProfileQueryService
+  GetPersonProfileByIdQuery --> PersonProfileQueryService
+
+  CreateBusinessProfileCommand --> BusinessProfileCommandService
+  UpdateBusinessProfileCommand --> BusinessProfileCommandService
+
+  CreatePersonProfileCommand --> PersonProfileCommandService
+  UpdatePersonProfileCommand --> PersonProfileCommandService
 }
-
 
 @enduml
