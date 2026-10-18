@@ -129,6 +129,13 @@ package alivia.platform.shared {
     class Address <<ValueObject, record>> {
       + Address(String formattedAddress, Double latitude, Double longitude, String placeId)
     }
+
+    class WeeklyPeriod <<record>> {
+      - Set<DayOfWeek> days
+      - TimeRange range
+      + occursOn(LocalDate date) : boolean
+      + overlapsWith(WeeklyPeriod other) : boolean
+    }
   }
 
   package domain.model.entities {
