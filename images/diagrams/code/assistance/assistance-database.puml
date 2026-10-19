@@ -1,19 +1,6 @@
 @startuml
-' Base de datos del Bounded Context: Assistance (PostgreSQL)
-' Derivado del diagrama de domain de Assistance.
-'
-' Convenciones (iguales en todos los contextos):
-'  - Tablas en plural y snake_case; columnas en snake_case.
-'  - Todas las tablas tienen id, created_at y updated_at (AuditableAbstractAggregateRoot / AuditableModel).
-'  - Los value objects se guardan como columnas de la tabla de su aggregate.
-'  - Las referencias a otros contextos son columnas BIGINT sin FK: cada contexto es dueño de sus tablas.
-'  - id: BIGINT GENERATED ALWAYS AS IDENTITY. Fechas: TIMESTAMP en la zona horaria global (America/Lima).
-'  - PostgreSQL guarda los datos de la plataforma; MongoDB solo el tracking (no aparece en estos diagramas).
-'  - Los enums se guardan como texto (VARCHAR) con su nombre.
-'  - AgendaItem no tiene tabla: se calcula al consultar.
-'  - ActivityLog se queda en PostgreSQL (ver nota de activity_logs).
-
 hide circle
+skinparam packageStyle rectangle
 left to right direction
 skinparam linetype ortho
 skinparam shadowing false
@@ -29,106 +16,115 @@ skinparam class {
   HeaderBackgroundColor #DDF3F5
   ArrowColor #444444
 }
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
 skinparam note {
   BackgroundColor #FFFDE7
   BorderColor #F9A825
   FontSize 11
 }
 
-entity "relatives" as relatives {
-  * id : BIGINT <<PK>> <<identity>>
-  --
-  * user_id : BIGINT <<UK>> <<ref IAM>>
-  * person_profile_id : BIGINT <<UK>> <<ref Profiles>>
-  * business_id : BIGINT <<IDX>> <<ref Company>>
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
-}
+package "Bounded Context: Assistance" as ctx_assistance #F6FBFC {
 
-entity "assisted_persons" as assisted_persons {
-  * id : BIGINT <<PK>> <<identity>>
-  --
-  * person_profile_id : BIGINT <<UK>> <<ref Profiles>>
-  * relative_id : BIGINT <<FK>>
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
-}
+  entity "relatives" as relatives {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * user_id : BIGINT <<UK>> <<ref IAM>>
+    * person_profile_id : BIGINT <<UK>> <<ref Profiles>>
+    * business_id : BIGINT <<IDX>> <<ref Company>>
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
 
-entity "invitations" as invitations {
-  * id : BIGINT <<PK>> <<identity>>
-  --
-  * assisted_person_id : BIGINT <<FK>>
-  * inviter_relative_id : BIGINT <<FK>>
-  * invitee_email : VARCHAR(254)
-  caregiver_user_id : BIGINT <<null>> <<ref IAM>>
-  * status : VARCHAR(10)
-  * expires_at : TIMESTAMP
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
-  ..
-  <<UK parcial>> (assisted_person_id, invitee_email)
-  WHERE status = 'PENDING'
-}
+  entity "assisted_persons" as assisted_persons {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * person_profile_id : BIGINT <<UK>> <<ref Profiles>>
+    * relative_id : BIGINT <<FK>>
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
 
-entity "caregivers" as caregivers {
-  * id : BIGINT <<PK>> <<identity>>
-  --
-  * user_id : BIGINT <<ref IAM>>
-  * assisted_person_id : BIGINT <<FK>>
-  * status : VARCHAR(10)
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
-  ..
-  <<UK parcial>> (user_id, assisted_person_id)
-  WHERE status = 'ACTIVE'
-}
+  entity "invitations" as invitations {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * assisted_person_id : BIGINT <<FK>>
+    * inviter_relative_id : BIGINT <<FK>>
+    * invitee_email : VARCHAR(254)
+    caregiver_user_id : BIGINT <<null>> <<ref IAM>>
+    * status : VARCHAR(10)
+    * expires_at : TIMESTAMP
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    <<UK parcial>> (assisted_person_id, invitee_email)
+    WHERE status = 'PENDING'
+  }
 
-entity "care_activities" as care_activities {
-  * id : BIGINT <<PK>> <<identity>>
-  --
-  * assisted_person_id : BIGINT <<FK>>
-  * type : VARCHAR(20)
-  * title : VARCHAR(150)
-  description : TEXT <<null>>
-  * status : VARCHAR(10)
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
-}
+  entity "caregivers" as caregivers {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * user_id : BIGINT <<ref IAM>>
+    * assisted_person_id : BIGINT <<FK>>
+    * status : VARCHAR(10)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    <<UK parcial>> (user_id, assisted_person_id)
+    WHERE status = 'ACTIVE'
+  }
 
-entity "activity_assignments" as activity_assignments {
-  * id : BIGINT <<PK>> <<identity>>
-  --
-  * care_activity_id : BIGINT <<FK>>
-  caregiver_id : BIGINT <<FK>> <<null>>
-  * status : VARCHAR(10)
-  * schedule_type : VARCHAR(10)
-  schedule_date : DATE <<null>>
-  schedule_week_days : VARCHAR(70) <<null>>
-  * schedule_start_time : TIME
-  * schedule_end_time : TIME
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
-}
+  entity "care_activities" as care_activities {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * assisted_person_id : BIGINT <<FK>>
+    * type : VARCHAR(20)
+    * title : VARCHAR(150)
+    description : TEXT <<null>>
+    * status : VARCHAR(10)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
 
-entity "activity_logs" as activity_logs {
-  * id : BIGINT <<PK>> <<identity>>
-  --
-  * assisted_person_id : BIGINT <<FK>>
-  * care_activity_id : BIGINT <<FK>>
-  * assignment_id : BIGINT <<FK>>
-  * occurrence_date : DATE
-  * title : VARCHAR(150)
-  * start_time : TIME
-  * end_time : TIME
-  assigned_caregiver_id : BIGINT <<FK>> <<null>>
-  * status : VARCHAR(10)
-  completed_by_caregiver_id : BIGINT <<FK>> <<null>>
-  completed_at : TIMESTAMP <<null>>
-  notes : TEXT <<null>>
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
-  ..
-  <<UK>> (assignment_id, occurrence_date)
+  entity "activity_assignments" as activity_assignments {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * care_activity_id : BIGINT <<FK>>
+    caregiver_id : BIGINT <<FK>> <<null>>
+    * status : VARCHAR(10)
+    * schedule_type : VARCHAR(10)
+    schedule_date : DATE <<null>>
+    schedule_week_days : VARCHAR(70) <<null>>
+    * schedule_start_time : TIME
+    * schedule_end_time : TIME
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+
+  entity "activity_logs" as activity_logs {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * assisted_person_id : BIGINT <<FK>>
+    * care_activity_id : BIGINT <<FK>>
+    * assignment_id : BIGINT <<FK>>
+    * occurrence_date : DATE
+    * title : VARCHAR(150)
+    * start_time : TIME
+    * end_time : TIME
+    assigned_caregiver_id : BIGINT <<FK>> <<null>>
+    * status : VARCHAR(10)
+    completed_by_caregiver_id : BIGINT <<FK>> <<null>>
+    completed_at : TIMESTAMP <<null>>
+    notes : TEXT <<null>>
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    <<UK>> (assignment_id, occurrence_date)
+  }
 }
 
 relatives ||--o{ assisted_persons : "gestiona"
@@ -145,8 +141,12 @@ caregivers |o--o{ activity_logs : "asignado / completó"
 
 note top of relatives
   <b>relatives</b> (aggregate Relative)
-  El familiar responsable, registrado por un Business.
-  user_id y person_profile_id: únicos y propios.
+  El familiar responsable: se registra solo en un
+  Business y paga la suscripción.
+  user_id: su cuenta personal de IAM. person_profile_id:
+  su PersonProfile de cliente. Ambos únicos (el dni es
+  único entre los clientes). Si también es empleado,
+  tiene aparte un StaffProfile y una cuenta corporativa.
   business_id: el Business de Company (BusinessId).
   Sin FK; con índice para GetRelativesByBusinessIdQuery.
 end note

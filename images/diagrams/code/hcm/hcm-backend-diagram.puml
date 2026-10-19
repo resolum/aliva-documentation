@@ -1,171 +1,783 @@
 @startuml
-' Bounded Context: hcm
-' Compact view: aggregates, services, repositories, controllers.
-' Individual commands/queries/resources/assemblers are omitted for readability.
+' Bounded Context: HCM (Human Capital Management). Solo capa domain.
+' Personal de cada Business: datos laborales, rol, estado, horario de trabajo, contratos y vacaciones.
+' Hoy el único Business es Alivia (Company); BusinessId permite abrir más negocios en el futuro.
+'
+' Cambios de la revisión de Domain:
+'  H1  El personal pertenece a un Business: Employee guarda BusinessId y toda operación valida que
+'      el empleado sea de ese negocio (EmployeeNotInBusiness).
+'  H2  Tipos unificados: StaffStatus / StaffRole pasan a EmployeeStatus / EmployeeRole;
+'      se elimina Staff. Contract usa el id de AuditableModel (se elimina ContractId).
+'  H3  Employee tenía List<Contract> y ContractHistory a la vez: queda solo ContractHistory,
+'      componente embebido que agrupa los Contract.
+'  H4  Se agrega WorkSchedule (horario de trabajo), fuera del contrato, con WeeklyPeriod de Shared.
+'      Los turnos no cruzan medianoche y caben en el horario de atención del Business (OperatingHours,
+'      traducido por el ACL desde el BusinessHours de su BusinessProfile).
+'  H5  Atributos privados y comportamiento explícito: el estado cambia solo por métodos que
+'      validan transiciones (suspend, reinstate, terminate).
+'  H6  UpdateEmployeeCommand y UpdateContractStatusCommand cambiaban el estado sin reglas: se
+'      reemplazan por commands de negocio, uno por acción.
+'  H7  Contratar crea el empleado con su primer contrato y su cuenta en IAM (UserId).
+'  H8  ContractStatus: ACTIVE o TERMINATED. EXPIRED se calcula con la fecha de fin, que es
+'      obligatoria (no hay contratos de plazo indeterminado).
+'  H9  Las operaciones sobre un Contract o una Vacation pasan por su Employee.
+'  H10 Services en singular, queries con sufijo Query, filtros opcionales sin "?" y excepciones
+'      de dominio.
+'  H11 Eventos: EmployeeHiredEvent lee el id al publicarse; EmployeeTerminationEvent pasa a
+'      EmployeeTerminatedEvent; se agrega EmployeeReinstatedEvent. Los eventos llevan el userId
+'      para que IAM habilite o bloquee el acceso.
+'  H12 Las vacaciones son periodos con fecha de inicio y fin (Vacation); VACATION deja de ser un
+'      estado guardado y se calcula con isOnVacation(today).
+'  H13 El empleado es personal de Alivia: su perfil es un StaffProfile nuevo (dni único entre el personal:
+'      nadie es empleado dos veces y un administrador no puede ser empleado) y su cuenta es corporativa,
+'      con contraseña temporal. Si también es familiar, conserva aparte su perfil y su cuenta de cliente.
+'  H14 UpdateEmployeeCommand actualiza los datos personales del empleado (en su StaffProfile);
+'      rol, horario, estado, contratos y vacaciones tienen su propio command.
+'  H15 Un empleado sin contrato vigente sigue ACTIVE hasta que el administrador lo renueve o lo cese;
+'      no hay proceso automático.
+'  H16 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
+'      domain.model, domain.services y domain.exceptions.
 
-left to right direction
 skinparam linetype ortho
-skinparam nodesep 30
-skinparam ranksep 50
+skinparam nodesep 40
+skinparam ranksep 60
 skinparam shadowing false
 skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 12
 skinparam class {
   BackgroundColor White
   ArrowColor #444444
   BorderColor #333333
+  BackgroundColor<<Exception>> #FFEBEE
+  BorderColor<<Exception>> #C62828
 }
-package alivia.platform.hcm{
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #B8A800
+}
+skinparam package {
+  BorderColor #888888
+  FontStyle bold
+}
 
+legend left
+  |= Color |= Significado |
+  |<#DCEBFA>   | Aggregate |
+  |<#FDE7EE>   | Entity (dentro de un aggregate) |
+  |<#EADCF8>   | Value Object / Enum / componente embebido |
+  |<#FFE4C4>   | Command (escritura) |
+  |<#D5F0D8>   | Query (lectura) |
+  |<#FFF3B0>   | Service (interface) |
+  |<#CDEFF2>   | Event |
+  |<#FFEBEE>   | Exception (dominio) |
+endlegend
 
-package "domain.model.aggregates" {
-  class Employee {
-    +PersonProfileId profileId
-    +StaffStatus status
-    +StaffRole role
-    +List<Contract> contracts
-    +ContractHistory contractHistory
+package alivia.platform.Hcm {
+
+  package "domain.model.aggregates" #F4F9FE {
+
+    class Employee #DCEBFA {
+      - BusinessId businessId
+      - UserId userId
+      - StaffProfileId staffProfileId
+      - EmployeeRole role
+      - EmployeeStatus status
+      - WorkSchedule workSchedule
+      - ContractHistory contractHistory
+      - VacationHistory vacationHistory
+      --
+      + Employee(BusinessId businessId, UserId userId, StaffProfileId staffProfileId, EmployeeRole role,
+      \t WorkSchedule workSchedule, OperatingHours operatingHours,
+      \t ContractPeriod firstContractPeriod, TypeOfContract firstContractType, LocalDate today)
+      + belongsTo(BusinessId businessId) : boolean
+      + changeRole(EmployeeRole role)
+      + updateWorkSchedule(WorkSchedule workSchedule, OperatingHours operatingHours)
+      + addContract(ContractPeriod period, TypeOfContract type, LocalDate today)
+      + terminateContract(Long contractId)
+      + scheduleVacation(VacationPeriod period, LocalDate today)
+      + cancelVacation(Long vacationId, LocalDate today)
+      + suspend()
+      + reinstate()
+      + terminate(LocalDate today)
+      + currentContract(LocalDate today) : Optional<Contract>
+      + isOnVacation(LocalDate today) : boolean
+      + isTerminated() : boolean
+    }
+
+    note bottom of Employee
+      <b>Invariantes de sus métodos</b>
+      Constructor: estado ACTIVE; crea el primer Contract;
+      el horario cumple OperatingHours; registra
+      EmployeeHiredEvent.
+      Ningún método modifica un empleado TERMINATED
+      (EmployeeTerminated).
+      Transiciones de estado (InvalidEmployeeStatusTransition):
+      suspend: ACTIVE a SUSPENDED; registra EmployeeSuspendedEvent.
+      reinstate: SUSPENDED a ACTIVE; registra
+      EmployeeReinstatedEvent.
+      terminate: ACTIVE o SUSPENDED a TERMINATED (estado
+      final); termina el contrato vigente, cancela las
+      vacaciones futuras y registra EmployeeTerminatedEvent.
+      updateWorkSchedule: cada turno cabe en OperatingHours
+      (WorkScheduleOutsideOperatingHours).
+      addContract: no empieza antes de today
+      (InvalidContractPeriod) y no se cruza con otro contrato
+      ACTIVE (ContractOverlap).
+      terminateContract: el contrato existe (ContractNotFound)
+      y está ACTIVE (ContractNotActive).
+      scheduleVacation: no empieza antes de today
+      (InvalidVacationPeriod), cae dentro de un contrato ACTIVE
+      (VacationOutsideContract) y no se cruza con otra
+      vacación SCHEDULED (VacationOverlap).
+      cancelVacation: existe (VacationNotFound), está
+      SCHEDULED y aún no empezó (VacationNotCancelable).
+      isOnVacation(today): today dentro de una vacación
+      SCHEDULED. VACATION se calcula; no es un estado guardado.
+      <b>Sin contrato vigente</b> (vencido por fecha o
+      terminado con terminateContract): el empleado sigue
+      ACTIVE hasta que el administrador lo renueve
+      (addContract) o lo cese (terminate). No hay proceso
+      automático. currentContract(today) devuelve vacío y
+      no se pueden programar vacaciones
+      (VacationOutsideContract).
+    end note
   }
-}
 
-package "domain.model.entities" {
-  class Contract {
-    +ContractId id
-    +ContractPeriod period
-    +ContractStatus status
-    +TypeOfContract type
+  package "domain.model.entities" #FDE7EE {
+
+    class Contract #FDE7EE {
+      - Employee employee
+      - ContractPeriod period
+      - TypeOfContract type
+      - ContractStatus status
+      --
+      + Contract(Employee employee, ContractPeriod period, TypeOfContract type)
+      + terminate()
+      + isActive() : boolean
+      + isExpired(LocalDate today) : boolean
+      + isCurrentOn(LocalDate date) : boolean
+      + overlapsWith(ContractPeriod period) : boolean
+    }
+
+    note bottom of Contract
+      Vive dentro de Employee: solo se modifica por su root.
+      employee = referencia de vuelta a su root.
+      Estado inicial ACTIVE. terminate: ACTIVE a TERMINATED
+      (termina antes de su fecha de fin).
+      isExpired(today): ACTIVE con endDate anterior a today;
+      se calcula, no se guarda.
+      isCurrentOn(date): ACTIVE y date dentro de su periodo.
+      Terminar o dejar vencer un contrato no cambia el
+      estado del empleado.
+    end note
+
+    class Vacation #FDE7EE {
+      - Employee employee
+      - VacationPeriod period
+      - VacationStatus status
+      --
+      + Vacation(Employee employee, VacationPeriod period)
+      + cancel(LocalDate today)
+      + isOn(LocalDate date) : boolean
+      + overlapsWith(VacationPeriod period) : boolean
+    }
+
+    note bottom of Vacation
+      Vive dentro de Employee: solo se modifica por su root.
+      Estado inicial SCHEDULED. cancel: SCHEDULED a
+      CANCELLED, solo si aún no empezó (VacationNotCancelable).
+      Una vacación que ya terminó sigue SCHEDULED: es el
+      historial de lo que tomó.
+    end note
   }
-}
 
-package "domain.model.events" {
-  class EmployeeHiredEvent
-  class EmployeeSuspendedEvent
-  class EmployeeTerminationEvent
-}
+  package "domain.model.events" #DDF3F5 {
 
-package "domain.services" {
-  interface EmployeeCommandServices{
+    class EmployeeHiredEvent #CDEFF2 {
+      - Employee employee
+      --
+      + EmployeeHiredEvent(Employee employee)
+      + getEmployeeId() : Long
+      + getBusinessId() : Long
+      + getUserId() : Long
+      + getRole() : EmployeeRole
+    }
 
-  Long handle (CreateEmployeeCommand command);
-  Long handle (UpdateEmployeeCommand command);
-  Long handle (CreateContractCommand command);
-  Long handle (UpdateContractStatusCommand command);
+    class EmployeeSuspendedEvent <<Record>> #CDEFF2 {
+      + EmployeeSuspendedEvent(Long employeeId, Long businessId, Long userId)
+    }
+
+    class EmployeeReinstatedEvent <<Record>> #CDEFF2 {
+      + EmployeeReinstatedEvent(Long employeeId, Long businessId, Long userId)
+    }
+
+    class EmployeeTerminatedEvent <<Record>> #CDEFF2 {
+      + EmployeeTerminatedEvent(Long employeeId, Long businessId, Long userId)
+    }
+
+    note bottom of EmployeeHiredEvent
+      Se registra en el constructor de Employee, cuando aún
+      no hay id: getEmployeeId() lo lee del aggregate al
+      publicarse, después del save.
+      Los demás se registran sobre empleados ya guardados.
+      Consumidores (ver Contextos externos): IAM habilita o
+      bloquea la cuenta corporativa; Communication avisa al
+      empleado.
+    end note
+  }
+
+  package "domain.model.valueobjects" #F9F4FD {
+
+    class ContractHistory <<Embedded>> #EADCF8 {
+      - List<Contract> contracts
+      --
+      + ContractHistory()
+      + addContract(Employee employee, ContractPeriod period, TypeOfContract type) : Contract
+      + getContractWithId(Long contractId) : Contract
+      + currentContract(LocalDate today) : Optional<Contract>
+      + hasActiveContractOverlapping(ContractPeriod period) : boolean
+      + hasActiveContractCovering(VacationPeriod period) : boolean
+      + terminateActiveContracts()
+    }
+
+    note bottom of ContractHistory
+      <b>ContractHistory</b>
+      Componente embebido en Employee que agrupa todos sus
+      contratos, vigentes y pasados. No es un value object en
+      sentido estricto: es mutable y contiene entidades con
+      identidad. Se ubica en valueobjects porque se embebe en
+      el aggregate.
+      Constructor: lista vacía y mutable (new ArrayList).
+      getContractWithId lanza ContractNotFound si no existe
+      (nunca devuelve null).
+    end note
+
+    class VacationHistory <<Embedded>> #EADCF8 {
+      - List<Vacation> vacations
+      --
+      + VacationHistory()
+      + addVacation(Employee employee, VacationPeriod period) : Vacation
+      + getVacationWithId(Long vacationId) : Vacation
+      + hasScheduledVacationOverlapping(VacationPeriod period) : boolean
+      + isOnVacation(LocalDate today) : boolean
+      + cancelFutureVacations(LocalDate today)
+    }
+
+    note bottom of VacationHistory
+      <b>VacationHistory</b>
+      Componente embebido en Employee que agrupa sus
+      vacaciones, como ContractHistory con los contratos.
+      Lista vacía y mutable; getVacationWithId lanza
+      VacationNotFound si no existe.
+    end note
+
+    class ContractPeriod <<Record>> #EADCF8 {
+      + LocalDate startDate
+      + LocalDate endDate
+      + ContractPeriod(LocalDate startDate, LocalDate endDate)
+      + contains(LocalDate date) : boolean
+      + overlapsWith(ContractPeriod other) : boolean
+    }
+
+    class VacationPeriod <<Record>> #EADCF8 {
+      + LocalDate startDate
+      + LocalDate endDate
+      + VacationPeriod(LocalDate startDate, LocalDate endDate)
+      + contains(LocalDate date) : boolean
+      + overlapsWith(VacationPeriod other) : boolean
+      + days() : int
+    }
+
+    note bottom of ContractPeriod
+      ContractPeriod y VacationPeriod: startDate y endDate
+      obligatorios; endDate no anterior a startDate
+      (InvalidContractPeriod, InvalidVacationPeriod).
+      Los contratos siempre tienen fecha de fin.
+    end note
+
+    class WorkSchedule <<Record>> #EADCF8 {
+      + List<WeeklyPeriod> shifts
+      + WorkSchedule(List<WeeklyPeriod> shifts)
+      + isWorkingAt(DayOfWeek day, LocalTime time) : boolean
+      + fitsWithin(OperatingHours operatingHours) : boolean
+    }
+
+    class OperatingHours <<Record>> #EADCF8 {
+      + List<WeeklyPeriod> periods
+      + OperatingHours(List<WeeklyPeriod> periods)
+      + covers(WeeklyPeriod shift) : boolean
+    }
+
+    note bottom of WorkSchedule
+      <b>WorkSchedule</b>
+      Horario de trabajo semanal del empleado, fuera del
+      contrato: un WeeklyPeriod (Shared) por cada bloque de
+      días con el mismo turno.
+      Ejemplo: Lun-Vie 08:00-16:00 y Sáb 08:00-12:00.
+      Al menos un turno; ninguno cruza medianoche ni se cruza
+      con otro (InvalidWorkSchedule).
+      fitsWithin: cada turno está dentro del horario de
+      atención de su negocio (OperatingHours).
+      --
+      <b>OperatingHours</b>
+      Horario de atención del Business del empleado (hoy,
+      Alivia; por ejemplo, hasta las 22:00). Es la traducción
+      que hace el ACL del BusinessHours de su BusinessProfile
+      (Profiles), que ya no cruza medianoche.
+    end note
+
+    enum EmployeeStatus #EADCF8 {
+      ACTIVE
+      SUSPENDED
+      TERMINATED
+    }
+
+    enum EmployeeRole #EADCF8 {
+      TECH
+      SUBSCRIPTION_MANAGER
+      CLEANING
+    }
+
+    enum ContractStatus #EADCF8 {
+      ACTIVE
+      TERMINATED
+    }
+
+    enum TypeOfContract #EADCF8 {
+      FULL_TIME
+      PART_TIME
+    }
+
+    enum VacationStatus #EADCF8 {
+      SCHEDULED
+      CANCELLED
+    }
+  }
+
+  package "domain.exceptions" #FFEBEE {
+
+    class EmployeeNotFound <<Exception>> {
+      + EmployeeNotFound()
+    }
+
+    class EmployeeNotInBusiness <<Exception>> {
+      + EmployeeNotInBusiness()
+    }
+
+    class BusinessNotFound <<Exception>> {
+      + BusinessNotFound()
+    }
+
+    class EmployeeTerminated <<Exception>> {
+      + EmployeeTerminated()
+    }
+
+    class InvalidEmployeeStatusTransition <<Exception>> {
+      + InvalidEmployeeStatusTransition()
+    }
+
+
+    class ContractNotFound <<Exception>> {
+      + ContractNotFound()
+    }
+
+    class ContractNotActive <<Exception>> {
+      + ContractNotActive()
+    }
+
+    class ContractOverlap <<Exception>> {
+      + ContractOverlap()
+    }
+
+    class InvalidContractPeriod <<Exception>> {
+      + InvalidContractPeriod()
+    }
+
+    class InvalidWorkSchedule <<Exception>> {
+      + InvalidWorkSchedule()
+    }
+
+    class WorkScheduleOutsideOperatingHours <<Exception>> {
+      + WorkScheduleOutsideOperatingHours()
+    }
+
+    class VacationNotFound <<Exception>> {
+      + VacationNotFound()
+    }
+
+    class InvalidVacationPeriod <<Exception>> {
+      + InvalidVacationPeriod()
+    }
+
+    class VacationOverlap <<Exception>> {
+      + VacationOverlap()
+    }
+
+    class VacationOutsideContract <<Exception>> {
+      + VacationOutsideContract()
+    }
+
+    class VacationNotCancelable <<Exception>> {
+      + VacationNotCancelable()
+    }
+
+    class DniAlreadyExists <<Exception>> {
+      + DniAlreadyExists()
+    }
+
+
+
+
+    class EmailAddressAlreadyExists <<Exception>> {
+      + EmailAddressAlreadyExists()
+    }
+
 
   }
 
-  interface EmployeeQueryServices{
+  package "domain.model.commands" #FFF8EE {
 
-      + List<Employee> handle(GetAllEmployeesByBusinessIdQuery query)
-      + Optional<Employee> handle(GetEmployeeByIdQuery query)
-      + List<Contract> handle(GetAllContractsByEmployeeIdQuery query)
-      + Optional<Contract> handle(GetContractByIdQuery query)
+    class CreateEmployeeCommand <<Record>> #FFE4C4 {
+      + CreateEmployeeCommand(...)
+    }
 
+    class UpdateEmployeeCommand <<Record>> #FFE4C4 {
+      + UpdateEmployeeCommand(...)
+    }
+
+    class ChangeEmployeeRoleCommand <<Record>> #FFE4C4 {
+      + ChangeEmployeeRoleCommand(Long employeeId, Long businessId, EmployeeRole role)
+    }
+
+    class UpdateEmployeeWorkScheduleCommand <<Record>> #FFE4C4 {
+      + UpdateEmployeeWorkScheduleCommand(Long employeeId, Long businessId, WorkSchedule workSchedule)
+    }
+
+    class SuspendEmployeeCommand <<Record>> #FFE4C4 {
+      + SuspendEmployeeCommand(Long employeeId, Long businessId)
+    }
+
+    class ReinstateEmployeeCommand <<Record>> #FFE4C4 {
+      + ReinstateEmployeeCommand(Long employeeId, Long businessId)
+    }
+
+    class TerminateEmployeeCommand <<Record>> #FFE4C4 {
+      + TerminateEmployeeCommand(Long employeeId, Long businessId)
+    }
+
+    class CreateContractCommand <<Record>> #FFE4C4 {
+      + CreateContractCommand(Long employeeId, Long businessId, LocalDate startDate, LocalDate endDate, TypeOfContract type)
+    }
+
+    class TerminateContractCommand <<Record>> #FFE4C4 {
+      + TerminateContractCommand(Long employeeId, Long contractId, Long businessId)
+    }
+
+    class ScheduleVacationCommand <<Record>> #FFE4C4 {
+      + ScheduleVacationCommand(Long employeeId, Long businessId, LocalDate startDate, LocalDate endDate)
+    }
+
+    class CancelVacationCommand <<Record>> #FFE4C4 {
+      + CancelVacationCommand(Long employeeId, Long vacationId, Long businessId)
+    }
   }
-}
-package domain.model.valueobjects {
-enum EmployeeStatus {
- ACTIVE
- VACATION
- SUSPENDED
- TERMINATED
-}
 
-enum EmployeeRole {
-TECH
-SUBSCRIPTION_MANAGER
-cleaning
+  package "domain.model.queries" #F3FBF4 {
 
-}
-enum ContractStatus{
-ACTIVE
-TERMINATED
-EXPIRED
-
-}
-enum TypeOfContract {
-FULL_TIME
-PART_TIME
-
-}
-
-class ContractPeriod <<Record>>{
-
-+ ContractPeriod(LocalDate startDate, LocalDate endDate);
-
-}
-class ContractHistory  {
-
-    - List<Contract> contracts;
-+void addContract(Staff staff, LocalDate startDate, LocalDate endDate,  String typeOfContract, String staffRole, String workShift)
-
-}
-
-}
-
-package domain.model.commands {
-
-class CreateEmployeeCommand <<Record>> {
-      + CreateEmployeeCommand(Long personProfileId, EmployeeStatus status, EmployeeRole role)
+    class GetAllEmployeesByBusinessIdQuery <<Record>> #D5F0D8 {
+      + GetAllEmployeesByBusinessIdQuery(Long businessId, EmployeeStatus status, EmployeeRole role)
     }
 
-    class UpdateEmployeeCommand <<Record>> {
-      + UpdateEmployeeCommand(Long employeeId, EmployeeStatus status, EmployeeRole role)
-    }
-
-    class CreateContractCommand <<Record>> {
-      + CreateContractCommand(Long employeeId, LocalDate startDate, LocalDate endDate, ContractStatus status, TypeOfContract type)
-    }
-
-    class UpdateContractStatusCommand <<Record>> {
-      + UpdateContractStatusCommand(Long contractId, ContractStatus newStatus)
-    }
-
-
-}
-
-package domain.model.queries {
-
-
- class GetAllEmployeesByBusinessIdQuery <<Record>> {
-      + GetAllEmployeesByBusinessIdQuery(Long businessId, EmployeeStatus? status, EmployeeRole? role)
-    }
-    class GetEmployeeByIdQuery <<Record>> {
+    class GetEmployeeByIdQuery <<Record>> #D5F0D8 {
       + GetEmployeeByIdQuery(Long employeeId)
     }
 
-
-    class GetAllContractsByEmployeeIdQuery <<Record>> {
-      + GetAllContractsByEmployeeIdQuery(Long employeeId, LocalDate? startDate, LocalDate? endDate, ContractStatus? status)
+    class GetEmployeeByUserIdQuery <<Record>> #D5F0D8 {
+      + GetEmployeeByUserIdQuery(Long userId)
     }
 
-    class GetContractByIdQuery <<Record>> {
-    + GetContractByIdQuery(Long contractId);
+    class GetAllContractsByEmployeeIdQuery <<Record>> #D5F0D8 {
+      + GetAllContractsByEmployeeIdQuery(Long employeeId, LocalDate from, LocalDate to, ContractStatus status)
     }
 
+    class GetContractByIdQuery <<Record>> #D5F0D8 {
+      + GetContractByIdQuery(Long employeeId, Long contractId)
+    }
 
+    class GetAllVacationsByEmployeeIdQuery <<Record>> #D5F0D8 {
+      + GetAllVacationsByEmployeeIdQuery(Long employeeId, LocalDate from, LocalDate to)
+    }
+  }
+
+  package "domain.services" #FFFCEA {
+
+    interface EmployeeCommandService #FFF3B0 {
+      Long handle(CreateEmployeeCommand command)
+      Long handle(UpdateEmployeeCommand command)
+      Long handle(ChangeEmployeeRoleCommand command)
+      Long handle(UpdateEmployeeWorkScheduleCommand command)
+      Long handle(SuspendEmployeeCommand command)
+      Long handle(ReinstateEmployeeCommand command)
+      Long handle(TerminateEmployeeCommand command)
+      Long handle(CreateContractCommand command)
+      Long handle(TerminateContractCommand command)
+      Long handle(ScheduleVacationCommand command)
+      Long handle(CancelVacationCommand command)
+    }
+
+    interface EmployeeQueryService #FFF3B0 {
+      List<Employee> handle(GetAllEmployeesByBusinessIdQuery query)
+      Optional<Employee> handle(GetEmployeeByIdQuery query)
+      Optional<Employee> handle(GetEmployeeByUserIdQuery query)
+      List<Contract> handle(GetAllContractsByEmployeeIdQuery query)
+      Optional<Contract> handle(GetContractByIdQuery query)
+      List<Vacation> handle(GetAllVacationsByEmployeeIdQuery query)
+    }
+  }
 }
 
+' ---------- DISPOSICIÓN (enlaces ocultos para apilar en columnas) ----------
+CreateEmployeeCommand -[hidden]down- ChangeEmployeeRoleCommand
+UpdateEmployeeCommand -[hidden]down- UpdateEmployeeWorkScheduleCommand
+ChangeEmployeeRoleCommand -[hidden]down- SuspendEmployeeCommand
+UpdateEmployeeWorkScheduleCommand -[hidden]down- ReinstateEmployeeCommand
+SuspendEmployeeCommand -[hidden]down- TerminateEmployeeCommand
+ReinstateEmployeeCommand -[hidden]down- CreateContractCommand
+TerminateEmployeeCommand -[hidden]down- TerminateContractCommand
+CreateContractCommand -[hidden]down- ScheduleVacationCommand
+TerminateContractCommand -[hidden]down- CancelVacationCommand
+EmployeeNotFound -[hidden]down- ContractNotFound
+EmployeeNotInBusiness -[hidden]down- BusinessNotFound
+EmployeeTerminated -[hidden]down- ContractNotActive
+InvalidEmployeeStatusTransition -[hidden]down- ContractOverlap
+ContractNotFound -[hidden]down- InvalidWorkSchedule
+ContractNotActive -[hidden]down- WorkScheduleOutsideOperatingHours
+ContractOverlap -[hidden]down- VacationNotFound
+InvalidContractPeriod -[hidden]down- InvalidVacationPeriod
+InvalidWorkSchedule -[hidden]down- VacationOverlap
+WorkScheduleOutsideOperatingHours -[hidden]down- VacationOutsideContract
+VacationNotFound -[hidden]down- VacationNotCancelable
+VacationOverlap -[hidden]down- DniAlreadyExists
+InvalidVacationPeriod -[hidden]down- EmailAddressAlreadyExists
+GetAllEmployeesByBusinessIdQuery -[hidden]down- GetEmployeeByUserIdQuery
+GetEmployeeByIdQuery -[hidden]down- GetAllContractsByEmployeeIdQuery
+GetEmployeeByUserIdQuery -[hidden]down- GetContractByIdQuery
+GetAllContractsByEmployeeIdQuery -[hidden]down- GetAllVacationsByEmployeeIdQuery
+
+' ---------- COMPOSICIÓN DEL AGGREGATE ----------
+Employee *-- WorkSchedule
+Employee *-- ContractHistory
+Employee *-- VacationHistory
+ContractHistory "1" *-- "1..*" Contract
+VacationHistory "1" *-- "0..*" Vacation
+Contract *-- ContractPeriod
+Vacation *-- VacationPeriod
+Employee ..> OperatingHours : valida con
 Employee ..> EmployeeRole
 Employee ..> EmployeeStatus
- Employee ..> ContractHistory
+Contract ..> TypeOfContract
+Contract ..> ContractStatus
+Vacation ..> VacationStatus
 
- Contract ..> TypeOfContract
- Contract ..> ContractStatus
- Contract ..> ContractPeriod
+' ---------- EVENTOS ----------
+Employee ..> EmployeeHiredEvent : registra
+Employee ..> EmployeeSuspendedEvent : registra
+Employee ..> EmployeeReinstatedEvent : registra
+Employee ..> EmployeeTerminatedEvent : registra
 
-EmployeeQueryServices ..>GetContractByIdQuery
-EmployeeQueryServices ..>GetAllContractsByEmployeeIdQuery
-EmployeeQueryServices ..>GetEmployeeByIdQuery
-EmployeeQueryServices ..>GetAllEmployeesByBusinessIdQuery
+' ---------- SERVICES ----------
+EmployeeCommandService ..> CreateEmployeeCommand : recibe
+EmployeeCommandService ..> UpdateEmployeeCommand : recibe
+EmployeeCommandService ..> ChangeEmployeeRoleCommand : recibe
+EmployeeCommandService ..> UpdateEmployeeWorkScheduleCommand : recibe
+EmployeeCommandService ..> SuspendEmployeeCommand : recibe
+EmployeeCommandService ..> ReinstateEmployeeCommand : recibe
+EmployeeCommandService ..> TerminateEmployeeCommand : recibe
+EmployeeCommandService ..> CreateContractCommand : recibe
+EmployeeCommandService ..> TerminateContractCommand : recibe
+EmployeeCommandService ..> ScheduleVacationCommand : recibe
+EmployeeCommandService ..> CancelVacationCommand : recibe
+EmployeeCommandService ..> Employee : crea / modifica
 
-EmployeeCommandServices ..> CreateEmployeeCommand
-EmployeeCommandServices ..> UpdateEmployeeCommand
-EmployeeCommandServices ..> CreateContractCommand
-EmployeeCommandServices ..> UpdateContractStatusCommand
+EmployeeQueryService ..> GetAllEmployeesByBusinessIdQuery : recibe
+EmployeeQueryService ..> GetEmployeeByIdQuery : recibe
+EmployeeQueryService ..> GetEmployeeByUserIdQuery : recibe
+EmployeeQueryService ..> GetAllContractsByEmployeeIdQuery : recibe
+EmployeeQueryService ..> GetContractByIdQuery : recibe
+EmployeeQueryService ..> GetAllVacationsByEmployeeIdQuery : recibe
+EmployeeQueryService ..> Employee : devuelve
 
-}
+' ---------- NOTAS: VARIABLES Y REGLAS DE LOS COMMANDS ----------
+note as N_CreateEmployee
+  <b>CreateEmployeeCommand</b> (contratar)
+  --
+  Long businessId
+  // cuenta corporativa y datos del StaffProfile
+  String corporateEmail  // obligatorio
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  String dni
+  LocalDate birthDate
+  // datos laborales
+  EmployeeRole role
+  WorkSchedule workSchedule
+  // primer contrato
+  LocalDate contractStartDate
+  LocalDate contractEndDate
+  TypeOfContract contractType
+  --
+  <b>Valida</b>
+  El negocio existe en Company (BusinessNotFound).
+  <b>Registro de la persona</b> (lo hace el administrador)
+  El empleado es personal de Alivia: su perfil es un
+  StaffProfile nuevo. El dni no está entre el personal
+  (ExistsStaffProfileByDniQuery; DniAlreadyExists) y el
+  correo corporativo no está registrado
+  (ExistsStaffProfileByEmailAddressQuery;
+  EmailAddressAlreadyExists). Profiles crea el StaffProfile.
+  Nadie se registra dos veces como empleado, y un
+  administrador no puede ser empleado: lo garantiza el dni
+  único entre el personal.
+  Si la persona también es familiar, conserva aparte su
+  PersonProfile y su cuenta personal.
+  Si es una persona asistida no se valida: lo decide el
+  administrador.
+  IAM crea su cuenta corporativa con una contraseña
+  temporal; Communication se la envía al correo
+  corporativo. No tiene acceso hasta que la cambia.
+  Después todo se enlaza por id, nunca por dni ni email.
+  application entrega today y el OperatingHours del negocio.
+end note
 
+note as N_UpdateEmployee
+  <b>UpdateEmployeeCommand</b>
+  (datos personales del empleado)
+  --
+  Long employeeId
+  Long businessId
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  --
+  El empleado existe (EmployeeNotFound), es del negocio
+  (EmployeeNotInBusiness) y no está TERMINATED
+  (EmployeeTerminated).
+  Employee no cambia: los datos se actualizan en su
+  StaffProfile (Profiles) mediante el ACL.
+  email, dni y birthDate no se modifican.
+end note
 
+note as N_RulesEmployee
+  <b>Reglas de EmployeeCommandService</b>
+  --
+  Todo command lleva businessId: el empleado existe
+  (EmployeeNotFound) y employee.belongsTo(businessId)
+  (EmployeeNotInBusiness). El businessId lo resuelve
+  application desde el usuario logueado; quién puede
+  ejecutarlos lo decide IAM por rol, fuera del dominio.
+  Cambio de rol, horario, estado, contratos y vacaciones:
+  los valida Employee con sus métodos (ver su nota).
+  CreateContractCommand: renovación con
+  employee.addContract(period, type, today).
+  UpdateEmployeeWorkScheduleCommand y CreateEmployeeCommand
+  usan el OperatingHours del negocio: el ACL lo obtiene de
+  Company (businessProfileId) y Profiles (BusinessHours).
+  Retorno: el id del Employee; en los commands de contrato
+  o vacación, el id del Contract o de la Vacation.
+end note
 
+note as N_RulesQueries
+  <b>Reglas de EmployeeQueryService</b>
+  --
+  GetAllEmployeesByBusinessIdQuery: el personal de un
+  negocio; status y role son filtros opcionales
+  (null = sin filtro).
+  GetEmployeeByUserIdQuery: el empleado del usuario
+  logueado (UserId de IAM).
+  GetAllContractsByEmployeeIdQuery y
+  GetAllVacationsByEmployeeIdQuery: from, to y status
+  son filtros opcionales; devuelven los periodos que se
+  cruzan con [from, to].
+  GetContractByIdQuery: el contrato se busca dentro de su
+  Employee (employeeId + contractId).
+  Id inexistente: Optional vacío o lista vacía.
+end note
 
+CreateEmployeeCommand .. N_CreateEmployee
+UpdateEmployeeCommand .. N_UpdateEmployee
+EmployeeCommandService .. N_RulesEmployee
+EmployeeQueryService .. N_RulesQueries
+
+note as N_ContextosExternos
+  <b>Contextos externos (fuera de este diagrama)</b>
+  --
+  <b>Company</b> (ACL): dueño del Business (hoy, Alivia).
+  Valida que el negocio exista y entrega su
+  businessProfileId.
+  <b>Profiles</b> (ACL): dueño del StaffProfile del empleado.
+  Valida que el dni y el correo corporativo no estén
+  registrados entre el personal, crea el perfil y actualiza
+  sus datos personales. También entrega el
+  BusinessHours del negocio, que el ACL traduce a
+  OperatingHours.
+  <b>IAM</b> (ACL y eventos): dueño del usuario. Al contratar
+  crea la cuenta corporativa con una contraseña temporal
+  (el acceso se habilita cuando la cambia). Reacciona a:
+  EmployeeHiredEvent: registra el rol de empleado.
+  EmployeeSuspendedEvent: bloquea la cuenta corporativa.
+  EmployeeReinstatedEvent: la vuelve a habilitar.
+  EmployeeTerminatedEvent: desactiva la cuenta corporativa.
+  La cuenta personal de familiar, si la tiene, no cambia.
+  <b>Communication</b> (eventos): avisa al empleado por correo
+  corporativo (bienvenida con la contraseña temporal al
+  contratar;
+  suspensión, reincorporación y cese).
+  --
+  BusinessId identifica el Business de Company.
+  UserId identifica al usuario de IAM.
+  StaffProfileId identifica el StaffProfile de Profiles.
+end note
+
+note as N_Shared
+  <b>Shared (importado, no se dibuja)</b>
+  --
+  Employee extiende AuditableAbstractAggregateRoot
+  (id, createdAt, updatedAt, addDomainEvent()).
+  Contract y Vacation extienden AuditableModel
+  (id, createdAt, updatedAt).
+  Value objects: BusinessId, UserId, StaffProfileId,
+  WeeklyPeriod (days, range; occursOn, overlapsWith),
+  TimeRange (crossesMidnight).
+  El dominio no consulta el reloj: recibe today como
+  parámetro.
+end note
+
+note as N_Clases
+  <b>Qué representa cada clase</b>
+  --
+  <b>Employee</b>: una persona que trabaja para un Business
+  (hoy, Alivia). Guarda
+  su rol, su estado laboral, su horario, sus contratos y
+  sus vacaciones. Sus datos personales viven en su
+  StaffProfile (Profiles) y su cuenta corporativa en IAM.
+  <b>Contract</b>: un contrato laboral, con periodo (siempre
+  con fecha de fin) y tipo (tiempo completo o parcial).
+  <b>Vacation</b>: un periodo de vacaciones programado.
+  <b>ContractHistory / VacationHistory</b>: todos los
+  contratos y vacaciones del empleado.
+  <b>WorkSchedule</b>: los turnos semanales del empleado.
+  <b>OperatingHours</b>: el horario de atención del negocio,
+  que limita los turnos.
+  <b>EmployeeStatus</b>: ACTIVE, SUSPENDED o TERMINATED
+  (final). Estar de vacaciones se calcula con las fechas.
+  <b>Events</b>: contratación, suspensión, reincorporación y
+  cese; los usan IAM y Communication.
+end note
 
 @enduml

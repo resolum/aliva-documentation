@@ -33,7 +33,7 @@ package "Bounded Context: Company" as ctx_company #F7FAFE {
     * id : BIGINT <<PK>> <<identity>>
     --
     * user_id : BIGINT <<UK>> <<ref IAM>>
-    * person_profile_id : BIGINT <<UK>> <<ref Profiles>>
+    * staff_profile_id : BIGINT <<UK>> <<ref Profiles>>
     backup_personal_email : VARCHAR(254) <<UK>> <<null>>
     * created_at : TIMESTAMP
     * updated_at : TIMESTAMP
@@ -55,8 +55,8 @@ note right of administrators
   <b>administrators</b> (aggregate Administrator)
   La persona que gestiona un Business en Alivia.
   --
-  user_id: usuario de IAM (UserId). Sin FK.
-  person_profile_id: su PersonProfile (PersonProfileId).
+  user_id: su cuenta corporativa de IAM (UserId). Sin FK.
+  staff_profile_id: su StaffProfile (StaffProfileId).
   Sin FK.
   Ambos únicos: cada administrador tiene un usuario y
   un perfil propios, creados al registrarlo.

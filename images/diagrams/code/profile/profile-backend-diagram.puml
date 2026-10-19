@@ -9,8 +9,8 @@
 '  P4  GetAll* devuelve List (antes Optional); GetAllBusinessProfilesQuery en plural.
 '  P5  Se elimina PersonNameAlreadyExists: dos personas pueden llamarse igual.
 '  P6  Se agrega EmailAddressAlreadyExists: el email de un perfil no se repite.
-'  P7  Ningún perfil se busca ni se recupera por dni: solo se valida si existe
-'      (ExistsPersonProfileByDniQuery). Dni es dato de identificación, no clave de búsqueda.
+'  P7  Ningún perfil se busca ni se recupera por dni ni por email: solo se valida si existen
+'      (Exists...ByDniQuery, Exists...ByEmailAddressQuery). Dni es dato de identificación.
 '  P8  Los commands reciben BusinessHours (value object), no texto/JSON.
 '  P9  Value objects por composición (*--), igual que en Company y Assistance.
 '  P10 Se define PersonName: PersonProfile lo usaba y no existía en ningún diagrama (tampoco en Shared).
@@ -20,6 +20,12 @@
 '  P14 El email no se modifica en ningún perfil; es opcional solo en PersonProfile (persona asistida).
 '  P15 businessName y legalName son únicos (LegalName pasa a value object con LegalNameAlreadyExists);
 '      dni único; el teléfono puede repetirse (se elimina PhoneNumberAlreadyExists).
+'  P16 Se agrega StaffProfile: perfil del personal de Alivia (administrador y empleados), separado de
+'      PersonProfile (clientes: familiares y personas asistidas). Una persona puede tener los dos: sus
+'      datos se duplican porque son dos relaciones distintas con Alivia. El dni es único dentro de
+'      cada tipo; el email, entre todos los perfiles de personas (cada uno es una cuenta de IAM).
+'  P17 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
+'      domain.model, domain.services y domain.exceptions.
 
 skinparam shadowing false
 skinparam packageStyle rectangle
@@ -97,6 +103,16 @@ package alivia.platform.Profiles #F5F5F5 {
       + updatePersonalInformation(PersonName personName, PhoneNumber phoneNumber, Photo photo)
     }
 
+    class StaffProfile <<Aggregate>> {
+      - PersonName personName
+      - Dni dni
+      - BirthDate birthDate
+      --
+      + StaffProfile(EmailAddress corporateEmail, Photo photo, PhoneNumber phoneNumber,
+      \t PersonName personName, Dni dni, BirthDate birthDate)
+      + updatePersonalInformation(PersonName personName, PhoneNumber phoneNumber, Photo photo)
+    }
+
     class BusinessProfile <<Aggregate>> {
       - Ruc ruc
       - BusinessName businessName
@@ -158,7 +174,7 @@ package alivia.platform.Profiles #F5F5F5 {
 
   }
 
-  package domain.model.exceptions #FFEBEE {
+  package domain.exceptions #FFEBEE {
 
     class BusinessNameAlreadyExists <<Exception>> {
       + BusinessNameAlreadyExists()
@@ -178,6 +194,10 @@ package alivia.platform.Profiles #F5F5F5 {
 
     class PersonProfileNotFound <<Exception>> {
       + PersonProfileNotFound()
+    }
+
+    class StaffProfileNotFound <<Exception>> {
+      + StaffProfileNotFound()
     }
 
     class BusinessProfileNotFound <<Exception>> {
@@ -210,6 +230,14 @@ package alivia.platform.Profiles #F5F5F5 {
     class UpdatePersonProfileCommand <<Record>> <<Command>> {
       + UpdatePersonProfileCommand(...)
     }
+
+    class CreateStaffProfileCommand <<Record>> <<Command>> {
+      + CreateStaffProfileCommand(...)
+    }
+
+    class UpdateStaffProfileCommand <<Record>> <<Command>> {
+      + UpdateStaffProfileCommand(...)
+    }
   }
 
   package domain.model.queries #E8F5E9 {
@@ -224,6 +252,22 @@ package alivia.platform.Profiles #F5F5F5 {
 
     class ExistsPersonProfileByDniQuery <<Record>> <<Query>> {
       + ExistsPersonProfileByDniQuery(Dni dni)
+    }
+
+    class GetStaffProfileByIdQuery <<Record>> <<Query>> {
+      + GetStaffProfileByIdQuery(Long id)
+    }
+
+    class ExistsStaffProfileByEmailAddressQuery <<Record>> <<Query>> {
+      + ExistsStaffProfileByEmailAddressQuery(EmailAddress emailAddress)
+    }
+
+    class ExistsStaffProfileByDniQuery <<Record>> <<Query>> {
+      + ExistsStaffProfileByDniQuery(Dni dni)
+    }
+
+    class GetAllStaffProfilesQuery <<Record>> <<Query>> {
+      + GetAllStaffProfilesQuery()
     }
 
     class ExistsBusinessProfileByEmailAddressQuery <<Record>> <<Query>> {
@@ -257,6 +301,18 @@ package alivia.platform.Profiles #F5F5F5 {
       List<PersonProfile> handle(GetAllPersonProfilesQuery query)
     }
 
+    interface StaffProfileCommandService {
+      Long handle(CreateStaffProfileCommand command)
+      Long handle(UpdateStaffProfileCommand command)
+    }
+
+    interface StaffProfileQueryService {
+      Optional<StaffProfile> handle(GetStaffProfileByIdQuery query)
+      boolean handle(ExistsStaffProfileByEmailAddressQuery query)
+      boolean handle(ExistsStaffProfileByDniQuery query)
+      List<StaffProfile> handle(GetAllStaffProfilesQuery query)
+    }
+
     interface BusinessProfileQueryService {
       Optional<BusinessProfile> handle(GetBusinessProfileByIdQuery query)
       boolean handle(ExistsBusinessProfileByEmailAddressQuery query)
@@ -270,11 +326,15 @@ package alivia.platform.Profiles #F5F5F5 {
   }
 
   Profile <|-- PersonProfile
+  Profile <|-- StaffProfile
   Profile <|-- BusinessProfile
 
   PersonProfile *-- PersonName
   PersonProfile *-- Dni
   PersonProfile *-- BirthDate
+  StaffProfile *-- PersonName
+  StaffProfile *-- Dni
+  StaffProfile *-- BirthDate
   BusinessProfile *-- BusinessName
   BusinessProfile *-- LegalName
   BusinessProfile *-- Ruc
@@ -287,6 +347,12 @@ package alivia.platform.Profiles #F5F5F5 {
   PersonProfileQueryService ..> GetPersonProfileByIdQuery : recibe
   PersonProfileQueryService ..> ExistsPersonProfileByEmailAddressQuery : recibe
   PersonProfileQueryService ..> ExistsPersonProfileByDniQuery : recibe
+  StaffProfileQueryService ..> GetStaffProfileByIdQuery : recibe
+  StaffProfileQueryService ..> ExistsStaffProfileByEmailAddressQuery : recibe
+  StaffProfileQueryService ..> ExistsStaffProfileByDniQuery : recibe
+  StaffProfileQueryService ..> GetAllStaffProfilesQuery : recibe
+  StaffProfileCommandService ..> CreateStaffProfileCommand : recibe
+  StaffProfileCommandService ..> UpdateStaffProfileCommand : recibe
   BusinessProfileQueryService ..> ExistsBusinessProfileByEmailAddressQuery : recibe
 
   BusinessProfileCommandService ..> CreateBusinessProfileCommand : recibe
@@ -311,13 +377,16 @@ note as N_CreatePerson
   LocalDate birthDate
   --
   <b>Valida</b>
+  Perfil de cliente: familiar o persona asistida.
   emailAddress es opcional (la persona asistida puede no
-  tener correo). Si viene, no pertenece a otro
-  PersonProfile (EmailAddressAlreadyExists).
+  tener correo). Si viene, no pertenece a otro PersonProfile
+  ni a un StaffProfile (EmailAddressAlreadyExists).
   dni no pertenece a otro PersonProfile (DniAlreadyExists).
-  Los contextos que crean perfiles lo validan antes con
+  Puede existir un StaffProfile con el mismo dni: la misma
+  persona puede ser cliente y personal de Alivia.
+  Los contextos lo validan antes con
   ExistsPersonProfileByDniQuery, que solo responde si
-  existe: ningún perfil se busca ni se recupera por dni.
+  existe: ningún perfil se recupera por dni.
 end note
 
 note as N_UpdatePerson
@@ -392,6 +461,47 @@ note as N_UpdateBusiness
   LegalNameAlreadyExists).
 end note
 
+note as N_CreateStaff
+  <b>CreateStaffProfileCommand</b>
+  --
+  String corporateEmail
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  String dni
+  LocalDate birthDate
+  --
+  <b>Valida</b>
+  Perfil del personal de Alivia: administrador o empleado.
+  corporateEmail es obligatorio (correo corporativo) y no
+  pertenece a otro StaffProfile ni a un PersonProfile
+  (EmailAddressAlreadyExists).
+  dni no pertenece a otro StaffProfile (DniAlreadyExists):
+  nadie se registra dos veces como personal. Puede existir
+  un PersonProfile con el mismo dni (la persona también es
+  cliente); sus datos se guardan por separado.
+end note
+
+note as N_UpdateStaff
+  <b>UpdateStaffProfileCommand</b>
+  --
+  Long id
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  --
+  El perfil existe (StaffProfileNotFound).
+  dni (nunca), birthDate y corporateEmail no se modifican.
+  No cambia el PersonProfile de la misma persona, si lo
+  tiene: son relaciones distintas.
+end note
+
+CreateStaffProfileCommand .. N_CreateStaff
+UpdateStaffProfileCommand .. N_UpdateStaff
 CreatePersonProfileCommand .. N_CreatePerson
 UpdatePersonProfileCommand .. N_UpdatePerson
 CreateBusinessProfileCommand .. N_CreateBusiness
@@ -399,11 +509,13 @@ UpdateBusinessProfileCommand .. N_UpdateBusiness
 
 note bottom of Profile
   Base abstracta: no tiene repositorio ni services
-  propios. Los aggregates son PersonProfile y BusinessProfile.
+  propios. Los aggregates son PersonProfile, StaffProfile y
+  BusinessProfile.
   Address (solo BusinessProfile), PhoneNumber, EmailAddress,
   Photo y WeeklyPeriod son value objects del contexto Shared.
   El id de PersonProfile es el que otros contextos guardan
-  como PersonProfileId; el de BusinessProfile, como
+  como PersonProfileId; el de StaffProfile, como
+  StaffProfileId; el de BusinessProfile, como
   BusinessProfileId.
 end note
 
@@ -412,7 +524,7 @@ note as N_ValueObjects
   --
   Dni: 8 dígitos (String, admite ceros a la izquierda).
   Es un dato de identificación personal: no identifica
-  al aggregate ni se usa para buscar o enlazar perfiles.
+  al aggregate ni se usa para enlazar perfiles.
   Ruc: 11 dígitos.
   BirthDate: no posterior a hoy.
   BusinessName y LegalName: no vacíos.
@@ -422,9 +534,12 @@ note as N_ValueObjects
   ningún par de periodos se cruza el mismo día
   (InvalidBusinessHours).
   --
-  <b>Email</b>: obligatorio en BusinessProfile; opcional en
-  PersonProfile (persona asistida). Relative y Administrator
-  lo exigen en su propio contexto. No se modifica.
+  <b>Email</b>: obligatorio en BusinessProfile y en
+  StaffProfile (correo corporativo); opcional en PersonProfile
+  (persona asistida; el familiar lo exige en su contexto).
+  Único entre PersonProfile y StaffProfile: cada email es
+  una cuenta de IAM. No se modifica.
+  <b>Dni</b>: único dentro de cada tipo de perfil.
   <b>Teléfono</b>: puede repetirse entre perfiles.
 end note
 
@@ -444,15 +559,18 @@ note as N_BusinessHours
   y a esa hora, revisando todos sus periodos.
 end note
 
-
 BusinessHours .. N_BusinessHours
 
 note as N_Clases
   <b>Qué representa cada clase</b>
   --
-  <b>PersonProfile</b>: los datos personales de una persona en
-  Alivia: administrador, familiar o persona asistida. Lo
-  crean otros contextos y lo referencian por PersonProfileId.
+  <b>PersonProfile</b>: los datos personales de un cliente de
+  Alivia: familiar o persona asistida. Assistance lo
+  referencia por PersonProfileId.
+  <b>StaffProfile</b>: los datos personales del personal de
+  Alivia: administrador o empleado, con su correo
+  corporativo. Company y HCM lo referencian por
+  StaffProfileId.
   <b>BusinessProfile</b>: los datos públicos y legales del
   negocio (ruc, razón social, nombre comercial, horario,
   ubicación y contacto). Company lo referencia por
@@ -468,6 +586,8 @@ note as N_Clases
   --
   <b>Exists...Query</b>: solo responden si un email o dni ya
   está registrado; los perfiles se recuperan solo por id.
+  Una persona que es cliente y personal tiene un
+  PersonProfile y un StaffProfile, con datos separados.
 end note
 
 @enduml

@@ -14,6 +14,7 @@
 '  S6  PhoneNumber acepta cualquier país: solo dígitos y válido según el país de su código.
 '  S7  TimeRange admite rangos que cruzan medianoche (crossesMidnight). Cada contexto decide
 '      si los acepta: BusinessHours (Profiles) no; Schedule (Assistance) sí.
+'  S8  Se agrega StaffProfileId: identidad del StaffProfile (personal de Alivia) en Profiles.
 
 ' ==============================
 ' CONFIGURACIÓN GENERAL
@@ -120,6 +121,10 @@ package alivia.platform.shared {
       + PersonProfileId(Long personProfileId)
     }
 
+    class StaffProfileId <<ValueObject, record>> {
+      + StaffProfileId(Long staffProfileId)
+    }
+
     class BusinessProfileId <<ValueObject, record>> {
       + BusinessProfileId(Long businessProfileId)
     }
@@ -206,10 +211,11 @@ note as N_Invariantes
   <b>EmailAddress</b>: formato válido; se guarda sin espacios y
   en minúsculas. Así, la validación de email ya registrado
   trata Ana@x.com y ana@x.com como el mismo correo.
-  <b>PersonProfileId, BusinessProfileId, UserId, BusinessId</b>:
-  no nulos y mayores que 0. Cada uno identifica el aggregate
-  de un solo contexto (PersonProfile y BusinessProfile en
-  Profiles, User en IAM, Business en Company).
+  <b>PersonProfileId, StaffProfileId, BusinessProfileId,
+  UserId, BusinessId</b>: no nulos y mayores que 0. Cada uno
+  identifica el aggregate de un solo contexto (PersonProfile,
+  StaffProfile y BusinessProfile en Profiles, User en IAM,
+  Business en Company).
   <b>WeeklyPeriod</b>: days no vacío; range válido.
   occursOn compara el día de la semana en que empieza
   la ocurrencia. overlapsWith: alguna ocurrencia de uno se
@@ -247,8 +253,9 @@ note as N_Clases
   <b>AuditableModel</b>: base de las entidades internas de un
   aggregate (por ejemplo, ActivityAssignment).
   --
-  <b>PersonProfileId, BusinessProfileId, UserId, BusinessId</b>:
-  la identidad de un aggregate de otro contexto. Es la única
+  <b>PersonProfileId, StaffProfileId, BusinessProfileId,
+  UserId, BusinessId</b>: la identidad de un aggregate de
+  otro contexto. Es la única
   forma en que un contexto referencia a otro.
   <b>EmailAddress, PhoneNumber, Photo, Address</b>: datos de
   contacto y ubicación que comparten varios contextos.

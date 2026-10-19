@@ -44,6 +44,21 @@ package "Bounded Context: Profiles" as ctx_profiles #FBF7FC {
     * updated_at : TIMESTAMP
   }
 
+  entity "staff_profiles" as staff_profiles {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * corporate_email : VARCHAR(254) <<UK>>
+    photo_url : VARCHAR(512) <<null>>
+    photo_public_id : VARCHAR(255) <<null>>
+    * phone_number : VARCHAR(15)
+    * first_name : VARCHAR(100)
+    * last_name : VARCHAR(100)
+    * dni : CHAR(8) <<UK>>
+    * birth_date : DATE
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+
   entity "business_profiles" as business_profiles {
     * id : BIGINT <<PK>> <<identity>>
     --
@@ -79,22 +94,39 @@ package "Bounded Context: Profiles" as ctx_profiles #FBF7FC {
 
 business_profiles ||--|{ opening_periods : "business_hours\n(1..*)"
 
+note right of staff_profiles
+  <b>staff_profiles</b> (aggregate StaffProfile)
+  Personal de Alivia: administrador y empleados.
+  Company y HCM guardan su id como staff_profile_id.
+  --
+  corporate_email: correo corporativo, obligatorio y
+  único; es la cuenta corporativa en IAM.
+  dni: índice único entre el personal (nadie es
+  empleado dos veces; un administrador no es empleado).
+  No se modifican: corporate_email, dni, birth_date.
+  Sus datos no se comparten con person_profiles aunque
+  sea la misma persona: son relaciones distintas.
+  El email tampoco puede repetirse entre
+  corporate_email y person_profiles.email_address: lo
+  valida el dominio (cada email es una cuenta de IAM).
+end note
+
 note right of person_profiles
   <b>person_profiles</b> (aggregate PersonProfile)
-  Datos personales de administradores, familiares y
-  personas asistidas. Otros contextos guardan su id
-  como person_profile_id.
+  Clientes de Alivia: familiares y personas asistidas.
+  Assistance guarda su id como person_profile_id.
   Profile es una base abstracta sin tabla propia: sus
-  columnas (email, foto, teléfono) se repiten aquí y
-  en business_profiles.
+  columnas (email, foto, teléfono) se repiten aquí, en
+  staff_profiles y en business_profiles.
   --
   email_address: único pero opcional (la persona
   asistida puede no tener correo). En PostgreSQL un
   índice único admite varios NULL.
   No se modifican: email_address, dni, birth_date.
-  dni: índice único que respalda DniAlreadyExists y
-  ExistsPersonProfileByDniQuery (solo responde si
-  existe; ningún perfil se recupera por dni).
+  dni: índice único entre los clientes; respalda
+  DniAlreadyExists y ExistsPersonProfileByDniQuery.
+  El mismo dni puede estar en staff_profiles (la persona
+  también es personal de Alivia).
   phone_number: solo dígitos, código de país incluido
   (máx. 15, E.164 sin "+"); puede repetirse.
 end note

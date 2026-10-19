@@ -6,21 +6,25 @@
 ' Los nombres de las variables coinciden con los del contexto Profiles.
 '
 ' Cambios de la revisión de Domain (ver informe):
-'  C1  BusinessProfileId pasa a Shared, igual que PersonProfileId, UserId y BusinessId.
+'  C1  BusinessProfileId pasa a Shared, igual que PersonProfileId, StaffProfileId, UserId y BusinessId.
 '  C2  Atributos de los aggregates privados (-) y comportamiento explícito.
-'  C3  CreateAdministratorCommand ya no lleva personProfileId ni userId (los obtiene el ACL).
+'  C3  CreateAdministratorCommand ya no lleva staffProfileId ni userId (los obtiene el ACL).
 '  C4  Services en singular (BusinessCommandService ...) y update devuelve Long.
 '  C5  Queries con sufijo Query; se agrega GetAdministratorByUserIdQuery.
-'  C6  El PersonProfile del administrador se crea siempre nuevo; el email solo se valida
-'      con ExistsPersonProfileByEmailAddressQuery. Ningún perfil se busca por email ni por dni.
+'  C6  El administrador es personal de Alivia: su perfil es un StaffProfile nuevo y su cuenta es
+'      corporativa. Ningún perfil se busca por email ni por dni.
 '  C7  Nota de UpdateBusinessCommand: se retira la cita a la Ley N° 29733; legalName solo lo modifica el
 '      Administrator del Business; no se manejan estados de SUNAT/SUNARP.
-'  C8  Se elimina AdministratorAlreadyExists: userId y personProfileId siempre son nuevos.
+'  C8  Un administrador no puede ser empleado: ambos son personal y el dni es único entre el
+'      personal (DniAlreadyExists).
 '  C9  EmailAddressAlreadyExists propia: el ACL traduce el rechazo de Profiles sin importar
 '      clases de otro contexto (igual que BusinessNotFound en Assistance).
 '  C10 businessName, legalName y ruc son únicos (los guarda Profiles); Company tiene sus propias
 '      excepciones para traducir el rechazo. El email del negocio no se modifica.
-'  C11 El dni del administrador se valida con ExistsPersonProfileByDniQuery (DniAlreadyExists).
+'  C11 El administrador del negocio crea las cuentas de los empleados del negocio (HCM); su propia
+'      cuenta la registra él mismo. Los familiares se registran solos (pagan la suscripción).
+'  C12 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
+'      domain.model, domain.services y domain.exceptions.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -74,10 +78,10 @@ package alivia.platform.Company #F5F5F5 {
 
     class Administrator #DCEBFA {
       - UserId userId
-      - PersonProfileId personProfileId
+      - StaffProfileId staffProfileId
       - EmailAddress backupPersonalEmail
       --
-      + Administrator(UserId userId, PersonProfileId personProfileId, EmailAddress backupPersonalEmail)
+      + Administrator(UserId userId, StaffProfileId staffProfileId, EmailAddress backupPersonalEmail)
       + updateBackupPersonalEmail(EmailAddress backupPersonalEmail)
     }
   }
@@ -143,7 +147,7 @@ package alivia.platform.Company #F5F5F5 {
     }
   }
 
-  package "domain.model.exceptions" #FFEBEE {
+  package "domain.exceptions" #FFEBEE {
 
     class BusinessNotFound <<Exception>> #FFCDD2 {
       + BusinessNotFound()
@@ -280,7 +284,7 @@ end note
 note as N_CreateAdministrator
   **CreateAdministratorCommand**
   --Credenciales (IAM)--
-  String emailAddress  // también es el email del PersonProfile
+  String corporateEmail  // correo corporativo: cuenta de IAM y email del StaffProfile
   String password  // oculto en toString()
   --Información personal (Profiles)--
   byte[] photoData
@@ -293,14 +297,18 @@ note as N_CreateAdministrator
   String backupPersonalEmail  // opcional
   ..
   **Valida**
-  Profiles (ACL) valida que el email y el dni no estén
-  registrados (ExistsPersonProfileByEmailAddressQuery,
-  ExistsPersonProfileByDniQuery; EmailAddressAlreadyExists,
-  DniAlreadyExists) y crea el PersonProfile con estos datos;
-  devuelve el personProfileId.
-  Los perfiles nunca se buscan por email ni por dni: solo por id.
-  IAM (ACL) crea el usuario con emailAddress + password
-  y devuelve el userId.
+  <b>Registro de la persona</b>
+  El administrador es personal de Alivia: su perfil es un
+  StaffProfile nuevo. El dni no está entre el personal
+  (ExistsStaffProfileByDniQuery; DniAlreadyExists) y el
+  correo corporativo no está registrado
+  (ExistsStaffProfileByEmailAddressQuery;
+  EmailAddressAlreadyExists). Profiles crea el StaffProfile.
+  Un administrador no puede ser también empleado: ambos
+  usan el mismo registro de personal (StaffProfile).
+  IAM crea su cuenta corporativa con corporateEmail +
+  password: el administrador registra su propia cuenta.
+  Después todo se enlaza por id, nunca por dni ni email.
   backupPersonalEmail no está registrado en otro
   Administrator (BackupPersonalEmailAlreadyExists).
 end note
@@ -319,7 +327,7 @@ note as N_UpdateAdministrator
   ..
   El Administrator existe (AdministratorNotFound).
   Administrator solo cambia backupPersonalEmail;
-  los demás datos se actualizan en el PersonProfile
+  los demás datos se actualizan en su StaffProfile
   (Profiles) mediante el ACL.
 end note
 
@@ -329,10 +337,10 @@ CreateAdministratorCommand .. N_CreateAdministrator
 UpdateAdministratorCommand .. N_UpdateAdministrator
 
 note bottom of Administrator
-  UserId, PersonProfileId y EmailAddress son
+  UserId, StaffProfileId y EmailAddress son
   value objects del contexto Shared (alivia.platform.shared).
   backupPersonalEmail se guarda aquí; los demás
-  datos personales van a PersonProfile (Profiles)
+  datos personales van a su StaffProfile (Profiles)
   y password al contexto de IAM.
   GetAdministratorByUserIdQuery resuelve el
   Administrator desde el usuario logueado (UserId de IAM).
@@ -350,22 +358,23 @@ note as N_Shared
   **Shared (importado, no se dibuja)**
   Business y Administrator extienden
   AuditableAbstractAggregateRoot (id, createdAt, updatedAt).
-  Value objects: UserId, PersonProfileId,
+  Value objects: UserId, StaffProfileId,
   BusinessProfileId, EmailAddress.
 end note
 
 note as N_Clases
   **Qué representa cada clase**
   --
-  **Business**: el negocio cliente de Alivia que contrata la
-  plataforma. Sus datos públicos y legales viven en
+  **Business**: el negocio que opera la plataforma (hoy,
+  Alivia; BusinessId permite abrir más negocios). Sus datos públicos y legales viven en
   BusinessProfile (Profiles); aquí solo se guarda su identidad
   y quién lo gestiona. Su id es el BusinessId que usan los
   demás contextos (Relative en Assistance).
   **Administrator**: la persona que gestiona el Business en la
-  plataforma. Enlaza su usuario de IAM (UserId) y su perfil
-  personal (PersonProfileId); solo guarda aquí su correo
-  personal de respaldo.
+  plataforma. Es personal de Alivia: enlaza su cuenta
+  corporativa de IAM (UserId) y su StaffProfile
+  (StaffProfileId); solo guarda aquí su correo personal de
+  respaldo.
   **Commands / Queries**: las operaciones de escritura y
   lectura que expone el contexto; las atienden los services.
   **Exceptions**: reglas de negocio incumplidas. Las que

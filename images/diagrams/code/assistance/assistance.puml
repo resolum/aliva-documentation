@@ -15,9 +15,9 @@
 '  A7  ActivityAssignments se documenta como componente mutable, no value object.
 '  A8  AgendaItem define su fábrica y la regla de cálculo de OccurrenceStatus.
 '  A9  Los commands usan los enums del dominio (CareActivityType, ScheduleType).
-'  A10 El PersonProfile de Relative y AssistedPerson se crea siempre nuevo; el email solo se
-'      valida con ExistsPersonProfileByEmailAddressQuery. Se eliminan RelativeAlreadyExists y
-'      AssistedPersonAlreadyExists: el perfil y el usuario siempre son nuevos.
+'  A10 El Relative se registra solo, con su password, porque paga la suscripción. Relative y AssistedPerson
+'      son clientes: su perfil es un PersonProfile nuevo y el dni es único entre los clientes. Si el
+'      familiar también es empleado de Alivia, tiene además un StaffProfile y una cuenta corporativa.
 '  A11 Las asignaciones pueden cruzar medianoche (22:00-06:00). La ocurrencia pertenece al día
 '      en que empieza y se cierra al terminar el día en que acaba su rango (fecha de cierre).
 '      Se ajustan MISSED, el estado de la agenda y los cruces de horario.
@@ -32,7 +32,10 @@
 '      desde la app (assignExistingCaregiverAccount, InvitationNotificationRequestedEvent,
 '      SendInvitationNotificationCommand). Antes de asignar la cuenta se valida CaregiverAlreadyExists.
 '  A17 Una AssistedPerson no se da de baja; lo que se revoca es el acceso de un cuidador.
-'  A18 El dni de Relative y AssistedPerson se valida con ExistsPersonProfileByDniQuery (DniAlreadyExists).
+'  A18 DniAlreadyExists y EmailAddressAlreadyExists: el dni y el email del nuevo cliente no pueden estar
+'      registrados.
+'  A19 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
+'      domain.model, domain.services y domain.exceptions.
 '
 ' Reglas de negocio:
 '  - Un Relative gestiona varias AssistedPerson; cada AssistedPerson pertenece a un solo Relative.
@@ -59,11 +62,8 @@
 '  - Una invitación vencida (PENDING con expiresAt pasado) se calcula, no se guarda; se reenvía
 '    con ResendInvitationCommand sobre la misma invitación.
 '  - IAM, Communication, Profiles y Company se consumen por ACL (capa application, aún no implementada).
-'    Al crear un Relative: el ACL de Profiles valida que el email y el dni no estén registrados y crea el
-'    PersonProfile (devuelve el personProfileId), IAM crea el usuario con emailAddress + password
-'    (devuelve el userId) y Company valida que el Business exista (BusinessId).
-'    Los perfiles se buscan solo por id: nunca por email ni por dni.
-'    Al crear una AssistedPerson: solo Profiles (no tiene usuario en IAM).
+'    El familiar crea su propia cuenta personal (paga la suscripción). La AssistedPerson no tiene cuenta
+'    en IAM. Ambos son clientes (PersonProfile). Company valida que el Business exista (BusinessId).
 '  - Shared (herencia y Value Objects importados) solo se documenta en una nota; no se dibuja.
 '  - Todas las validaciones de negocio se hacen en el backend (la UI solo las refleja).
 '  - La zona horaria (Clock, America/Lima) es configuración global en Shared y el scheduler es
@@ -294,6 +294,9 @@ package alivia.platform.Assistance {
       cancelled: la ocurrencia aún no terminó, at anterior a
       occurrenceEnd(date) (OccurrenceEnded); actividad y
       asignación ACTIVE. Puede ser cualquier fecha futura.
+      at solo se usa para validar: el momento de la
+      cancelación queda en createdAt (completedAt y
+      completedBy son solo de COMPLETED).
       missed: la fecha de cierre es anterior a today
       (DayNotClosedYet).
       La unicidad (assignmentId, date) cruza aggregates: la
@@ -532,7 +535,7 @@ package alivia.platform.Assistance {
     }
   }
 
-  package "domain.model.exceptions" #FFEBEE {
+  package "domain.exceptions" #FFEBEE {
 
     class InvitationNotFound <<Exception>> #FFEBEE {
       + InvitationNotFound()
@@ -563,9 +566,17 @@ package alivia.platform.Assistance {
     }
 
 
+
     class DniAlreadyExists <<Exception>> #FFEBEE {
       + DniAlreadyExists()
     }
+
+
+
+
+
+
+
 
     class EmailAddressAlreadyExists <<Exception>> #FFEBEE {
       + EmailAddressAlreadyExists()
@@ -898,8 +909,8 @@ note as N_ContextosExternos
   <b>Contextos externos (fuera de este diagrama)</b>
   --
   <b>IAM</b> (ACL): el usuario es email + password. Al crear un
-  Relative crea el usuario con emailAddress + password y devuelve
-  el userId. Al invitar a un cuidador: si inviteeEmail ya tiene
+  Relative crea su cuenta personal con su password y
+  devuelve el userId. Al invitar a un cuidador: si inviteeEmail ya tiene
   cuenta, devuelve su userId sin crear otra; si no, crea la
   cuenta y devuelve userId + url para cambiar la contraseña.
   Cuando la contraseña se cambia, avisa y se ejecuta
@@ -909,9 +920,9 @@ note as N_ContextosExternos
   (SendInvitationNotificationCommand).
   <b>Profiles</b> (ACL): dueño del PersonProfile de Relative y
   AssistedPerson. Al crear un Relative o una AssistedPerson,
-  valida que el email y el dni no estén registrados (en la
-  AssistedPerson el email es opcional) y crea el perfil con
-  los datos del command; devuelve el personProfileId.
+  valida que el dni y el email no estén registrados entre
+  los clientes y crea el PersonProfile (en la AssistedPerson
+  el email es opcional).
   <b>Company</b> (ACL): dueño del Business. Al crear un Relative
   valida que el negocio exista con su businessId.
   --
@@ -989,8 +1000,8 @@ note as N_CreateRelative
   <b>CreateRelativeCommand</b>
   --
   Long businessId  // BusinessId: Business del contexto Company
-  // credenciales (IAM)
-  String emailAddress  // también es el email del PersonProfile
+  // cuenta (IAM): la crea el propio familiar
+  String emailAddress  // obligatorio; también es el email del PersonProfile
   String password  // oculto en toString() para que no llegue a los logs
   // datos del PersonProfile (Profiles)
   byte[] photoData
@@ -1002,15 +1013,24 @@ note as N_CreateRelative
   LocalDate birthDate
   --
   <b>Valida</b>
+  emailAddress y password son obligatorios: el constructor
+  del command los rechaza si vienen vacíos. El familiar
+  necesita email porque es su cuenta en IAM; PersonProfile
+  lo admite opcional solo por la persona asistida.
   El negocio existe en Company (BusinessNotFound).
-  Profiles (ACL) valida que el email y el dni no estén
-  registrados (ExistsPersonProfileByEmailAddressQuery,
-  ExistsPersonProfileByDniQuery; EmailAddressAlreadyExists,
-  DniAlreadyExists) y crea el PersonProfile con estos datos;
-  devuelve el personProfileId.
-  Los perfiles nunca se buscan por email ni por dni: solo por id.
-  IAM (ACL) crea el usuario con emailAddress + password y
-  devuelve el userId, que se guarda en el Relative.
+  <b>Registro de la persona</b> (lo hace el propio familiar)
+  El familiar es cliente de Alivia: su perfil es un
+  PersonProfile nuevo. El dni no está entre los clientes
+  (ExistsPersonProfileByDniQuery; DniAlreadyExists) y el
+  email no está registrado (ExistsPersonProfileByEmailAddressQuery;
+  EmailAddressAlreadyExists). Profiles crea el PersonProfile.
+  Nadie se registra dos veces como familiar: lo garantiza
+  el dni único entre los clientes.
+  Si también es empleado de Alivia, tiene además un
+  StaffProfile y una cuenta corporativa aparte: son dos
+  relaciones distintas y sus datos no se comparten.
+  IAM crea su cuenta personal con emailAddress + password.
+  Después todo se enlaza por id, nunca por dni ni email.
 end note
 
 note as N_CreateAssistedPerson
@@ -1029,12 +1049,14 @@ note as N_CreateAssistedPerson
   --
   <b>Valida</b>
   El Relative existe (RelativeNotFound).
-  Profiles (ACL) valida que el dni y, si viene, el email no
-  estén registrados (ExistsPersonProfileByDniQuery,
-  ExistsPersonProfileByEmailAddressQuery; DniAlreadyExists,
-  EmailAddressAlreadyExists) y crea el PersonProfile con estos
-  datos; devuelve el personProfileId.
-  Los perfiles nunca se buscan por email ni por dni: solo por id.
+  <b>Registro de la persona</b>
+  La persona asistida es cliente de Alivia: su perfil es un
+  PersonProfile nuevo. El dni no está entre los clientes
+  (ExistsPersonProfileByDniQuery; DniAlreadyExists) y el
+  email, si viene, tampoco (EmailAddressAlreadyExists).
+  Profiles crea el PersonProfile.
+  No tiene cuenta en IAM.
+  Después todo se enlaza por id, nunca por dni ni email.
   Queda gestionada por ese Relative.
 end note
 
@@ -1155,19 +1177,17 @@ CompleteActivityCommand .. N_CompleteActivity
 note as N_RulesRelative
   <b>Reglas de Relative y AssistedPerson</b>
   --
-  CreateRelativeCommand: IAM (ACL) crea el usuario con
-  emailAddress + password y devuelve el userId; Profiles (ACL)
-  valida que el email y el dni no estén registrados
-  (EmailAddressAlreadyExists, DniAlreadyExists) y crea el
-  perfil con los datos
-  del command. Guarda el userId, el personProfileId y el
+  CreateRelativeCommand: lo ejecuta el propio familiar al
+  registrarse. Profiles e IAM (ACL) crean su PersonProfile
+  y su cuenta personal (DniAlreadyExists,
+  EmailAddressAlreadyExists).
+  Guarda el userId, el personProfileId y el
   businessId (el Business debe existir en Company:
   BusinessNotFound).
   CreateAssistedPersonCommand: el Relative existe
-  (RelativeNotFound); Profiles (ACL) valida que el dni y, si
-  viene, el email no estén registrados (DniAlreadyExists,
-  EmailAddressAlreadyExists) y crea el perfil con los datos del
-  command. Queda gestionada por ese Relative.
+  (RelativeNotFound); su perfil siempre es nuevo
+  (DniAlreadyExists, EmailAddressAlreadyExists). Queda
+  gestionada por ese Relative.
   GetAssistedPersonByIdQuery: devuelve el aggregate (Optional vacío
   si no existe); nombre y datos personales viven en Profiles y
   se resuelven por personProfileId fuera de este contexto.
@@ -1361,9 +1381,10 @@ end note
 note as N_Clases
   <b>Qué representa cada clase</b>
   --
-  <b>Relative</b>: el familiar responsable, registrado por un
-  Business. Gestiona a sus personas asistidas, crea sus
-  actividades de cuidado e invita cuidadores.
+  <b>Relative</b>: el familiar responsable. Se registra solo en
+  un Business y paga la suscripción. Gestiona a sus personas
+  asistidas, crea sus actividades de cuidado e invita
+  cuidadores.
   <b>AssistedPerson</b>: la persona con discapacidad que recibe
   el cuidado. Pertenece a un solo Relative y no se da de baja.
   <b>Invitation</b>: la invitación de un Relative a un cuidador
