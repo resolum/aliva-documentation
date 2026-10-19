@@ -1,3600 +1,4034 @@
 # Capítulo 5: Tactical-Level Software Design
 
+En este capítulo se presenta el diseño táctico de la solución de software de Alivia. Se incluye una sección por cada bounded context, con el diccionario de clases de su Domain Layer, su diagrama de clases y su diagrama de base de datos.
+
+**Organización del Domain Layer.** En todos los bounded contexts, la capa de dominio se organiza en tres paquetes:
+
+| Paquete | Contenido |
+|---|---|
+| `domain.model` | Modelo del dominio, dividido en `aggregates`, `entities`, `valueobjects`, `commands`, `queries` y `events`. |
+| `domain.services` | Interfaces de los services de dominio: un `CommandService` (escritura) y un `QueryService` (lectura) por aggregate. |
+| `domain.exceptions` | Excepciones que representan reglas de negocio incumplidas. |
+
+**Convenciones usadas en el diccionario.**
+
+| Convención | Significado |
+|---|---|
+| Visibilidad `private` | Atributo interno de una clase; solo cambia mediante los métodos de la clase. |
+| Visibilidad `public` | Método o constructor que forma parte del comportamiento expuesto. |
+| Visibilidad `protected` | Miembro de una base abstracta, disponible solo para sus subclases. |
+| Componente de record | Los value objects, commands, queries y algunos eventos son `record` de Java: cada componente es `private final` y se lee con un accessor `public` del mismo nombre. En los diagramas se muestran con `+` por ese accessor. |
+| Referencia a otro contexto | Un bounded context nunca guarda objetos de otro: solo su identidad mediante un value object de Shared (`UserId`, `PersonProfileId`, `StaffProfileId`, `BusinessProfileId`, `BusinessId`). |
+| Instante actual | El dominio no consulta el reloj: recibe `now` (`LocalDateTime`) o `today` (`LocalDate`) como parámetro. La zona horaria (America/Lima) se configura una sola vez en Shared. |
+| Repositories | Siguiendo la organización del proyecto, las interfaces de repositorio y su implementación se documentan en Infrastructure Layer. |
+
+
+**Nombres de los bounded contexts en el código.** En el informe se usan los nombres del lenguaje ubicuo; en el código, cada bounded context es un paquete con nombre en inglés. En las descripciones se usa el nombre del paquete al referirse a otro contexto.
+
+| Bounded context | Paquete | Sección |
+|---|---|---|
+| IAM | `iam` | 5.1 |
+| Gestión del Negocio | `company` | 5.2 |
+| Perfiles | `profiles` | 5.3 |
+| Capital Humano | `hcm` | 5.4 |
+| Asistencia Médica | `assistance` | 5.5 |
+| Pagos y Suscripciones | `subscriptions` | 5.6 |
+| Soporte Técnico | `support` | 5.7 |
+| Comunicaciones | `communication` | 5.8 |
+| Analíticas | `analytics` | 5.9 |
+| Telemetría | `tracking` | 5.10 |
+| Bienes | `assets` | 5.11 |
+| Elementos compartidos | `shared` | Antes de 5.1 |
+
+**Formato del diccionario de clases.** Cada clase se presenta en un recuadro con su nombre, categoría, propósito, atributos (nombre, tipo de dato, visibilidad y descripción), métodos (firma, tipo de retorno, visibilidad y descripción), reglas o invariantes y relaciones con otras clases (tipo, clase relacionada, multiplicidad y descripción). Las clases se agrupan por categoría: Aggregates, Entities, Value Objects, Enumerations, Domain Events, Commands, Queries, Domain Services y Exceptions.
+
+
+## Elementos compartidos (Shared)
+
+Shared reúne los elementos que usan todos los bounded contexts de Alivia: las bases auditables de aggregates y entidades, y los value objects comunes. No tiene commands, queries ni services propios: no representa un proceso de negocio, sino el vocabulario común con el que los demás contextos se referencian entre sí.
+
+### Domain Layer
+
+#### Aggregates (bases abstractas)
+
+<table>
+<tr><th colspan="4" align="left"><code>AuditableAbstractAggregateRoot</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Clase abstracta base de aggregates</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Base de todos los aggregates guardados en PostgreSQL. Aporta el id, las fechas de auditoría y el registro de eventos de dominio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>id</code></td><td><code>Long</code></td><td>private</td><td>Identificador generado por la base de datos.</td></tr>
+<tr><td><code>createdAt</code></td><td><code>LocalDateTime</code></td><td>private</td><td>Fecha y hora de creación.</td></tr>
+<tr><td><code>updatedAt</code></td><td><code>LocalDateTime</code></td><td>private</td><td>Fecha y hora de la última modificación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>addDomainEvent(Object event)</code></td><td><code>void</code></td><td>public</td><td>Registra un evento de dominio que se publica después de guardar el aggregate.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AuditableMongoAggregateRoot</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Clase abstracta base de aggregates</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">La misma base que la anterior, para aggregates guardados en MongoDB (tracking). Su id es de texto.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>id</code></td><td><code>String</code></td><td>private</td><td>Identificador del documento en MongoDB.</td></tr>
+<tr><td><code>createdAt</code></td><td><code>LocalDateTime</code></td><td>private</td><td>Fecha y hora de creación.</td></tr>
+<tr><td><code>updatedAt</code></td><td><code>LocalDateTime</code></td><td>private</td><td>Fecha y hora de la última modificación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>addDomainEvent(Object event)</code></td><td><code>void</code></td><td>public</td><td>Registra un evento de dominio que se publica después de guardar el aggregate.</td></tr>
+</table>
+
+#### Entities (base abstracta)
+
+<table>
+<tr><th colspan="4" align="left"><code>AuditableModel</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Clase abstracta base de entidades</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Base de las entidades internas de un aggregate (por ejemplo, <code>ActivityAssignment</code>, <code>Contract</code>, <code>Vacation</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>id</code></td><td><code>Long</code></td><td>private</td><td>Identificador generado por la base de datos.</td></tr>
+<tr><td><code>createdAt</code></td><td><code>LocalDateTime</code></td><td>private</td><td>Fecha y hora de creación.</td></tr>
+<tr><td><code>updatedAt</code></td><td><code>LocalDateTime</code></td><td>private</td><td>Fecha y hora de la última modificación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+#### Value Objects
+
+**Value objects de identidad**
+
+Representan la identidad de un aggregate de otro contexto. Son la única forma en que un bounded context referencia a otro.
+
+<table>
+<tr><th colspan="4" align="left"><code>UserId</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record), identidad</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Identidad de <code>User</code> de IAM en otro bounded context.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UserId(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Crea la instancia y valida sus invariantes.</td></tr>
+<tr><td><b>Invariantes</b></td><td colspan="3">No nulo y mayor que 0.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>PersonProfileId</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record), identidad</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Identidad de <code>PersonProfile</code> de Profiles (clientes) en otro bounded context.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>personProfileId</code></td><td><code>Long</code></td><td>private final</td><td>Su perfil de cliente en Profiles.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PersonProfileId(Long personProfileId)</code></td><td>(constructor)</td><td>public</td><td>Crea la instancia y valida sus invariantes.</td></tr>
+<tr><td><b>Invariantes</b></td><td colspan="3">No nulo y mayor que 0.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>StaffProfileId</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record), identidad</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Identidad de <code>StaffProfile</code> de Profiles (personal de Alivia) en otro bounded context.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>staffProfileId</code></td><td><code>Long</code></td><td>private final</td><td>Su perfil de personal en Profiles.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>StaffProfileId(Long staffProfileId)</code></td><td>(constructor)</td><td>public</td><td>Crea la instancia y valida sus invariantes.</td></tr>
+<tr><td><b>Invariantes</b></td><td colspan="3">No nulo y mayor que 0.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessProfileId</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record), identidad</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Identidad de <code>BusinessProfile</code> de Profiles en otro bounded context.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessProfileId</code></td><td><code>Long</code></td><td>private final</td><td>Identidad de sus datos en Profiles.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessProfileId(Long businessProfileId)</code></td><td>(constructor)</td><td>public</td><td>Crea la instancia y valida sus invariantes.</td></tr>
+<tr><td><b>Invariantes</b></td><td colspan="3">No nulo y mayor que 0.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessId</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record), identidad</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Identidad de <code>Business</code> de Company en otro bounded context.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessId(Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Crea la instancia y valida sus invariantes.</td></tr>
+<tr><td><b>Invariantes</b></td><td colspan="3">No nulo y mayor que 0.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmailAddress</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Correo electrónico válido y normalizado. Permite que la validación de correo ya registrado trate <code>Ana@x.com</code> y <code>ana@x.com</code> como el mismo correo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo con formato válido, sin espacios y en minúsculas.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmailAddress(String emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Valida el formato y normaliza el correo.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>PhoneNumber</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Número telefónico internacional de cualquier país.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Código de país seguido del número nacional, sin "+" (ej. <code>51987654321</code>). Solo dígitos, máximo 15 (E.164).</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PhoneNumber(String phoneNumber)</code></td><td>(constructor)</td><td>public</td><td>Rechaza letras, espacios y símbolos, y números que no son válidos según el plan de numeración del país de su código (ej. Perú: 51 + móvil de 9 dígitos que empieza en 9).</td></tr>
+<tr><td><code>countryCallingCode()</code></td><td><code>String</code></td><td>public</td><td>Devuelve el código de país del número.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>Photo</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Referencia a una imagen ya subida a almacenamiento externo. El archivo se sube fuera del dominio; el aggregate solo guarda la referencia.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>photoUrl</code></td><td><code>String</code></td><td>private final</td><td>URL pública de la imagen. No vacía.</td></tr>
+<tr><td><code>photoPublicId</code></td><td><code>String</code></td><td>private final</td><td>Identificador de la imagen en el servicio de almacenamiento.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Photo(String photoUrl, String photoPublicId)</code></td><td>(constructor)</td><td>public</td><td>Crea la referencia; rechaza una URL vacía.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>Address</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Dirección geolocalizada obtenida de Google Maps.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>formattedAddress</code></td><td><code>String</code></td><td>private final</td><td>Dirección legible. No vacía.</td></tr>
+<tr><td><code>latitude</code></td><td><code>Double</code></td><td>private final</td><td>Latitud, entre -90 y 90.</td></tr>
+<tr><td><code>longitude</code></td><td><code>Double</code></td><td>private final</td><td>Longitud, entre -180 y 180.</td></tr>
+<tr><td><code>placeId</code></td><td><code>String</code></td><td>private final</td><td>Identificador del lugar en Google Maps.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Address(String formattedAddress, Double latitude, Double longitude, String placeId)</code></td><td>(constructor)</td><td>public</td><td>Valida la dirección y el rango de las coordenadas.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>TimeRange</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Intervalo de horas semiabierto <code>[start, end)</code>. Lo usan los horarios del negocio, de trabajo y de cuidado. Si <code>end</code> es anterior a <code>start</code>, el rango cruza medianoche (22:00-06:00); cada contexto decide si lo acepta.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>start</code></td><td><code>LocalTime</code></td><td>private final</td><td>Hora de inicio (incluida).</td></tr>
+<tr><td><code>end</code></td><td><code>LocalTime</code></td><td>private final</td><td>Hora de fin (excluida). Distinta de <code>start</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>TimeRange(LocalTime start, LocalTime end)</code></td><td>(constructor)</td><td>public</td><td>Rechaza horas nulas o iguales.</td></tr>
+<tr><td><code>contains(LocalTime time)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si una hora está dentro del rango. En 22:00-06:00, las 23:00 y las 03:00 están dentro.</td></tr>
+<tr><td><code>contains(TimeRange other)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si otro rango está completamente dentro de este.</td></tr>
+<tr><td><code>overlaps(TimeRange other)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si ambos rangos comparten algún tramo, empezando el mismo día. 09:00-10:00 y 10:00-11:00 no se cruzan.</td></tr>
+<tr><td><code>duration()</code></td><td><code>Duration</code></td><td>public</td><td>Tiempo total del rango (22:00-06:00 dura 8 horas).</td></tr>
+<tr><td><code>crossesMidnight()</code></td><td><code>boolean</code></td><td>public</td><td>Verdadero si <code>end</code> es anterior a <code>start</code>.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>WeeklyPeriod</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Bloque semanal: unos días de la semana con un mismo rango de horas (ej. lunes a viernes de 09:00 a 18:00).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>days</code></td><td><code>Set&lt;DayOfWeek&gt;</code></td><td>private final</td><td>Días de la semana. No vacío.</td></tr>
+<tr><td><code>range</code></td><td><code>TimeRange</code></td><td>private final</td><td>Rango de horas de esos días.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>WeeklyPeriod(Set&lt;DayOfWeek&gt; days, TimeRange range)</code></td><td>(constructor)</td><td>public</td><td>Rechaza días vacíos o un rango nulo.</td></tr>
+<tr><td><code>occursOn(LocalDate date)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el periodo empieza en el día de la semana de esa fecha.</td></tr>
+<tr><td><code>overlapsWith(WeeklyPeriod other)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si alguna ocurrencia de uno se cruza con alguna del otro. Si un rango cruza medianoche, también compara con el día siguiente (lunes 22:00-06:00 se cruza con martes 05:00-07:00).</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>range</code>)</td><td><code>TimeRange</code></td><td>1 a 1</td><td>Cada periodo tiene un único rango de horas.</td></tr>
+</table>
+
+#### Enumerations
+
+<table>
+<tr><th colspan="4" align="left"><code>EmailTemplate</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Plantillas de los correos que envía la plataforma. Se trasladará al bounded context Communication.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td><code>WELCOME</code></td><td colspan="3">Plantilla del correo de bienvenida.</td></tr>
+<tr><td><code>RESET_PASSWORD</code></td><td colspan="3">Plantilla del correo para restablecer la contraseña.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+<tr><td><b>Notas</b></td><td colspan="3">Esta enumeración se trasladará al bounded context Communication cuando se diseñe ese contexto.</td></tr>
+</table>
+
+### Code Level Diagrams
+
+#### Domain Layer Class Diagram
+
+El diagrama muestra las bases abstractas y los value objects compartidos, con sus atributos, métodos y visibilidad. La única relación propia de Shared es la composición entre `WeeklyPeriod` y `TimeRange` (1 a 1). Las notas del diagrama documentan las invariantes de cada value object.
+
+![Diagrama de clases de la capa de dominio - Shared](../images/diagrams/img/chapter-5/shared-backend-diagram.svg)
+
+#### Database Design Diagram
+
+Shared no tiene tablas propias. Sus bases se reflejan en las tablas de cada contexto: toda tabla de aggregate o entidad tiene `id` (`BIGINT`, identity), `created_at` y `updated_at` (`TIMESTAMP`). Sus value objects se guardan como columnas de la tabla que los usa (por ejemplo, `Address` se guarda como `address_formatted_address`, `address_latitude`, `address_longitude` y `address_place_id` en `business_profiles`), y los value objects de identidad, como columnas `BIGINT` sin llave foránea, porque apuntan a otro bounded context.
+
+
+<div style="page-break-after: always;"></div>
+
 ## 5.1. Bounded Context: IAM
 
-El bounded context **IAM (Gestión de Identidad y Acceso)** gestiona el ciclo de vida de las cuentas de Alivia: el registro y la verificación de correo, la autenticación y el cierre de sesión, la recuperación de contraseña, y la asignación o el retiro de roles de acceso. Es un subdominio genérico que actúa como contexto de puerta de enlace (*gateway context*): toda otra interacción de la plataforma exige primero una cuenta activa y un rol vigente emitidos aquí. Participan como actores el **Administrador de la plataforma**, el **Cuidador** —incluyendo a quien se registra a partir de una invitación enviada desde el bounded context Cuidado— y el **Empleado** —técnico, instalador o personal de soporte dado de alta desde Capital Humano—. El aggregate `Account` materializa el concepto de «Cuenta» del lenguaje ubicuo, es decir, la identidad registrada en el sistema, mientras que «Usuario» designa a la persona que la posee.
+En el código, este bounded context es el paquete `iam`. Gestiona las cuentas de usuario de Alivia: el registro, la autenticación, la recuperación de contraseña y los roles de acceso. Los demás contextos lo referencian por `UserId`.
 
 ### 5.1.1. Domain Layer
 
-La Domain Layer de IAM concentra las reglas de identidad y acceso de Alivia. El aggregate `Account` es la única raíz del contexto y encapsula las entidades `Session` y `RoleAssignment`, junto con los value objects que garantizan la integridad de las credenciales y de los códigos de verificación.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Account | Aggregate Root | Representa la identidad registrada de un usuario de Alivia (Administrador, Cuidador o Empleado). No permite más de una cuenta activa por correo electrónico, no autentica mientras el estado sea distinto de `ACTIVE`, y no admite la asignación de roles incompatibles entre sí (US17). |
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Session | Entity | Representa un periodo autenticado de uso activo emitido para un `Account`. Su vigencia no puede exceder los 30 minutos desde su emisión (QAS-10) y queda invalidada al cerrarse explícitamente o al expirar. |
-| RoleAssignment | Entity | Representa un rol vigente otorgado a un `Account`. No permite roles duplicados ni combinaciones incompatibles según la política de negocio (US17, escenarios #2 y #5). |
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| AccountId | Value Object | Identificador tipado del aggregate `Account`; no admite valores nulos ni negativos. |
-| SessionId | Value Object | Identificador tipado de una `Session`; se genera al emitirse un nuevo token de acceso. |
-| Email | Value Object | Dirección de correo electrónico del titular de la cuenta; valida el formato y no admite valores vacíos o mal formados. |
-| PhoneNumber | Value Object | Número de contacto del titular de la cuenta; valida el formato del número registrado en el flujo de registro (TS-01). |
-| PasswordHash | Value Object | Representación de la contraseña ya derivada mediante una función de hash resistente a fuerza bruta (QAS-11); nunca almacena ni expone la contraseña en texto plano. |
-| VerificationCode | Value Object | Código enviado por correo para verificar la identidad del titular; incluye su propósito (`VerificationPurpose`) y su vencimiento, y no puede validarse dos veces ni después de vencido (TS-01, escenario #4). |
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| AccountStatus | Enum | Estado del ciclo de vida de la cuenta. Transiciones permitidas: `PENDING_VERIFICATION` → `ACTIVE` al verificarse el correo; `ACTIVE` → `SUSPENDED` al revocarse el acceso (por ejemplo, ante el despido de un empleado en Capital Humano); `SUSPENDED` → `ACTIVE` al reactivarse manualmente. Ninguna transición permite autenticar fuera del estado `ACTIVE`. |
-| Role | Enum | Rol de acceso otorgable a una cuenta: `RESPONSIBLE_CLIENT`, `ASSISTED_PERSON`, `PRINCIPAL_CAREGIVER`, `AUTHORIZED_CAREGIVER`, `TECHNICIAN`, `SUPPORT_STAFF`, `SUBSCRIPTION_MANAGER`, `BUSINESS_ADMIN`, `PLATFORM_ADMIN` (US17). Una misma cuenta puede mantener varios roles compatibles de forma simultánea; cada uno se otorga o se retira de forma independiente. |
-| VerificationPurpose | Enum | Propósito de un `VerificationCode`: `EMAIL_VERIFICATION` (registro y reenvío), `PASSWORD_RECOVERY` (recuperación de contraseña) y `SECOND_FACTOR` (reservado como punto de extensión para una futura autenticación de dos pasos, observación previa #2; no se emite en el flujo de login actual, alineado con TS-03). |
-
-No se declaran Factories ni Domain Services en este bounded context: la creación de `Account` es una operación de un único aggregate que no requiere colaboración con otros aggregates, y las reglas de compatibilidad de roles (US17) se validan directamente dentro de `Account` al invocar `AssignRoleCommand`.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| RegisterAccountCommand | Registra una nueva cuenta en estado `PENDING_VERIFICATION` y dispara el envío del código de verificación de correo (TS-01). | name: String, email: String, phone: String, password: String, termsAccepted: Boolean, invitationId: String |
-| VerifyEmailCommand | Activa la cuenta tras validar un código de verificación vigente (TS-01). | accountId: Long, code: String |
-| ResendVerificationCodeCommand | Invalida el código de verificación anterior y emite uno nuevo, respetando el límite de frecuencia de reenvío (TS-02). | email: String |
-| LoginCommand | Autentica las credenciales de la cuenta y emite una nueva `Session` (TS-03). | email: String, password: String |
-| RefreshSessionCommand | Renueva la vigencia de una `Session` activa a partir de un refresh token válido (TS-03, escenario #4). | refreshToken: String |
-| LogoutCommand | Cierra explícitamente una `Session` activa. | sessionId: Long |
-| RequestPasswordRecoveryCommand | Emite un código de verificación con propósito `PASSWORD_RECOVERY` para la cuenta asociada al correo. | email: String |
-| ResetPasswordCommand | Restablece la contraseña de la cuenta validando el código de recuperación vigente. | accountId: Long, code: String, newPassword: String |
-| AssignRoleCommand | Otorga un rol adicional a la cuenta, validando su compatibilidad con los roles ya vigentes (US17). | accountId: Long, role: Role, grantedBy: Long |
-| RevokeRoleCommand | Retira un rol previamente otorgado a la cuenta sin afectar los demás roles vigentes (US17, escenario #4). | accountId: Long, role: Role, revokedBy: Long |
-| SuspendAccountCommand | Suspende la cuenta, impidiendo la autenticación hasta su reactivación. | accountId: Long, reason: String |
-| ReactivateAccountCommand | Reactiva una cuenta previamente suspendida. | accountId: Long |
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetAccountByIdQuery | Obtiene el detalle de una cuenta, incluyendo su estado y los roles vigentes asociados. | accountId: Long |
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| AccountRegistered | Se publica al registrarse una nueva cuenta; es consumido por Perfiles para inicializar el perfil del usuario (Canvas IAM, observación previa #1). | accountId: Long, email: String, name: String, registeredAt: LocalDateTime |
-| VerificationCodeIssued | Se publica al emitirse un código de verificación (registro, reenvío o recuperación de contraseña); lo consume `VerificationCodeIssuedEventHandler` para solicitar el envío del correo mediante Sendgrid. | accountId: Long, email: String, code: String, purpose: VerificationPurpose, expiresAt: LocalDateTime |
-| AccountEmailVerified | Se publica al activarse la cuenta; es consumido por Comunicaciones para notificar la activación (Context Mapping: IAM como proveedor de Comunicaciones). | accountId: Long, verifiedAt: LocalDateTime |
-| SessionStarted | Se publica al iniciarse o renovarse una `Session`. | sessionId: Long, accountId: Long, role: Role, issuedAt: LocalDateTime, expiresAt: LocalDateTime |
-| SessionEnded | Se publica al cerrarse explícitamente una `Session`. | sessionId: Long, endedAt: LocalDateTime |
-| PasswordReset | Se publica al restablecerse la contraseña; es consumido por Comunicaciones para notificar el cambio al titular. | accountId: Long, resetAt: LocalDateTime |
-| RoleAssigned | Se publica al otorgarse un rol a la cuenta. | accountId: Long, role: Role, grantedAt: LocalDateTime |
-| RoleRevoked | Se publica al retirarse un rol de la cuenta. | accountId: Long, role: Role, revokedAt: LocalDateTime |
-| AccountSuspended | Se publica al suspenderse la cuenta; es consumido por Comunicaciones para notificar la suspensión al titular. | accountId: Long, reason: String, suspendedAt: LocalDateTime |
-| AccountReactivated | Se publica al reactivarse la cuenta; es consumido por Comunicaciones para notificar la reactivación al titular. | accountId: Long, reactivatedAt: LocalDateTime |
-
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| AccountRepository | Account | Persiste y recupera el aggregate `Account` junto con sus entidades internas `Session` y `RoleAssignment`; expone la búsqueda por `AccountId` y por `Email` para validar unicidad en el registro. |
-
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| Account | composición | Session | `Account` crea y gestiona el ciclo de vida de sus sesiones activas. |
-| Account | composición | RoleAssignment | `Account` gestiona el conjunto de roles vigentes que le fueron otorgados. |
-| Account | asociación | VerificationCode | `Account` emite y valida los códigos de verificación ligados a su identidad. |
-| AccountRepository | depende de | Account | El repositorio persiste y recupera el aggregate `Account`. |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.1.2. Interface Layer
 
-La Interface Layer expone un único controller, `AccountController`, dado que `Session` y `RoleAssignment` son entidades internas del aggregate `Account` y se exponen como sub-recursos bajo su misma ruta. IAM no consume mensajería de dispositivos IoT, por lo que no declara consumers de broker; sus integraciones entrantes desde Capital Humano y Gestión del Negocio se resuelven mediante Event Handlers en la Application Layer (ver 5.1.3). Al ser un contexto de puerta de enlace, IAM expone además el facade `IamFacade` para que otros bounded contexts validen tokens sin acceder directamente al aggregate, conforme al patrón Shared Kernel documentado en el Context Mapping (4.2.5).
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AccountController |
-| Categoría | Controller |
-| Propósito | Exponer el registro, la autenticación, la recuperación de acceso y la gestión de roles de las cuentas de Alivia. |
-| Aggregate/Entity relacionado | Account (incluye los sub-recursos Session y RoleAssignment) |
-| Ruta base | /api/v1/accounts (gestión) y /api/v1/auth (autenticación, conforme a TS-01/TS-02/TS-03) |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| registerAccount | /api/v1/auth/register (POST) | body: RegisterAccountResource { name: String, email: String, phone: String, password: String, termsAccepted: Boolean, invitationId: String } | Registra una nueva cuenta en estado PENDING_VERIFICATION | RegisterAccountCommand |
-| verifyEmail | /api/v1/auth/verify-email (POST) | body: VerifyEmailResource { accountId: Long, code: String } | Activa la cuenta tras validar el código de verificación | VerifyEmailCommand |
-| resendVerificationCode | /api/v1/auth/resend-verification (POST) | body: ResendVerificationResource { email: String } | Reenvía el código de verificación de correo | ResendVerificationCodeCommand |
-| login | /api/v1/auth/login (POST) | body: LoginResource { email: String, password: String } | Autentica la cuenta y emite los tokens de acceso | LoginCommand |
-| refreshSession | /api/v1/auth/refresh (POST) | body: RefreshSessionResource { refreshToken: String } | Renueva el par de tokens de una sesión vigente | RefreshSessionCommand |
-| logout | /api/v1/auth/logout (POST) | body: LogoutResource { sessionId: Long } | Cierra la sesión activa de la cuenta | LogoutCommand |
-| requestPasswordRecovery | /api/v1/auth/password-recovery (POST) | body: RequestPasswordRecoveryResource { email: String } | Solicita el restablecimiento de contraseña | RequestPasswordRecoveryCommand |
-| resetPassword | /api/v1/auth/password-reset (POST) | body: ResetPasswordResource { accountId: Long, code: String, newPassword: String } | Restablece la contraseña usando el código vigente | ResetPasswordCommand |
-| getAccountById | /{accountId} (GET) | path: accountId: Long | Obtiene el detalle de una cuenta y sus roles vigentes | GetAccountByIdQuery |
-| assignRole | /{accountId}/roles (POST) | path: accountId: Long; body: AssignRoleResource { role: String } | Asigna un rol adicional a la cuenta | AssignRoleCommand |
-| revokeRole | /{accountId}/roles/{role} (DELETE) | path: accountId: Long, role: String | Retira un rol previamente asignado a la cuenta | RevokeRoleCommand |
-| suspendAccount | /{accountId}/suspend (POST) | path: accountId: Long; body: SuspendAccountResource { reason: String } | Suspende manualmente una cuenta | SuspendAccountCommand |
-| reactivateAccount | /{accountId}/reactivate (POST) | path: accountId: Long | Reactiva una cuenta previamente suspendida | ReactivateAccountCommand |
-
-| Nombre | Métodos expuestos | Propósito |
-| --- | --- | --- |
-| IamFacade | validateAccessToken(token: String): AuthenticatedPrincipal; getAccountSummary(accountId: Long): AccountSummaryResource | Permite que otros bounded contexts (Perfiles, Cuidado, Pagos y Suscripciones, entre otros) validen los tokens emitidos por IAM y obtengan un resumen mínimo de la cuenta sin acceder directamente al aggregate Account, implementando el patrón Shared Kernel acordado en el Context Mapping. |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.1.3. Application Layer
 
-La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante Event Handlers las integraciones entrantes identificadas en las Observaciones Previas: el alta y la baja de empleados publicadas por Capital Humano, y el alta de administradores publicada por Gestión del Negocio.
-
-**RegisterAccountCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterAccountCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear la cuenta en estado PENDING_VERIFICATION, derivar y almacenar el hash de la contraseña, y emitir el código de verificación de correo. |
-| Command/Query/Evento que maneja | RegisterAccountCommand |
-| Repositorios y servicios que usa | AccountRepository, PasswordHasher, VerificationCodeGenerator |
-| Eventos que publica | AccountRegistered, VerificationCodeIssued |
-| User story/capability que habilita | TS-01, US05 |
-
-**VerifyEmailCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | VerifyEmailCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Validar el código de verificación vigente y activar la cuenta. |
-| Command/Query/Evento que maneja | VerifyEmailCommand |
-| Repositorios y servicios que usa | AccountRepository |
-| Eventos que publica | AccountEmailVerified |
-| User story/capability que habilita | TS-01 |
-
-**ResendVerificationCodeCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ResendVerificationCodeCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Invalidar el código de verificación anterior y emitir uno nuevo, respetando el límite de frecuencia de reenvío. |
-| Command/Query/Evento que maneja | ResendVerificationCodeCommand |
-| Repositorios y servicios que usa | AccountRepository, VerificationCodeGenerator, RateLimiter |
-| Eventos que publica | VerificationCodeIssued |
-| User story/capability que habilita | TS-02 |
-
-**LoginCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | LoginCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Autenticar las credenciales de la cuenta, verificar su estado ACTIVE y emitir una nueva Session con sus tokens asociados. |
-| Command/Query/Evento que maneja | LoginCommand |
-| Repositorios y servicios que usa | AccountRepository, PasswordHasher, TokenProvider |
-| Eventos que publica | SessionStarted |
-| User story/capability que habilita | TS-03, US15 |
-
-**RefreshSessionCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RefreshSessionCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Validar la vigencia del refresh token y emitir un nuevo par de tokens para la Session existente. |
-| Command/Query/Evento que maneja | RefreshSessionCommand |
-| Repositorios y servicios que usa | AccountRepository, TokenProvider |
-| Eventos que publica | SessionStarted |
-| User story/capability que habilita | TS-03, escenario #4 |
-
-**LogoutCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | LogoutCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Invalidar la Session activa indicada. |
-| Command/Query/Evento que maneja | LogoutCommand |
-| Repositorios y servicios que usa | AccountRepository |
-| Eventos que publica | SessionEnded |
-| User story/capability que habilita | Derivado del EventStorming (comando Cerrar sesión) |
-
-**RequestPasswordRecoveryCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RequestPasswordRecoveryCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Emitir un código de verificación con propósito PASSWORD_RECOVERY para la cuenta asociada al correo indicado. |
-| Command/Query/Evento que maneja | RequestPasswordRecoveryCommand |
-| Repositorios y servicios que usa | AccountRepository, VerificationCodeGenerator |
-| Eventos que publica | VerificationCodeIssued |
-| User story/capability que habilita | Derivado del EventStorming (flujo de recuperación de contraseña) |
-
-**ResetPasswordCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ResetPasswordCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Validar el código de recuperación vigente y reemplazar el hash de la contraseña de la cuenta. |
-| Command/Query/Evento que maneja | ResetPasswordCommand |
-| Repositorios y servicios que usa | AccountRepository, PasswordHasher |
-| Eventos que publica | PasswordReset |
-| User story/capability que habilita | Derivado del EventStorming (flujo de recuperación de contraseña) |
-
-**AssignRoleCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AssignRoleCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Otorgar un rol adicional a la cuenta, validando su compatibilidad con los roles vigentes. |
-| Command/Query/Evento que maneja | AssignRoleCommand |
-| Repositorios y servicios que usa | AccountRepository |
-| Eventos que publica | RoleAssigned |
-| User story/capability que habilita | US17 |
-
-**RevokeRoleCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RevokeRoleCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Retirar un rol previamente otorgado a la cuenta sin afectar los demás roles vigentes. |
-| Command/Query/Evento que maneja | RevokeRoleCommand |
-| Repositorios y servicios que usa | AccountRepository |
-| Eventos que publica | RoleRevoked |
-| User story/capability que habilita | US17, escenario #4 |
-
-**SuspendAccountCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | SuspendAccountCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Suspender la cuenta e impedir su autenticación hasta una reactivación explícita. |
-| Command/Query/Evento que maneja | SuspendAccountCommand |
-| Repositorios y servicios que usa | AccountRepository |
-| Eventos que publica | AccountSuspended |
-| User story/capability que habilita | Invocado manualmente por un Administrador o automáticamente por EmployeeTerminatedEventHandler |
-
-**ReactivateAccountCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ReactivateAccountCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Reactivar una cuenta previamente suspendida. |
-| Command/Query/Evento que maneja | ReactivateAccountCommand |
-| Repositorios y servicios que usa | AccountRepository |
-| Eventos que publica | AccountReactivated |
-| User story/capability que habilita | Invocado manualmente por un Administrador |
-
-**GetAccountByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetAccountByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de una cuenta junto con sus roles vigentes. |
-| Command/Query/Evento que maneja | GetAccountByIdQuery |
-| Repositorios y servicios que usa | AccountRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta de cuenta desde el endpoint getAccountById |
-
-**VerificationCodeIssuedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | VerificationCodeIssuedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Solicitar al adaptador de Sendgrid el envío del correo correspondiente al propósito del código emitido. |
-| Command/Query/Evento que maneja | VerificationCodeIssued (evento propio de IAM) |
-| Repositorios y servicios que usa | EmailGateway |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | TS-01, TS-02, flujo de recuperación de contraseña |
-
-**EmployeeRegisteredEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | EmployeeRegisteredEventHandler |
-| Categoría | Event Handler |
-| Propósito | Crear la cuenta correspondiente a un empleado recién dado de alta y asignarle el rol operativo inicial. |
-| Command/Query/Evento que maneja | EmployeeRegistered (evento externo, BC de origen: Capital Humano) |
-| Repositorios y servicios que usa | RegisterAccountCommand, AssignRoleCommand (invocados internamente) |
-| Eventos que publica | AccountRegistered, VerificationCodeIssued, RoleAssigned (vía los commands invocados) |
-| User story/capability que habilita | Resuelve la observación previa #3 (integración entrante de Capital Humano) |
-
-**EmployeeTerminatedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | EmployeeTerminatedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Suspender la cuenta de un empleado al registrarse su despido. |
-| Command/Query/Evento que maneja | EmployeeTerminated (evento externo, BC de origen: Capital Humano) |
-| Repositorios y servicios que usa | SuspendAccountCommand (invocado internamente) |
-| Eventos que publica | AccountSuspended (vía el command invocado) |
-| User story/capability que habilita | Resuelve la observación previa #3 (integración entrante de Capital Humano) |
-
-**AdministratorRegisteredEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AdministratorRegisteredEventHandler |
-| Categoría | Event Handler |
-| Propósito | Crear la cuenta correspondiente a un administrador del negocio recién registrado y asignarle el rol BUSINESS_ADMIN. |
-| Command/Query/Evento que maneja | BusinessAdministratorRegistered (evento externo, BC de origen: Gestión del Negocio) |
-| Repositorios y servicios que usa | RegisterAccountCommand, AssignRoleCommand (invocados internamente) |
-| Eventos que publica | AccountRegistered, VerificationCodeIssued, RoleAssigned (vía los commands invocados) |
-| User story/capability que habilita | Resuelve la observación previa #5 (integración entrante de Gestión del Negocio) |
-
-**IamFacadeImpl**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | IamFacadeImpl |
-| Categoría | Facade Implementation |
-| Propósito | Implementar IamFacade para que otros bounded contexts validen tokens y obtengan un resumen de cuenta sin acceder al aggregate Account. |
-| Command/Query/Evento que maneja | No aplica (no despacha Commands/Queries; delega en AccountRepository y TokenProvider) |
-| Repositorios y servicios que usa | AccountRepository, TokenProvider |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Patrón Shared Kernel documentado en el Context Mapping (4.2.5) |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.1.4. Infrastructure Layer
 
-La Infrastructure Layer implementa el repositorio de Account sobre PostgreSQL, consistente con la decisión TS-47 de persistencia transaccional para cuentas, y los adaptadores hacia Sendgrid, el proveedor de tokens y el hasher de contraseñas, además del suscriptor del bus de eventos interno que conecta a IAM con Capital Humano y Gestión del Negocio.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| AccountRepositoryJpa | AccountRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Account junto con sus entidades internas Session y RoleAssignment. |
+### 5.1.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `AccountJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Account`, `Session`, `RoleAssignment` y `VerificationCode` sobre el motor PostgreSQL definido en TS-47.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| SendgridEmailGateway | Gateway | EmailGateway | Sendgrid | Envía los correos de verificación y de recuperación de contraseña. |
-| JwtTokenProvider | Service Adapter | TokenProvider | Librería JWT local | Genera y valida los pares de accessToken/refreshToken firmados. |
-| BcryptPasswordHasher | Service Adapter | PasswordHasher | Librería de hashing local | Aplica la función de derivación de claves resistente a fuerza bruta (QAS-11). |
-| DomainEventBusSubscriber | Event Subscriber | EmployeeRegisteredListener, EmployeeTerminatedListener, AdministratorRegisteredListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por Capital Humano y Gestión del Negocio hacia los Event Handlers de IAM. |
+### 5.1.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| accounts | Almacena el aggregate Account: estado, credenciales hasheadas y datos de contacto. |
-| account_role_assignments | Almacena los roles vigentes otorgados a cada cuenta (entity RoleAssignment). |
-| account_sessions | Almacena las sesiones activas y expiradas emitidas por cuenta (entity Session). |
-| verification_codes | Almacena los códigos de verificación emitidos (value object VerificationCode), su propósito y su vigencia. |
+#### 5.1.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Invitación (aggregate) | Cuidado | Gestiona la invitación y vinculación de cuidadores; IAM solo recibe RegisterAccountCommand cuando el invitado completa su registro (observación previa #1). |
-| Perfil / Perfil de hogar | Perfiles | Los datos personales, la foto y el cuidador principal del hogar se gestionan en Perfiles, inicializados al consumir AccountRegistered (observación previa #1). |
-| Contrato laboral | Capital Humano | El ciclo de vida del contrato (alta, renovación, suspensión, culminación) es responsabilidad de Capital Humano; IAM solo refleja el estado de acceso derivado mediante EmployeeRegisteredEventHandler/EmployeeTerminatedEventHandler (observación previa #3). |
-| Perfil del negocio | Gestión del Negocio | El registro del negocio y los datos de negocio del administrador se gestionan en Gestión del Negocio; IAM solo crea la cuenta y las credenciales mediante AdministratorRegisteredEventHandler (observación previa #5). |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-**Verificación de trazabilidad — IAM**
+#### 5.1.7.2. Bounded Context Database Design Diagram
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 12 commands y la query de 5.1.1 tienen su handler correspondiente en 5.1.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | RegisterAccountCommand y AssignRoleCommand se usan desde endpoints REST y desde los Event Handlers que resuelven las observaciones previas #3 y #5; SuspendAccountCommand se usa desde el endpoint manual y desde EmployeeTerminatedEventHandler. |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de la tabla de endpoints (5.1.2) mapea 1:1 los parámetros del Command correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | AccountController está relacionado con el aggregate Account. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | AccountRepository (5.1.1) se implementa en AccountRepositoryJpa (5.1.4). |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | VerificationCodeIssued lo consume VerificationCodeIssuedEventHandler (propio); el resto se consumen en Perfiles o Comunicaciones, según se detalla en la tabla de Domain Events (5.1.1). |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Account es exclusivo de IAM; Invitación se excluyó explícitamente hacia Cuidado (observación previa #1, tabla de objetos excluidos 5.1.4). |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PasswordHash, TokenProvider y EmailGateway se declaran como puertos/value objects en Domain; sus implementaciones concretas (BcryptPasswordHasher, JwtTokenProvider, SendgridEmailGateway) están en Infrastructure (5.1.4). |
-
-### 5.1.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.1.6.1. Bounded Context Domain Layer Class Diagrams
-
-El siguiente diagrama de clases presenta la capa de dominio del bounded context **IAM**. Su núcleo es el aggregate root **User**, que hereda de `AuditableAbstractAggregateRoot` (Shared) y se compone de los value objects `EmailAddress` y `PasswordHash`, además de los enums `AccessRole` y `UserStatus`. Se incluyen los value objects que soportan la verificación de correo y la recuperación de contraseña (`EmailVerificationToken`, `PasswordRecoveryCode`, `PasswordRecoveryToken`), los commands del ciclo de vida de la cuenta (registro, inicio de sesión, recuperación y cambio de contraseña, alta de accesos de empleados, asignación de rol y cambio de estado), las queries de consulta de usuarios y las interfaces `UserCommandService` y `UserQueryService` que los orquestan.
-
-![Diagrama de clases de la capa de dominio - IAM](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/iam/iam-backend-diagram.puml)
-
-#### 5.1.6.2. Bounded Context Database Design Diagram
-
-El siguiente diagrama de base de datos muestra el modelo relacional que persiste el bounded context **IAM**. La tabla central `users` almacena las credenciales, el rol y el estado de cada cuenta, y se relaciona uno a muchos con las tablas de tokens de un solo uso: `email_verification_tokens` para la verificación de correo, `password_recovery_codes` y `password_recovery_tokens` para los dos canales de recuperación de contraseña, y `activation_tokens` para la activación de las cuentas de acceso de los empleados.
-
-![Diagrama de base de datos - IAM](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/iam/iam-database-diagram.puml)
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 <div style="page-break-after: always;"></div>
 
 ## 5.2. Bounded Context: Gestión del Negocio
 
-El bounded context **Gestión del Negocio** administra la información del negocio de Alivia y de los administradores responsables de gestionarlo: el registro del negocio con su ubicación, la actualización de su perfil, y el registro y la actualización de los administradores. Es un subdominio de soporte con rol de contexto de ejecución (no de puerta de enlace como IAM). El único actor que participa es el **Administrador**, quien registra el negocio y da de alta a otros administradores. A diferencia de IAM, este bounded context no posee contratos técnicos (TS/US) propios en los capítulos 2-3; sus comandos y parámetros se derivan directamente del lenguaje ubicuo del Bounded Context Canvas (4.2.4).
+En el código, este bounded context es el paquete `company`. Company representa el negocio que opera la plataforma (hoy, Alivia) y a la persona que lo gestiona. Su id es el `BusinessId` que usan los demás contextos; guardarlo permite abrir más negocios en el futuro. Los datos públicos y legales del negocio viven en `BusinessProfile` (Profiles) y los datos personales del administrador en su `StaffProfile` (Profiles): Company solo guarda la identidad de cada uno y quién gestiona el negocio. El administrador registra su propia cuenta corporativa y después crea el negocio.
 
 ### 5.2.1. Domain Layer
 
-La Domain Layer de Gestión del Negocio modela dos aggregates independientes, fieles al EventStorming de Paso 10: `Business`, que representa al negocio de Alivia con su ubicación y perfil, y `BusinessAdministrator`, que representa a cada administrador responsable de gestionarlo. Ambos son aggregates simples, sin entidades internas con identidad propia.
+Este bounded context no declara Entities, Value Objects, Enumerations ni Domain Events propios.
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Business | Aggregate Root | Representa el negocio de Alivia registrado con su ubicación y su perfil. No admite más de una instancia activa en la plataforma (observación previa #1: Alivia no es una plataforma multi-tenant) ni una ubicación sin geocodificar mediante Google Maps. |
-| BusinessAdministrator | Aggregate Root | Representa a un administrador responsable de gestionar el negocio. Referencia a `Business` mediante `businessId` (un `Business` puede tener varios administradores asociados, resolviendo la observación previa #1). |
+#### Aggregates
 
-No se identifican Entities en este bounded context: tanto `Business` como `BusinessAdministrator` son aggregates simples sin componentes internos con identidad propia.
+<table>
+<tr><th colspan="4" align="left"><code>Business</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>AuditableAbstractAggregateRoot</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">El negocio cliente de la plataforma. Enlaza su <code>BusinessProfile</code> y su administrador.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessProfileId</code></td><td><code>BusinessProfileId</code></td><td>private</td><td>Identidad de sus datos en Profiles.</td></tr>
+<tr><td><code>administrator</code></td><td><code>Administrator</code></td><td>private</td><td>Administrador que gestiona el negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Business(BusinessProfileId businessProfileId, Administrator administrator)</code></td><td>(constructor)</td><td>public</td><td>Crea el negocio con su perfil y su administrador.</td></tr>
+<tr><td><code>isManagedBy(Administrator administrator)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el administrador recibido es quien gestiona el negocio. Se usa antes de modificar sus datos.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación dirigida "gestionado por"</td><td><code>Administrator</code></td><td>0..1 <code>Business</code> a 1 <code>Administrator</code></td><td>Un negocio tiene un administrador; un administrador gestiona a lo sumo un negocio.</td></tr>
+</table>
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| BusinessId | Value Object | Identificador tipado del aggregate Business; no admite valores nulos ni negativos. |
-| BusinessAdministratorId | Value Object | Identificador tipado del aggregate BusinessAdministrator; no admite valores nulos ni negativos. |
-| GeoLocation | Value Object | Ubicación geocodificada del negocio (latitud, longitud y dirección) obtenida mediante Google Maps; no admite coordenadas nulas ni fuera de los rangos válidos (-90 a 90 de latitud, -180 a 180 de longitud), conforme a la decisión de negocio del Canvas. |
-| BusinessName | Value Object | Nombre del negocio; no admite valores vacíos. |
-| Email | Value Object | Dirección de correo electrónico del administrador; valida el formato y no admite valores vacíos o mal formados. Es un value object propio de este bounded context, sin acoplarse al `Email` de IAM (no existe Shared Kernel declarado entre ambos en el Context Mapping). |
-| PhoneNumber | Value Object | Número de contacto del administrador; valida el formato del número registrado. |
+<table>
+<tr><th colspan="4" align="left"><code>Administrator</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>AuditableAbstractAggregateRoot</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">La persona que gestiona el negocio. Es personal de Alivia: enlaza su cuenta corporativa de IAM y su <code>StaffProfile</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>UserId</code></td><td>private</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><td><code>staffProfileId</code></td><td><code>StaffProfileId</code></td><td>private</td><td>Su perfil de personal en Profiles.</td></tr>
+<tr><td><code>backupPersonalEmail</code></td><td><code>EmailAddress</code></td><td>private</td><td>Correo personal de respaldo. Opcional y único entre administradores.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Administrator(UserId userId, StaffProfileId staffProfileId, EmailAddress backupPersonalEmail)</code></td><td>(constructor)</td><td>public</td><td>Crea el administrador con su cuenta y su perfil.</td></tr>
+<tr><td><code>updateBackupPersonalEmail(EmailAddress backupPersonalEmail)</code></td><td><code>void</code></td><td>public</td><td>Cambia el correo de respaldo. Es el único dato que el aggregate modifica; los datos personales se actualizan en su <code>StaffProfile</code>.</td></tr>
+</table>
 
-No se declaran Enums en este bounded context: ni `Business` ni `BusinessAdministrator` exhiben estados con transiciones; el ciclo de vida de acceso (activo/suspendido) de la cuenta del administrador es responsabilidad exclusiva de IAM (ver 5.1, `AccountStatus`).
+#### Commands
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| RegisterBusinessCommand | Registra el negocio de Alivia con su ubicación geocodificada mediante Google Maps. | name: String, description: String, address: String, latitude: Double, longitude: Double |
-| UpdateBusinessProfileCommand | Actualiza el perfil del negocio (nombre, descripción o ubicación). | businessId: Long, name: String, description: String, address: String, latitude: Double, longitude: Double |
-| RegisterBusinessAdministratorCommand | Registra un nuevo administrador responsable de gestionar el negocio. | businessId: Long, name: String, email: String, phone: String |
-| UpdateBusinessAdministratorCommand | Actualiza los datos de contacto de un administrador. | administratorId: Long, name: String, email: String, phone: String |
+<table>
+<tr><th colspan="4" align="left"><code>CreateAdministratorCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Registra al administrador: su cuenta corporativa en IAM, su <code>StaffProfile</code> en Profiles y el aggregate <code>Administrator</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>corporateEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo corporativo: cuenta en IAM y email de su <code>StaffProfile</code>.</td></tr>
+<tr><td><code>password</code></td><td><code>String</code></td><td>private final</td><td>Contraseña de su cuenta. Se oculta en <code>toString()</code>.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo de la foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo de la foto.</td></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><td><code>dni</code></td><td><code>String</code></td><td>private final</td><td>DNI.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>backupPersonalEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo personal de respaldo. Opcional.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateAdministratorCommand(String corporateEmail, String password, byte[] photoData, String photoFileName, String firstName, String lastName, String dni, String phoneNumber, String backupPersonalEmail)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El administrador registra su propia cuenta. El DNI no está entre el personal (<code>DniAlreadyExists</code>) y el correo corporativo no está registrado (<code>EmailAddressAlreadyExists</code>); Profiles crea el <code>StaffProfile</code> e IAM crea la cuenta corporativa. Un administrador no puede ser también empleado, porque ambos son personal y el DNI es único entre el personal. El correo de respaldo no pertenece a otro administrador (<code>BackupPersonalEmailAlreadyExists</code>).</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetBusinessByIdQuery | Obtiene el detalle del negocio, incluyendo su perfil y ubicación. | businessId: Long |
-| GetBusinessAdministratorByIdQuery | Obtiene el detalle de un administrador del negocio. | administratorId: Long |
+<table>
+<tr><th colspan="4" align="left"><code>UpdateAdministratorCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Actualiza los datos personales del administrador (en su <code>StaffProfile</code>) y su correo personal de respaldo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>administratorId</code></td><td><code>Long</code></td><td>private final</td><td>Id del administrador.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo de la foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo de la foto.</td></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>backupPersonalEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo de respaldo. Opcional.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdateAdministratorCommand(Long administratorId, byte[] photoData, String photoFileName, String firstName, String lastName, String phoneNumber, String backupPersonalEmail)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El administrador existe (<code>AdministratorNotFound</code>). El aggregate solo cambia el correo de respaldo; los demás datos se actualizan en su <code>StaffProfile</code>.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| BusinessRegistered | Se publica al registrarse el negocio de Alivia con su ubicación geocodificada. | businessId: Long, name: String, address: String, latitude: Double, longitude: Double, registeredAt: LocalDateTime |
-| BusinessProfileUpdated | Se publica al actualizarse el perfil del negocio. | businessId: Long, updatedAt: LocalDateTime |
-| BusinessAdministratorRegistered | Se publica al registrarse un nuevo administrador; es consumido por `AdministratorRegisteredEventHandler` de IAM (5.1.3) para crear su cuenta y asignarle el rol BUSINESS_ADMIN (observación previa #2). | administratorId: Long, businessId: Long, name: String, email: String, phone: String, registeredAt: LocalDateTime |
-| BusinessAdministratorUpdated | Se publica al actualizarse los datos de un administrador; dispara la creación de su perfil en Perfiles, conforme a la decisión de negocio del Canvas (observación previa #3, ver 5.3). | administratorId: Long, name: String, email: String, phone: String, updatedAt: LocalDateTime |
+<table>
+<tr><th colspan="4" align="left"><code>CreateBusinessCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Crea el negocio que gestiona un administrador: Profiles crea el <code>BusinessProfile</code> y <code>Business</code> guarda su id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo del logo o foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo.</td></tr>
+<tr><td><code>businessName</code></td><td><code>String</code></td><td>private final</td><td>Nombre comercial.</td></tr>
+<tr><td><code>legalName</code></td><td><code>String</code></td><td>private final</td><td>Razón social.</td></tr>
+<tr><td><code>ruc</code></td><td><code>Long</code></td><td>private final</td><td>RUC.</td></tr>
+<tr><td><code>mainActivity</code></td><td><code>String</code></td><td>private final</td><td>Actividad principal.</td></tr>
+<tr><td><code>description</code></td><td><code>String</code></td><td>private final</td><td>Descripción.</td></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo del negocio.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>formattedAddress</code></td><td><code>String</code></td><td>private final</td><td>Dirección.</td></tr>
+<tr><td><code>latitude</code></td><td><code>Double</code></td><td>private final</td><td>Latitud.</td></tr>
+<tr><td><code>longitude</code></td><td><code>Double</code></td><td>private final</td><td>Longitud.</td></tr>
+<tr><td><code>placeId</code></td><td><code>String</code></td><td>private final</td><td>Id del lugar en Google Maps.</td></tr>
+<tr><td><code>businessHours</code></td><td><code>List&lt;WeeklyPeriod&gt;</code></td><td>private final</td><td>Periodos de atención con el value object <code>WeeklyPeriod</code> de Shared; Profiles los valida como <code>BusinessHours</code> (<code>InvalidBusinessHours</code>).</td></tr>
+<tr><td><code>supportEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo de soporte.</td></tr>
+<tr><td><code>emergencyPhone</code></td><td><code>String</code></td><td>private final</td><td>Teléfono de emergencia.</td></tr>
+<tr><td><code>whatsappNum</code></td><td><code>String</code></td><td>private final</td><td>WhatsApp.</td></tr>
+<tr><td><code>slogan</code></td><td><code>String</code></td><td>private final</td><td>Eslogan.</td></tr>
+<tr><td><code>administratorId</code></td><td><code>Long</code></td><td>private final</td><td>Administrador que crea el negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateBusinessCommand(byte[] photoData, String photoFileName, String businessName, String legalName, Long ruc, String mainActivity, String description, String emailAddress, String phoneNumber, String formattedAddress, Double latitude, Double longitude, String placeId, List&lt;WeeklyPeriod&gt; businessHours, String supportEmail, String emergencyPhone, String whatsappNum, String slogan, Long administratorId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El administrador existe (<code>AdministratorNotFound</code>) y no gestiona otro negocio (<code>BusinessAlreadyExistsForAdministrator</code>). Profiles crea el <code>BusinessProfile</code> y devuelve su id; si rechaza email, RUC, nombre comercial o razón social ya registrados, se traduce a <code>EmailAddressAlreadyExists</code>, <code>RucAlreadyExists</code>, <code>BusinessNameAlreadyExists</code> o <code>LegalNameAlreadyExists</code>.</td></tr>
+</table>
 
-No se declaran Factories ni Domain Services en este bounded context: `Business` y `BusinessAdministrator` son aggregates independientes que solo se referencian por identificador (`businessId`), sin que su creación requiera colaboración ni validación cruzada en memoria entre ambos.
+<table>
+<tr><th colspan="4" align="left"><code>UpdateBusinessCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Actualiza los datos del negocio en su <code>BusinessProfile</code>. Solo lo ejecuta el administrador que lo gestiona.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>administratorId</code></td><td><code>Long</code></td><td>private final</td><td>Administrador que solicita el cambio.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo del logo o foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo.</td></tr>
+<tr><td><code>businessName</code></td><td><code>String</code></td><td>private final</td><td>Nombre comercial.</td></tr>
+<tr><td><code>legalName</code></td><td><code>String</code></td><td>private final</td><td>Razón social.</td></tr>
+<tr><td><code>mainActivity</code></td><td><code>String</code></td><td>private final</td><td>Actividad principal.</td></tr>
+<tr><td><code>description</code></td><td><code>String</code></td><td>private final</td><td>Descripción.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>businessHours</code></td><td><code>List&lt;WeeklyPeriod&gt;</code></td><td>private final</td><td>Periodos de atención (<code>WeeklyPeriod</code> de Shared).</td></tr>
+<tr><td><code>supportEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo de soporte.</td></tr>
+<tr><td><code>emergencyPhone</code></td><td><code>String</code></td><td>private final</td><td>Teléfono de emergencia.</td></tr>
+<tr><td><code>whatsappNum</code></td><td><code>String</code></td><td>private final</td><td>WhatsApp.</td></tr>
+<tr><td><code>slogan</code></td><td><code>String</code></td><td>private final</td><td>Eslogan.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdateBusinessCommand(Long businessId, Long administratorId, byte[] photoData, String photoFileName, String businessName, String legalName, String mainActivity, String description, String phoneNumber, List&lt;WeeklyPeriod&gt; businessHours, String supportEmail, String emergencyPhone, String whatsappNum, String slogan)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El negocio existe (<code>BusinessNotFound</code>). Solo su administrador lo modifica, incluida la razón social (<code>business.isManagedBy(administrator)</code>). No incluye RUC, email ni ubicación, que no se modifican. Nombre comercial y razón social siguen siendo únicos (<code>BusinessNameAlreadyExists</code>, <code>LegalNameAlreadyExists</code>). <code>Business</code> no cambia: los datos se actualizan en <code>BusinessProfile</code>.</td></tr>
+</table>
 
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| BusinessRepository | Business | Persiste y recupera el aggregate Business; garantiza la unicidad de la instancia activa del negocio (observación previa #1). |
-| BusinessAdministratorRepository | BusinessAdministrator | Persiste y recupera el aggregate BusinessAdministrator; expone la búsqueda por businessId para listar a los administradores de un negocio. |
+#### Queries
 
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| BusinessAdministrator | asociación | Business | BusinessAdministrator referencia a su negocio mediante businessId; son aggregates independientes, sin composición. |
-| BusinessRepository | depende de | Business | El repositorio persiste y recupera el aggregate Business. |
-| BusinessAdministratorRepository | depende de | BusinessAdministrator | El repositorio persiste y recupera el aggregate BusinessAdministrator. |
+<table>
+<tr><th colspan="4" align="left"><code>GetBusinessByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Obtiene un negocio por su id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetBusinessByIdQuery(Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Business&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetBusinessByAdministratorIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Obtiene el negocio que gestiona un administrador.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>administratorId</code></td><td><code>Long</code></td><td>private final</td><td>Id del administrador.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetBusinessByAdministratorIdQuery(Long administratorId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Business&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAdministratorByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Obtiene un administrador por su id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>administratorId</code></td><td><code>Long</code></td><td>private final</td><td>Id del administrador.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAdministratorByIdQuery(Long administratorId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Administrator&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAdministratorByUserIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Obtiene el administrador del usuario que inició sesión.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAdministratorByUserIdQuery(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Administrator&gt;</code></td></tr>
+</table>
+
+#### Domain Services
+
+Todos los métodos son `public` (interfaces).
+
+<table>
+<tr><th colspan="4" align="left"><code>AdministratorCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>Administrator</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateAdministratorCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Registra al administrador y devuelve su id.</td></tr>
+<tr><td><code>handle(UpdateAdministratorCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Actualiza sus datos y devuelve su id.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AdministratorQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>Administrator</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetAdministratorByIdQuery query)</code></td><td><code>Optional&lt;Administrator&gt;</code></td><td>public</td><td>Administrador por id.</td></tr>
+<tr><td><code>handle(GetAdministratorByUserIdQuery query)</code></td><td><code>Optional&lt;Administrator&gt;</code></td><td>public</td><td>Administrador por usuario.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>Business</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateBusinessCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Crea el negocio y devuelve su id.</td></tr>
+<tr><td><code>handle(UpdateBusinessCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Actualiza el negocio y devuelve su id.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>Business</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetBusinessByIdQuery query)</code></td><td><code>Optional&lt;Business&gt;</code></td><td>public</td><td>Negocio por id.</td></tr>
+<tr><td><code>handle(GetBusinessByAdministratorIdQuery query)</code></td><td><code>Optional&lt;Business&gt;</code></td><td>public</td><td>Negocio por administrador.</td></tr>
+</table>
+
+#### Exceptions
+
+Cada excepción tiene un constructor `public` sin parámetros. Las que repiten nombre con Profiles traducen su rechazo a este contexto, sin importar clases de otro bounded context.
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe un negocio con el id indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AdministratorNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe un administrador con el id indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AdministratorNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessAlreadyExistsForAdministrator</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el administrador ya gestiona un negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessAlreadyExistsForAdministrator()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DniAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el DNI ya está registrado entre el personal.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DniAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmailAddressAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el correo corporativo o el email del negocio ya está registrado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmailAddressAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessNameAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el nombre comercial ya pertenece a otro negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessNameAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>LegalNameAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la razón social ya pertenece a otro negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>LegalNameAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RucAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el RUC ya pertenece a otro negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RucAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BackupPersonalEmailAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el correo de respaldo ya pertenece a otro administrador.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BackupPersonalEmailAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
 
 ### 5.2.2. Interface Layer
 
-La Interface Layer expone dos controllers independientes, uno por cada aggregate root: `BusinessController` y `BusinessAdministratorController`. Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: sus integraciones salientes se resuelven mediante Domain Events (hacia IAM y Perfiles, ver 5.2.1) y mediante el adaptador de Google Maps (ver 5.2.4), no mediante llamadas síncronas de otros BC hacia este.
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | BusinessController |
-| Categoría | Controller |
-| Propósito | Exponer el registro y la actualización del perfil del negocio de Alivia. |
-| Aggregate/Entity relacionado | Business |
-| Ruta base | /api/v1/business |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| registerBusiness | / (POST) | body: RegisterBusinessResource { name: String, description: String, address: String, latitude: Double, longitude: Double } | Registra el negocio de Alivia con su ubicación | RegisterBusinessCommand |
-| updateBusinessProfile | /{businessId} (PUT) | path: businessId: Long; body: UpdateBusinessProfileResource { name: String, description: String, address: String, latitude: Double, longitude: Double } | Actualiza el perfil del negocio | UpdateBusinessProfileCommand |
-| getBusiness | /{businessId} (GET) | path: businessId: Long | Obtiene el detalle del negocio | GetBusinessByIdQuery |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | BusinessAdministratorController |
-| Categoría | Controller |
-| Propósito | Exponer el registro y la actualización de los administradores del negocio. |
-| Aggregate/Entity relacionado | BusinessAdministrator |
-| Ruta base | /api/v1/business/administrators |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| registerBusinessAdministrator | / (POST) | body: RegisterBusinessAdministratorResource { businessId: Long, name: String, email: String, phone: String } | Registra un nuevo administrador para el negocio | RegisterBusinessAdministratorCommand |
-| updateBusinessAdministrator | /{administratorId} (PUT) | path: administratorId: Long; body: UpdateBusinessAdministratorResource { name: String, email: String, phone: String } | Actualiza los datos de un administrador | UpdateBusinessAdministratorCommand |
-| getBusinessAdministratorById | /{administratorId} (GET) | path: administratorId: Long | Obtiene el detalle de un administrador | GetBusinessAdministratorByIdQuery |
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.2.1.
 
 ### 5.2.3. Application Layer
 
-La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado. Este bounded context no declara Event Handlers de eventos externos: su Comunicación Entrante (Canvas 4.2.4) proviene únicamente del actor Administrador, sin integraciones entrantes desde otros BC.
-
-**RegisterBusinessCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterBusinessCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Geocodificar la dirección ingresada mediante Google Maps y registrar el negocio, validando que no exista ya una instancia activa (observación previa #1). |
-| Command/Query/Evento que maneja | RegisterBusinessCommand |
-| Repositorios y servicios que usa | BusinessRepository, GeocodingService |
-| Eventos que publica | BusinessRegistered |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**UpdateBusinessProfileCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | UpdateBusinessProfileCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Actualizar el perfil del negocio, regeocodificando la ubicación cuando la dirección cambia. |
-| Command/Query/Evento que maneja | UpdateBusinessProfileCommand |
-| Repositorios y servicios que usa | BusinessRepository, GeocodingService |
-| Eventos que publica | BusinessProfileUpdated |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**RegisterBusinessAdministratorCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterBusinessAdministratorCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Registrar un nuevo administrador, validando que el negocio referenciado exista. |
-| Command/Query/Evento que maneja | RegisterBusinessAdministratorCommand |
-| Repositorios y servicios que usa | BusinessAdministratorRepository, BusinessRepository |
-| Eventos que publica | BusinessAdministratorRegistered |
-| User story/capability que habilita | Resuelve la observación previa #2 (integración saliente hacia IAM) |
-
-**UpdateBusinessAdministratorCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | UpdateBusinessAdministratorCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Actualizar los datos de contacto de un administrador. |
-| Command/Query/Evento que maneja | UpdateBusinessAdministratorCommand |
-| Repositorios y servicios que usa | BusinessAdministratorRepository |
-| Eventos que publica | BusinessAdministratorUpdated |
-| User story/capability que habilita | Resuelve la observación previa #3 (integración saliente hacia Perfiles) |
-
-**GetBusinessByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetBusinessByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle del negocio, incluyendo su perfil y ubicación. |
-| Command/Query/Evento que maneja | GetBusinessByIdQuery |
-| Repositorios y servicios que usa | BusinessRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getBusiness |
-
-**GetBusinessAdministratorByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetBusinessAdministratorByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un administrador del negocio. |
-| Command/Query/Evento que maneja | GetBusinessAdministratorByIdQuery |
-| Repositorios y servicios que usa | BusinessAdministratorRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getBusinessAdministratorById |
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.2.1.
 
 ### 5.2.4. Infrastructure Layer
 
-La Infrastructure Layer implementa los repositorios de Business y BusinessAdministrator sobre PostgreSQL, consistente con el carácter transaccional y estructurado de los datos del negocio (TS-47), y el adaptador hacia Google Maps para geocodificar direcciones.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.2.1.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| BusinessRepositoryJpa | BusinessRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Business. |
-| BusinessAdministratorRepositoryJpa | BusinessAdministratorRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate BusinessAdministrator. |
+### 5.2.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `BusinessJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Business` y `BusinessAdministrator` sobre el motor PostgreSQL.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.2.1.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| GoogleMapsGeocodingAdapter | Gateway | GeocodingService | Google Maps | Geocodifica la dirección ingresada a coordenadas válidas al registrar o actualizar el negocio. |
+### 5.2.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| businesses | Almacena el aggregate Business: nombre, descripción y ubicación geocodificada. |
-| business_administrators | Almacena el aggregate BusinessAdministrator: datos de contacto y referencia a su negocio (businessId). |
+#### 5.2.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Cuenta / credenciales del administrador | IAM | La creación y gestión de la cuenta de acceso del administrador es responsabilidad exclusiva de IAM, invocada mediante BusinessAdministratorRegistered (observación previa #2, resuelto en 5.1). |
-| Perfil del administrador | Perfiles | El perfil detallado del administrador (foto, preferencias) se gestiona en Perfiles al consumir BusinessAdministratorUpdated (observación previa #3, decisión de negocio del Canvas, ver 5.3). |
+El diagrama muestra los aggregates `Business` y `Administrator`, relacionados por la asociación dirigida "gestionado por" (0..1 a 1). Los colores distinguen el flujo de escritura (naranja: el command service recibe el command y crea o actualiza el aggregate) y el de lectura (verde: el query service recibe la query y devuelve el aggregate). Los atributos de cada command se muestran dentro de su clase; las notas detallan sus validaciones.
 
-**Verificación de trazabilidad — Gestión del Negocio**
+![Diagrama de clases de la capa de dominio - Gestión del Negocio](../images/diagrams/img/chapter-5/Business.svg)
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 4 commands y las 2 queries de 5.2.1 tienen su handler correspondiente en 5.2.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | Los 4 commands y las 2 queries se usan desde los endpoints de BusinessController y BusinessAdministratorController (5.2.2); no hay event handlers en este BC (justificado en 5.2.3). |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.2.2) mapea 1:1 los parámetros del Command correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | BusinessController se relaciona con Business; BusinessAdministratorController se relaciona con BusinessAdministrator. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | BusinessRepository ↔ BusinessRepositoryJpa; BusinessAdministratorRepository ↔ BusinessAdministratorRepositoryJpa. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | BusinessAdministratorRegistered lo consume IAM (5.1.3); BusinessAdministratorUpdated lo consume Perfiles (5.3.3); BusinessRegistered y BusinessProfileUpdated quedan disponibles para Analíticas/Comunicaciones sin un consumidor obligatorio adicional en el alcance actual. |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Business y BusinessAdministrator son exclusivos de este bounded context. |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | GeocodingService se declara como puerto en Domain; su implementación concreta (GoogleMapsGeocodingAdapter) está en Infrastructure (5.2.4). |
+#### 5.2.7.2. Bounded Context Database Design Diagram
 
-### 5.2.6. Bounded Context Software Architecture Code Level Diagrams
+| Tabla | Aggregate | Llaves y restricciones |
+|---|---|---|
+| `administrators` | `Administrator` | PK `id`. UK `user_id` y UK `staff_profile_id` (referencias a IAM y Profiles, sin FK por ser otros contextos). UK `backup_personal_email` (admite nulos). |
+| `businesses` | `Business` | PK `id`. UK `business_profile_id` (referencia a Profiles, sin FK). FK `administrator_id` hacia `administrators`, también única. |
 
-#### 5.2.6.1. Bounded Context Domain Layer Class Diagrams
+Relación: un administrador gestiona cero o un negocio (1 a 0..1). El administrador se registra primero y después crea su negocio, por eso puede existir sin uno.
 
-El siguiente diagrama de clases presenta la capa de dominio del bounded context **Gestión del Negocio**. Contiene los aggregates **Business** y **Administrator**, junto con el value object `BusinessProfileId`, que referencia el perfil del negocio sin acoplarse a su modelo. Se detallan los commands para crear y actualizar tanto el negocio como sus administradores, las queries para obtener un negocio por su identificador o por su administrador, y las interfaces de servicios de comandos y consultas de cada aggregate.
-
-![Diagrama de clases de la capa de dominio - Gestión del Negocio](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/company/Business.puml)
-
-#### 5.2.6.2. Bounded Context Database Design Diagram
-
-El siguiente diagrama de base de datos muestra el modelo relacional del bounded context **Gestión del Negocio**. La tabla `administrators` se relaciona uno a uno con `businesses`, que registra cada negocio y lo vincula con su administrador mediante la columna `administrator_id`. La tabla `business_profiles` aparece en gris porque pertenece a otro bounded context y aún está pendiente; `businesses` solo la referencia mediante la columna `business_profile_id`.
-
-![Diagrama de base de datos - Gestión del Negocio](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/company/Business-database.puml)
+![Diagrama de base de datos - Gestión del Negocio](../images/diagrams/img/chapter-5/Business-database.svg)
 
 <div style="page-break-after: always;"></div>
 
 ## 5.3. Bounded Context: Perfiles
 
-El bounded context **Perfiles** gestiona dos aggregates con sujetos distintos: el perfil genérico de cualquier titular de cuenta de Alivia —Cuidador, Empleado o Administrador— y el perfil de hogar de la persona asistida, incluyendo su ubicación y la asignación del cuidador principal. Es un subdominio de soporte con rol de contexto de ejecución. Participa como actor directo el **Cuidador**, quien crea y edita su propio perfil y el perfil de hogar; el resto de las altas de perfil llegan automáticamente desde IAM, Capital Humano y Gestión del Negocio al crearse o actualizarse una cuenta. Perfiles comparte un Shared Kernel con IAM (Context Mapping, 4.2.5): referencia a las cuentas mediante el `AccountId` de IAM en lugar de declarar un identificador propio de usuario.
+En el código, este bounded context es el paquete `profiles`. Profiles guarda los datos personales y de contacto de las personas y los datos públicos y legales del negocio. Distingue dos tipos de perfil de persona según su relación con Alivia: `PersonProfile` para los clientes (familiares y personas asistidas) y `StaffProfile` para el personal (administrador y empleados). Si una misma persona es cliente y personal, tiene los dos perfiles con sus datos por separado, porque son dos relaciones distintas con Alivia. Los demás contextos referencian los perfiles solo por su id; ningún perfil se busca ni se recupera por DNI ni por email.
 
 ### 5.3.1. Domain Layer
 
-La Domain Layer de Perfiles modela dos aggregates independientes: `Profile`, el perfil genérico del titular de una cuenta (observación previa #1), y `HomeProfile`, el perfil de hogar de la persona asistida, con su ubicación y su cuidador principal.
+Este bounded context no declara Entities, Enumerations ni Domain Events propios.
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Profile | Aggregate Root | Representa el perfil de cualquier titular de cuenta de Alivia (Cuidador, Empleado o Administrador): datos personales, foto y preferencias de comunicación. Solo el propio titular puede actualizarlo (observación previa #3); se inicializa automáticamente al recibir la señal de creación o actualización de su cuenta de origen. |
-| HomeProfile | Aggregate Root | Representa el perfil de hogar de la persona asistida: datos personales, ubicación geocodificada y cuidador principal. Un Cuidador no puede ser principal de más de un HomeProfile a la vez (observación previa #2). |
+#### Aggregates
 
-No se identifican Entities en este bounded context: tanto `Profile` como `HomeProfile` son aggregates simples sin componentes internos con identidad propia.
+<table>
+<tr><th colspan="4" align="left"><code>Profile</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Clase abstracta base (extiende <code>AuditableAbstractAggregateRoot</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Datos de contacto comunes a todos los perfiles. No es un aggregate propio: no tiene repositorio ni services.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private</td><td>Correo del perfil. No se modifica.</td></tr>
+<tr><td><code>photo</code></td><td><code>Photo</code></td><td>private</td><td>Foto de perfil.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>PhoneNumber</code></td><td>private</td><td>Teléfono de contacto. Puede repetirse entre perfiles.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Profile(EmailAddress emailAddress, Photo photo, PhoneNumber phoneNumber)</code></td><td>(constructor)</td><td>protected</td><td>Inicializa los datos de contacto desde las subclases.</td></tr>
+<tr><td><code>updateContactInformation(PhoneNumber phoneNumber, Photo photo)</code></td><td><code>void</code></td><td>protected</td><td>Actualiza teléfono y foto.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Generalización</td><td><code>PersonProfile</code>, <code>StaffProfile</code>, <code>BusinessProfile</code></td><td>1 base, 3 subclases</td><td>Cada perfil concreto extiende <code>Profile</code>.</td></tr>
+</table>
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| ProfileId | Value Object | Identificador tipado del aggregate Profile; no admite valores nulos ni negativos. |
-| HomeProfileId | Value Object | Identificador tipado del aggregate HomeProfile; no admite valores nulos ni negativos. |
-| DisplayName | Value Object | Nombre del titular mostrado en el perfil; no admite valores vacíos. |
-| PhotoUrl | Value Object | URL de la foto de perfil; valida que apunte a un recurso alojado en Cloudinary (decisión de negocio del Canvas: "toda foto de perfil se almacena en Cloudinary"). |
-| CommunicationPreferences | Value Object | Canal de comunicación preferido del titular (`PreferredChannel`); no admite un canal nulo o no soportado. |
-| AssistedPersonName | Value Object | Nombre de la persona asistida asociada a un HomeProfile; no admite valores vacíos. |
-| HomeLocation | Value Object | Ubicación geocodificada del hogar (dirección, latitud y longitud) obtenida mediante Google Maps; no admite coordenadas nulas ni fuera de los rangos válidos (-90 a 90 de latitud, -180 a 180 de longitud). |
+<table>
+<tr><th colspan="4" align="left"><code>PersonProfile</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>Profile</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Datos personales de un cliente de Alivia: familiar o persona asistida. Assistance lo referencia por <code>PersonProfileId</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>personName</code></td><td><code>PersonName</code></td><td>private</td><td>Nombres y apellidos.</td></tr>
+<tr><td><code>dni</code></td><td><code>Dni</code></td><td>private</td><td>Documento de identidad. Único entre los clientes; no se modifica.</td></tr>
+<tr><td><code>birthDate</code></td><td><code>BirthDate</code></td><td>private</td><td>Fecha de nacimiento. No se modifica.</td></tr>
+<tr><td><code>emailAddress</code> (heredado)</td><td><code>EmailAddress</code></td><td>private</td><td>Opcional: la persona asistida puede no tener correo. Si existe, no se repite entre <code>PersonProfile</code> y <code>StaffProfile</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PersonProfile(EmailAddress emailAddress, Photo photo, PhoneNumber phoneNumber, PersonName personName, Dni dni, BirthDate birthDate)</code></td><td>(constructor)</td><td>public</td><td>Crea el perfil de un cliente.</td></tr>
+<tr><td><code>updatePersonalInformation(PersonName personName, PhoneNumber phoneNumber, Photo photo)</code></td><td><code>void</code></td><td>public</td><td>Actualiza nombre, teléfono y foto. DNI, fecha de nacimiento y email no cambian.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>personName</code>)</td><td><code>PersonName</code></td><td>1 a 1</td><td>Nombre de la persona.</td></tr>
+<tr><td>Composición (<code>dni</code>)</td><td><code>Dni</code></td><td>1 a 1</td><td>Documento de identidad.</td></tr>
+<tr><td>Composición (<code>birthDate</code>)</td><td><code>BirthDate</code></td><td>1 a 1</td><td>Fecha de nacimiento.</td></tr>
+</table>
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| PreferredChannel | Enum | Canal de comunicación preferido por el titular del perfil: PUSH, EMAIL, SMS. No exhibe transiciones; es un valor categórico que puede reemplazarse libremente mediante UpdateCommunicationPreferencesCommand. |
+<table>
+<tr><th colspan="4" align="left"><code>StaffProfile</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>Profile</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Datos personales del personal de Alivia: administrador o empleado, con su correo corporativo. Company y HCM lo referencian por <code>StaffProfileId</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>personName</code></td><td><code>PersonName</code></td><td>private</td><td>Nombres y apellidos.</td></tr>
+<tr><td><code>dni</code></td><td><code>Dni</code></td><td>private</td><td>Documento de identidad. Único entre el personal: nadie es empleado dos veces y un administrador no puede ser empleado. No se modifica.</td></tr>
+<tr><td><code>birthDate</code></td><td><code>BirthDate</code></td><td>private</td><td>Fecha de nacimiento. No se modifica.</td></tr>
+<tr><td><code>emailAddress</code> (heredado)</td><td><code>EmailAddress</code></td><td>private</td><td>Correo corporativo. Obligatorio, único entre <code>PersonProfile</code> y <code>StaffProfile</code>, y no se modifica.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>StaffProfile(EmailAddress corporateEmail, Photo photo, PhoneNumber phoneNumber, PersonName personName, Dni dni, BirthDate birthDate)</code></td><td>(constructor)</td><td>public</td><td>Crea el perfil de un miembro del personal.</td></tr>
+<tr><td><code>updatePersonalInformation(PersonName personName, PhoneNumber phoneNumber, Photo photo)</code></td><td><code>void</code></td><td>public</td><td>Actualiza nombre, teléfono y foto. DNI, fecha de nacimiento y correo corporativo no cambian.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>personName</code>)</td><td><code>PersonName</code></td><td>1 a 1</td><td>Nombre de la persona.</td></tr>
+<tr><td>Composición (<code>dni</code>)</td><td><code>Dni</code></td><td>1 a 1</td><td>Documento de identidad.</td></tr>
+<tr><td>Composición (<code>birthDate</code>)</td><td><code>BirthDate</code></td><td>1 a 1</td><td>Fecha de nacimiento.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| InitializeProfileCommand | Crea o refresca de forma idempotente el perfil genérico de un titular de cuenta, disparado automáticamente al crearse o actualizarse su cuenta en IAM, Capital Humano o Gestión del Negocio (observación previa #1). | accountId: Long, name: String |
-| UpdateProfilePersonalDataCommand | Actualiza los datos personales del perfil; solo puede ser invocado por el propio titular (observación previa #3). | profileId: Long, name: String |
-| UpdateProfilePhotoCommand | Actualiza la foto de perfil, almacenándola en Cloudinary. | profileId: Long, photoUrl: String |
-| UpdateCommunicationPreferencesCommand | Actualiza el canal de comunicación preferido del titular. | profileId: Long, preferredChannel: PreferredChannel |
-| CreateHomeProfileCommand | Crea el perfil de hogar de la persona asistida, geocodificando su dirección y asignando al Cuidador creador como cuidador principal. | accountId: Long, assistedPersonName: String, address: String, latitude: Double, longitude: Double |
-| UpdateHomeProfileCommand | Actualiza los datos o la ubicación del perfil de hogar. | homeProfileId: Long, assistedPersonName: String, address: String, latitude: Double, longitude: Double |
-| ReplacePrincipalCaregiverCommand | Reemplaza al cuidador principal del perfil de hogar, disparado al consumir el evento de reemplazo publicado por Cuidado (observación previa #4). | homeProfileId: Long, newPrincipalCaregiverAccountId: Long |
+<table>
+<tr><th colspan="4" align="left"><code>BusinessProfile</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>Profile</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Datos públicos y legales del negocio: RUC, razón social, nombre comercial, horario, ubicación y contacto. Company lo referencia por <code>BusinessProfileId</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ruc</code></td><td><code>Ruc</code></td><td>private</td><td>RUC del negocio. Único y no se modifica.</td></tr>
+<tr><td><code>businessName</code></td><td><code>BusinessName</code></td><td>private</td><td>Nombre comercial. Único.</td></tr>
+<tr><td><code>legalName</code></td><td><code>LegalName</code></td><td>private</td><td>Razón social. Única; solo la modifica el administrador del negocio.</td></tr>
+<tr><td><code>description</code></td><td><code>String</code></td><td>private</td><td>Descripción del negocio.</td></tr>
+<tr><td><code>mainActivity</code></td><td><code>String</code></td><td>private</td><td>Actividad principal.</td></tr>
+<tr><td><code>whatsappNum</code></td><td><code>PhoneNumber</code></td><td>private</td><td>Número de WhatsApp.</td></tr>
+<tr><td><code>emergencyPhone</code></td><td><code>PhoneNumber</code></td><td>private</td><td>Teléfono de emergencia.</td></tr>
+<tr><td><code>businessHours</code></td><td><code>BusinessHours</code></td><td>private</td><td>Horario de atención.</td></tr>
+<tr><td><code>slogan</code></td><td><code>String</code></td><td>private</td><td>Eslogan.</td></tr>
+<tr><td><code>supportEmail</code></td><td><code>EmailAddress</code></td><td>private</td><td>Correo de soporte.</td></tr>
+<tr><td><code>address</code></td><td><code>Address</code></td><td>private</td><td>Ubicación del negocio. No se modifica.</td></tr>
+<tr><td><code>emailAddress</code> (heredado)</td><td><code>EmailAddress</code></td><td>private</td><td>Correo del negocio. Obligatorio, único entre los negocios y no se modifica.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessProfile(EmailAddress emailAddress, Photo photo, PhoneNumber phoneNumber, Ruc ruc, BusinessName businessName, LegalName legalName, String description, String mainActivity, PhoneNumber whatsappNum, PhoneNumber emergencyPhone, BusinessHours businessHours, String slogan, EmailAddress supportEmail, Address address)</code></td><td>(constructor)</td><td>public</td><td>Crea el perfil del negocio.</td></tr>
+<tr><td><code>updateInformation(Photo photo, PhoneNumber phoneNumber, BusinessName businessName, LegalName legalName, String description, String mainActivity, PhoneNumber whatsappNum, PhoneNumber emergencyPhone, BusinessHours businessHours, String slogan, EmailAddress supportEmail)</code></td><td><code>void</code></td><td>public</td><td>Actualiza los datos modificables. RUC, email y dirección no cambian.</td></tr>
+<tr><td><code>isOpenAt(DayOfWeek day, LocalTime time)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el negocio atiende ese día a esa hora.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>ruc</code>)</td><td><code>Ruc</code></td><td>1 a 1</td><td>RUC del negocio.</td></tr>
+<tr><td>Composición (<code>businessName</code>)</td><td><code>BusinessName</code></td><td>1 a 1</td><td>Nombre comercial.</td></tr>
+<tr><td>Composición (<code>legalName</code>)</td><td><code>LegalName</code></td><td>1 a 1</td><td>Razón social.</td></tr>
+<tr><td>Composición (<code>businessHours</code>)</td><td><code>BusinessHours</code></td><td>1 a 1</td><td>Horario de atención.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetProfileByIdQuery | Obtiene el detalle de un perfil por su identificador. | profileId: Long |
-| GetProfileByAccountIdQuery | Obtiene el perfil asociado a una cuenta de IAM. | accountId: Long |
-| GetHomeProfileByIdQuery | Obtiene el detalle de un perfil de hogar, incluyendo su ubicación y su cuidador principal. | homeProfileId: Long |
+#### Value Objects
 
-Ninguno de los siguientes Domain Events tiene un consumidor externo declarado en el Bounded Context Canvas (4.2.4): su Comunicación Saliente solo registra integraciones hacia Cloudinary y Google Maps, servicios externos sin interés en eventos de dominio. Se publican para dejar un historial de cambios y habilitar futuras integraciones (por ejemplo, Comunicaciones), sin que ello bloquee la trazabilidad de este bounded context.
+<table>
+<tr><th colspan="4" align="left"><code>PersonName</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Nombres y apellidos de una persona. Ninguno vacío. Dos personas pueden llamarse igual.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PersonName(String firstName, String lastName)</code></td><td>(constructor)</td><td>public</td><td>Valida la invariante y rechaza valores inválidos.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| ProfileInitialized | Se publica al inicializarse por primera vez el perfil de un titular. | profileId: Long, accountId: Long, name: String, initializedAt: LocalDateTime |
-| ProfilePersonalDataUpdated | Se publica al actualizar los datos personales de un perfil. | profileId: Long, name: String, updatedAt: LocalDateTime |
-| ProfilePhotoUpdated | Se publica al actualizar la foto de un perfil. | profileId: Long, photoUrl: String, updatedAt: LocalDateTime |
-| CommunicationPreferencesUpdated | Se publica al actualizar el canal de comunicación preferido de un perfil. | profileId: Long, preferredChannel: PreferredChannel, updatedAt: LocalDateTime |
-| HomeProfileCreated | Se publica al crearse el perfil de hogar de la persona asistida. | homeProfileId: Long, assistedPersonName: String, address: String, latitude: Double, longitude: Double, principalCaregiverId: Long, createdAt: LocalDateTime |
-| HomeProfileUpdated | Se publica al actualizarse los datos o la ubicación del perfil de hogar. | homeProfileId: Long, updatedAt: LocalDateTime |
-| PrincipalCaregiverAssigned | Se publica al asignarse o reemplazarse el cuidador principal de un perfil de hogar. | homeProfileId: Long, accountId: Long, assignedAt: LocalDateTime |
+<table>
+<tr><th colspan="4" align="left"><code>Dni</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Documento Nacional de Identidad: 8 dígitos. Es <code>String</code> para admitir ceros a la izquierda. Es un dato de identificación personal: no identifica al aggregate ni enlaza perfiles.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>dni</code></td><td><code>String</code></td><td>private final</td><td>Documento de identidad. Único entre los clientes; no se modifica.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Dni(String dni)</code></td><td>(constructor)</td><td>public</td><td>Valida la invariante y rechaza valores inválidos.</td></tr>
+</table>
 
-No se declaran Factories ni Domain Services en este bounded context: `Profile` y `HomeProfile` son aggregates simples cuya creación no requiere colaboración entre aggregates distintos. La única regla que involucra múltiples instancias —que un Cuidador no sea principal de más de un HomeProfile a la vez (observación previa #2)— se valida en `CreateHomeProfileCommandHandler` mediante una consulta a `HomeProfileRepository`, ya que es una restricción de unicidad entre instancias del mismo aggregate y no una colaboración entre aggregates de distinto tipo.
+<table>
+<tr><th colspan="4" align="left"><code>BirthDate</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Fecha de nacimiento. No posterior a hoy.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>birthDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de nacimiento. No se modifica.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BirthDate(LocalDate birthDate)</code></td><td>(constructor)</td><td>public</td><td>Valida la invariante y rechaza valores inválidos.</td></tr>
+</table>
 
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| ProfileRepository | Profile | Persiste y recupera el aggregate Profile; expone la búsqueda por accountId para soportar la inicialización idempotente. |
-| HomeProfileRepository | HomeProfile | Persiste y recupera el aggregate HomeProfile; expone la búsqueda por principalCaregiverId para validar la unicidad de la observación previa #2. |
+<table>
+<tr><th colspan="4" align="left"><code>Ruc</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Registro Único de Contribuyentes: 11 dígitos.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ruc</code></td><td><code>Long</code></td><td>private final</td><td>RUC del negocio. Único y no se modifica.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Ruc(Long ruc)</code></td><td>(constructor)</td><td>public</td><td>Valida la invariante y rechaza valores inválidos.</td></tr>
+</table>
 
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| Profile | asociación | Account (IAM, Shared Kernel) | Profile referencia a su titular mediante accountId, el AccountId de IAM compartido vía Shared Kernel (Context Mapping 4.2.5). |
-| HomeProfile | asociación | Account (IAM, Shared Kernel) | HomeProfile referencia a su cuidador principal mediante principalCaregiverId, el AccountId de IAM compartido vía Shared Kernel. |
-| ProfileRepository | depende de | Profile | El repositorio persiste y recupera el aggregate Profile. |
-| HomeProfileRepository | depende de | HomeProfile | El repositorio persiste y recupera el aggregate HomeProfile. |
+<table>
+<tr><th colspan="4" align="left"><code>BusinessName</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Nombre comercial. No vacío.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessName</code></td><td><code>String</code></td><td>private final</td><td>Nombre comercial. Único.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessName(String businessName)</code></td><td>(constructor)</td><td>public</td><td>Valida la invariante y rechaza valores inválidos.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>LegalName</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Razón social. No vacía.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>legalName</code></td><td><code>String</code></td><td>private final</td><td>Razón social. Única; solo la modifica el administrador del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>LegalName(String legalName)</code></td><td>(constructor)</td><td>public</td><td>Valida la invariante y rechaza valores inválidos.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessHours</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Horario de atención del negocio. Agrupa un <code>WeeklyPeriod</code> (Shared) por cada bloque de días con el mismo horario. Ejemplo: Lun-Vie 09:00-18:00 y Sáb 09:00-13:00 son dos periodos.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>periods</code></td><td><code>List&lt;WeeklyPeriod&gt;</code></td><td>private final</td><td>Al menos un periodo. Ningún rango cruza medianoche y ningún par de periodos se cruza el mismo día (<code>InvalidBusinessHours</code>).</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessHours(List&lt;WeeklyPeriod&gt; periods)</code></td><td>(constructor)</td><td>public</td><td>Valida las invariantes del horario.</td></tr>
+<tr><td><code>isOpenAt(DayOfWeek day, LocalTime time)</code></td><td><code>boolean</code></td><td>public</td><td>Revisa todos los periodos para saber si el negocio está abierto.</td></tr>
+<tr><td><b>Notas</b></td><td colspan="3">Los commands reciben <code>BusinessHours</code> ya construido: la conversión desde el texto o JSON de la solicitud se hace en el borde del contexto.</td></tr>
+</table>
+
+#### Commands
+
+<table>
+<tr><th colspan="4" align="left"><code>CreatePersonProfileCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Crea el perfil de un cliente de Alivia (familiar o persona asistida). Lo envía Assistance mediante su ACL.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Opcional (la persona asistida puede no tener correo).</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo de la foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo de la foto.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><td><code>dni</code></td><td><code>String</code></td><td>private final</td><td>DNI.</td></tr>
+<tr><td><code>birthDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de nacimiento.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreatePersonProfileCommand(String emailAddress, byte[] photoData, String photoFileName, String phoneNumber, String firstName, String lastName, String dni, LocalDate birthDate)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Si viene el email, no pertenece a otro <code>PersonProfile</code> ni a un <code>StaffProfile</code> (<code>EmailAddressAlreadyExists</code>). El DNI no pertenece a otro <code>PersonProfile</code> (<code>DniAlreadyExists</code>); sí puede existir un <code>StaffProfile</code> con el mismo DNI.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UpdatePersonProfileCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Actualiza los datos personales editables de un cliente.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>id</code></td><td><code>Long</code></td><td>private final</td><td>Id del <code>PersonProfile</code>.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo de la foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo de la foto.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdatePersonProfileCommand(Long id, byte[] photoData, String photoFileName, String phoneNumber, String firstName, String lastName)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El perfil existe (<code>PersonProfileNotFound</code>). DNI, fecha de nacimiento y email no se modifican.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateStaffProfileCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Crea el perfil de un miembro del personal (administrador o empleado). Lo envían Company y HCM mediante su ACL.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>corporateEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo corporativo. Obligatorio.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo de la foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo de la foto.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><td><code>dni</code></td><td><code>String</code></td><td>private final</td><td>DNI.</td></tr>
+<tr><td><code>birthDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de nacimiento.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateStaffProfileCommand(String corporateEmail, byte[] photoData, String photoFileName, String phoneNumber, String firstName, String lastName, String dni, LocalDate birthDate)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El correo corporativo no pertenece a otro <code>StaffProfile</code> ni a un <code>PersonProfile</code> (<code>EmailAddressAlreadyExists</code>). El DNI no pertenece a otro <code>StaffProfile</code> (<code>DniAlreadyExists</code>); sí puede existir un <code>PersonProfile</code> con el mismo DNI.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UpdateStaffProfileCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Actualiza los datos personales editables de un miembro del personal.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>id</code></td><td><code>Long</code></td><td>private final</td><td>Id del <code>StaffProfile</code>.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo de la foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo de la foto.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdateStaffProfileCommand(Long id, byte[] photoData, String photoFileName, String phoneNumber, String firstName, String lastName)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El perfil existe (<code>StaffProfileNotFound</code>). DNI, fecha de nacimiento y correo corporativo no se modifican. No cambia el <code>PersonProfile</code> de la misma persona, si lo tiene.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateBusinessProfileCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Crea el perfil público y legal del negocio. Lo envía Company al crear el <code>Business</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo del negocio.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo del logo o foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>ruc</code></td><td><code>Long</code></td><td>private final</td><td>RUC.</td></tr>
+<tr><td><code>businessName</code></td><td><code>String</code></td><td>private final</td><td>Nombre comercial.</td></tr>
+<tr><td><code>legalName</code></td><td><code>String</code></td><td>private final</td><td>Razón social.</td></tr>
+<tr><td><code>description</code></td><td><code>String</code></td><td>private final</td><td>Descripción.</td></tr>
+<tr><td><code>mainActivity</code></td><td><code>String</code></td><td>private final</td><td>Actividad principal.</td></tr>
+<tr><td><code>whatsappNum</code></td><td><code>String</code></td><td>private final</td><td>WhatsApp.</td></tr>
+<tr><td><code>emergencyPhone</code></td><td><code>String</code></td><td>private final</td><td>Teléfono de emergencia.</td></tr>
+<tr><td><code>businessHours</code></td><td><code>BusinessHours</code></td><td>private final</td><td>Horario de atención.</td></tr>
+<tr><td><code>slogan</code></td><td><code>String</code></td><td>private final</td><td>Eslogan.</td></tr>
+<tr><td><code>supportEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo de soporte.</td></tr>
+<tr><td><code>formattedAddress</code></td><td><code>String</code></td><td>private final</td><td>Dirección.</td></tr>
+<tr><td><code>latitude</code></td><td><code>Double</code></td><td>private final</td><td>Latitud.</td></tr>
+<tr><td><code>longitude</code></td><td><code>Double</code></td><td>private final</td><td>Longitud.</td></tr>
+<tr><td><code>placeId</code></td><td><code>String</code></td><td>private final</td><td>Id del lugar en Google Maps.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateBusinessProfileCommand(String emailAddress, byte[] photoData, String photoFileName, String phoneNumber, Long ruc, String businessName, String legalName, String description, String mainActivity, String whatsappNum, String emergencyPhone, BusinessHours businessHours, String slogan, String supportEmail, String formattedAddress, Double latitude, Double longitude, String placeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Email, RUC, nombre comercial y razón social no pertenecen a otro <code>BusinessProfile</code> (<code>EmailAddressAlreadyExists</code>, <code>RucAlreadyExists</code>, <code>BusinessNameAlreadyExists</code>, <code>LegalNameAlreadyExists</code>).</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UpdateBusinessProfileCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Actualiza los datos editables del perfil del negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>id</code></td><td><code>Long</code></td><td>private final</td><td>Id del <code>BusinessProfile</code>.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo del logo o foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>businessName</code></td><td><code>String</code></td><td>private final</td><td>Nombre comercial.</td></tr>
+<tr><td><code>legalName</code></td><td><code>String</code></td><td>private final</td><td>Razón social.</td></tr>
+<tr><td><code>description</code></td><td><code>String</code></td><td>private final</td><td>Descripción.</td></tr>
+<tr><td><code>mainActivity</code></td><td><code>String</code></td><td>private final</td><td>Actividad principal.</td></tr>
+<tr><td><code>whatsappNum</code></td><td><code>String</code></td><td>private final</td><td>WhatsApp.</td></tr>
+<tr><td><code>emergencyPhone</code></td><td><code>String</code></td><td>private final</td><td>Teléfono de emergencia.</td></tr>
+<tr><td><code>businessHours</code></td><td><code>BusinessHours</code></td><td>private final</td><td>Horario de atención.</td></tr>
+<tr><td><code>slogan</code></td><td><code>String</code></td><td>private final</td><td>Eslogan.</td></tr>
+<tr><td><code>supportEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo de soporte.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdateBusinessProfileCommand(Long id, byte[] photoData, String photoFileName, String phoneNumber, String businessName, String legalName, String description, String mainActivity, String whatsappNum, String emergencyPhone, BusinessHours businessHours, String slogan, String supportEmail)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El perfil existe (<code>BusinessProfileNotFound</code>). RUC, dirección y email no se modifican. Si cambian el nombre comercial o la razón social, no pertenecen a otro negocio (<code>BusinessNameAlreadyExists</code>, <code>LegalNameAlreadyExists</code>). Solo llega desde Company, que valida que quien actualiza es el administrador del negocio; Profiles no valida roles.</td></tr>
+</table>
+
+#### Queries
+
+<table>
+<tr><th colspan="4" align="left"><code>GetPersonProfileByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Obtiene un perfil de cliente por su id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>id</code></td><td><code>Long</code></td><td>private final</td><td>Identificador generado por la base de datos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetPersonProfileByIdQuery(Long id)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;PersonProfile&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllPersonProfilesQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Lista los perfiles de clientes.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllPersonProfilesQuery()</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;PersonProfile&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ExistsPersonProfileByDniQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica si el DNI ya está registrado entre los clientes. No devuelve el perfil.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>dni</code></td><td><code>Dni</code></td><td>private final</td><td>Documento de identidad. Único entre los clientes; no se modifica.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ExistsPersonProfileByDniQuery(Dni dni)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>boolean</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ExistsPersonProfileByEmailAddressQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica si el email ya está registrado en un perfil de cliente.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private final</td><td>Correo con formato válido, sin espacios y en minúsculas.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ExistsPersonProfileByEmailAddressQuery(EmailAddress emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>boolean</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetStaffProfileByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Obtiene un perfil de personal por su id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>id</code></td><td><code>Long</code></td><td>private final</td><td>Identificador generado por la base de datos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetStaffProfileByIdQuery(Long id)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;StaffProfile&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllStaffProfilesQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Lista los perfiles del personal.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllStaffProfilesQuery()</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;StaffProfile&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ExistsStaffProfileByDniQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica si el DNI ya está registrado entre el personal.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>dni</code></td><td><code>Dni</code></td><td>private final</td><td>Documento de identidad. Único entre los clientes; no se modifica.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ExistsStaffProfileByDniQuery(Dni dni)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>boolean</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ExistsStaffProfileByEmailAddressQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica si el correo corporativo ya está registrado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private final</td><td>Correo con formato válido, sin espacios y en minúsculas.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ExistsStaffProfileByEmailAddressQuery(EmailAddress emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>boolean</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetBusinessProfileByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Obtiene el perfil de un negocio por su id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>id</code></td><td><code>Long</code></td><td>private final</td><td>Identificador generado por la base de datos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetBusinessProfileByIdQuery(Long id)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;BusinessProfile&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllBusinessProfilesQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Lista los perfiles de negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllBusinessProfilesQuery()</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;BusinessProfile&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ExistsBusinessProfileByEmailAddressQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica si el email ya está registrado en un negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private final</td><td>Correo con formato válido, sin espacios y en minúsculas.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ExistsBusinessProfileByEmailAddressQuery(EmailAddress emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>boolean</code></td></tr>
+</table>
+
+#### Domain Services
+
+Todos los métodos son `public` (interfaces).
+
+<table>
+<tr><th colspan="4" align="left"><code>PersonProfileCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>PersonProfile</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreatePersonProfileCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Crea el perfil y devuelve su id.</td></tr>
+<tr><td><code>handle(UpdatePersonProfileCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Actualiza el perfil y devuelve su id.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>PersonProfileQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>PersonProfile</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetPersonProfileByIdQuery query)</code></td><td><code>Optional&lt;PersonProfile&gt;</code></td><td>public</td><td>Perfil por id.</td></tr>
+<tr><td><code>handle(ExistsPersonProfileByEmailAddressQuery query)</code></td><td><code>boolean</code></td><td>public</td><td>Email registrado o no.</td></tr>
+<tr><td><code>handle(ExistsPersonProfileByDniQuery query)</code></td><td><code>boolean</code></td><td>public</td><td>DNI registrado o no.</td></tr>
+<tr><td><code>handle(GetAllPersonProfilesQuery query)</code></td><td><code>List&lt;PersonProfile&gt;</code></td><td>public</td><td>Todos los perfiles de clientes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>StaffProfileCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>StaffProfile</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateStaffProfileCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Crea el perfil y devuelve su id.</td></tr>
+<tr><td><code>handle(UpdateStaffProfileCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Actualiza el perfil y devuelve su id.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>StaffProfileQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>StaffProfile</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetStaffProfileByIdQuery query)</code></td><td><code>Optional&lt;StaffProfile&gt;</code></td><td>public</td><td>Perfil por id.</td></tr>
+<tr><td><code>handle(ExistsStaffProfileByEmailAddressQuery query)</code></td><td><code>boolean</code></td><td>public</td><td>Correo corporativo registrado o no.</td></tr>
+<tr><td><code>handle(ExistsStaffProfileByDniQuery query)</code></td><td><code>boolean</code></td><td>public</td><td>DNI registrado o no.</td></tr>
+<tr><td><code>handle(GetAllStaffProfilesQuery query)</code></td><td><code>List&lt;StaffProfile&gt;</code></td><td>public</td><td>Todos los perfiles del personal.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessProfileCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>BusinessProfile</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateBusinessProfileCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Crea el perfil y devuelve su id.</td></tr>
+<tr><td><code>handle(UpdateBusinessProfileCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Actualiza el perfil y devuelve su id.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessProfileQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>BusinessProfile</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetBusinessProfileByIdQuery query)</code></td><td><code>Optional&lt;BusinessProfile&gt;</code></td><td>public</td><td>Perfil por id.</td></tr>
+<tr><td><code>handle(ExistsBusinessProfileByEmailAddressQuery query)</code></td><td><code>boolean</code></td><td>public</td><td>Email registrado o no.</td></tr>
+<tr><td><code>handle(GetAllBusinessProfilesQuery query)</code></td><td><code>List&lt;BusinessProfile&gt;</code></td><td>public</td><td>Todos los perfiles de negocio.</td></tr>
+</table>
+
+#### Exceptions
+
+Cada excepción tiene un constructor `public` sin parámetros.
+
+<table>
+<tr><th colspan="4" align="left"><code>DniAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el DNI ya está registrado en otro perfil del mismo tipo (cliente o personal).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DniAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmailAddressAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el email ya está registrado: entre <code>PersonProfile</code> y <code>StaffProfile</code>, o entre negocios.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmailAddressAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RucAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el RUC ya pertenece a otro negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RucAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessNameAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el nombre comercial ya pertenece a otro negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessNameAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>LegalNameAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la razón social ya pertenece a otro negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>LegalNameAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>PersonProfileNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe un <code>PersonProfile</code> con el id indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PersonProfileNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>StaffProfileNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe un <code>StaffProfile</code> con el id indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>StaffProfileNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessProfileNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe un <code>BusinessProfile</code> con el id indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessProfileNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidBusinessHours</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el horario está vacío, tiene un rango que cruza medianoche o periodos que se cruzan el mismo día.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidBusinessHours()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
 
 ### 5.3.2. Interface Layer
 
-La Interface Layer expone dos controllers independientes, uno por cada aggregate root: `ProfileController` y `HomeProfileController`. Ninguno expone `InitializeProfileCommand` ni `ReplacePrincipalCaregiverCommand`, ya que ambos solo se invocan desde Event Handlers en la Application Layer (5.3.3), nunca desde un endpoint REST directo. Este bounded context no consume mensajería de dispositivos IoT. Expone además el facade `PerfilesFacade`, agregado para que otros bounded contexts (Comunicaciones, y más adelante Telemetría) resuelvan al cuidador principal de un hogar sin acceder directamente al aggregate `HomeProfile`, dado que `accountId` por sí solo no identifica quién es el responsable vigente de notificaciones.
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ProfileController |
-| Categoría | Controller |
-| Propósito | Exponer la consulta y la actualización del perfil genérico de un titular de cuenta. |
-| Aggregate/Entity relacionado | Profile |
-| Ruta base | /api/v1/profiles |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getProfileById | /{profileId} (GET) | path: profileId: Long | Obtiene el detalle de un perfil | GetProfileByIdQuery |
-| getProfileByAccountId | /by-account/{accountId} (GET) | path: accountId: Long | Obtiene el perfil asociado a una cuenta | GetProfileByAccountIdQuery |
-| updatePersonalData | /{profileId} (PUT) | path: profileId: Long; body: UpdateProfilePersonalDataResource { name: String } | Actualiza los datos personales del perfil | UpdateProfilePersonalDataCommand |
-| updatePhoto | /{profileId}/photo (POST) | path: profileId: Long; body: UpdateProfilePhotoResource { photoUrl: String } | Actualiza la foto de perfil subida a Cloudinary | UpdateProfilePhotoCommand |
-| updateCommunicationPreferences | /{profileId}/preferences (PUT) | path: profileId: Long; body: UpdateCommunicationPreferencesResource { preferredChannel: String } | Actualiza el canal de comunicación preferido | UpdateCommunicationPreferencesCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | HomeProfileController |
-| Categoría | Controller |
-| Propósito | Exponer la creación, la consulta y la actualización del perfil de hogar de la persona asistida. |
-| Aggregate/Entity relacionado | HomeProfile |
-| Ruta base | /api/v1/home-profiles |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| createHomeProfile | / (POST) | body: CreateHomeProfileResource { accountId: Long, assistedPersonName: String, address: String, latitude: Double, longitude: Double } | Crea el perfil de hogar y asigna al creador como cuidador principal | CreateHomeProfileCommand |
-| getHomeProfileById | /{homeProfileId} (GET) | path: homeProfileId: Long | Obtiene el detalle del perfil de hogar | GetHomeProfileByIdQuery |
-| updateHomeProfile | /{homeProfileId} (PUT) | path: homeProfileId: Long; body: UpdateHomeProfileResource { assistedPersonName: String, address: String, latitude: Double, longitude: Double } | Actualiza los datos o la ubicación del perfil de hogar | UpdateHomeProfileCommand |
-
-| Nombre | Métodos expuestos | Propósito |
-| --- | --- | --- |
-| PerfilesFacade | getPrincipalCaregiverAccountId(homeProfileId: Long): Long | Permite que otros bounded contextos resuelvan el accountId del cuidador principal vigente de un hogar sin acceder directamente al aggregate HomeProfile. |
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.3.1.
 
 ### 5.3.3. Application Layer
 
-La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante Event Handlers las cuatro integraciones entrantes identificadas en el Canvas y en las Observaciones Previas: la creación de cuenta en IAM, la actualización de empleados en Capital Humano, la actualización de administradores en Gestión del Negocio, y el reemplazo de cuidador principal en Cuidado.
-
-**AccountRegisteredEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AccountRegisteredEventHandler |
-| Categoría | Event Handler |
-| Propósito | Inicializar el perfil genérico de un titular al crearse su cuenta en IAM. |
-| Command/Query/Evento que maneja | AccountRegistered (evento externo, BC de origen: IAM, ver 5.1.1) |
-| Repositorios y servicios que usa | InitializeProfileCommand (invocado internamente) |
-| Eventos que publica | ProfileInitialized (vía el command invocado) |
-| User story/capability que habilita | Decisión de negocio del Canvas: "el perfil se inicializa automáticamente al crearse una cuenta" |
-
-**EmployeeUpdatedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | EmployeeUpdatedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Inicializar o refrescar el perfil genérico de un empleado al actualizarse su registro en Capital Humano. |
-| Command/Query/Evento que maneja | EmployeeUpdated (evento externo, BC de origen: Capital Humano, ver 5.4.1) |
-| Repositorios y servicios que usa | InitializeProfileCommand (invocado internamente) |
-| Eventos que publica | ProfileInitialized (vía el command invocado) |
-| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Capital Humano (empleado actualizado)" |
-
-**BusinessAdministratorUpdatedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | BusinessAdministratorUpdatedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Inicializar o refrescar el perfil genérico de un administrador al actualizarse su registro en Gestión del Negocio. |
-| Command/Query/Evento que maneja | BusinessAdministratorUpdated (evento externo, BC de origen: Gestión del Negocio, ver 5.2.1) |
-| Repositorios y servicios que usa | InitializeProfileCommand (invocado internamente) |
-| Eventos que publica | ProfileInitialized (vía el command invocado) |
-| User story/capability que habilita | Resuelve la observación previa #3 de Gestión del Negocio (5.2) |
-
-**PrincipalCaregiverReplacedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | PrincipalCaregiverReplacedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Mantener sincronizado el cuidador principal del perfil de hogar cuando Cuidado registra su reemplazo. |
-| Command/Query/Evento que maneja | PrincipalCaregiverReplaced (evento externo, BC de origen: Cuidado, ver 5.5.1) |
-| Repositorios y servicios que usa | ReplacePrincipalCaregiverCommand (invocado internamente) |
-| Eventos que publica | PrincipalCaregiverAssigned (vía el command invocado) |
-| User story/capability que habilita | Resuelve la observación previa #4 (gap de sincronización con Cuidado) |
-
-**InitializeProfileCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | InitializeProfileCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear el perfil si no existe, o refrescar sus datos básicos si ya existe (operación idempotente). |
-| Command/Query/Evento que maneja | InitializeProfileCommand |
-| Repositorios y servicios que usa | ProfileRepository |
-| Eventos que publica | ProfileInitialized |
-| User story/capability que habilita | Decisión de negocio del Canvas: inicialización automática del perfil |
-
-**UpdateProfilePersonalDataCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | UpdateProfilePersonalDataCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Actualizar los datos personales de un perfil a solicitud de su propio titular. |
-| Command/Query/Evento que maneja | UpdateProfilePersonalDataCommand |
-| Repositorios y servicios que usa | ProfileRepository |
-| Eventos que publica | ProfilePersonalDataUpdated |
-| User story/capability que habilita | Resuelve la observación previa #3 |
-
-**UpdateProfilePhotoCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | UpdateProfilePhotoCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Subir la nueva foto de perfil a Cloudinary y actualizar la referencia en el perfil. |
-| Command/Query/Evento que maneja | UpdateProfilePhotoCommand |
-| Repositorios y servicios que usa | ProfileRepository, PhotoStorageGateway |
-| Eventos que publica | ProfilePhotoUpdated |
-| User story/capability que habilita | Decisión de negocio del Canvas: "toda foto de perfil se almacena en Cloudinary" |
-
-**UpdateCommunicationPreferencesCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | UpdateCommunicationPreferencesCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Actualizar el canal de comunicación preferido del titular del perfil. |
-| Command/Query/Evento que maneja | UpdateCommunicationPreferencesCommand |
-| Repositorios y servicios que usa | ProfileRepository |
-| Eventos que publica | CommunicationPreferencesUpdated |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**CreateHomeProfileCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | CreateHomeProfileCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Geocodificar la dirección del hogar mediante Google Maps, validar que el Cuidador creador no sea ya principal de otro HomeProfile (observación previa #2) y crear el perfil de hogar. |
-| Command/Query/Evento que maneja | CreateHomeProfileCommand |
-| Repositorios y servicios que usa | HomeProfileRepository, GeocodingService |
-| Eventos que publica | HomeProfileCreated, PrincipalCaregiverAssigned |
-| User story/capability que habilita | Resuelve la observación previa #2 |
-
-**UpdateHomeProfileCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | UpdateHomeProfileCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Actualizar los datos de la persona asistida o regeocodificar su ubicación cuando la dirección cambia. |
-| Command/Query/Evento que maneja | UpdateHomeProfileCommand |
-| Repositorios y servicios que usa | HomeProfileRepository, GeocodingService |
-| Eventos que publica | HomeProfileUpdated |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**ReplacePrincipalCaregiverCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ReplacePrincipalCaregiverCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Reemplazar el cuidador principal vigente de un perfil de hogar. |
-| Command/Query/Evento que maneja | ReplacePrincipalCaregiverCommand |
-| Repositorios y servicios que usa | HomeProfileRepository |
-| Eventos que publica | PrincipalCaregiverAssigned |
-| User story/capability que habilita | Resuelve la observación previa #4 (invocado únicamente por PrincipalCaregiverReplacedEventHandler) |
-
-**GetProfileByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetProfileByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un perfil por su identificador. |
-| Command/Query/Evento que maneja | GetProfileByIdQuery |
-| Repositorios y servicios que usa | ProfileRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getProfileById |
-
-**GetProfileByAccountIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetProfileByAccountIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el perfil asociado a una cuenta de IAM. |
-| Command/Query/Evento que maneja | GetProfileByAccountIdQuery |
-| Repositorios y servicios que usa | ProfileRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getProfileByAccountId |
-
-**GetHomeProfileByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetHomeProfileByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un perfil de hogar, incluyendo su ubicación y su cuidador principal. |
-| Command/Query/Evento que maneja | GetHomeProfileByIdQuery |
-| Repositorios y servicios que usa | HomeProfileRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getHomeProfileById |
-
-**PerfilesFacadeImpl**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | PerfilesFacadeImpl |
-| Categoría | Facade Implementation |
-| Propósito | Implementar PerfilesFacade resolviendo el cuidador principal vigente a partir del aggregate HomeProfile. |
-| Command/Query/Evento que maneja | No aplica (no despacha Commands/Queries; delega en HomeProfileRepository) |
-| Repositorios y servicios que usa | HomeProfileRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Usado por Comunicaciones (5.8) para resolver al destinatario de PaymentPreauthorizationRejected |
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.3.1.
 
 ### 5.3.4. Infrastructure Layer
 
-La Infrastructure Layer implementa los repositorios de Profile y HomeProfile sobre PostgreSQL, consistente con el carácter transaccional y estructurado de los datos de perfil, y los adaptadores hacia Cloudinary y Google Maps, además del suscriptor del bus de eventos interno que conecta a Perfiles con IAM, Capital Humano, Gestión del Negocio y Cuidado.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.3.1.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| ProfileRepositoryJpa | ProfileRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Profile. |
-| HomeProfileRepositoryJpa | HomeProfileRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate HomeProfile. |
+### 5.3.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `ProfileJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Profile` y `HomeProfile` sobre el motor PostgreSQL.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.3.1.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| CloudinaryPhotoGateway | Gateway | PhotoStorageGateway | Cloudinary | Sube y gestiona las fotos de perfil. |
-| GoogleMapsGeocodingAdapter | Gateway | GeocodingService | Google Maps | Geocodifica la dirección del hogar al crear o actualizar un HomeProfile. |
-| DomainEventBusSubscriber | Event Subscriber | AccountRegisteredListener, EmployeeUpdatedListener, BusinessAdministratorUpdatedListener, PrincipalCaregiverReplacedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por IAM, Capital Humano, Gestión del Negocio y Cuidado hacia los Event Handlers de Perfiles. |
+### 5.3.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| profiles | Almacena el aggregate Profile: datos personales, foto y preferencias de comunicación del titular de cualquier cuenta. |
-| home_profiles | Almacena el aggregate HomeProfile: datos de la persona asistida, ubicación geocodificada y cuidador principal vigente. |
+#### 5.3.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Cuenta / credenciales | IAM | La autenticación y el estado de acceso de la cuenta son responsabilidad de IAM; Perfiles solo referencia accountId vía Shared Kernel (Context Mapping 4.2.5). |
-| Membresía de cuidadores (principal/autorizado, invitación) | Cuidado | La invitación, vinculación y desvinculación de cuidadores es responsabilidad de Cuidado; Perfiles solo refleja al cuidador principal vigente mediante PrincipalCaregiverReplacedEventHandler (observación previa #4). |
-| Contrato laboral | Capital Humano | El ciclo de vida del contrato es responsabilidad de Capital Humano; Perfiles solo refresca los datos básicos del empleado al recibir EmployeeUpdated. |
-| Perfil del negocio | Gestión del Negocio | El registro del negocio y sus administradores es responsabilidad de Gestión del Negocio; Perfiles solo refresca los datos básicos del administrador al recibir BusinessAdministratorUpdated. |
+El diagrama muestra la base abstracta `Profile` y sus tres aggregates (`PersonProfile`, `StaffProfile` y `BusinessProfile`), relacionados por generalización. Cada aggregate se compone de sus value objects propios con multiplicidad 1 a 1. Los services reciben sus commands y queries mediante dependencias nombradas ("recibe"). Los atributos de cada command se muestran dentro de su clase; las notas detallan sus validaciones y las invariantes de los value objects.
 
-**Verificación de trazabilidad — Perfiles**
+![Diagrama de clases de la capa de dominio - Perfiles](../images/diagrams/img/chapter-5/profile-backend-diagram.svg)
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 7 commands y las 3 queries de 5.3.1 tienen su handler correspondiente en 5.3.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | InitializeProfileCommand y ReplacePrincipalCaregiverCommand se usan exclusivamente desde Event Handlers (justificado en 5.3.2); el resto se usa desde los endpoints de ProfileController y HomeProfileController. |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.3.2) mapea 1:1 los parámetros del Command correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | ProfileController se relaciona con Profile; HomeProfileController se relaciona con HomeProfile. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | ProfileRepository ↔ ProfileRepositoryJpa; HomeProfileRepository ↔ HomeProfileRepositoryJpa. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | Ninguno de los 7 Domain Events de Perfiles tiene un consumidor externo declarado en el Canvas (4.2.4); se publican para auditoría y futuras integraciones (ver nota en 5.3.1), sin dejar incompleto ningún flujo de este bounded context. |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Profile y HomeProfile son exclusivos de este bounded context. |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PhotoStorageGateway y GeocodingService se declaran como puertos en Domain; sus implementaciones concretas (CloudinaryPhotoGateway, GoogleMapsGeocodingAdapter) están en Infrastructure (5.3.4). |
+#### 5.3.7.2. Bounded Context Database Design Diagram
 
-### 5.3.6. Bounded Context Software Architecture Code Level Diagrams
+La base de datos es PostgreSQL. Cada aggregate tiene su tabla; `Profile` no tiene tabla propia porque es abstracta, y sus columnas (email, foto y teléfono) se repiten en las tres tablas.
 
-#### 5.3.6.1. Bounded Context Domain Layer Class Diagrams
+| Tabla | Aggregate o value object | Llaves y restricciones |
+|---|---|---|
+| `person_profiles` | `PersonProfile` | PK `id`. UK `dni`. UK `email_address` (admite varios nulos, por la persona asistida sin correo). |
+| `staff_profiles` | `StaffProfile` | PK `id`. UK `dni`. UK `corporate_email`. |
+| `business_profiles` | `BusinessProfile` | PK `id`. UK `email_address`, `ruc`, `business_name`, `legal_name`. La dirección se guarda en las columnas `address_*`. |
+| `business_profile_opening_periods` | `BusinessHours` (colección de `WeeklyPeriod`) | FK `business_profile_id` hacia `business_profiles`. Sin id propio: es parte del valor del aggregate. `week_days` guarda los días separados por coma. |
 
-El siguiente diagrama de clases presenta la capa de dominio del bounded context **Perfiles**. Está formado por dos aggregate roots que heredan de `AuditableAbstractAggregateRoot`: **UserProfile**, con los datos personales del usuario (`DocumentNumber`, `PhoneNumber`, `ProfileImage`) y su `ProfileStatus`, y **HouseholdProfile**, que modela el hogar con su alias, contacto, dirección (`Address`, `AddressReference`), ubicación geográfica (`GeographicLocation`) y los estados `LocationStatus` y `HouseholdStatus`. Se incluyen los commands para inicializar, completar y actualizar perfiles, gestionar la imagen de perfil y validar o revalidar la ubicación del hogar, las queries de consulta y las cuatro interfaces de servicios de comandos y consultas.
+Relación: un `business_profiles` tiene uno o más `business_profile_opening_periods` (1 a 1..*). La unicidad del email entre `person_profiles` y `staff_profiles` la valida el dominio, porque está en dos tablas distintas.
 
-![Diagrama de clases de la capa de dominio - Perfiles](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/profile/profile-backend-diagram.puml)
-
-#### 5.3.6.2. Bounded Context Database Design Diagram
-
-El siguiente diagrama de base de datos muestra el modelo relacional del bounded context **Perfiles**. La tabla `user_profiles` almacena el perfil de cada usuario y `household_profiles` los datos de contacto, dirección y ubicación de cada hogar. Un usuario puede crear varios hogares; la relación es lógica, mediante la columna `created_by_user_id`, que coincide con el `iam_user_id` del perfil de usuario.
-
-![Diagrama de base de datos - Perfiles](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/profile/profile-database-diagram.puml)
+![Diagrama de base de datos - Perfiles](../images/diagrams/img/chapter-5/profile-database-diagram.svg)
 
 <div style="page-break-after: always;"></div>
 
 ## 5.4. Bounded Context: Capital Humano
 
-El bounded context **Capital Humano** gestiona el alta y la baja de empleados, y el ciclo de vida de sus contratos laborales: registro, renovación, suspensión y culminación. Es un subdominio de soporte con rol de contexto de ejecución. El único actor que participa es el **Administrador**, quien da de alta y despide empleados, y registra, renueva o suspende contratos. Este bounded context cierra un round-trip con IAM: al dar de alta a un empleado publica `EmployeeRegistered`, que IAM consume para crear su cuenta (5.1); al crearse esa cuenta, IAM publica `AccountRegistered`, que Capital Humano consume para registrar automáticamente el contrato (observación previa #1). También publica `EmployeeUpdated`, consumido por Perfiles para inicializar su perfil (5.3).
+En el código, este bounded context es el paquete `hcm`. HCM (Human Capital Management) gestiona al personal de cada negocio (hoy, Alivia): datos laborales, rol, estado, horario de trabajo, contratos y vacaciones. Todo gira en torno al `BusinessId`: cada operación valida que el empleado pertenezca al negocio. El administrador del negocio crea la cuenta corporativa de cada empleado; los datos personales del empleado viven en su `StaffProfile` (Profiles) y su cuenta en IAM. Una persona que es familiar puede trabajar en Alivia y conserva aparte su perfil y su cuenta de cliente.
 
 ### 5.4.1. Domain Layer
 
-La Domain Layer de Capital Humano modela dos aggregates independientes, fieles al EventStorming de Paso 10: `Employee`, que representa al empleado contratado, y `Contract`, que representa su acuerdo laboral. Ambos tienen ciclos de vida con estados propios y no sincronizados entre sí (observación previa #2).
+#### Aggregates
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Employee | Aggregate Root | Representa a la persona contratada que trabaja para el negocio. No permite operaciones de negocio una vez despedido (estado terminal DISMISSED); su suspensión es independiente del estado de sus contratos (observación previa #2). Retiene los términos de su contrato inicial hasta que IAM confirme la creación de la cuenta, momento en el que se emite el Contract correspondiente (observación previa #1). |
-| Contract | Aggregate Root | Representa el acuerdo laboral de un empleado, referenciado mediante employeeId. No permite renovarse ni suspenderse una vez culminado (estado terminal CULMINATED); su ciclo de vida no se sincroniza automáticamente con el estado del Employee asociado (observación previa #2 y #4). |
+<table>
+<tr><th colspan="4" align="left"><code>Employee</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>AuditableAbstractAggregateRoot</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Una persona que trabaja para un negocio. Guarda su rol, su estado laboral, su horario, sus contratos y sus vacaciones.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>BusinessId</code></td><td>private</td><td>Negocio al que pertenece.</td></tr>
+<tr><td><code>userId</code></td><td><code>UserId</code></td><td>private</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><td><code>staffProfileId</code></td><td><code>StaffProfileId</code></td><td>private</td><td>Su perfil de personal en Profiles.</td></tr>
+<tr><td><code>role</code></td><td><code>EmployeeRole</code></td><td>private</td><td>Rol en el negocio.</td></tr>
+<tr><td><code>status</code></td><td><code>EmployeeStatus</code></td><td>private</td><td><code>ACTIVE</code>, <code>SUSPENDED</code> o <code>TERMINATED</code>.</td></tr>
+<tr><td><code>workSchedule</code></td><td><code>WorkSchedule</code></td><td>private</td><td>Turnos semanales.</td></tr>
+<tr><td><code>contractHistory</code></td><td><code>ContractHistory</code></td><td>private</td><td>Todos sus contratos.</td></tr>
+<tr><td><code>vacationHistory</code></td><td><code>VacationHistory</code></td><td>private</td><td>Todas sus vacaciones.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Employee(BusinessId businessId, UserId userId, StaffProfileId staffProfileId, EmployeeRole role, WorkSchedule workSchedule, OperatingHours operatingHours, ContractPeriod firstContractPeriod, TypeOfContract firstContractType, LocalDate today)</code></td><td>(constructor)</td><td>public</td><td>Contrata al empleado: estado <code>ACTIVE</code>, crea su primer contrato, valida que el horario quepa en el del negocio y registra <code>EmployeeHiredEvent</code>.</td></tr>
+<tr><td><code>belongsTo(BusinessId businessId)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si es del negocio indicado.</td></tr>
+<tr><td><code>changeRole(EmployeeRole role)</code></td><td><code>void</code></td><td>public</td><td>Cambia el rol.</td></tr>
+<tr><td><code>updateWorkSchedule(WorkSchedule workSchedule, OperatingHours operatingHours)</code></td><td><code>void</code></td><td>public</td><td>Cambia el horario; cada turno cabe en el horario del negocio (<code>WorkScheduleOutsideOperatingHours</code>).</td></tr>
+<tr><td><code>addContract(ContractPeriod period, TypeOfContract type, LocalDate today)</code></td><td><code>void</code></td><td>public</td><td>Renueva con un nuevo contrato: no empieza antes de <code>today</code> (<code>InvalidContractPeriod</code>) y no se cruza con otro <code>ACTIVE</code> (<code>ContractOverlap</code>).</td></tr>
+<tr><td><code>terminateContract(Long contractId)</code></td><td><code>void</code></td><td>public</td><td>Termina un contrato existente (<code>ContractNotFound</code>) y <code>ACTIVE</code> (<code>ContractNotActive</code>).</td></tr>
+<tr><td><code>scheduleVacation(VacationPeriod period, LocalDate today)</code></td><td><code>void</code></td><td>public</td><td>Programa vacaciones: no empiezan antes de <code>today</code> (<code>InvalidVacationPeriod</code>), caen dentro de un contrato <code>ACTIVE</code> (<code>VacationOutsideContract</code>) y no se cruzan con otras (<code>VacationOverlap</code>).</td></tr>
+<tr><td><code>cancelVacation(Long vacationId, LocalDate today)</code></td><td><code>void</code></td><td>public</td><td>Cancela vacaciones existentes (<code>VacationNotFound</code>) que aún no empezaron (<code>VacationNotCancelable</code>).</td></tr>
+<tr><td><code>suspend()</code></td><td><code>void</code></td><td>public</td><td>De <code>ACTIVE</code> a <code>SUSPENDED</code>. Registra <code>EmployeeSuspendedEvent</code>.</td></tr>
+<tr><td><code>reinstate()</code></td><td><code>void</code></td><td>public</td><td>De <code>SUSPENDED</code> a <code>ACTIVE</code>. Registra <code>EmployeeReinstatedEvent</code>.</td></tr>
+<tr><td><code>terminate(LocalDate today)</code></td><td><code>void</code></td><td>public</td><td>De <code>ACTIVE</code> o <code>SUSPENDED</code> a <code>TERMINATED</code> (final): termina el contrato vigente, cancela las vacaciones futuras y registra <code>EmployeeTerminatedEvent</code>.</td></tr>
+<tr><td><code>currentContract(LocalDate today)</code></td><td><code>Optional&lt;Contract&gt;</code></td><td>public</td><td>Contrato vigente a la fecha, si lo hay.</td></tr>
+<tr><td><code>isOnVacation(LocalDate today)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la fecha cae en unas vacaciones programadas. "De vacaciones" se calcula; no es un estado.</td></tr>
+<tr><td><code>isTerminated()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si fue cesado.</td></tr>
+<tr><td><b>Notas</b></td><td colspan="3">Ningún método modifica a un empleado <code>TERMINATED</code> (<code>EmployeeTerminated</code>), y una transición no permitida lanza <code>InvalidEmployeeStatusTransition</code>. Un empleado sin contrato vigente sigue <code>ACTIVE</code> hasta que el administrador lo renueve (<code>addContract</code>) o lo cese (<code>terminate</code>); no hay proceso automático.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>workSchedule</code>)</td><td><code>WorkSchedule</code></td><td>1 a 1</td><td>Horario del empleado.</td></tr>
+<tr><td>Composición (<code>contractHistory</code>)</td><td><code>ContractHistory</code></td><td>1 a 1</td><td>Historial de contratos.</td></tr>
+<tr><td>Composición (<code>vacationHistory</code>)</td><td><code>VacationHistory</code></td><td>1 a 1</td><td>Historial de vacaciones.</td></tr>
+<tr><td>Asociaciones (<code>role</code>, <code>status</code>)</td><td><code>EmployeeRole</code>, <code>EmployeeStatus</code></td><td>0..* a 1</td><td>Rol y estado.</td></tr>
+<tr><td>Dependencia "valida turnos con"</td><td><code>OperatingHours</code></td><td>No aplica</td><td>Horario del negocio que limita los turnos.</td></tr>
+<tr><td>Dependencia "registra"</td><td>Eventos del empleado</td><td>No aplica</td><td>Contratación, suspensión, reincorporación y cese.</td></tr>
+</table>
 
-No se identifican Entities en este bounded context: tanto `Employee` como `Contract` son aggregates simples sin componentes internos con identidad propia.
+#### Entities
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| EmployeeId | Value Object | Identificador tipado del aggregate Employee; no admite valores nulos ni negativos. |
-| ContractId | Value Object | Identificador tipado del aggregate Contract; no admite valores nulos ni negativos. |
-| Email | Value Object | Dirección de correo electrónico del empleado; valida el formato y no admite valores vacíos o mal formados. Es un value object propio de este bounded context, sin acoplarse al Email de IAM (no existe Shared Kernel declarado entre ambos en el Context Mapping). |
-| PhoneNumber | Value Object | Número de contacto del empleado; valida el formato del número registrado. |
-| ContractTerms | Value Object | Condiciones del contrato: fecha de inicio, fecha de término (nula para contratos indefinidos) y puesto; no admite una fecha de término anterior a la fecha de inicio. |
+<table>
+<tr><th colspan="4" align="left"><code>Contract</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Entity (extiende <code>AuditableModel</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Un contrato laboral. Siempre tiene fecha de fin. Vive dentro de <code>Employee</code> y solo se modifica por él.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employee</code></td><td><code>Employee</code></td><td>private</td><td>Referencia a su aggregate root.</td></tr>
+<tr><td><code>period</code></td><td><code>ContractPeriod</code></td><td>private</td><td>Fechas de inicio y fin.</td></tr>
+<tr><td><code>type</code></td><td><code>TypeOfContract</code></td><td>private</td><td>Tiempo completo o parcial.</td></tr>
+<tr><td><code>status</code></td><td><code>ContractStatus</code></td><td>private</td><td><code>ACTIVE</code> o <code>TERMINATED</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Contract(Employee employee, ContractPeriod period, TypeOfContract type)</code></td><td>(constructor)</td><td>public</td><td>Crea el contrato en <code>ACTIVE</code>.</td></tr>
+<tr><td><code>terminate()</code></td><td><code>void</code></td><td>public</td><td>De <code>ACTIVE</code> a <code>TERMINATED</code>, antes de su fecha de fin.</td></tr>
+<tr><td><code>isActive()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si está <code>ACTIVE</code>.</td></tr>
+<tr><td><code>isExpired(LocalDate today)</code></td><td><code>boolean</code></td><td>public</td><td><code>ACTIVE</code> con fecha de fin anterior a <code>today</code>. Se calcula; no se guarda.</td></tr>
+<tr><td><code>isCurrentOn(LocalDate date)</code></td><td><code>boolean</code></td><td>public</td><td><code>ACTIVE</code> y la fecha está dentro de su periodo.</td></tr>
+<tr><td><code>overlapsWith(ContractPeriod period)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si su periodo se cruza con otro.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>period</code>)</td><td><code>ContractPeriod</code></td><td>1 a 1</td><td>Periodo del contrato.</td></tr>
+<tr><td>Asociaciones (<code>type</code>, <code>status</code>)</td><td><code>TypeOfContract</code>, <code>ContractStatus</code></td><td>0..* a 1</td><td>Tipo y estado.</td></tr>
+</table>
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| EmployeeStatus | Enum | Estado del empleado. Transiciones permitidas: `ACTIVE` → `SUSPENDED` al suspenderse temporalmente su actividad; `SUSPENDED` → `ACTIVE` al reactivarse; `ACTIVE`/`SUSPENDED` → `DISMISSED` al despedirse, estado terminal que revoca su acceso en IAM (5.1) y no admite ninguna transición posterior. |
-| ContractStatus | Enum | Estado del contrato. Transiciones permitidas: `ACTIVE` → `SUSPENDED` al suspenderse; `SUSPENDED` → `ACTIVE` al reactivarse; `ACTIVE`/`SUSPENDED` → `CULMINATED` al culminarse, estado terminal que no admite ninguna transición posterior. No está acoplado al EmployeeStatus del Employee referenciado (observación previa #2). |
+<table>
+<tr><th colspan="4" align="left"><code>Vacation</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Entity (extiende <code>AuditableModel</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Un periodo de vacaciones programado. Vive dentro de <code>Employee</code>. Una vacación que ya terminó sigue <code>SCHEDULED</code>: es el historial de lo que tomó.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employee</code></td><td><code>Employee</code></td><td>private</td><td>Referencia a su aggregate root.</td></tr>
+<tr><td><code>period</code></td><td><code>VacationPeriod</code></td><td>private</td><td>Fechas de inicio y fin.</td></tr>
+<tr><td><code>status</code></td><td><code>VacationStatus</code></td><td>private</td><td><code>SCHEDULED</code> o <code>CANCELLED</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Vacation(Employee employee, VacationPeriod period)</code></td><td>(constructor)</td><td>public</td><td>Crea la vacación en <code>SCHEDULED</code>.</td></tr>
+<tr><td><code>cancel(LocalDate today)</code></td><td><code>void</code></td><td>public</td><td>De <code>SCHEDULED</code> a <code>CANCELLED</code>, solo si aún no empezó (<code>VacationNotCancelable</code>).</td></tr>
+<tr><td><code>isOn(LocalDate date)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la fecha está dentro de la vacación.</td></tr>
+<tr><td><code>overlapsWith(VacationPeriod period)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si se cruza con otro periodo.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>period</code>)</td><td><code>VacationPeriod</code></td><td>1 a 1</td><td>Periodo de la vacación.</td></tr>
+<tr><td>Asociación (<code>status</code>)</td><td><code>VacationStatus</code></td><td>0..* a 1</td><td>Estado.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| CreateEmployeeCommand | Da de alta a un nuevo empleado en estado ACTIVE, capturando además los términos de su contrato inicial, que quedan a la espera de que IAM confirme la creación de la cuenta (observación previa #1). | name: String, email: String, phone: String, startDate: LocalDate, endDate: LocalDate, position: String |
-| UpdateEmployeeInfoCommand | Actualiza los datos básicos de contacto del empleado. | employeeId: Long, name: String, email: String, phone: String |
-| SuspendEmployeeCommand | Suspende temporalmente la actividad del empleado. | employeeId: Long, reason: String |
-| ReactivateEmployeeCommand | Reactiva a un empleado previamente suspendido. | employeeId: Long |
-| DismissEmployeeCommand | Despide al empleado, llevándolo a su estado terminal DISMISSED. | employeeId: Long, reason: String |
+#### Value Objects y componentes embebidos
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| RegisterContractCommand | Registra un nuevo contrato para un empleado, de forma manual por el Administrador o automática al crearse su cuenta en IAM (observación previa #1). | employeeId: Long, startDate: LocalDate, endDate: LocalDate, position: String |
-| RenewContractCommand | Renueva el contrato, extendiendo su fecha de término. | contractId: Long, newEndDate: LocalDate |
-| SuspendContractCommand | Suspende el contrato. | contractId: Long, reason: String |
-| ReactivateContractCommand | Reactiva un contrato previamente suspendido. | contractId: Long |
-| CulminateContractCommand | Culmina el contrato, llevándolo a su estado terminal CULMINATED. | contractId: Long |
+<table>
+<tr><th colspan="4" align="left"><code>ContractHistory</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Componente embebido en <code>Employee</code></td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Agrupa todos los contratos del empleado, vigentes y pasados. Es mutable y contiene entidades; se ubica en <code>valueobjects</code> porque se embebe en el aggregate.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>contracts</code></td><td><code>List&lt;Contract&gt;</code></td><td>private</td><td>Lista mutable; inicia vacía.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ContractHistory()</code></td><td>(constructor)</td><td>public</td><td>Inicia la lista vacía.</td></tr>
+<tr><td><code>addContract(Employee employee, ContractPeriod period, TypeOfContract type)</code></td><td><code>Contract</code></td><td>public</td><td>Crea y agrega un contrato.</td></tr>
+<tr><td><code>getContractWithId(Long contractId)</code></td><td><code>Contract</code></td><td>public</td><td>Devuelve el contrato o lanza <code>ContractNotFound</code>.</td></tr>
+<tr><td><code>currentContract(LocalDate today)</code></td><td><code>Optional&lt;Contract&gt;</code></td><td>public</td><td>Contrato vigente a la fecha.</td></tr>
+<tr><td><code>hasActiveContractOverlapping(ContractPeriod period)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si un contrato <code>ACTIVE</code> se cruza con el periodo.</td></tr>
+<tr><td><code>hasActiveContractCovering(VacationPeriod period)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si un contrato <code>ACTIVE</code> cubre las vacaciones.</td></tr>
+<tr><td><code>terminateActiveContracts()</code></td><td><code>void</code></td><td>public</td><td>Termina los contratos <code>ACTIVE</code> (al cesar al empleado).</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>contracts</code>)</td><td><code>Contract</code></td><td>1 a 1..*</td><td>Al menos el primer contrato.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetEmployeeByIdQuery | Obtiene el detalle de un empleado. | employeeId: Long |
-| GetContractByIdQuery | Obtiene el detalle de un contrato. | contractId: Long |
-| GetContractsByEmployeeIdQuery | Lista los contratos de un empleado. | employeeId: Long |
+<table>
+<tr><th colspan="4" align="left"><code>VacationHistory</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Componente embebido en <code>Employee</code></td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Agrupa las vacaciones del empleado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>vacations</code></td><td><code>List&lt;Vacation&gt;</code></td><td>private</td><td>Lista mutable; inicia vacía.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>VacationHistory()</code></td><td>(constructor)</td><td>public</td><td>Inicia la lista vacía.</td></tr>
+<tr><td><code>addVacation(Employee employee, VacationPeriod period)</code></td><td><code>Vacation</code></td><td>public</td><td>Crea y agrega una vacación.</td></tr>
+<tr><td><code>getVacationWithId(Long vacationId)</code></td><td><code>Vacation</code></td><td>public</td><td>Devuelve la vacación o lanza <code>VacationNotFound</code>.</td></tr>
+<tr><td><code>hasScheduledVacationOverlapping(VacationPeriod period)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si una vacación <code>SCHEDULED</code> se cruza con el periodo.</td></tr>
+<tr><td><code>isOnVacation(LocalDate today)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la fecha cae en una vacación <code>SCHEDULED</code>.</td></tr>
+<tr><td><code>cancelFutureVacations(LocalDate today)</code></td><td><code>void</code></td><td>public</td><td>Cancela las vacaciones que aún no empiezan (al cesar al empleado).</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>vacations</code>)</td><td><code>Vacation</code></td><td>1 a 0..*</td><td>Vacaciones del empleado.</td></tr>
+</table>
 
-Los eventos `EmployeeRegistered`, `EmployeeUpdated` y `EmployeeTerminated` reutilizan los nombres ya comprometidos como integraciones entrantes en 5.1 (IAM) y 5.3 (Perfiles); el resto no tiene un consumidor externo declarado en el Canvas (4.2.4) y se publica para auditoría y futuras integraciones.
+<table>
+<tr><th colspan="4" align="left"><code>ContractPeriod</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Periodo de un contrato. Ambas fechas obligatorias y <code>endDate</code> no anterior a <code>startDate</code> (<code>InvalidContractPeriod</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>startDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de inicio.</td></tr>
+<tr><td><code>endDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de fin.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ContractPeriod(LocalDate startDate, LocalDate endDate)</code></td><td>(constructor)</td><td>public</td><td>Valida las fechas.</td></tr>
+<tr><td><code>contains(LocalDate date)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la fecha está dentro del periodo.</td></tr>
+<tr><td><code>overlapsWith(ContractPeriod other)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si se cruza con otro periodo del mismo tipo.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| EmployeeRegistered | Se publica al darse de alta un empleado; es consumido por `EmployeeRegisteredEventHandler` de IAM (5.1.3) para crear su cuenta. | employeeId: Long, name: String, email: String, phone: String, registeredAt: LocalDateTime |
-| EmployeeUpdated | Se publica al darse de alta o actualizarse los datos básicos de un empleado; es consumido por `EmployeeUpdatedEventHandler` de Perfiles (5.3.3) para inicializar o refrescar su perfil. | employeeId: Long, name: String, email: String, phone: String, updatedAt: LocalDateTime |
-| EmployeeSuspended | Se publica al suspenderse temporalmente la actividad de un empleado. | employeeId: Long, reason: String, suspendedAt: LocalDateTime |
-| EmployeeReactivated | Se publica al reactivarse un empleado suspendido. | employeeId: Long, reactivatedAt: LocalDateTime |
-| EmployeeTerminated | Se publica al despedirse un empleado; es consumido por `EmployeeTerminatedEventHandler` de IAM (5.1.3) para revocar su acceso. | employeeId: Long, reason: String, terminatedAt: LocalDateTime |
-| ContractRegistered | Se publica al registrarse un nuevo contrato. | contractId: Long, employeeId: Long, startDate: LocalDate, endDate: LocalDate, position: String, registeredAt: LocalDateTime |
-| ContractRenewed | Se publica al renovarse un contrato. | contractId: Long, newEndDate: LocalDate, renewedAt: LocalDateTime |
-| ContractSuspended | Se publica al suspenderse un contrato. | contractId: Long, reason: String, suspendedAt: LocalDateTime |
-| ContractReactivated | Se publica al reactivarse un contrato suspendido. | contractId: Long, reactivatedAt: LocalDateTime |
-| ContractCulminated | Se publica al culminarse un contrato. | contractId: Long, culminatedAt: LocalDateTime |
+<table>
+<tr><th colspan="4" align="left"><code>VacationPeriod</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Periodo de vacaciones. Mismas invariantes (<code>InvalidVacationPeriod</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>startDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de inicio.</td></tr>
+<tr><td><code>endDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de fin.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>VacationPeriod(LocalDate startDate, LocalDate endDate)</code></td><td>(constructor)</td><td>public</td><td>Valida las fechas.</td></tr>
+<tr><td><code>contains(LocalDate date)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la fecha está dentro del periodo.</td></tr>
+<tr><td><code>overlapsWith(VacationPeriod other)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si se cruza con otro periodo del mismo tipo.</td></tr>
+<tr><td><code>days()</code></td><td><code>int</code></td><td>public</td><td>Cantidad de días del periodo.</td></tr>
+</table>
 
-No se declaran Factories ni Domain Services en este bounded context: `Employee` y `Contract` son aggregates independientes que solo se referencian por identificador (employeeId). La validación de que el empleado referenciado exista y esté activo al registrar un contrato se resuelve en `RegisterContractCommandHandler` mediante `EmployeeRepository`, sin requerir un Domain Service.
+<table>
+<tr><th colspan="4" align="left"><code>WorkSchedule</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Horario de trabajo semanal del empleado, fuera del contrato: un <code>WeeklyPeriod</code> (Shared) por cada bloque de días con el mismo turno (ej. Lun-Vie 08:00-16:00 y Sáb 08:00-12:00).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>shifts</code></td><td><code>List&lt;WeeklyPeriod&gt;</code></td><td>private final</td><td>Al menos un turno; ninguno cruza medianoche ni se cruza con otro (<code>InvalidWorkSchedule</code>).</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>WorkSchedule(List&lt;WeeklyPeriod&gt; shifts)</code></td><td>(constructor)</td><td>public</td><td>Valida los turnos.</td></tr>
+<tr><td><code>isWorkingAt(DayOfWeek day, LocalTime time)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si trabaja ese día a esa hora.</td></tr>
+<tr><td><code>fitsWithin(OperatingHours operatingHours)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si cada turno cabe en el horario del negocio.</td></tr>
+</table>
 
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| EmployeeRepository | Employee | Persiste y recupera el aggregate Employee. |
-| ContractRepository | Contract | Persiste y recupera el aggregate Contract; expone la búsqueda por employeeId para listar los contratos de un empleado. |
+<table>
+<tr><th colspan="4" align="left"><code>OperatingHours</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Horario de atención del negocio del empleado (por ejemplo, hasta las 22:00). Es la traducción que hace el ACL del <code>BusinessHours</code> de Profiles; no cruza medianoche.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>periods</code></td><td><code>List&lt;WeeklyPeriod&gt;</code></td><td>private final</td><td>Periodos de atención.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>OperatingHours(List&lt;WeeklyPeriod&gt; periods)</code></td><td>(constructor)</td><td>public</td><td>Crea el horario.</td></tr>
+<tr><td><code>covers(WeeklyPeriod shift)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si un turno queda dentro del horario de atención.</td></tr>
+</table>
 
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| Contract | asociación | Employee | Contract referencia a su empleado mediante employeeId; son aggregates independientes, sin composición. |
-| EmployeeRepository | depende de | Employee | El repositorio persiste y recupera el aggregate Employee. |
-| ContractRepository | depende de | Contract | El repositorio persiste y recupera el aggregate Contract. |
+#### Enumerations
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Estado laboral. <code>TERMINATED</code> es final.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>ACTIVE</code>, <code>SUSPENDED</code>, <code>TERMINATED</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeRole</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Rol del empleado.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>TECH</code>, <code>SUBSCRIPTION_MANAGER</code>, <code>CLEANING</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ContractStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Estado de un contrato. "Vencido" se calcula con la fecha de fin.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>ACTIVE</code>, <code>TERMINATED</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>TypeOfContract</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Tiempo completo o parcial.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>FULL_TIME</code>, <code>PART_TIME</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>VacationStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Estado de unas vacaciones.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>SCHEDULED</code>, <code>CANCELLED</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+#### Domain Events
+
+Los consumen IAM (habilita, bloquea o desactiva la cuenta corporativa) y Communication (avisa al empleado por su correo corporativo). La cuenta personal de familiar, si la tiene, no cambia.
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeHiredEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que se contrató a un empleado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employee</code></td><td><code>Employee</code></td><td>private</td><td>Empleado que originó el evento; su id se lee al publicarse.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmployeeHiredEvent(Employee employee)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><code>getEmployeeId()</code></td><td><code>Long</code></td><td>public</td><td>Devuelve <code>employeeId</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><code>getBusinessId()</code></td><td><code>Long</code></td><td>public</td><td>Devuelve <code>businessId</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><code>getUserId()</code></td><td><code>Long</code></td><td>public</td><td>Devuelve <code>userId</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><code>getRole()</code></td><td><code>EmployeeRole</code></td><td>public</td><td>Devuelve <code>role</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3">Constructor de <code>Employee</code></td></tr>
+<tr><td><b>Reacción esperada</b></td><td colspan="3">IAM registra el rol de empleado; Communication envía la bienvenida con la contraseña temporal. Lee el id al publicarse, porque al registrarse el empleado aún no tiene id.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeSuspendedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que se suspendió a un empleado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmployeeSuspendedEvent(Long employeeId, Long businessId, Long userId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>Employee.suspend</code></td></tr>
+<tr><td><b>Reacción esperada</b></td><td colspan="3">IAM bloquea la cuenta corporativa.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeReinstatedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que un empleado suspendido volvió a estar activo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmployeeReinstatedEvent(Long employeeId, Long businessId, Long userId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>Employee.reinstate</code></td></tr>
+<tr><td><b>Reacción esperada</b></td><td colspan="3">IAM vuelve a habilitar la cuenta.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeTerminatedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que se cesó a un empleado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmployeeTerminatedEvent(Long employeeId, Long businessId, Long userId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>Employee.terminate</code></td></tr>
+<tr><td><b>Reacción esperada</b></td><td colspan="3">IAM desactiva la cuenta corporativa.</td></tr>
+</table>
+
+#### Commands
+
+Todo command lleva `businessId`: el empleado existe (`EmployeeNotFound`) y pertenece a ese negocio (`EmployeeNotInBusiness`). El `businessId` lo resuelve la capa de aplicación desde el usuario que inició sesión.
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateEmployeeCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Contrata a un empleado: su <code>StaffProfile</code>, su cuenta corporativa en IAM, el aggregate <code>Employee</code> y su primer contrato.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Negocio que contrata.</td></tr>
+<tr><td><code>corporateEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo corporativo. Obligatorio.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo de la foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><td><code>dni</code></td><td><code>String</code></td><td>private final</td><td>DNI.</td></tr>
+<tr><td><code>birthDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de nacimiento.</td></tr>
+<tr><td><code>role</code></td><td><code>EmployeeRole</code></td><td>private final</td><td>Rol.</td></tr>
+<tr><td><code>workSchedule</code></td><td><code>WorkSchedule</code></td><td>private final</td><td>Horario de trabajo.</td></tr>
+<tr><td><code>contractStartDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Inicio del primer contrato.</td></tr>
+<tr><td><code>contractEndDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fin del primer contrato.</td></tr>
+<tr><td><code>contractType</code></td><td><code>TypeOfContract</code></td><td>private final</td><td>Tipo del primer contrato.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateEmployeeCommand(Long businessId, String corporateEmail, byte[] photoData, String photoFileName, String phoneNumber, String firstName, String lastName, String dni, LocalDate birthDate, EmployeeRole role, WorkSchedule workSchedule, LocalDate contractStartDate, LocalDate contractEndDate, TypeOfContract contractType)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Lo ejecuta el administrador. El negocio existe (<code>BusinessNotFound</code>). El DNI no está entre el personal (<code>DniAlreadyExists</code>) y el correo corporativo no está registrado (<code>EmailAddressAlreadyExists</code>): nadie es empleado dos veces y un administrador no puede ser empleado. Profiles crea el <code>StaffProfile</code>; IAM crea la cuenta corporativa con una contraseña temporal, que Communication envía al correo corporativo; el empleado no tiene acceso hasta cambiarla.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UpdateEmployeeCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Actualiza los datos personales del empleado en su <code>StaffProfile</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Negocio.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo de la foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdateEmployeeCommand(Long employeeId, Long businessId, byte[] photoData, String photoFileName, String phoneNumber, String firstName, String lastName)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Actualiza los datos personales en su <code>StaffProfile</code>; <code>Employee</code> no cambia. El empleado no está <code>TERMINATED</code> (<code>EmployeeTerminated</code>). Email, DNI y fecha de nacimiento no se modifican.</td></tr>
+</table>
+
+**Commands de rol, horario, estado, contratos y vacaciones**
+
+<table>
+<tr><th colspan="4" align="left"><code>ChangeEmployeeRoleCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cambia el rol (<code>Employee.changeRole</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>role</code></td><td><code>EmployeeRole</code></td><td>private final</td><td>Rol en el negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ChangeEmployeeRoleCommand(Long employeeId, Long businessId, EmployeeRole role)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UpdateEmployeeWorkScheduleCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cambia el horario dentro del horario del negocio (<code>Employee.updateWorkSchedule</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>workSchedule</code></td><td><code>WorkSchedule</code></td><td>private final</td><td>Turnos semanales.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdateEmployeeWorkScheduleCommand(Long employeeId, Long businessId, WorkSchedule workSchedule)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>SuspendEmployeeCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Suspende al empleado (<code>Employee.suspend</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>SuspendEmployeeCommand(Long employeeId, Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ReinstateEmployeeCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Lo reincorpora (<code>Employee.reinstate</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ReinstateEmployeeCommand(Long employeeId, Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>TerminateEmployeeCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Lo cesa: termina su contrato, cancela vacaciones futuras y desactiva su cuenta corporativa (<code>Employee.terminate</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>TerminateEmployeeCommand(Long employeeId, Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateContractCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Renueva con un nuevo contrato (<code>Employee.addContract</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>startDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de inicio.</td></tr>
+<tr><td><code>endDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de fin.</td></tr>
+<tr><td><code>type</code></td><td><code>TypeOfContract</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateContractCommand(Long employeeId, Long businessId, LocalDate startDate, LocalDate endDate, TypeOfContract type)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>TerminateContractCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Termina un contrato antes de su fin (<code>Employee.terminateContract</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>contractId</code></td><td><code>Long</code></td><td>private final</td><td>Id del contrato.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>TerminateContractCommand(Long employeeId, Long contractId, Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ScheduleVacationCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Programa vacaciones (<code>Employee.scheduleVacation</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>startDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de inicio.</td></tr>
+<tr><td><code>endDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de fin.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ScheduleVacationCommand(Long employeeId, Long businessId, LocalDate startDate, LocalDate endDate)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CancelVacationCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cancela vacaciones que aún no empiezan (<code>Employee.cancelVacation</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>vacationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la vacación.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CancelVacationCommand(Long employeeId, Long vacationId, Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+#### Queries
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllEmployeesByBusinessIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Personal de un negocio; <code>status</code> y <code>role</code> son filtros opcionales (nulo: sin filtro).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>status</code></td><td><code>EmployeeStatus</code></td><td>private final</td><td>Estado de la invitación.</td></tr>
+<tr><td><code>role</code></td><td><code>EmployeeRole</code></td><td>private final</td><td>Rol en el negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllEmployeesByBusinessIdQuery(Long businessId, EmployeeStatus status, EmployeeRole role)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Employee&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetEmployeeByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Empleado por id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetEmployeeByIdQuery(Long employeeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Employee&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetEmployeeByUserIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Empleado del usuario que inició sesión.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetEmployeeByUserIdQuery(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Employee&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllContractsByEmployeeIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Contratos que se cruzan con <code>[from, to]</code>; filtros opcionales.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>from</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha inicial del rango consultado.</td></tr>
+<tr><td><code>to</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha final del rango consultado.</td></tr>
+<tr><td><code>status</code></td><td><code>ContractStatus</code></td><td>private final</td><td>Estado de la invitación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllContractsByEmployeeIdQuery(Long employeeId, LocalDate from, LocalDate to, ContractStatus status)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Contract&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetContractByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Contrato buscado dentro de su empleado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>contractId</code></td><td><code>Long</code></td><td>private final</td><td>Id del contrato.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetContractByIdQuery(Long employeeId, Long contractId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Contract&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllVacationsByEmployeeIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Vacaciones que se cruzan con <code>[from, to]</code>; filtros opcionales.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>from</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha inicial del rango consultado.</td></tr>
+<tr><td><code>to</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha final del rango consultado.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllVacationsByEmployeeIdQuery(Long employeeId, LocalDate from, LocalDate to)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Vacation&gt;</code></td></tr>
+</table>
+
+#### Domain Services
+
+Todos los métodos son `public` (interfaces). Los commands devuelven el id del `Employee`; los de contrato o vacación, el id del `Contract` o de la `Vacation`.
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>Employee</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateEmployeeCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CreateEmployeeCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(UpdateEmployeeCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>UpdateEmployeeCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ChangeEmployeeRoleCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>ChangeEmployeeRoleCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(UpdateEmployeeWorkScheduleCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>UpdateEmployeeWorkScheduleCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(SuspendEmployeeCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>SuspendEmployeeCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ReinstateEmployeeCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>ReinstateEmployeeCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(TerminateEmployeeCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>TerminateEmployeeCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(CreateContractCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CreateContractCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(TerminateContractCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>TerminateContractCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ScheduleVacationCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>ScheduleVacationCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(CancelVacationCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CancelVacationCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>Employee</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetAllEmployeesByBusinessIdQuery query)</code></td><td><code>List&lt;Employee&gt;</code></td><td>public</td><td>Resuelve <code>GetAllEmployeesByBusinessIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(GetEmployeeByIdQuery query)</code></td><td><code>Optional&lt;Employee&gt;</code></td><td>public</td><td>Resuelve <code>GetEmployeeByIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetEmployeeByUserIdQuery query)</code></td><td><code>Optional&lt;Employee&gt;</code></td><td>public</td><td>Resuelve <code>GetEmployeeByUserIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetAllContractsByEmployeeIdQuery query)</code></td><td><code>List&lt;Contract&gt;</code></td><td>public</td><td>Resuelve <code>GetAllContractsByEmployeeIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(GetContractByIdQuery query)</code></td><td><code>Optional&lt;Contract&gt;</code></td><td>public</td><td>Resuelve <code>GetContractByIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetAllVacationsByEmployeeIdQuery query)</code></td><td><code>List&lt;Vacation&gt;</code></td><td>public</td><td>Resuelve <code>GetAllVacationsByEmployeeIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+</table>
+
+#### Exceptions
+
+Cada excepción tiene un constructor `public` sin parámetros.
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe el empleado indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmployeeNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeNotInBusiness</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el empleado no pertenece al negocio indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmployeeNotInBusiness()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el negocio no existe en Company.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeTerminated</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se intenta modificar a un empleado cesado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmployeeTerminated()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidEmployeeStatusTransition</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la transición de estado no está permitida (ej. suspender a un suspendido).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidEmployeeStatusTransition()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DniAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el DNI ya está registrado entre el personal.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DniAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmailAddressAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el correo corporativo ya está registrado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmailAddressAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ContractNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el contrato no existe dentro del empleado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ContractNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ContractNotActive</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se intenta terminar un contrato que no está <code>ACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ContractNotActive()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ContractOverlap</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el nuevo contrato se cruza con otro <code>ACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ContractOverlap()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidContractPeriod</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando fechas inválidas o inicio anterior a hoy.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidContractPeriod()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidWorkSchedule</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando horario vacío, con turnos que cruzan medianoche o que se cruzan entre sí.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidWorkSchedule()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>WorkScheduleOutsideOperatingHours</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando un turno queda fuera del horario de atención del negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>WorkScheduleOutsideOperatingHours()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>VacationNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando las vacaciones no existen dentro del empleado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>VacationNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidVacationPeriod</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando fechas inválidas o inicio anterior a hoy.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidVacationPeriod()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>VacationOverlap</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se cruzan con otras vacaciones programadas.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>VacationOverlap()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>VacationOutsideContract</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no caen dentro de un contrato <code>ACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>VacationOutsideContract()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>VacationNotCancelable</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando ya empezaron o ya fueron canceladas.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>VacationNotCancelable()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
 
 ### 5.4.2. Interface Layer
 
-La Interface Layer expone dos controllers independientes, uno por cada aggregate root: `EmployeeController` y `ContractController`. Ninguno expone `RegisterContractCommand` como su único origen, ya que también puede invocarse manualmente por el Administrador (ver endpoint registerContract) o automáticamente desde un Event Handler (5.4.3). Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: ningún otro bounded context consume a Capital Humano de forma síncrona según el Context Mapping (4.2.5); sus integraciones salientes se resuelven mediante Domain Events hacia IAM y Perfiles.
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | EmployeeController |
-| Categoría | Controller |
-| Propósito | Exponer el alta, la actualización, la suspensión, la reactivación y el despido de empleados. |
-| Aggregate/Entity relacionado | Employee |
-| Ruta base | /api/v1/employees |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| createEmployee | / (POST) | body: CreateEmployeeResource { name: String, email: String, phone: String, startDate: LocalDate, endDate: LocalDate, position: String } | Da de alta a un nuevo empleado junto con los términos de su contrato inicial | CreateEmployeeCommand |
-| getEmployeeById | /{employeeId} (GET) | path: employeeId: Long | Obtiene el detalle de un empleado | GetEmployeeByIdQuery |
-| updateEmployeeInfo | /{employeeId} (PUT) | path: employeeId: Long; body: UpdateEmployeeInfoResource { name: String, email: String, phone: String } | Actualiza los datos básicos del empleado | UpdateEmployeeInfoCommand |
-| suspendEmployee | /{employeeId}/suspend (POST) | path: employeeId: Long; body: SuspendEmployeeResource { reason: String } | Suspende temporalmente al empleado | SuspendEmployeeCommand |
-| reactivateEmployee | /{employeeId}/reactivate (POST) | path: employeeId: Long | Reactiva a un empleado suspendido | ReactivateEmployeeCommand |
-| dismissEmployee | /{employeeId}/dismiss (POST) | path: employeeId: Long; body: DismissEmployeeResource { reason: String } | Despide al empleado | DismissEmployeeCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ContractController |
-| Categoría | Controller |
-| Propósito | Exponer el registro, la renovación, la suspensión, la reactivación y la culminación de contratos. |
-| Aggregate/Entity relacionado | Contract |
-| Ruta base | /api/v1/contracts |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| registerContract | / (POST) | body: RegisterContractResource { employeeId: Long, startDate: LocalDate, endDate: LocalDate, position: String } | Registra un nuevo contrato para el empleado | RegisterContractCommand |
-| getContractById | /{contractId} (GET) | path: contractId: Long | Obtiene el detalle de un contrato | GetContractByIdQuery |
-| getContractsByEmployee | /by-employee/{employeeId} (GET) | path: employeeId: Long | Lista los contratos de un empleado | GetContractsByEmployeeIdQuery |
-| renewContract | /{contractId}/renew (POST) | path: contractId: Long; body: RenewContractResource { newEndDate: LocalDate } | Renueva el contrato | RenewContractCommand |
-| suspendContract | /{contractId}/suspend (POST) | path: contractId: Long; body: SuspendContractResource { reason: String } | Suspende el contrato | SuspendContractCommand |
-| reactivateContract | /{contractId}/reactivate (POST) | path: contractId: Long | Reactiva un contrato suspendido | ReactivateContractCommand |
-| culminateContract | /{contractId}/culminate (POST) | path: contractId: Long | Culmina el contrato | CulminateContractCommand |
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.4.1.
 
 ### 5.4.3. Application Layer
 
-La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante un Event Handler la integración entrante identificada en la observación previa #1: el registro automático del contrato al crearse la cuenta del empleado en IAM.
-
-**AccountRegisteredEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AccountRegisteredEventHandler |
-| Categoría | Event Handler |
-| Propósito | Localizar al empleado por el correo recibido en el evento, y registrar automáticamente su contrato usando los términos capturados en CreateEmployeeCommand, conforme a la decisión de negocio del Canvas: "al crearse la cuenta del empleado se registra su contrato". |
-| Command/Query/Evento que maneja | AccountRegistered (evento externo, BC de origen: IAM, ver 5.1.1) |
-| Repositorios y servicios que usa | EmployeeRepository (para localizar al empleado por correo), RegisterContractCommand (invocado internamente) |
-| Eventos que publica | ContractRegistered (vía el command invocado) |
-| User story/capability que habilita | Resuelve la observación previa #1 |
-
-**CreateEmployeeCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | CreateEmployeeCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Dar de alta al empleado en estado ACTIVE, reteniendo los términos de su contrato inicial hasta que IAM confirme la creación de la cuenta. |
-| Command/Query/Evento que maneja | CreateEmployeeCommand |
-| Repositorios y servicios que usa | EmployeeRepository |
-| Eventos que publica | EmployeeRegistered, EmployeeUpdated |
-| User story/capability que habilita | Decisión de negocio del Canvas; resuelve la observación previa #3 (EmployeeUpdated hacia Perfiles) |
-
-**UpdateEmployeeInfoCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | UpdateEmployeeInfoCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Actualizar los datos básicos de contacto de un empleado. |
-| Command/Query/Evento que maneja | UpdateEmployeeInfoCommand |
-| Repositorios y servicios que usa | EmployeeRepository |
-| Eventos que publica | EmployeeUpdated |
-| User story/capability que habilita | Resuelve la observación previa #3 |
-
-**SuspendEmployeeCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | SuspendEmployeeCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Suspender temporalmente la actividad de un empleado, sin afectar el estado de sus contratos (observación previa #2). |
-| Command/Query/Evento que maneja | SuspendEmployeeCommand |
-| Repositorios y servicios que usa | EmployeeRepository |
-| Eventos que publica | EmployeeSuspended |
-| User story/capability que habilita | Resuelve la observación previa #2 |
-
-**ReactivateEmployeeCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ReactivateEmployeeCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Reactivar a un empleado previamente suspendido. |
-| Command/Query/Evento que maneja | ReactivateEmployeeCommand |
-| Repositorios y servicios que usa | EmployeeRepository |
-| Eventos que publica | EmployeeReactivated |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**DismissEmployeeCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | DismissEmployeeCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Despedir al empleado, llevándolo a su estado terminal DISMISSED, sin culminar automáticamente sus contratos (observación previa #4). |
-| Command/Query/Evento que maneja | DismissEmployeeCommand |
-| Repositorios y servicios que usa | EmployeeRepository |
-| Eventos que publica | EmployeeTerminated |
-| User story/capability que habilita | Resuelve la observación previa #4; consumido por EmployeeTerminatedEventHandler de IAM (5.1.3) |
-
-**RegisterContractCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterContractCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Validar que el empleado exista y esté ACTIVE, y registrar su contrato con los términos provistos, ya sea de forma manual (Administrador) o automática (AccountRegisteredEventHandler). |
-| Command/Query/Evento que maneja | RegisterContractCommand |
-| Repositorios y servicios que usa | ContractRepository, EmployeeRepository |
-| Eventos que publica | ContractRegistered |
-| User story/capability que habilita | Decisión de negocio del Canvas; resuelve la observación previa #1 |
-
-**RenewContractCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RenewContractCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Extender la fecha de término de un contrato vigente. |
-| Command/Query/Evento que maneja | RenewContractCommand |
-| Repositorios y servicios que usa | ContractRepository |
-| Eventos que publica | ContractRenewed |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**SuspendContractCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | SuspendContractCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Suspender un contrato, sin afectar el estado del Employee asociado (observación previa #2). |
-| Command/Query/Evento que maneja | SuspendContractCommand |
-| Repositorios y servicios que usa | ContractRepository |
-| Eventos que publica | ContractSuspended |
-| User story/capability que habilita | Resuelve la observación previa #2 |
-
-**ReactivateContractCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ReactivateContractCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Reactivar un contrato previamente suspendido. |
-| Command/Query/Evento que maneja | ReactivateContractCommand |
-| Repositorios y servicios que usa | ContractRepository |
-| Eventos que publica | ContractReactivated |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**CulminateContractCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | CulminateContractCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Culminar un contrato, llevándolo a su estado terminal, independientemente del estado del Employee asociado (observación previa #4). |
-| Command/Query/Evento que maneja | CulminateContractCommand |
-| Repositorios y servicios que usa | ContractRepository |
-| Eventos que publica | ContractCulminated |
-| User story/capability que habilita | Resuelve la observación previa #4 |
-
-**GetEmployeeByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetEmployeeByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un empleado. |
-| Command/Query/Evento que maneja | GetEmployeeByIdQuery |
-| Repositorios y servicios que usa | EmployeeRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getEmployeeById |
-
-**GetContractByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetContractByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un contrato. |
-| Command/Query/Evento que maneja | GetContractByIdQuery |
-| Repositorios y servicios que usa | ContractRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getContractById |
-
-**GetContractsByEmployeeIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetContractsByEmployeeIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Listar los contratos de un empleado. |
-| Command/Query/Evento que maneja | GetContractsByEmployeeIdQuery |
-| Repositorios y servicios que usa | ContractRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getContractsByEmployee |
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.4.1.
 
 ### 5.4.4. Infrastructure Layer
 
-La Infrastructure Layer implementa los repositorios de Employee y Contract sobre PostgreSQL, consistente con el carácter transaccional y estructurado de los datos de personal, y el suscriptor del bus de eventos interno que conecta a Capital Humano con IAM.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.4.1.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| EmployeeRepositoryJpa | EmployeeRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Employee. |
-| ContractRepositoryJpa | ContractRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Contract. |
+### 5.4.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `EmployeeJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Employee` y `Contract` sobre el motor PostgreSQL.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.4.1.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| DomainEventBusSubscriber | Event Subscriber | AccountRegisteredListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta el evento AccountRegistered publicado por IAM hacia AccountRegisteredEventHandler (observación previa #1). |
+### 5.4.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| employees | Almacena el aggregate Employee: datos de contacto, estado y términos del contrato inicial pendiente. |
-| contracts | Almacena el aggregate Contract: términos, estado y referencia al empleado (employeeId). |
+#### 5.4.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Cuenta / credenciales | IAM | La creación y la autenticación de la cuenta del empleado son responsabilidad exclusiva de IAM, consumiendo EmployeeRegistered (observación previa, resuelto en 5.1). |
-| Perfil del empleado | Perfiles | El perfil detallado del empleado (foto, preferencias) se gestiona en Perfiles al consumir EmployeeUpdated (observación previa #3, resuelto en 5.3). |
+El diagrama muestra el aggregate `Employee` con sus componentes embebidos (`WorkSchedule`, `ContractHistory`, `VacationHistory`) y las entidades `Contract` (1..*) y `Vacation` (0..*), todo por composición con nombre y multiplicidad. Los enums se enlazan con la clase que los usa. `Employee` registra los cuatro eventos y depende de `OperatingHours` para validar los turnos. Los services reciben sus commands y queries, y las notas detallan las reglas de los commands y los contextos externos (Company, Profiles, IAM y Communication).
 
-**Verificación de trazabilidad — Capital Humano**
+![Diagrama de clases de la capa de dominio - Capital Humano](../images/diagrams/img/chapter-5/hcm-backend-diagram.svg)
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 10 commands y las 3 queries de 5.4.1 tienen su handler correspondiente en 5.4.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | RegisterContractCommand se usa tanto desde el endpoint manual como desde AccountRegisteredEventHandler (observación previa #1); el resto se usa desde los endpoints de EmployeeController y ContractController. |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.4.2) mapea 1:1 los parámetros del Command correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | EmployeeController se relaciona con Employee; ContractController se relaciona con Contract. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | EmployeeRepository ↔ EmployeeRepositoryJpa; ContractRepository ↔ ContractRepositoryJpa. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | EmployeeRegistered y EmployeeTerminated los consume IAM (5.1); EmployeeUpdated lo consume Perfiles (5.3); el resto no tiene consumidor externo declarado en el Canvas (4.2.4) y se publica para auditoría. |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Employee y Contract son exclusivos de este bounded context. |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | Los repositorios se declaran como puertos en Domain; sus implementaciones concretas (EmployeeRepositoryJpa, ContractRepositoryJpa) están en Infrastructure (5.4.4). |
+#### 5.4.7.2. Bounded Context Database Design Diagram
 
-### 5.4.6. Bounded Context Software Architecture Code Level Diagrams
+| Tabla | Aggregate, entidad o value object | Llaves y restricciones |
+|---|---|---|
+| `employees` | `Employee` | PK `id`. UK `user_id` y UK `staff_profile_id` (sin FK, otros contextos). Índice `business_id`. |
+| `employee_work_shifts` | `WorkSchedule` (colección de `WeeklyPeriod`) | FK `employee_id`. Sin id propio: es parte del valor del aggregate. |
+| `contracts` | `Contract` | PK `id`. FK `employee_id`. `CHECK (end_date >= start_date)`. Opcional: restricción de exclusión que impide dos contratos `ACTIVE` que se cruzan. |
+| `vacations` | `Vacation` | PK `id`. FK `employee_id`. `CHECK (end_date >= start_date)`. Opcional: restricción de exclusión para vacaciones `SCHEDULED`. |
 
-#### 5.4.6.1. Bounded Context Domain Layer Class Diagrams
+Relaciones: un empleado tiene uno o más turnos (1 a 1..*), uno o más contratos (1 a 1..*) y cero o más vacaciones (1 a 0..*). Ningún registro se borra: un empleado cesado, un contrato terminado y unas vacaciones canceladas quedan como historial.
 
-El siguiente diagrama de clases presenta la capa de dominio del bounded context **Capital Humano**. Su aggregate principal es **Employee**, caracterizado por los enums `EmployeeRole` y `EmployeeStatus` y por un `ContractHistory`. La entidad **Contract** registra cada vínculo laboral con su `TypeOfContract`, su `ContractStatus` y su `ContractPeriod`. Se incluyen los domain events del ciclo de vida del empleado (`EmployeeHiredEvent`, `EmployeeSuspendedEvent`, `EmployeeTerminationEvent`), los commands para crear y actualizar empleados y contratos, las queries por negocio, empleado y contrato, y las interfaces `EmployeeCommandServices` y `EmployeeQueryServices`.
-
-![Diagrama de clases de la capa de dominio - Capital Humano](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/hcm/hcm-backend-diagram.puml)
-
-#### 5.4.6.2. Bounded Context Database Design Diagram
-
-El siguiente diagrama de base de datos muestra el modelo relacional del bounded context **Capital Humano**. Está formado por la tabla `employees`, que almacena el rol y el estado de cada empleado junto con las referencias a su perfil y a su negocio, y la tabla `contracts`, con la que mantiene una relación uno a muchos para conservar el historial de contratos de cada empleado.
-
-![Diagrama de base de datos - Capital Humano](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/hcm/hcm-database-diagram.puml)
+![Diagrama de base de datos - Capital Humano](../images/diagrams/img/chapter-5/hcm-database-diagram.svg)
 
 <div style="page-break-after: always;"></div>
 
-## 5.5. Bounded Context: Cuidado
+## 5.5. Bounded Context: Asistencia Médica
 
-El bounded context **Cuidado** gestiona la red de cuidado de la persona con discapacidad: el registro del familiar responsable y de las labores de cuidado, la invitación y vinculación de cuidadores adicionales, y el seguimiento de horarios y asignaciones cumplidas. A diferencia de los bounded contexts anteriores (soporte o genéricos), Cuidado está clasificado como **dominio núcleo** en el Bounded Context Canvas (4.2.4): es la razón de ser diferenciadora de Alivia. El actor principal es el **Familiar** (el cliente responsable de IAM), quien registra labores de cuidado e invita cuidadores; el **Cuidador** da seguimiento a sus horarios y asignaciones. Este bounded context cierra el compromiso pendiente con Perfiles: publica `PrincipalCaregiverReplaced`, consumido por `PrincipalCaregiverReplacedEventHandler` (5.3.3).
+En el código, este bounded context es el paquete `assistance`. Assistance gestiona el cuidado de las personas asistidas. El familiar (`Relative`) se registra por su cuenta, paga la suscripción y gestiona a sus personas asistidas: invita cuidadores por correo, crea actividades de cuidado (medicación, baño, comida, etc.) y las asigna a un cuidador o a sí mismo con un horario. Cada responsable marca como realizadas solo sus propias asignaciones y solo dentro de su horario. Las ocurrencias de una actividad no se guardan: se calculan con el horario, y solo se guarda lo que pasó con cada una (`ActivityLog`). Dentro del contexto los aggregates se referencian directamente; con otros contextos, solo por `UserId`, `PersonProfileId` y `BusinessId`.
 
 ### 5.5.1. Domain Layer
 
-La Domain Layer de Cuidado modela cuatro aggregates independientes, fieles al EventStorming de Paso 10: `FamilyMember`, que representa al familiar responsable de la red de cuidado; `CareTask`, que representa una labor de cuidado asignable; `Invitation`, que representa la solicitud enviada a un cuidador; y `Caregiver`, que representa a un cuidador vinculado a una red de cuidado específica (observación previa #1).
+#### Aggregates
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| FamilyMember | Aggregate Root | Representa al familiar (cliente responsable) que gestiona la red de cuidado de la persona asistida. Referencia su accountId (IAM) y su homeProfileId (Perfiles), pasados como parámetros al registrarse, sin requerir una integración entrante de otro BC. |
-| CareTask | Aggregate Root | Representa una labor de cuidado registrada por el Familiar. Toda labor se asigna a un cuidador responsable (decisión de negocio del Canvas), pero puede quedar sin responsable si este es desvinculado (observación previa #2). |
-| Invitation | Aggregate Root | Representa la solicitud enviada a un cuidador para vincularse a la red de cuidado. Una vez aceptada o rechazada queda en un estado terminal: una invitación aceptada vincula al cuidador como cuidador adicional; una rechazada no lo vincula (decisiones de negocio del Canvas). |
-| Caregiver | Aggregate Root | Representa a un cuidador vinculado a una red de cuidado específica (familyMemberId). No es un aggregate global: un mismo accountId de IAM puede estar vinculado a varios Caregiver independientes, uno por cada red de cuidado a la que fue invitado (observación previa #1). El cuidador principal puede ser reemplazado (decisión de negocio del Canvas). |
+Todos extienden `AuditableAbstractAggregateRoot` (id, createdAt, updatedAt y registro de eventos).
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Schedule | Entity | Representa un turno y horario dentro del ciclo de vida de un Caregiver: un periodo en que tiene asignaciones por cumplir. No admite una hora de término anterior a la hora de inicio. |
+<table>
+<tr><th colspan="4" align="left"><code>Relative</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">El familiar responsable. Se registra en un negocio, paga la suscripción, gestiona a sus personas asistidas e invita cuidadores.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>UserId</code></td><td>private</td><td>Su cuenta personal en IAM.</td></tr>
+<tr><td><code>personProfileId</code></td><td><code>PersonProfileId</code></td><td>private</td><td>Su perfil de cliente en Profiles.</td></tr>
+<tr><td><code>businessId</code></td><td><code>BusinessId</code></td><td>private</td><td>Negocio (Company) en el que se registró.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Relative(UserId userId, PersonProfileId personProfileId, BusinessId businessId)</code></td><td>(constructor)</td><td>public</td><td>Crea al familiar con su cuenta, su perfil y su negocio.</td></tr>
+</table>
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| FamilyMemberId | Value Object | Identificador tipado del aggregate FamilyMember; no admite valores nulos ni negativos. |
-| CareTaskId | Value Object | Identificador tipado del aggregate CareTask; no admite valores nulos ni negativos. |
-| InvitationId | Value Object | Identificador tipado del aggregate Invitation; no admite valores nulos ni negativos. |
-| CaregiverId | Value Object | Identificador tipado del aggregate Caregiver; no admite valores nulos ni negativos. |
-| ScheduleId | Value Object | Identificador tipado de un Schedule; no admite valores nulos ni negativos. |
-| Email | Value Object | Dirección de correo electrónico del cuidador invitado; valida el formato y no admite valores vacíos o mal formados. Es un value object propio de este bounded context, sin acoplarse al Email de IAM. |
-| CareTaskDescription | Value Object | Descripción de la labor de cuidado; no admite valores vacíos. |
+<table>
+<tr><th colspan="4" align="left"><code>AssistedPerson</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">La persona con discapacidad que recibe el cuidado. Pertenece a un solo familiar, no tiene cuenta en IAM y no se da de baja.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>personProfileId</code></td><td><code>PersonProfileId</code></td><td>private</td><td>Su perfil de cliente en Profiles (puede no tener email).</td></tr>
+<tr><td><code>relative</code></td><td><code>Relative</code></td><td>private</td><td>Familiar que la gestiona.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssistedPerson(PersonProfileId personProfileId, Relative relative)</code></td><td>(constructor)</td><td>public</td><td>Crea la persona asistida bajo su familiar.</td></tr>
+<tr><td><code>isManagedBy(Relative relative)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la gestiona ese familiar. Se usa para validar pertenencia.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación "gestionada por"</td><td><code>Relative</code></td><td>0..* a 1</td><td>Un familiar gestiona varias personas asistidas; cada una tiene un solo familiar.</td></tr>
+</table>
 
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| InvitationStatus | Enum | Estado de la invitación. Transiciones permitidas: `SENT` → `ACCEPTED`, estado terminal que vincula al cuidador como cuidador adicional; `SENT` → `REJECTED`, estado terminal que no vincula al cuidador. Ninguno de los dos estados terminales admite una transición posterior (decisiones de negocio del Canvas). |
+<table>
+<tr><th colspan="4" align="left"><code>Invitation</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Invitación de un familiar a un cuidador, por correo, para cuidar a una persona asistida. Ciclo: <code>PENDING</code>, <code>ACCEPTED</code> o <code>REVOKED</code>. "Vencida" se calcula; no es un estado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>assistedPerson</code></td><td><code>AssistedPerson</code></td><td>private</td><td>Persona a cuidar.</td></tr>
+<tr><td><code>inviter</code></td><td><code>Relative</code></td><td>private</td><td>Familiar que invita.</td></tr>
+<tr><td><code>inviteeEmail</code></td><td><code>EmailAddress</code></td><td>private</td><td>Correo del cuidador invitado.</td></tr>
+<tr><td><code>caregiverUserId</code></td><td><code>UserId</code></td><td>private</td><td>Cuenta de IAM asignada al cuidador. Nula hasta que IAM la asigna.</td></tr>
+<tr><td><code>status</code></td><td><code>InvitationStatus</code></td><td>private</td><td>Estado de la invitación.</td></tr>
+<tr><td><code>expiresAt</code></td><td><code>LocalDateTime</code></td><td>private</td><td>Fecha y hora de vencimiento.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Invitation(AssistedPerson assistedPerson, Relative inviter, EmailAddress inviteeEmail, LocalDateTime expiresAt)</code></td><td>(constructor)</td><td>public</td><td>Valida que la persona sea del familiar (<code>AssistedPersonNotManagedByRelative</code>), inicia en <code>PENDING</code> y registra <code>InvitationCreatedEvent</code>.</td></tr>
+<tr><td><code>assignCaregiverAccount(UserId userId, String passwordSetupUrl)</code></td><td><code>void</code></td><td>public</td><td>Asigna una cuenta nueva creada por IAM. Requiere <code>PENDING</code>; en un reenvío, el mismo userId. Registra <code>InvitationAccountCreatedEvent</code>.</td></tr>
+<tr><td><code>assignExistingCaregiverAccount(UserId userId)</code></td><td><code>void</code></td><td>public</td><td>Asigna la cuenta que el cuidador ya tenía. Mismas reglas. Registra <code>InvitationNotificationRequestedEvent</code>.</td></tr>
+<tr><td><code>accept(UserId caregiverUserId, LocalDateTime now)</code></td><td><code>void</code></td><td>public</td><td>Acepta la invitación. Requiere <code>PENDING</code> (<code>InvitationNotPending</code>), no vencida (<code>InvitationExpired</code>), cuenta asignada (<code>CaregiverAccountNotAssigned</code>) y que acepte el usuario asignado (<code>InvitationNotForUser</code>). Registra <code>InvitationAcceptedEvent</code>.</td></tr>
+<tr><td><code>renew(LocalDateTime newExpiresAt)</code></td><td><code>void</code></td><td>public</td><td>Da una nueva vigencia para reenviarla. Requiere <code>PENDING</code>. Registra <code>InvitationResentEvent</code>.</td></tr>
+<tr><td><code>revoke()</code></td><td><code>void</code></td><td>public</td><td>Revoca la invitación. Requiere <code>PENDING</code>.</td></tr>
+<tr><td><code>isExpired(LocalDateTime now)</code></td><td><code>boolean</code></td><td>public</td><td><code>PENDING</code> con <code>expiresAt</code> anterior a <code>now</code>.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación "invita a cuidar a"</td><td><code>AssistedPerson</code></td><td>0..* a 1</td><td>Una persona puede recibir varias invitaciones.</td></tr>
+<tr><td>Asociación "enviada por" (<code>inviter</code>)</td><td><code>Relative</code></td><td>0..* a 1</td><td>Un familiar envía varias invitaciones.</td></tr>
+<tr><td>Asociación (<code>status</code>)</td><td><code>InvitationStatus</code></td><td>0..* a 1</td><td>Estado actual.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| RegisterFamilyMemberCommand | Registra al familiar responsable de una red de cuidado, referenciando su cuenta en IAM y su perfil de hogar en Perfiles. | accountId: Long, homeProfileId: Long, name: String |
-| UpdateFamilyMemberInfoCommand | Actualiza el nombre del familiar. | familyMemberId: Long, name: String |
-| RegisterCareTaskCommand | Registra una nueva labor de cuidado. | familyMemberId: Long, description: String |
-| AssignCareTaskResponsibleCommand | Asigna un cuidador responsable a una labor de cuidado. | careTaskId: Long, caregiverId: Long |
+<table>
+<tr><th colspan="4" align="left"><code>Caregiver</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">El acceso de un usuario como cuidador de una persona asistida. Se crea al aceptar la invitación; el familiar puede revocarlo. Un usuario puede ser cuidador de varias personas.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>UserId</code></td><td>private</td><td>Cuenta del cuidador en IAM.</td></tr>
+<tr><td><code>assistedPerson</code></td><td><code>AssistedPerson</code></td><td>private</td><td>Persona que cuida.</td></tr>
+<tr><td><code>status</code></td><td><code>CaregiverStatus</code></td><td>private</td><td><code>ACTIVE</code> o <code>REVOKED</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Caregiver(UserId userId, AssistedPerson assistedPerson)</code></td><td>(constructor)</td><td>public</td><td>Crea el acceso en estado <code>ACTIVE</code>.</td></tr>
+<tr><td><code>revoke()</code></td><td><code>void</code></td><td>public</td><td>Revoca el acceso. Requiere <code>ACTIVE</code> (<code>CaregiverAlreadyRevoked</code>). Registra <code>CaregiverAccessRevokedEvent</code>.</td></tr>
+<tr><td><code>isActive()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el acceso sigue vigente.</td></tr>
+<tr><td><code>isCaregiverOf(AssistedPerson assistedPerson)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si cuida a esa persona.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación "cuida a"</td><td><code>AssistedPerson</code></td><td>0..* a 1</td><td>Una persona puede tener varios cuidadores.</td></tr>
+<tr><td>Asociación (<code>status</code>)</td><td><code>CaregiverStatus</code></td><td>0..* a 1</td><td>Estado actual.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| InviteCaregiverCommand | Envía una invitación a un cuidador para vincularse a la red de cuidado. | familyMemberId: Long, invitedEmail: String |
-| AcceptInvitationCommand | Acepta la invitación; el cuidador invitado ya cuenta con un accountId válido en IAM (nuevo o existente) al momento de invocarla (observación previa #3). | invitationId: Long, accountId: Long |
-| RejectInvitationCommand | Rechaza la invitación, sin vincular al cuidador. | invitationId: Long |
+<table>
+<tr><th colspan="4" align="left"><code>CareActivity</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Una actividad de cuidado de una persona asistida. Contiene sus asignaciones: quién la realiza y cuándo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>assistedPerson</code></td><td><code>AssistedPerson</code></td><td>private</td><td>Persona que recibe la actividad.</td></tr>
+<tr><td><code>type</code></td><td><code>CareActivityType</code></td><td>private</td><td>Tipo de actividad.</td></tr>
+<tr><td><code>title</code></td><td><code>String</code></td><td>private</td><td>Título.</td></tr>
+<tr><td><code>description</code></td><td><code>String</code></td><td>private</td><td>Descripción.</td></tr>
+<tr><td><code>status</code></td><td><code>ActivityStatus</code></td><td>private</td><td><code>ACTIVE</code> o <code>INACTIVE</code>.</td></tr>
+<tr><td><code>activityAssignments</code></td><td><code>ActivityAssignments</code></td><td>private</td><td>Componente con sus asignaciones.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CareActivity(AssistedPerson assistedPerson, CareActivityType type, String title, String description)</code></td><td>(constructor)</td><td>public</td><td>Crea la actividad.</td></tr>
+<tr><td><code>update(CareActivityType type, String title, String description)</code></td><td><code>void</code></td><td>public</td><td>Cambia tipo, título y descripción.</td></tr>
+<tr><td><code>activate()</code></td><td><code>void</code></td><td>public</td><td>Pasa a <code>ACTIVE</code>.</td></tr>
+<tr><td><code>deactivate()</code></td><td><code>void</code></td><td>public</td><td>Pasa a <code>INACTIVE</code>; los logs pasados no cambian.</td></tr>
+<tr><td><code>assign(Caregiver caregiver, Schedule schedule, LocalDate today)</code></td><td><code>void</code></td><td>public</td><td>Agrega una asignación. Requiere actividad <code>ACTIVE</code> (<code>CareActivityNotActive</code>); si hay cuidador, <code>ACTIVE</code> (<code>CaregiverNotActive</code>) y de esa persona (<code>CaregiverNotFound</code>); un <code>ONE_TIME</code> no puede estar en el pasado (<code>InvalidSchedule</code>). <code>caregiver</code> nulo: la realiza el familiar.</td></tr>
+<tr><td><code>updateAssignment(Long assignmentId, Caregiver caregiver, Schedule schedule, LocalDate today)</code></td><td><code>void</code></td><td>public</td><td>Cambia responsable y horario. Mismas reglas; la asignación existe (<code>ActivityAssignmentNotFound</code>).</td></tr>
+<tr><td><code>activateAssignment(Long assignmentId)</code></td><td><code>void</code></td><td>public</td><td>Activa una asignación.</td></tr>
+<tr><td><code>deactivateAssignment(Long assignmentId)</code></td><td><code>void</code></td><td>public</td><td>Desactiva una asignación.</td></tr>
+<tr><td><code>reassignToRelative(Caregiver revokedCaregiver)</code></td><td><code>void</code></td><td>public</td><td>Pasa al familiar las asignaciones de un cuidador revocado.</td></tr>
+<tr><td><code>occurrencesOn(LocalDate date)</code></td><td><code>List&lt;ActivityAssignment&gt;</code></td><td>public</td><td>Asignaciones que ocurren en esa fecha.</td></tr>
+<tr><td><code>isActive()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la actividad está <code>ACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación "cuidado de"</td><td><code>AssistedPerson</code></td><td>0..* a 1</td><td>Una persona tiene varias actividades.</td></tr>
+<tr><td>Composición (<code>activityAssignments</code>)</td><td><code>ActivityAssignments</code></td><td>1 a 1</td><td>Componente que agrupa sus asignaciones.</td></tr>
+<tr><td>Asociaciones (<code>type</code>, <code>status</code>)</td><td><code>CareActivityType</code>, <code>ActivityStatus</code></td><td>0..* a 1</td><td>Tipo y estado.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| CreateCaregiverCommand | Crea al cuidador vinculado a una red de cuidado específica, invocado únicamente por el Event Handler que reacciona a la aceptación de una invitación (observación previa #3). | familyMemberId: Long, accountId: Long, principal: Boolean |
-| RegisterScheduleCommand | Registra un nuevo turno y horario para el cuidador. | caregiverId: Long, startTime: LocalDateTime, endTime: LocalDateTime |
-| RecordCompletedAssignmentsCommand | Registra el cumplimiento de las asignaciones de un turno. | caregiverId: Long, scheduleId: Long |
-| UnlinkCaregiverCommand | Desvincula al cuidador de la red de cuidado. | caregiverId: Long |
-| ReplacePrincipalCaregiverCommand | Reemplaza al cuidador principal de una red de cuidado. | familyMemberId: Long, newCaregiverId: Long |
+<table>
+<tr><th colspan="4" align="left"><code>ActivityLog</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Lo que pasó con una ocurrencia: completada, cancelada o perdida. Es el historial que consulta el familiar (todo) y cada cuidador (lo suyo). Un solo log por asignación y fecha.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>assistedPerson</code></td><td><code>AssistedPerson</code></td><td>private</td><td>Persona asistida (tomada de la actividad).</td></tr>
+<tr><td><code>careActivity</code></td><td><code>CareActivity</code></td><td>private</td><td>Actividad registrada.</td></tr>
+<tr><td><code>assignmentId</code></td><td><code>Long</code></td><td>private</td><td>Asignación registrada. Se guarda por id porque es entidad interna de <code>CareActivity</code>.</td></tr>
+<tr><td><code>date</code></td><td><code>LocalDate</code></td><td>private</td><td>Fecha en que empieza la ocurrencia.</td></tr>
+<tr><td><code>title</code></td><td><code>String</code></td><td>private</td><td>Copia del título vigente ese día.</td></tr>
+<tr><td><code>timeRange</code></td><td><code>TimeRange</code></td><td>private</td><td>Copia del horario vigente ese día.</td></tr>
+<tr><td><code>assignedCaregiver</code></td><td><code>Caregiver</code></td><td>private</td><td>Copia del responsable vigente ese día. Nulo: el familiar.</td></tr>
+<tr><td><code>status</code></td><td><code>ActivityLogStatus</code></td><td>private</td><td><code>COMPLETED</code>, <code>CANCELLED</code> o <code>MISSED</code>.</td></tr>
+<tr><td><code>completedBy</code></td><td><code>Caregiver</code></td><td>private</td><td>Quien la completó (solo <code>COMPLETED</code>). Nulo: el familiar.</td></tr>
+<tr><td><code>completedAt</code></td><td><code>LocalDateTime</code></td><td>private</td><td>Momento en que se completó (solo <code>COMPLETED</code>).</td></tr>
+<tr><td><code>notes</code></td><td><code>String</code></td><td>private</td><td>Observaciones.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>completed(CareActivity activity, ActivityAssignment assignment, LocalDate date, Caregiver completedBy, LocalDateTime at, String notes)</code></td><td><code>ActivityLog</code></td><td>public static</td><td>Registra una ocurrencia completada. Requiere actividad y asignación <code>ACTIVE</code>, que la asignación ocurra ese día (<code>OccurrenceNotScheduled</code>), que complete el responsable (<code>NotResponsibleForActivity</code>) y que <code>at</code> esté dentro del horario (<code>OccurrenceNotStarted</code>, <code>OccurrenceEnded</code>).</td></tr>
+<tr><td><code>cancelled(CareActivity activity, ActivityAssignment assignment, LocalDate date, LocalDateTime at)</code></td><td><code>ActivityLog</code></td><td>public static</td><td>Registra una ocurrencia cancelada por el familiar. Puede ser cualquier fecha que aún no terminó (<code>OccurrenceEnded</code>). <code>at</code> solo valida; el momento queda en <code>createdAt</code>.</td></tr>
+<tr><td><code>missed(CareActivity activity, ActivityAssignment assignment, LocalDate date, LocalDate today)</code></td><td><code>ActivityLog</code></td><td>public static</td><td>Registra una ocurrencia perdida. Su fecha de cierre debe ser anterior a <code>today</code> (<code>DayNotClosedYet</code>).</td></tr>
+<tr><td><b>Notas</b></td><td colspan="3">En las tres fábricas, la persona, el título y el horario se toman de la actividad y la asignación, por lo que no pueden contradecirse.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación "historial de"</td><td><code>AssistedPerson</code></td><td>0..* a 1</td><td>Historial de la persona.</td></tr>
+<tr><td>Asociación "registra ocurrencia de"</td><td><code>CareActivity</code></td><td>0..* a 1</td><td>Actividad registrada.</td></tr>
+<tr><td>Asociación (<code>assignedCaregiver</code>, <code>completedBy</code>)</td><td><code>Caregiver</code></td><td>0..* a 0..1</td><td>Responsable y quien completó.</td></tr>
+<tr><td>Asociación (<code>status</code>)</td><td><code>ActivityLogStatus</code></td><td>0..* a 1</td><td>Resultado.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetFamilyMemberByIdQuery | Obtiene el detalle de un familiar. | familyMemberId: Long |
-| GetCareTasksByFamilyMemberIdQuery | Lista las labores de cuidado de una red de cuidado. | familyMemberId: Long |
-| GetInvitationByIdQuery | Obtiene el detalle de una invitación. | invitationId: Long |
-| GetCaregiverByIdQuery | Obtiene el detalle de un cuidador, incluyendo sus turnos y horarios. | caregiverId: Long |
+#### Entities
 
-Salvo `PrincipalCaregiverReplaced`, ninguno de los siguientes Domain Events tiene un consumidor externo declarado en el Bounded Context Canvas (4.2.4); se publican para auditoría y futuras integraciones.
+<table>
+<tr><th colspan="4" align="left"><code>ActivityAssignment</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Entity (extiende <code>AuditableModel</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Quién realiza una actividad (un cuidador o el familiar) y cuándo. Vive dentro de <code>CareActivity</code> y solo se accede por ella. No se borra: se desactiva.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivity</code></td><td><code>CareActivity</code></td><td>private</td><td>Referencia a su aggregate root.</td></tr>
+<tr><td><code>caregiver</code></td><td><code>Caregiver</code></td><td>private</td><td>Cuidador responsable. Nulo: la hace el familiar.</td></tr>
+<tr><td><code>schedule</code></td><td><code>Schedule</code></td><td>private</td><td>Horario de la asignación.</td></tr>
+<tr><td><code>status</code></td><td><code>ActivityStatus</code></td><td>private</td><td><code>ACTIVE</code> o <code>INACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>update(Caregiver caregiver, Schedule schedule)</code></td><td><code>void</code></td><td>public</td><td>Cambia responsable y horario.</td></tr>
+<tr><td><code>activate()</code></td><td><code>void</code></td><td>public</td><td>Pasa a <code>ACTIVE</code>.</td></tr>
+<tr><td><code>deactivate()</code></td><td><code>void</code></td><td>public</td><td>Pasa a <code>INACTIVE</code>.</td></tr>
+<tr><td><code>occursOn(LocalDate date)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si tiene una ocurrencia que empieza ese día.</td></tr>
+<tr><td><code>isAssignedTo(Caregiver caregiver)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el responsable es ese cuidador.</td></tr>
+<tr><td><code>isAssignedToRelative()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la realiza el familiar.</td></tr>
+<tr><td><code>isActive()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si está <code>ACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación "realizada por"</td><td><code>Caregiver</code></td><td>0..* a 0..1</td><td>Nulo significa que la realiza el familiar.</td></tr>
+<tr><td>Composición (<code>schedule</code>)</td><td><code>Schedule</code></td><td>1 a 1</td><td>Horario de la asignación.</td></tr>
+<tr><td>Asociación (<code>status</code>)</td><td><code>ActivityStatus</code></td><td>0..* a 1</td><td>Estado.</td></tr>
+</table>
 
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| FamilyMemberRegistered | Se publica al registrarse un familiar. | familyMemberId: Long, accountId: Long, homeProfileId: Long, name: String, registeredAt: LocalDateTime |
-| FamilyMemberInfoUpdated | Se publica al actualizarse el nombre de un familiar. | familyMemberId: Long, name: String, updatedAt: LocalDateTime |
-| CareTaskRegistered | Se publica al registrarse una labor de cuidado. | careTaskId: Long, familyMemberId: Long, description: String, registeredAt: LocalDateTime |
-| CareTaskResponsibleAssigned | Se publica al asignarse un cuidador responsable a una labor de cuidado. | careTaskId: Long, caregiverId: Long, assignedAt: LocalDateTime |
-| CareTaskUnassigned | Se publica al quedar una labor de cuidado sin responsable, por la desvinculación del cuidador asignado (observación previa #2). | careTaskId: Long, unassignedAt: LocalDateTime |
-| CaregiverInvited | Se publica al enviarse una invitación; lo consume `CaregiverInvitedEventHandler` propio para solicitar el envío del correo mediante Sendgrid. | invitationId: Long, familyMemberId: Long, invitedEmail: String, invitedAt: LocalDateTime |
-| InvitationAccepted | Se publica al aceptarse una invitación; lo consume `InvitationAcceptedEventHandler` propio para crear al Caregiver (observación previa #3). | invitationId: Long, familyMemberId: Long, accountId: Long, acceptedAt: LocalDateTime |
-| InvitationRejected | Se publica al rechazarse una invitación. | invitationId: Long, rejectedAt: LocalDateTime |
-| CaregiverCreated | Se publica al crearse un cuidador vinculado a una red de cuidado. | caregiverId: Long, familyMemberId: Long, accountId: Long, principal: Boolean, createdAt: LocalDateTime |
-| ScheduleRegistered | Se publica al registrarse un turno y horario. | scheduleId: Long, caregiverId: Long, startTime: LocalDateTime, endTime: LocalDateTime, registeredAt: LocalDateTime |
-| CompletedAssignmentsRecorded | Se publica al registrarse el cumplimiento de las asignaciones de un turno. | caregiverId: Long, scheduleId: Long, recordedAt: LocalDateTime |
-| CaregiverUnlinked | Se publica al desvincularse un cuidador; lo consume `CaregiverUnlinkedEventHandler` propio para liberar sus labores asignadas (observación previa #2). | caregiverId: Long, unlinkedAt: LocalDateTime |
-| PrincipalCaregiverReplaced | Se publica al reemplazarse al cuidador principal; es consumido por `PrincipalCaregiverReplacedEventHandler` de Perfiles (5.3.3), cerrando el compromiso pendiente. | familyMemberId: Long, newCaregiverId: Long, previousCaregiverId: Long, replacedAt: LocalDateTime |
+#### Value Objects y componentes embebidos
 
-No se declaran Factories ni Domain Services en este bounded context: los cuatro aggregates se referencian solo por identificador. La única regla que involucra a dos aggregates distintos —liberar las CareTask de un Caregiver desvinculado (observación previa #2)— se resuelve en `CaregiverUnlinkedEventHandler` mediante `CareTaskRepository`, ya que es una reacción a un evento y no una colaboración síncrona en el mismo proceso de escritura.
+<table>
+<tr><th colspan="4" align="left"><code>ActivityAssignments</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Componente embebido en <code>CareActivity</code></td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Agrupa las asignaciones de una actividad. No es un value object estricto (es mutable y contiene entidades); se ubica en <code>valueobjects</code> porque se embebe en el aggregate.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>activityAssignments</code></td><td><code>List&lt;ActivityAssignment&gt;</code></td><td>private</td><td>Lista mutable; inicia vacía.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ActivityAssignments()</code></td><td>(constructor)</td><td>public</td><td>Inicia la lista vacía y mutable.</td></tr>
+<tr><td><code>getAssignmentWithId(Long assignmentId)</code></td><td><code>ActivityAssignment</code></td><td>public</td><td>Devuelve la asignación o lanza <code>ActivityAssignmentNotFound</code>; nunca devuelve null.</td></tr>
+<tr><td><code>getFirstAssignmentWhere(Predicate&lt;ActivityAssignment&gt; predicate)</code></td><td><code>ActivityAssignment</code></td><td>private</td><td>Búsqueda interna que usa el método anterior.</td></tr>
+<tr><td><code>addAssignment(CareActivity careActivity, Caregiver caregiver, Schedule schedule)</code></td><td><code>ActivityAssignment</code></td><td>public</td><td>Crea y agrega una asignación.</td></tr>
+<tr><td><code>updateAssignment(Long assignmentId, Caregiver caregiver, Schedule schedule)</code></td><td><code>void</code></td><td>public</td><td>Actualiza una asignación.</td></tr>
+<tr><td><code>activateAssignment(Long assignmentId)</code></td><td><code>void</code></td><td>public</td><td>Activa una asignación.</td></tr>
+<tr><td><code>deactivateAssignment(Long assignmentId)</code></td><td><code>void</code></td><td>public</td><td>Desactiva una asignación.</td></tr>
+<tr><td><code>reassignToRelative(Caregiver revokedCaregiver)</code></td><td><code>void</code></td><td>public</td><td>Pasa al familiar las asignaciones del cuidador revocado.</td></tr>
+<tr><td><code>occurrencesOn(LocalDate date)</code></td><td><code>List&lt;ActivityAssignment&gt;</code></td><td>public</td><td>Asignaciones que ocurren esa fecha.</td></tr>
+<tr><td><code>isEmpty()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si no hay asignaciones.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición "contiene"</td><td><code>ActivityAssignment</code></td><td>1 a 0..*</td><td>Asignaciones de la actividad.</td></tr>
+</table>
 
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| FamilyMemberRepository | FamilyMember | Persiste y recupera el aggregate FamilyMember. |
-| CareTaskRepository | CareTask | Persiste y recupera el aggregate CareTask; expone la búsqueda por responsibleCaregiverId para resolver la observación previa #2. |
-| InvitationRepository | Invitation | Persiste y recupera el aggregate Invitation. |
-| CaregiverRepository | Caregiver | Persiste y recupera el aggregate Caregiver; expone la búsqueda por accountId para listar las redes de cuidado que atiende (observación previa #1). |
+<table>
+<tr><th colspan="4" align="left"><code>Schedule</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cuándo ocurre una asignación: una fecha puntual (<code>ONE_TIME</code>) o ciertos días de la semana (<code>WEEKLY</code>), con su rango de horas. Admite rangos que cruzan medianoche: la ocurrencia pertenece a la fecha en que empieza.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>type</code></td><td><code>ScheduleType</code></td><td>private final</td><td><code>ONE_TIME</code> o <code>WEEKLY</code>.</td></tr>
+<tr><td><code>date</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha (solo <code>ONE_TIME</code>).</td></tr>
+<tr><td><code>timeRange</code></td><td><code>TimeRange</code></td><td>private final</td><td>Rango (solo <code>ONE_TIME</code>).</td></tr>
+<tr><td><code>weeklyPeriod</code></td><td><code>WeeklyPeriod</code></td><td>private final</td><td>Días y rango (solo <code>WEEKLY</code>).</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>oneTime(LocalDate date, TimeRange timeRange)</code></td><td><code>Schedule</code></td><td>public static</td><td>Fábrica de un horario puntual.</td></tr>
+<tr><td><code>weekly(WeeklyPeriod weeklyPeriod)</code></td><td><code>Schedule</code></td><td>public static</td><td>Fábrica de un horario semanal.</td></tr>
+<tr><td><code>occursOn(LocalDate date)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si hay una ocurrencia que empieza esa fecha.</td></tr>
+<tr><td><code>effectiveTimeRange()</code></td><td><code>TimeRange</code></td><td>public</td><td>Rango de cualquiera de las dos formas (es el que se copia al log).</td></tr>
+<tr><td><code>occurrenceStart(LocalDate date)</code></td><td><code>LocalDateTime</code></td><td>public</td><td>Fecha y hora real de inicio de la ocurrencia.</td></tr>
+<tr><td><code>occurrenceEnd(LocalDate date)</code></td><td><code>LocalDateTime</code></td><td>public</td><td>Fecha y hora real de fin (lunes 22:00-06:00 termina el martes 06:00).</td></tr>
+<tr><td><code>closingDate(LocalDate date)</code></td><td><code>LocalDate</code></td><td>public</td><td>Día en que termina la ocurrencia; ese día se cierra como <code>MISSED</code> si no tiene log.</td></tr>
+<tr><td><code>overlapsWith(Schedule other)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si alguna ocurrencia se cruza en el tiempo con la del otro horario.</td></tr>
+<tr><td><b>Invariantes</b></td><td colspan="3"><code>ONE_TIME</code> exige fecha y rango; <code>WEEKLY</code> exige al menos un día (<code>InvalidSchedule</code>). Que la fecha no esté en el pasado lo valida <code>CareActivity</code>, porque al reconstruir una asignación antigua el constructor fallaría.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación (<code>type</code>)</td><td><code>ScheduleType</code></td><td>0..* a 1</td><td>Forma del horario.</td></tr>
+</table>
 
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| CareTask | asociación | FamilyMember | CareTask referencia a su familiar mediante familyMemberId. |
-| CareTask | asociación | Caregiver | CareTask referencia a su cuidador responsable mediante responsibleCaregiverId, nulo si quedó sin asignar (observación previa #2). |
-| Invitation | asociación | FamilyMember | Invitation referencia a su familiar mediante familyMemberId. |
-| Caregiver | asociación | FamilyMember | Caregiver referencia a la red de cuidado a la que pertenece mediante familyMemberId; no es global (observación previa #1). |
-| Caregiver | composición | Schedule | Caregiver gestiona el ciclo de vida de sus turnos y horarios. |
-| FamilyMemberRepository | depende de | FamilyMember | El repositorio persiste y recupera el aggregate FamilyMember. |
-| CareTaskRepository | depende de | CareTask | El repositorio persiste y recupera el aggregate CareTask. |
-| InvitationRepository | depende de | Invitation | El repositorio persiste y recupera el aggregate Invitation. |
-| CaregiverRepository | depende de | Caregiver | El repositorio persiste y recupera el aggregate Caregiver. |
+<table>
+<tr><th colspan="4" align="left"><code>AgendaItem</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record), modelo de lectura</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Una ocurrencia calculada para mostrar en la agenda, con su estado actual. No se guarda.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad.</td></tr>
+<tr><td><code>assignmentId</code></td><td><code>Long</code></td><td>private final</td><td>Asignación.</td></tr>
+<tr><td><code>title</code></td><td><code>String</code></td><td>private final</td><td>Título de la actividad.</td></tr>
+<tr><td><code>type</code></td><td><code>CareActivityType</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><td><code>date</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de la ocurrencia.</td></tr>
+<tr><td><code>timeRange</code></td><td><code>TimeRange</code></td><td>private final</td><td>Horario.</td></tr>
+<tr><td><code>caregiverId</code></td><td><code>Long</code></td><td>private final</td><td>Cuidador responsable (nulo: el familiar).</td></tr>
+<tr><td><code>recurring</code></td><td><code>boolean</code></td><td>private final</td><td>Verdadero si es <code>WEEKLY</code>.</td></tr>
+<tr><td><code>status</code></td><td><code>OccurrenceStatus</code></td><td>private final</td><td>Estado calculado.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>of(CareActivity activity, ActivityAssignment assignment, LocalDate date, ActivityLog log, LocalDateTime now)</code></td><td><code>AgendaItem</code></td><td>public static</td><td>Calcula el estado: si hay log, su resultado; si no, <code>SCHEDULED</code> antes del inicio, <code>IN_PROGRESS</code> dentro del horario y <code>MISSED</code> después del fin.</td></tr>
+<tr><td><code>AgendaItem(Long careActivityId, Long assignmentId, String title, CareActivityType type, LocalDate date, TimeRange timeRange, Long caregiverId, boolean recurring, OccurrenceStatus status)</code></td><td>(constructor)</td><td>public</td><td>Crea la instancia y valida sus invariantes.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación (<code>status</code>)</td><td><code>OccurrenceStatus</code></td><td>0..* a 1</td><td>Estado de la ocurrencia.</td></tr>
+</table>
+
+#### Enumerations
+
+<table>
+<tr><th colspan="4" align="left"><code>ScheduleType</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Fecha puntual o días de la semana.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>ONE_TIME</code>, <code>WEEKLY</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CareActivityType</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Tipo de actividad de cuidado.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>MEDICATION</code>, <code>BATH</code>, <code>MEAL</code>, <code>EXERCISE</code>, <code>THERAPY</code>, <code>APPOINTMENT</code>, <code>OTHER</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ActivityStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Estado de una actividad o de una asignación.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>ACTIVE</code>, <code>INACTIVE</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ActivityLogStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Resultado registrado de una ocurrencia.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>COMPLETED</code>, <code>CANCELLED</code>, <code>MISSED</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>OccurrenceStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Estado calculado de una ocurrencia en la agenda.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>SCHEDULED</code>, <code>IN_PROGRESS</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>MISSED</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Ciclo de una invitación.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>PENDING</code>, <code>ACCEPTED</code>, <code>REVOKED</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CaregiverStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Estado del acceso de un cuidador.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>ACTIVE</code>, <code>REVOKED</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+#### Domain Events
+
+Son eventos internos: cada uno activa el siguiente command del flujo.
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationCreatedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que un familiar creó una invitación para un cuidador.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitation</code></td><td><code>Invitation</code></td><td>private</td><td>Invitación que originó el evento; su id se lee al publicarse.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>getInvitationId()</code></td><td><code>Long</code></td><td>public</td><td>Devuelve el id de la invitación al publicarse el evento.</td></tr>
+<tr><td><code>InvitationCreatedEvent(Invitation invitation)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3">Constructor de <code>Invitation</code></td></tr>
+<tr><td><b>Activa</b></td><td colspan="3"><code>RegisterCaregiverAccountCommand</code>. Lee el id al publicarse, porque al registrarse la invitación aún no tiene id.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationResentEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que se reenvió una invitación pendiente con una nueva vigencia.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvitationResentEvent(Long invitationId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>Invitation.renew</code></td></tr>
+<tr><td><b>Activa</b></td><td colspan="3"><code>RegisterCaregiverAccountCommand</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationAccountCreatedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que IAM creó la cuenta del cuidador invitado y que debe enviársele el correo para definir su contraseña.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><td><code>inviteeEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo del cuidador invitado.</td></tr>
+<tr><td><code>passwordSetupUrl</code></td><td><code>String</code></td><td>private final</td><td>Url para que el cuidador defina su contraseña.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvitationAccountCreatedEvent(Long invitationId, String inviteeEmail, String passwordSetupUrl)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>Invitation.assignCaregiverAccount</code></td></tr>
+<tr><td><b>Activa</b></td><td colspan="3"><code>SendInvitationEmailCommand</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationNotificationRequestedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que el cuidador invitado ya tenía cuenta y debe recibir la invitación como notificación en la app.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><td><code>caregiverUserId</code></td><td><code>Long</code></td><td>private final</td><td>Cuenta de IAM asignada al cuidador. Nula hasta que IAM la asigna.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvitationNotificationRequestedEvent(Long invitationId, Long caregiverUserId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>Invitation.assignExistingCaregiverAccount</code></td></tr>
+<tr><td><b>Activa</b></td><td colspan="3"><code>SendInvitationNotificationCommand</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationAcceptedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que el cuidador aceptó la invitación.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><td><code>caregiverUserId</code></td><td><code>Long</code></td><td>private final</td><td>Cuenta de IAM asignada al cuidador. Nula hasta que IAM la asigna.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvitationAcceptedEvent(Long invitationId, Long assistedPersonId, Long caregiverUserId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>Invitation.accept</code></td></tr>
+<tr><td><b>Activa</b></td><td colspan="3"><code>CreateCaregiverCommand</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CaregiverAccessRevokedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que el familiar revocó el acceso de un cuidador a una persona asistida.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>caregiverId</code></td><td><code>Long</code></td><td>private final</td><td>Cuidador responsable (nulo: el familiar).</td></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CaregiverAccessRevokedEvent(Long caregiverId, Long assistedPersonId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>Caregiver.revoke</code></td></tr>
+<tr><td><b>Activa</b></td><td colspan="3"><code>ReassignCaregiverActivitiesCommand</code></td></tr>
+</table>
+
+#### Commands
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateRelativeCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Registra a un familiar: su cuenta en IAM con email y contraseña, su <code>PersonProfile</code> en Profiles y el aggregate <code>Relative</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Negocio de Company.</td></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Obligatorio: es su cuenta en IAM y el email de su <code>PersonProfile</code>.</td></tr>
+<tr><td><code>password</code></td><td><code>String</code></td><td>private final</td><td>Obligatoria. Se oculta en <code>toString()</code>.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo de la foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><td><code>dni</code></td><td><code>String</code></td><td>private final</td><td>DNI.</td></tr>
+<tr><td><code>birthDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de nacimiento.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateRelativeCommand(Long businessId, String emailAddress, String password, byte[] photoData, String photoFileName, String phoneNumber, String firstName, String lastName, String dni, LocalDate birthDate)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Lo ejecuta el propio familiar. El negocio existe (<code>BusinessNotFound</code>). El DNI no está entre los clientes (<code>DniAlreadyExists</code>) y el email no está registrado (<code>EmailAddressAlreadyExists</code>); nadie se registra dos veces como familiar. Profiles crea el <code>PersonProfile</code> e IAM la cuenta personal. Si también es empleado de Alivia, conserva aparte su <code>StaffProfile</code> y su cuenta corporativa.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateAssistedPersonCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Registra a una persona asistida que gestiona un familiar: su <code>PersonProfile</code> (sin cuenta en IAM) y el aggregate <code>AssistedPerson</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Opcional.</td></tr>
+<tr><td><code>photoData</code></td><td><code>byte[]</code></td><td>private final</td><td>Archivo de la foto.</td></tr>
+<tr><td><code>photoFileName</code></td><td><code>String</code></td><td>private final</td><td>Nombre del archivo.</td></tr>
+<tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
+<tr><td><code>firstName</code></td><td><code>String</code></td><td>private final</td><td>Nombres.</td></tr>
+<tr><td><code>lastName</code></td><td><code>String</code></td><td>private final</td><td>Apellidos.</td></tr>
+<tr><td><code>dni</code></td><td><code>String</code></td><td>private final</td><td>DNI.</td></tr>
+<tr><td><code>birthDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de nacimiento.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateAssistedPersonCommand(Long relativeId, String emailAddress, byte[] photoData, String photoFileName, String phoneNumber, String firstName, String lastName, String dni, LocalDate birthDate)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El familiar existe (<code>RelativeNotFound</code>). El DNI no está entre los clientes (<code>DniAlreadyExists</code>) y el email, si viene, tampoco (<code>EmailAddressAlreadyExists</code>). No tiene cuenta en IAM.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateCareActivityCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Crea una actividad de cuidado para una persona asistida del familiar.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que opera.</td></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><td><code>type</code></td><td><code>CareActivityType</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><td><code>title</code></td><td><code>String</code></td><td>private final</td><td>Título.</td></tr>
+<tr><td><code>description</code></td><td><code>String</code></td><td>private final</td><td>Descripción.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateCareActivityCommand(Long relativeId, Long assistedPersonId, CareActivityType type, String title, String description)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">La persona asistida pertenece al familiar (<code>AssistedPersonNotManagedByRelative</code>); en Update, la actividad existe (<code>CareActivityNotFound</code>).</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UpdateCareActivityCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Modifica el tipo, el título y la descripción de una actividad.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad a modificar.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que opera.</td></tr>
+<tr><td><code>type</code></td><td><code>CareActivityType</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><td><code>title</code></td><td><code>String</code></td><td>private final</td><td>Título.</td></tr>
+<tr><td><code>description</code></td><td><code>String</code></td><td>private final</td><td>Descripción.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdateCareActivityCommand(Long careActivityId, Long relativeId, CareActivityType type, String title, String description)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">La persona asistida pertenece al familiar (<code>AssistedPersonNotManagedByRelative</code>); en Update, la actividad existe (<code>CareActivityNotFound</code>).</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssignCareActivityCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Asigna una actividad a un cuidador o al propio familiar, con su horario.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que asigna.</td></tr>
+<tr><td><code>caregiverId</code></td><td><code>Long</code></td><td>private final</td><td>Opcional: nulo, la realiza el familiar.</td></tr>
+<tr><td><code>scheduleType</code></td><td><code>ScheduleType</code></td><td>private final</td><td><code>ONE_TIME</code> o <code>WEEKLY</code>.</td></tr>
+<tr><td><code>days</code></td><td><code>Set&lt;DayOfWeek&gt;</code></td><td>private final</td><td>Solo <code>WEEKLY</code>.</td></tr>
+<tr><td><code>date</code></td><td><code>LocalDate</code></td><td>private final</td><td>Solo <code>ONE_TIME</code>.</td></tr>
+<tr><td><code>startTime</code></td><td><code>LocalTime</code></td><td>private final</td><td>Hora de inicio.</td></tr>
+<tr><td><code>endTime</code></td><td><code>LocalTime</code></td><td>private final</td><td>Hora de fin; si es anterior al inicio, cruza medianoche.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssignCareActivityCommand(Long careActivityId, Long relativeId, Long caregiverId, ScheduleType scheduleType, Set&lt;DayOfWeek&gt; days, LocalDate date, LocalTime startTime, LocalTime endTime)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Actividad <code>ACTIVE</code> y de una persona del familiar; si hay cuidador, <code>ACTIVE</code> y de esa persona; horario válido (<code>InvalidSchedule</code>); un <code>ONE_TIME</code> no está en el pasado; no choca con otra asignación <code>ACTIVE</code> del mismo cuidador en cualquier actividad (<code>ScheduleConflict</code>). En Update, un <code>ONE_TIME</code> que ya tiene log no se edita (<code>ScheduleNotEditable</code>).</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UpdateActivityAssignmentCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Modifica el responsable o el horario de una asignación.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad.</td></tr>
+<tr><td><code>assignmentId</code></td><td><code>Long</code></td><td>private final</td><td>Asignación a modificar.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que asigna.</td></tr>
+<tr><td><code>caregiverId</code></td><td><code>Long</code></td><td>private final</td><td>Opcional: nulo, la realiza el familiar.</td></tr>
+<tr><td><code>scheduleType</code></td><td><code>ScheduleType</code></td><td>private final</td><td><code>ONE_TIME</code> o <code>WEEKLY</code>.</td></tr>
+<tr><td><code>days</code></td><td><code>Set&lt;DayOfWeek&gt;</code></td><td>private final</td><td>Solo <code>WEEKLY</code>.</td></tr>
+<tr><td><code>date</code></td><td><code>LocalDate</code></td><td>private final</td><td>Solo <code>ONE_TIME</code>.</td></tr>
+<tr><td><code>startTime</code></td><td><code>LocalTime</code></td><td>private final</td><td>Hora de inicio.</td></tr>
+<tr><td><code>endTime</code></td><td><code>LocalTime</code></td><td>private final</td><td>Hora de fin; si es anterior al inicio, cruza medianoche.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdateActivityAssignmentCommand(Long careActivityId, Long assignmentId, Long relativeId, Long caregiverId, ScheduleType scheduleType, Set&lt;DayOfWeek&gt; days, LocalDate date, LocalTime startTime, LocalTime endTime)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Actividad <code>ACTIVE</code> y de una persona del familiar; si hay cuidador, <code>ACTIVE</code> y de esa persona; horario válido (<code>InvalidSchedule</code>); un <code>ONE_TIME</code> no está en el pasado; no choca con otra asignación <code>ACTIVE</code> del mismo cuidador en cualquier actividad (<code>ScheduleConflict</code>). En Update, un <code>ONE_TIME</code> que ya tiene log no se edita (<code>ScheduleNotEditable</code>).</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CompleteActivityCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Marca como realizada una ocurrencia de una asignación. Solo la marca su responsable (cuidador o familiar).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad.</td></tr>
+<tr><td><code>assignmentId</code></td><td><code>Long</code></td><td>private final</td><td>Asignación.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Informado si completa el familiar.</td></tr>
+<tr><td><code>caregiverId</code></td><td><code>Long</code></td><td>private final</td><td>Informado si completa un cuidador (exactamente uno de los dos).</td></tr>
+<tr><td><code>date</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha de la ocurrencia.</td></tr>
+<tr><td><code>notes</code></td><td><code>String</code></td><td>private final</td><td>Observaciones.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CompleteActivityCommand(Long careActivityId, Long assignmentId, Long relativeId, Long caregiverId, LocalDate date, String notes)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Las de <code>ActivityLog.completed(...)</code>: cada responsable marca solo su asignación y solo dentro de su horario. Además, no existe log para esa asignación y fecha (<code>OccurrenceClosed</code>).</td></tr>
+</table>
+
+**Commands con identificadores**
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateInvitationCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Invita a un cuidador. No hay otra invitación <code>PENDING</code> al mismo email para esa persona (<code>InvitationAlreadyExists</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><td><code>inviteeEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo del cuidador invitado.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateInvitationCommand(Long relativeId, Long assistedPersonId, String inviteeEmail)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RegisterCaregiverAccountCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Pide a IAM la cuenta del cuidador: si ya existe, la reutiliza (sin crear otra) tras validar <code>CaregiverAlreadyExists</code>; si no, IAM la crea con una url para definir la contraseña.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RegisterCaregiverAccountCommand(Long invitationId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>SendInvitationEmailCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Communication envía el correo con la url (cuenta nueva).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><td><code>inviteeEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo del cuidador invitado.</td></tr>
+<tr><td><code>passwordSetupUrl</code></td><td><code>String</code></td><td>private final</td><td>Url para que el cuidador defina su contraseña.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>SendInvitationEmailCommand(Long invitationId, String inviteeEmail, String passwordSetupUrl)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>SendInvitationNotificationCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Communication envía la notificación en la app (cuenta existente).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><td><code>caregiverUserId</code></td><td><code>Long</code></td><td>private final</td><td>Cuenta de IAM asignada al cuidador. Nula hasta que IAM la asigna.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>SendInvitationNotificationCommand(Long invitationId, Long caregiverUserId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AcceptInvitationCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Acepta la invitación (reglas de <code>Invitation.accept</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><td><code>caregiverUserId</code></td><td><code>Long</code></td><td>private final</td><td>Cuenta de IAM asignada al cuidador. Nula hasta que IAM la asigna.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AcceptInvitationCommand(Long invitationId, Long caregiverUserId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RevokeInvitationCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Revoca una invitación <code>PENDING</code> del familiar.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RevokeInvitationCommand(Long invitationId, Long relativeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ResendInvitationCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Reenvía una invitación <code>PENDING</code>, vigente o vencida, con nueva vigencia.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ResendInvitationCommand(Long invitationId, Long relativeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateCaregiverCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Crea el acceso del cuidador. No existe otro <code>ACTIVE</code> de ese usuario para esa persona (<code>CaregiverAlreadyExists</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><td><code>caregiverUserId</code></td><td><code>Long</code></td><td>private final</td><td>Cuenta de IAM asignada al cuidador. Nula hasta que IAM la asigna.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateCaregiverCommand(Long assistedPersonId, Long caregiverUserId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RevokeCaregiverAccessCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Revoca el acceso de un cuidador de una persona del familiar.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>caregiverId</code></td><td><code>Long</code></td><td>private final</td><td>Cuidador responsable (nulo: el familiar).</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RevokeCaregiverAccessCommand(Long caregiverId, Long relativeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ActivateCareActivityCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Activa una actividad.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ActivateCareActivityCommand(Long careActivityId, Long relativeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeactivateCareActivityCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Desactiva una actividad.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeactivateCareActivityCommand(Long careActivityId, Long relativeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ActivateActivityAssignmentCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Activa una asignación.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad.</td></tr>
+<tr><td><code>assignmentId</code></td><td><code>Long</code></td><td>private final</td><td>Asignación registrada. Se guarda por id porque es entidad interna de <code>CareActivity</code>.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ActivateActivityAssignmentCommand(Long careActivityId, Long assignmentId, Long relativeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeactivateActivityAssignmentCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Desactiva una asignación.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad.</td></tr>
+<tr><td><code>assignmentId</code></td><td><code>Long</code></td><td>private final</td><td>Asignación registrada. Se guarda por id porque es entidad interna de <code>CareActivity</code>.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeactivateActivityAssignmentCommand(Long careActivityId, Long assignmentId, Long relativeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ReassignCaregiverActivitiesCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Pasa al familiar las asignaciones del cuidador revocado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>caregiverId</code></td><td><code>Long</code></td><td>private final</td><td>Cuidador responsable (nulo: el familiar).</td></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ReassignCaregiverActivitiesCommand(Long caregiverId, Long assistedPersonId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CancelActivityOccurrenceCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">El familiar cancela una ocurrencia que aún no terminó, incluso futura; las pasadas no (<code>OccurrenceEnded</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad.</td></tr>
+<tr><td><code>assignmentId</code></td><td><code>Long</code></td><td>private final</td><td>Asignación registrada. Se guarda por id porque es entidad interna de <code>CareActivity</code>.</td></tr>
+<tr><td><code>date</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha en que empieza la ocurrencia.</td></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CancelActivityOccurrenceCommand(Long careActivityId, Long assignmentId, LocalDate date, Long relativeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>MarkMissedActivitiesCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Lo dispara un proceso programado cada día. Crea un log <code>MISSED</code> por cada ocurrencia <code>ACTIVE</code> sin log cuya fecha de cierre es <code>closingDate</code> (<code>DayNotClosedYet</code> si aún no terminó). Es idempotente.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>closingDate</code></td><td><code>LocalDate</code></td><td>private final</td><td>Día que se cierra: sus ocurrencias sin log pasan a <code>MISSED</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>MarkMissedActivitiesCommand(LocalDate closingDate)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+#### Queries
+
+Las queries solo llevan el id por el que se busca y, en agenda e historial, el rango de fechas. No validan pertenencia: esa validación se hace antes, desde el usuario que inició sesión.
+
+<table>
+<tr><th colspan="4" align="left"><code>GetRelativeByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Familiar por id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetRelativeByIdQuery(Long relativeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Relative&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetRelativeByUserIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Familiar del usuario que inició sesión.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetRelativeByUserIdQuery(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Relative&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetRelativesByBusinessIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Familiares de un negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetRelativesByBusinessIdQuery(Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Relative&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAssistedPersonByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Persona asistida por id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAssistedPersonByIdQuery(Long assistedPersonId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;AssistedPerson&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAssistedPersonsByRelativeIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Personas asistidas de un familiar.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>relativeId</code></td><td><code>Long</code></td><td>private final</td><td>Familiar que la registra.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAssistedPersonsByRelativeIdQuery(Long relativeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;AssistedPerson&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetInvitationByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Invitación por id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>invitationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la invitación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetInvitationByIdQuery(Long invitationId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Invitation&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetInvitationsByAssistedPersonIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Invitaciones de una persona.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetInvitationsByAssistedPersonIdQuery(Long assistedPersonId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Invitation&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetPendingInvitationsByCaregiverUserIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Invitaciones <code>PENDING</code> de un cuidador, para aceptarlas.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>caregiverUserId</code></td><td><code>Long</code></td><td>private final</td><td>Cuenta de IAM asignada al cuidador. Nula hasta que IAM la asigna.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetPendingInvitationsByCaregiverUserIdQuery(Long caregiverUserId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Invitation&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetCaregiversByAssistedPersonIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cuidadores de una persona.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetCaregiversByAssistedPersonIdQuery(Long assistedPersonId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Caregiver&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetCaregiversByUserIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Accesos de cuidador <code>ACTIVE</code> del usuario que inició sesión.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetCaregiversByUserIdQuery(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Caregiver&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetCareActivityByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Actividad por id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>careActivityId</code></td><td><code>Long</code></td><td>private final</td><td>Actividad.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetCareActivityByIdQuery(Long careActivityId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;CareActivity&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetCareActivitiesByAssistedPersonIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Actividades de una persona.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetCareActivitiesByAssistedPersonIdQuery(Long assistedPersonId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;CareActivity&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAgendaByAssistedPersonIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Agenda completa de la persona (familiar y cuidadores).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><td><code>from</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha inicial del rango consultado.</td></tr>
+<tr><td><code>to</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha final del rango consultado.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAgendaByAssistedPersonIdQuery(Long assistedPersonId, LocalDate from, LocalDate to)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;AgendaItem&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAgendaByCaregiverIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Agenda propia de un cuidador.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>caregiverId</code></td><td><code>Long</code></td><td>private final</td><td>Cuidador responsable (nulo: el familiar).</td></tr>
+<tr><td><code>from</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha inicial del rango consultado.</td></tr>
+<tr><td><code>to</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha final del rango consultado.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAgendaByCaregiverIdQuery(Long caregiverId, LocalDate from, LocalDate to)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;AgendaItem&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetActivityLogsByAssistedPersonIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Historial completo de la persona.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>assistedPersonId</code></td><td><code>Long</code></td><td>private final</td><td>Persona asistida.</td></tr>
+<tr><td><code>from</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha inicial del rango consultado.</td></tr>
+<tr><td><code>to</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha final del rango consultado.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetActivityLogsByAssistedPersonIdQuery(Long assistedPersonId, LocalDate from, LocalDate to)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;ActivityLog&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetActivityLogsByCaregiverIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Historial propio de un cuidador.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>caregiverId</code></td><td><code>Long</code></td><td>private final</td><td>Cuidador responsable (nulo: el familiar).</td></tr>
+<tr><td><code>from</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha inicial del rango consultado.</td></tr>
+<tr><td><code>to</code></td><td><code>LocalDate</code></td><td>private final</td><td>Fecha final del rango consultado.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetActivityLogsByCaregiverIdQuery(Long caregiverId, LocalDate from, LocalDate to)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;ActivityLog&gt;</code></td></tr>
+</table>
+
+#### Domain Services
+
+Todos los métodos son `public` (interfaces). Los command services devuelven el id del aggregate afectado (`Long`), o `void` cuando no hay aggregate que devolver.
+
+Las reglas que cruzan varios aggregates se validan en el service y no en un aggregate: `ScheduleConflict` (compara con asignaciones de otras actividades), `ScheduleNotEditable` y `OccurrenceClosed` (consultan los logs existentes).
+
+<table>
+<tr><th colspan="4" align="left"><code>RelativeCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>Relative</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateRelativeCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CreateRelativeCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssistedPersonCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>AssistedPerson</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateAssistedPersonCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CreateAssistedPersonCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>Invitation</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateInvitationCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CreateInvitationCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(RegisterCaregiverAccountCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>RegisterCaregiverAccountCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(SendInvitationEmailCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>SendInvitationEmailCommand</code>.</td></tr>
+<tr><td><code>handle(SendInvitationNotificationCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>SendInvitationNotificationCommand</code>.</td></tr>
+<tr><td><code>handle(AcceptInvitationCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>AcceptInvitationCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(RevokeInvitationCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>RevokeInvitationCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ResendInvitationCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>ResendInvitationCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CaregiverCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>Caregiver</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateCaregiverCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CreateCaregiverCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(RevokeCaregiverAccessCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>RevokeCaregiverAccessCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CareActivityCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>CareActivity</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateCareActivityCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CreateCareActivityCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(UpdateCareActivityCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>UpdateCareActivityCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ActivateCareActivityCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>ActivateCareActivityCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(DeactivateCareActivityCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>DeactivateCareActivityCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(AssignCareActivityCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>AssignCareActivityCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(UpdateActivityAssignmentCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>UpdateActivityAssignmentCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ActivateActivityAssignmentCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>ActivateActivityAssignmentCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(DeactivateActivityAssignmentCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>DeactivateActivityAssignmentCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ReassignCaregiverActivitiesCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>ReassignCaregiverActivitiesCommand</code>.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ActivityLogCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>ActivityLog</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CompleteActivityCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CompleteActivityCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(CancelActivityOccurrenceCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CancelActivityOccurrenceCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(MarkMissedActivitiesCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>MarkMissedActivitiesCommand</code>.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RelativeQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>Relative</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetRelativeByIdQuery query)</code></td><td><code>Optional&lt;Relative&gt;</code></td><td>public</td><td>Resuelve <code>GetRelativeByIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetRelativeByUserIdQuery query)</code></td><td><code>Optional&lt;Relative&gt;</code></td><td>public</td><td>Resuelve <code>GetRelativeByUserIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetRelativesByBusinessIdQuery query)</code></td><td><code>List&lt;Relative&gt;</code></td><td>public</td><td>Resuelve <code>GetRelativesByBusinessIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssistedPersonQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>AssistedPerson</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetAssistedPersonsByRelativeIdQuery query)</code></td><td><code>List&lt;AssistedPerson&gt;</code></td><td>public</td><td>Resuelve <code>GetAssistedPersonsByRelativeIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(GetAssistedPersonByIdQuery query)</code></td><td><code>Optional&lt;AssistedPerson&gt;</code></td><td>public</td><td>Resuelve <code>GetAssistedPersonByIdQuery</code>; devuelve vacío si no existe.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>Invitation</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetInvitationByIdQuery query)</code></td><td><code>Optional&lt;Invitation&gt;</code></td><td>public</td><td>Resuelve <code>GetInvitationByIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetInvitationsByAssistedPersonIdQuery query)</code></td><td><code>List&lt;Invitation&gt;</code></td><td>public</td><td>Resuelve <code>GetInvitationsByAssistedPersonIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(GetPendingInvitationsByCaregiverUserIdQuery query)</code></td><td><code>List&lt;Invitation&gt;</code></td><td>public</td><td>Resuelve <code>GetPendingInvitationsByCaregiverUserIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CaregiverQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>Caregiver</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetCaregiversByAssistedPersonIdQuery query)</code></td><td><code>List&lt;Caregiver&gt;</code></td><td>public</td><td>Resuelve <code>GetCaregiversByAssistedPersonIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(GetCaregiversByUserIdQuery query)</code></td><td><code>List&lt;Caregiver&gt;</code></td><td>public</td><td>Resuelve <code>GetCaregiversByUserIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CareActivityQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>CareActivity</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetCareActivityByIdQuery query)</code></td><td><code>Optional&lt;CareActivity&gt;</code></td><td>public</td><td>Resuelve <code>GetCareActivityByIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetCareActivitiesByAssistedPersonIdQuery query)</code></td><td><code>List&lt;CareActivity&gt;</code></td><td>public</td><td>Resuelve <code>GetCareActivitiesByAssistedPersonIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(GetAgendaByAssistedPersonIdQuery query)</code></td><td><code>List&lt;AgendaItem&gt;</code></td><td>public</td><td>Resuelve <code>GetAgendaByAssistedPersonIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(GetAgendaByCaregiverIdQuery query)</code></td><td><code>List&lt;AgendaItem&gt;</code></td><td>public</td><td>Resuelve <code>GetAgendaByCaregiverIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ActivityLogQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>ActivityLog</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetActivityLogsByAssistedPersonIdQuery query)</code></td><td><code>List&lt;ActivityLog&gt;</code></td><td>public</td><td>Resuelve <code>GetActivityLogsByAssistedPersonIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(GetActivityLogsByCaregiverIdQuery query)</code></td><td><code>List&lt;ActivityLog&gt;</code></td><td>public</td><td>Resuelve <code>GetActivityLogsByCaregiverIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+</table>
+
+#### Exceptions
+
+Cada excepción tiene un constructor `public` sin parámetros.
+
+<table>
+<tr><th colspan="4" align="left"><code>RelativeNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe el familiar indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RelativeNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssistedPersonNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe la persona asistida indicada.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssistedPersonNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssistedPersonNotManagedByRelative</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la persona asistida no pertenece al familiar que opera.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssistedPersonNotManagedByRelative()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el negocio indicado no existe en Company.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DniAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el DNI ya está registrado entre los clientes.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DniAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmailAddressAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el email ya está registrado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmailAddressAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe la invitación indicada.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvitationNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationNotPending</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la invitación ya fue aceptada o revocada.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvitationNotPending()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationExpired</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se intenta aceptar una invitación vencida.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvitationExpired()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationNotForUser</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando quien acepta no es el usuario asignado a la invitación.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvitationNotForUser()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvitationAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando ya hay una invitación <code>PENDING</code> al mismo email para esa persona.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvitationAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CaregiverAccountNotAssigned</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se intenta aceptar antes de que IAM asigne la cuenta.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CaregiverAccountNotAssigned()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CaregiverNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe el cuidador, o no cuida a esa persona.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CaregiverNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CaregiverAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando ese usuario ya es cuidador <code>ACTIVE</code> de esa persona.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CaregiverAlreadyExists()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CaregiverNotActive</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el cuidador fue revocado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CaregiverNotActive()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CaregiverAlreadyRevoked</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se intenta revocar un acceso ya revocado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CaregiverAlreadyRevoked()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CareActivityNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe la actividad indicada.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CareActivityNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CareActivityNotActive</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la actividad está <code>INACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CareActivityNotActive()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ActivityAssignmentNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la asignación no existe dentro de la actividad.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ActivityAssignmentNotFound()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ActivityAssignmentNotActive</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la asignación está <code>INACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ActivityAssignmentNotActive()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidSchedule</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el horario no tiene la forma correcta o un <code>ONE_TIME</code> está en el pasado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidSchedule()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ScheduleConflict</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el horario choca con otra asignación <code>ACTIVE</code> del mismo cuidador.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ScheduleConflict()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ScheduleNotEditable</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se intenta editar un <code>ONE_TIME</code> que ya tiene log.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ScheduleNotEditable()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>OccurrenceNotScheduled</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la asignación no tiene ocurrencia en esa fecha.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>OccurrenceNotScheduled()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>OccurrenceNotStarted</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se intenta completar antes del inicio del horario.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>OccurrenceNotStarted()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>OccurrenceEnded</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se intenta completar o cancelar una ocurrencia que ya terminó.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>OccurrenceEnded()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>OccurrenceClosed</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la ocurrencia ya tiene log (completada, cancelada o perdida).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>OccurrenceClosed()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>NotResponsibleForActivity</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando quien completa no es el responsable de la asignación.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>NotResponsibleForActivity()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DayNotClosedYet</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se intenta marcar como perdida una ocurrencia cuyo día aún no terminó.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DayNotClosedYet()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
 
 ### 5.5.2. Interface Layer
 
-La Interface Layer expone un controller por cada aggregate root: `FamilyMemberController`, `CareTaskController`, `InvitationController` y `CaregiverController`. Ninguno expone `CreateCaregiverCommand`, ya que solo se invoca desde `InvitationAcceptedEventHandler` en la Application Layer (observación previa #3). Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: ningún otro bounded context consume a Cuidado de forma síncrona según el Context Mapping (4.2.5); sus integraciones salientes se resuelven mediante el adaptador de Sendgrid y el Domain Event `PrincipalCaregiverReplaced` hacia Perfiles.
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | FamilyMemberController |
-| Categoría | Controller |
-| Propósito | Exponer el registro y la actualización del familiar responsable de una red de cuidado. |
-| Aggregate/Entity relacionado | FamilyMember |
-| Ruta base | /api/v1/family-members |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| registerFamilyMember | / (POST) | body: RegisterFamilyMemberResource { accountId: Long, homeProfileId: Long, name: String } | Registra al familiar responsable de la red de cuidado | RegisterFamilyMemberCommand |
-| getFamilyMemberById | /{familyMemberId} (GET) | path: familyMemberId: Long | Obtiene el detalle de un familiar | GetFamilyMemberByIdQuery |
-| updateFamilyMemberInfo | /{familyMemberId} (PUT) | path: familyMemberId: Long; body: UpdateFamilyMemberInfoResource { name: String } | Actualiza el nombre del familiar | UpdateFamilyMemberInfoCommand |
-| replacePrincipalCaregiver | /{familyMemberId}/principal-caregiver (PUT) | path: familyMemberId: Long; body: ReplacePrincipalCaregiverResource { newCaregiverId: Long } | Reemplaza al cuidador principal de la red de cuidado | ReplacePrincipalCaregiverCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | CareTaskController |
-| Categoría | Controller |
-| Propósito | Exponer el registro, la consulta y la asignación de responsables de las labores de cuidado. |
-| Aggregate/Entity relacionado | CareTask |
-| Ruta base | /api/v1/care-tasks |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| registerCareTask | / (POST) | body: RegisterCareTaskResource { familyMemberId: Long, description: String } | Registra una nueva labor de cuidado | RegisterCareTaskCommand |
-| getCareTasksByFamilyMember | /by-family-member/{familyMemberId} (GET) | path: familyMemberId: Long | Lista las labores de cuidado de una red de cuidado | GetCareTasksByFamilyMemberIdQuery |
-| assignCareTaskResponsible | /{careTaskId}/assign (POST) | path: careTaskId: Long; body: AssignCareTaskResponsibleResource { caregiverId: Long } | Asigna un cuidador responsable a la labor de cuidado | AssignCareTaskResponsibleCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | InvitationController |
-| Categoría | Controller |
-| Propósito | Exponer el envío, la consulta, la aceptación y el rechazo de invitaciones a cuidadores. |
-| Aggregate/Entity relacionado | Invitation |
-| Ruta base | /api/v1/invitations |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| inviteCaregiver | / (POST) | body: InviteCaregiverResource { familyMemberId: Long, invitedEmail: String } | Envía una invitación a un cuidador | InviteCaregiverCommand |
-| getInvitationById | /{invitationId} (GET) | path: invitationId: Long | Obtiene el detalle de una invitación | GetInvitationByIdQuery |
-| acceptInvitation | /{invitationId}/accept (POST) | path: invitationId: Long; body: AcceptInvitationResource { accountId: Long } | Acepta la invitación y vincula al cuidador | AcceptInvitationCommand |
-| rejectInvitation | /{invitationId}/reject (POST) | path: invitationId: Long | Rechaza la invitación | RejectInvitationCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | CaregiverController |
-| Categoría | Controller |
-| Propósito | Exponer la consulta de cuidadores, el registro de turnos y horarios, el cumplimiento de asignaciones y la desvinculación de cuidadores. Schedule se expone como sub-recurso de Caregiver, su entidad interna. |
-| Aggregate/Entity relacionado | Caregiver (incluye el sub-recurso Schedule) |
-| Ruta base | /api/v1/caregivers |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getCaregiverById | /{caregiverId} (GET) | path: caregiverId: Long | Obtiene el detalle de un cuidador y sus turnos | GetCaregiverByIdQuery |
-| registerSchedule | /{caregiverId}/schedules (POST) | path: caregiverId: Long; body: RegisterScheduleResource { startTime: LocalDateTime, endTime: LocalDateTime } | Registra un nuevo turno y horario | RegisterScheduleCommand |
-| recordCompletedAssignments | /{caregiverId}/schedules/{scheduleId}/complete (POST) | path: caregiverId: Long, scheduleId: Long | Registra el cumplimiento de las asignaciones del turno | RecordCompletedAssignmentsCommand |
-| unlinkCaregiver | /{caregiverId}/unlink (POST) | path: caregiverId: Long | Desvincula al cuidador de la red de cuidado | UnlinkCaregiverCommand |
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.5.1.
 
 ### 5.5.3. Application Layer
 
-La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante dos Event Handlers propios las observaciones previas #2 y #3: ninguno consume eventos de otro bounded context, ya que ambas reacciones son políticas internas de Cuidado.
-
-**InvitationAcceptedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | InvitationAcceptedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Crear al Caregiver correspondiente cuando una invitación es aceptada, con el accountId ya disponible en el evento. |
-| Command/Query/Evento que maneja | InvitationAccepted (evento propio de Cuidado) |
-| Repositorios y servicios que usa | CreateCaregiverCommand (invocado internamente) |
-| Eventos que publica | CaregiverCreated (vía el command invocado) |
-| User story/capability que habilita | Resuelve la observación previa #3 |
-
-**CaregiverUnlinkedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | CaregiverUnlinkedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Liberar las labores de cuidado que tenían como responsable al cuidador desvinculado. |
-| Command/Query/Evento que maneja | CaregiverUnlinked (evento propio de Cuidado) |
-| Repositorios y servicios que usa | CareTaskRepository |
-| Eventos que publica | CareTaskUnassigned (uno por cada CareTask liberada) |
-| User story/capability que habilita | Resuelve la observación previa #2 |
-
-**RegisterFamilyMemberCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterFamilyMemberCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Registrar al familiar responsable, referenciando su cuenta en IAM y su perfil de hogar en Perfiles. |
-| Command/Query/Evento que maneja | RegisterFamilyMemberCommand |
-| Repositorios y servicios que usa | FamilyMemberRepository |
-| Eventos que publica | FamilyMemberRegistered |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**UpdateFamilyMemberInfoCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | UpdateFamilyMemberInfoCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Actualizar el nombre del familiar. |
-| Command/Query/Evento que maneja | UpdateFamilyMemberInfoCommand |
-| Repositorios y servicios que usa | FamilyMemberRepository |
-| Eventos que publica | FamilyMemberInfoUpdated |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**RegisterCareTaskCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterCareTaskCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Registrar una nueva labor de cuidado para la red de cuidado. |
-| Command/Query/Evento que maneja | RegisterCareTaskCommand |
-| Repositorios y servicios que usa | CareTaskRepository |
-| Eventos que publica | CareTaskRegistered |
-| User story/capability que habilita | Decisión de negocio del Canvas: "toda labor de cuidado se asigna a un cuidador responsable" |
-
-**AssignCareTaskResponsibleCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AssignCareTaskResponsibleCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Asignar un cuidador responsable a una labor de cuidado. |
-| Command/Query/Evento que maneja | AssignCareTaskResponsibleCommand |
-| Repositorios y servicios que usa | CareTaskRepository, CaregiverRepository |
-| Eventos que publica | CareTaskResponsibleAssigned |
-| User story/capability que habilita | Decisión de negocio del Canvas |
-
-**InviteCaregiverCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | InviteCaregiverCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear la invitación en estado SENT y disparar el envío del correo de invitación. |
-| Command/Query/Evento que maneja | InviteCaregiverCommand |
-| Repositorios y servicios que usa | InvitationRepository |
-| Eventos que publica | CaregiverInvited |
-| User story/capability que habilita | Supuesto del Canvas: "Sendgrid envía los correos de invitación" |
-
-**AcceptInvitationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AcceptInvitationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Aceptar la invitación, llevándola a su estado terminal ACCEPTED. |
-| Command/Query/Evento que maneja | AcceptInvitationCommand |
-| Repositorios y servicios que usa | InvitationRepository |
-| Eventos que publica | InvitationAccepted |
-| User story/capability que habilita | Decisión de negocio del Canvas: "una invitación aceptada vincula al cuidador como cuidador adicional" |
-
-**RejectInvitationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RejectInvitationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Rechazar la invitación, llevándola a su estado terminal REJECTED. |
-| Command/Query/Evento que maneja | RejectInvitationCommand |
-| Repositorios y servicios que usa | InvitationRepository |
-| Eventos que publica | InvitationRejected |
-| User story/capability que habilita | Decisión de negocio del Canvas: "una invitación rechazada no vincula al cuidador" |
-
-**CreateCaregiverCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | CreateCaregiverCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear al Caregiver vinculado a la red de cuidado, scoped por familyMemberId (observación previa #1). |
-| Command/Query/Evento que maneja | CreateCaregiverCommand |
-| Repositorios y servicios que usa | CaregiverRepository |
-| Eventos que publica | CaregiverCreated |
-| User story/capability que habilita | Resuelve la observación previa #1 y #3; invocado únicamente por InvitationAcceptedEventHandler |
-
-**RegisterScheduleCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterScheduleCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Registrar un nuevo turno y horario para el cuidador. |
-| Command/Query/Evento que maneja | RegisterScheduleCommand |
-| Repositorios y servicios que usa | CaregiverRepository |
-| Eventos que publica | ScheduleRegistered |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**RecordCompletedAssignmentsCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RecordCompletedAssignmentsCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Registrar el cumplimiento de las asignaciones de un turno. |
-| Command/Query/Evento que maneja | RecordCompletedAssignmentsCommand |
-| Repositorios y servicios que usa | CaregiverRepository |
-| Eventos que publica | CompletedAssignmentsRecorded |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**UnlinkCaregiverCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | UnlinkCaregiverCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Desvincular al cuidador de la red de cuidado. |
-| Command/Query/Evento que maneja | UnlinkCaregiverCommand |
-| Repositorios y servicios que usa | CaregiverRepository |
-| Eventos que publica | CaregiverUnlinked |
-| User story/capability que habilita | Resuelve la observación previa #2; consumido por CaregiverUnlinkedEventHandler |
-
-**ReplacePrincipalCaregiverCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ReplacePrincipalCaregiverCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Reemplazar al cuidador principal de una red de cuidado. |
-| Command/Query/Evento que maneja | ReplacePrincipalCaregiverCommand |
-| Repositorios y servicios que usa | CaregiverRepository |
-| Eventos que publica | PrincipalCaregiverReplaced |
-| User story/capability que habilita | Decisión de negocio del Canvas; consumido por PrincipalCaregiverReplacedEventHandler de Perfiles (5.3.3) |
-
-**GetFamilyMemberByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetFamilyMemberByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un familiar. |
-| Command/Query/Evento que maneja | GetFamilyMemberByIdQuery |
-| Repositorios y servicios que usa | FamilyMemberRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getFamilyMemberById |
-
-**GetCareTasksByFamilyMemberIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetCareTasksByFamilyMemberIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Listar las labores de cuidado de una red de cuidado. |
-| Command/Query/Evento que maneja | GetCareTasksByFamilyMemberIdQuery |
-| Repositorios y servicios que usa | CareTaskRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getCareTasksByFamilyMember |
-
-**GetInvitationByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetInvitationByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de una invitación. |
-| Command/Query/Evento que maneja | GetInvitationByIdQuery |
-| Repositorios y servicios que usa | InvitationRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getInvitationById |
-
-**GetCaregiverByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetCaregiverByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un cuidador, incluyendo sus turnos y horarios. |
-| Command/Query/Evento que maneja | GetCaregiverByIdQuery |
-| Repositorios y servicios que usa | CaregiverRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getCaregiverById |
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.5.1.
 
 ### 5.5.4. Infrastructure Layer
 
-La Infrastructure Layer implementa los repositorios de los cuatro aggregates sobre PostgreSQL, consistente con el carácter transaccional y estructurado de los datos de la red de cuidado, y el adaptador hacia Sendgrid para el correo de invitación. A diferencia de los bounded contexts anteriores, no declara un suscriptor del bus de eventos interno: ninguna de sus integraciones entrantes proviene de otro BC (observación previa #3).
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.5.1.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| FamilyMemberRepositoryJpa | FamilyMemberRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate FamilyMember. |
-| CareTaskRepositoryJpa | CareTaskRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate CareTask. |
-| InvitationRepositoryJpa | InvitationRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Invitation. |
-| CaregiverRepositoryJpa | CaregiverRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Caregiver junto con su entidad interna Schedule. |
+### 5.5.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `CuidadoJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de los cuatro aggregates sobre el motor PostgreSQL.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.5.1.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| SendgridEmailGateway | Gateway | EmailGateway | Sendgrid | Envía el correo de invitación a un cuidador. |
+### 5.5.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| family_members | Almacena el aggregate FamilyMember: datos del familiar y referencias a accountId y homeProfileId. |
-| care_tasks | Almacena el aggregate CareTask: descripción, estado y referencia al cuidador responsable (nulo si quedó sin asignar). |
-| invitations | Almacena el aggregate Invitation: correo invitado, estado y referencia al familiar. |
-| caregivers | Almacena el aggregate Caregiver: referencia a accountId y familyMemberId, y si es principal. |
-| caregiver_schedules | Almacena la entidad Schedule: turnos y horarios de cada cuidador. |
+#### 5.5.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Cuenta / credenciales | IAM | La autenticación y el estado de acceso de las cuentas de familiares y cuidadores son responsabilidad de IAM; Cuidado solo referencia accountId. |
-| Perfil de usuario / perfil de hogar | Perfiles | Los datos personales y la ubicación del hogar se gestionan en Perfiles; Cuidado solo referencia homeProfileId y publica PrincipalCaregiverReplaced para mantener sincronizado al cuidador principal (observación previa #5). |
+El diagrama muestra los seis aggregates, la entidad `ActivityAssignment`, los value objects y enums con sus relaciones nombradas y su multiplicidad. Las referencias directas entre aggregates del mismo contexto se dibujan en morado; la composición `CareActivity` → `ActivityAssignments` → `ActivityAssignment` en magenta. Las flechas naranjas indican el aggregate que crea o modifica cada command, y las verde azuladas, el flujo de eventos internos: el aggregate registra el evento y el evento activa el siguiente command (por ejemplo, la invitación: crear, asignar cuenta, avisar, aceptar y crear el cuidador). Los atributos de cada command se muestran dentro de su clase; las notas detallan las reglas de los commands y de cada service.
 
-**Verificación de trazabilidad — Cuidado**
+![Diagrama de clases de la capa de dominio - Asistencia Médica](../images/diagrams/img/chapter-5/assistance.svg)
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 12 commands y las 4 queries de 5.5.1 tienen su handler correspondiente en 5.5.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | CreateCaregiverCommand se usa exclusivamente desde InvitationAcceptedEventHandler (justificado en 5.5.2); el resto se usa desde los endpoints de los cuatro controllers. |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.5.2) mapea 1:1 los parámetros del Command correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | Cada uno de los cuatro controllers se relaciona con su aggregate root correspondiente. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | Los cuatro repositorios de 5.5.1 tienen su implementación Jpa correspondiente en 5.5.4. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | CaregiverInvited lo consume el adaptador de Sendgrid; InvitationAccepted y CaregiverUnlinked los consumen los Event Handlers propios (5.5.3); PrincipalCaregiverReplaced lo consume Perfiles (5.3.3); el resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría. |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | FamilyMember, CareTask, Invitation y Caregiver son exclusivos de este bounded context. |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | EmailGateway se declara como puerto en Domain; su implementación concreta (SendgridEmailGateway) está en Infrastructure (5.5.4). |
+#### 5.5.7.2. Bounded Context Database Design Diagram
 
-### 5.5.6. Bounded Context Software Architecture Code Level Diagrams
+`ActivityLog` se guarda en PostgreSQL y no en MongoDB: completar o cancelar lee la actividad, la asignación y el cuidador y escribe el log en una misma transacción, y varias reglas cruzan logs con asignaciones. Es un registro de negocio con relaciones, no tracking.
 
-#### 5.5.6.1. Bounded Context Domain Layer Class Diagrams
+| Tabla | Aggregate o entidad | Llaves y restricciones |
+|---|---|---|
+| `relatives` | `Relative` | PK `id`. UK `user_id` y UK `person_profile_id` (sin FK, otros contextos). Índice `business_id`. |
+| `assisted_persons` | `AssistedPerson` | PK `id`. UK `person_profile_id`. FK `relative_id`. Sin columna de estado: no se da de baja. |
+| `invitations` | `Invitation` | PK `id`. FK `assisted_person_id`, `inviter_relative_id`. Índice único parcial (`assisted_person_id`, `invitee_email`) donde `status = 'PENDING'`. |
+| `caregivers` | `Caregiver` | PK `id`. FK `assisted_person_id`. Índice único parcial (`user_id`, `assisted_person_id`) donde `status = 'ACTIVE'`. |
+| `care_activities` | `CareActivity` | PK `id`. FK `assisted_person_id`. |
+| `activity_assignments` | `ActivityAssignment` (con `Schedule` aplanado) | PK `id`. FK `care_activity_id`. FK `caregiver_id` (nula: la hace el familiar). |
+| `activity_logs` | `ActivityLog` | PK `id`. FK `assisted_person_id`, `care_activity_id`, `assignment_id`, `assigned_caregiver_id`, `completed_by_caregiver_id`. UK (`assignment_id`, `occurrence_date`). |
 
-El siguiente diagrama de clases presenta la capa de dominio del bounded context **Cuidado**. Incluye los aggregates **Relative**, **AssistedPerson**, **Caregiver** e **Invitation**, que modelan al familiar responsable, a la persona asistida, a sus cuidadores y el proceso de invitación que les da acceso. Se detallan los value objects de identidad (`UserId`, `RelativeId`, `AssistedPersonId`, `PersonProfileId`), los enums `InvitationStatus` y `CaregiverStatus`, los domain events de la invitación y de la revocación de acceso, los commands y queries correspondientes y las interfaces de servicios. También se muestran como contextos externos **IAM** y **Comunicaciones**, con los que este bounded context se integra para crear cuentas y enviar invitaciones.
+Relaciones: un familiar tiene varias personas asistidas e invitaciones; una persona asistida tiene varias invitaciones, cuidadores, actividades y logs; una actividad tiene varias asignaciones y logs; un cuidador puede tener varias asignaciones y logs.
 
-![Diagrama de clases de la capa de dominio - Cuidado](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assistance/assistance.puml)
-
-#### 5.5.6.2. Bounded Context Database Design Diagram
-
-El siguiente diagrama de base de datos muestra el modelo relacional del bounded context **Cuidado**. La tabla `relatives` se relaciona uno a muchos con `assisted_persons`, y cada persona asistida se relaciona uno a muchos con `caregivers` e `invitations`. La tabla `invitations` también referencia al familiar que la emite mediante la columna `inviter_id`.
-
-![Diagrama de base de datos - Cuidado](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assistance/assistance-database.puml)
+![Diagrama de base de datos - Asistencia Médica](../images/diagrams/img/chapter-5/assistance-database.svg)
 
 <div style="page-break-after: always;"></div>
 
 ## 5.6. Bounded Context: Pagos y Suscripciones
 
-El bounded context **Pagos y Suscripciones** gestiona la comparación y contratación de planes, el procesamiento de pagos en dos etapas (preautorización y cobro) vía Stripe, y la adaptación del plan cuando la vivienda resulta solo parcialmente viable. Es un subdominio de soporte orientado a ingresos. Participan el **Visitante** (compara planes), el **Cuidador** (confirma la contratación con sus datos de pago) y el **Gestor de suscripciones** (ajusta planes desde el dashboard). Este bounded context depende de dos integraciones entrantes desde Soporte Técnico que el Canvas no declara explícitamente pero que el flujo requiere (observaciones previas #3 y #4): el resultado de la evaluación de viabilidad de la vivienda, y la confirmación o el fallo de la instalación. Ambas se formalizarán del lado de Soporte Técnico en 5.7.
+En el código, este bounded context es el paquete `subscriptions`. Gestiona los planes, el pago mediante Stripe y la suscripción que paga el familiar.
 
 ### 5.6.1. Domain Layer
 
-La Domain Layer modela dos aggregates independientes: `Subscription`, que representa el contrato de servicio elegido para la persona asistida, y `Payment`, que representa el procesamiento del pago asociado. El catálogo de planes no se modela como aggregate: no se identificaron comandos que gestionen su ciclo de vida en el material disponible, por lo que se trata como un read model estático consultado por `GetAvailablePlansQuery`.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Subscription | Aggregate Root | Representa el contrato de servicio elegido para la persona asistida. No se activa sin un Payment confirmado (`CHARGED`); si la vivienda resulta parcialmente viable, requiere que la adaptación del plan sea aceptada antes de continuar (decisiones de negocio del Canvas). |
-| Payment | Aggregate Root | Representa el procesamiento del pago de una Subscription en dos etapas: preautorización y cobro. Un cobro rechazado libera el importe retenido y devuelve el monto (decisión de negocio del Canvas); no almacena datos bancarios, solo una referencia al método de pago en Stripe (Supuesto del Canvas). |
-
-No se identifican Entities en este bounded context: ambos aggregates son simples, sin componentes internos con identidad propia.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| SubscriptionId | Value Object | Identificador tipado del aggregate Subscription; no admite valores nulos ni negativos. |
-| PaymentId | Value Object | Identificador tipado del aggregate Payment; no admite valores nulos ni negativos. |
-| PlanSnapshot | Value Object | Copia de los datos del plan (nombre, precio) tomada al momento de seleccionar la suscripción; no cambia aunque el catálogo se actualice después. |
-| Money | Value Object | Monto con su moneda, usado en la preautorización, el cobro y la devolución; no admite valores negativos. |
-| PaymentMethodReference | Value Object | Referencia al método de pago registrado en Stripe; no almacena datos bancarios localmente (Supuesto del Canvas). |
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| SubscriptionStatus | Enum | Estado de la suscripción. Transiciones permitidas: `SELECTED` → `AWAITING_EVALUATION` al confirmarse la contratación y preautorizarse el pago; `AWAITING_EVALUATION` → `ADAPTATION_PROPOSED` si la vivienda resulta parcialmente viable; `AWAITING_EVALUATION` → `CANCELLED` si la vivienda no es viable o si el cobro es rechazado; `AWAITING_EVALUATION` → `ACTIVE` al confirmarse el cobro; `ADAPTATION_PROPOSED` → `AWAITING_EVALUATION` al aceptarse la adaptación; `ADAPTATION_PROPOSED` → `CANCELLED` al rechazarse (observación previa #2). Si la preautorización es rechazada, la suscripción permanece en `SELECTED` para permitir un nuevo intento manual (observación previa #1). |
-| PaymentStatus | Enum | Estado del pago. Transiciones permitidas: (inicial) → `PREAUTHORIZED` si Stripe aprueba la preautorización, o → `PREAUTHORIZATION_REJECTED` (terminal) si la rechaza; `PREAUTHORIZED` → `CHARGED` (terminal) al confirmarse el cobro; `PREAUTHORIZED` → `CHARGE_REJECTED` (terminal) al rechazarse el cobro, liberando el importe retenido y devolviendo el monto (decisión de negocio del Canvas). |
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| SelectSubscriptionCommand | Selecciona un plan de suscripción para la persona asistida de un hogar, en estado SELECTED. | accountId: Long, homeProfileId: Long, planId: Long |
-| ConfirmContractingCommand | Confirma la contratación y dispara la preautorización del pago (observación previa #1). | subscriptionId: Long, paymentMethodReference: String |
-| ProposeAdaptationCommand | Propone una adaptación del plan cuando la vivienda resulta parcialmente viable, de forma manual (Gestor de suscripciones) o automática (observación previa #3 y #5). | subscriptionId: Long, adaptedPlanId: Long, proposedBy: Long |
-| AcceptAdaptationCommand | Acepta la adaptación propuesta, retomando el proceso hacia la instalación. | subscriptionId: Long |
-| RejectAdaptationCommand | Rechaza la adaptación propuesta, cancelando la suscripción (observación previa #2). | subscriptionId: Long |
-| ActivateSubscriptionCommand | Activa la suscripción al confirmarse el cobro, invocado únicamente por PaymentChargedEventHandler. | subscriptionId: Long |
-| CancelSubscriptionCommand | Cancela la suscripción, invocado por la vivienda no viable, el rechazo de la adaptación o el rechazo del cobro. | subscriptionId: Long, reason: String |
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| PreauthorizePaymentCommand | Crea el Payment y preautoriza el monto en Stripe, invocado únicamente por ConfirmContractingCommandHandler. | subscriptionId: Long, amount: Money, paymentMethodReference: String |
-| ConfirmChargeCommand | Confirma el cobro tras completarse la instalación, invocado únicamente por InstallationCompletedEventHandler (observación previa #4). | paymentId: Long |
-| RejectChargeCommand | Rechaza el cobro y libera/devuelve el importe retenido, invocado únicamente por InstallationFailedEventHandler (observación previa #4). | paymentId: Long, reason: String |
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetAvailablePlansQuery | Lista el catálogo de planes disponibles para comparar. | — |
-| GetSubscriptionByIdQuery | Obtiene el detalle de una suscripción. | subscriptionId: Long |
-| GetPaymentByIdQuery | Obtiene el detalle de un pago. | paymentId: Long |
-| GetPaymentsBySubscriptionIdQuery | Lista los pagos asociados a una suscripción. | subscriptionId: Long |
-
-`ContractingConfirmed` lo consume Soporte Técnico para iniciar la evaluación de viabilidad; `PaymentPreauthorizationRejected` lo consume Comunicaciones (observación previa #1); `PaymentCharged` y `SubscriptionActivated` los consume Analíticas; `PlanAdaptationAccepted` lo consume Soporte Técnico para coordinar la instalación. Estas cuatro integraciones salientes se formalizarán del lado receptor en 5.7 (Soporte Técnico), 5.8 (Comunicaciones) y 5.9 (Analíticas) respectivamente. El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| SubscriptionSelected | Se publica al seleccionarse un plan de suscripción. | subscriptionId: Long, accountId: Long, homeProfileId: Long, planId: Long, selectedAt: LocalDateTime |
-| ContractingConfirmed | Se publica al confirmarse la contratación; es consumido por Soporte Técnico para iniciar la evaluación de viabilidad de la vivienda. | subscriptionId: Long, confirmedAt: LocalDateTime |
-| PlanAdaptationProposed | Se publica al proponerse una adaptación del plan. | subscriptionId: Long, adaptedPlanId: Long, proposedAt: LocalDateTime |
-| PlanAdaptationAccepted | Se publica al aceptarse la adaptación; es consumido por Soporte Técnico para coordinar la fecha de instalación. | subscriptionId: Long, acceptedAt: LocalDateTime |
-| PlanAdaptationRejected | Se publica al rechazarse la adaptación (observación previa #2). | subscriptionId: Long, rejectedAt: LocalDateTime |
-| SubscriptionActivated | Se publica al activarse la suscripción; es consumido por Analíticas. | subscriptionId: Long, activatedAt: LocalDateTime |
-| SubscriptionCancelled | Se publica al cancelarse la suscripción. | subscriptionId: Long, reason: String, cancelledAt: LocalDateTime |
-| PaymentPreauthorized | Se publica al preautorizarse el pago en Stripe. | paymentId: Long, subscriptionId: Long, amount: Money, preauthorizedAt: LocalDateTime |
-| PaymentPreauthorizationRejected | Se publica al rechazar Stripe la preautorización; es consumido por Comunicaciones para notificar al cuidador principal del hogar, sin reintento automático (observación previa #1). Incluye homeProfileId para que Comunicaciones resuelva al destinatario vía PerfilesFacade (5.3.2), sin acceder directamente a Subscription. | paymentId: Long, subscriptionId: Long, homeProfileId: Long, rejectedAt: LocalDateTime |
-| PaymentCharged | Se publica al confirmarse el cobro; es consumido por Analíticas y dispara internamente ActivateSubscriptionCommand. | paymentId: Long, subscriptionId: Long, chargedAt: LocalDateTime |
-| PaymentChargeRejected | Se publica al rechazarse el cobro; dispara internamente CancelSubscriptionCommand. | paymentId: Long, subscriptionId: Long, reason: String, rejectedAt: LocalDateTime |
-
-No se declaran Factories ni Domain Services en este bounded context: `Subscription` y `Payment` se referencian solo por identificador. La creación de un Payment al confirmar la contratación se resuelve en `ConfirmContractingCommandHandler` invocando `PreauthorizePaymentCommand`, sin requerir colaboración en el mismo proceso de escritura entre ambos aggregates.
-
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| SubscriptionRepository | Subscription | Persiste y recupera el aggregate Subscription. |
-| PaymentRepository | Payment | Persiste y recupera el aggregate Payment; expone la búsqueda por subscriptionId. |
-
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| Payment | asociación | Subscription | Payment referencia a su suscripción mediante subscriptionId; son aggregates independientes, sin composición. |
-| SubscriptionRepository | depende de | Subscription | El repositorio persiste y recupera el aggregate Subscription. |
-| PaymentRepository | depende de | Payment | El repositorio persiste y recupera el aggregate Payment. |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.6.2. Interface Layer
 
-La Interface Layer expone un controller por cada aggregate root: `SubscriptionController` y `PaymentController`. Este último solo expone consultas: `PreauthorizePaymentCommand`, `ConfirmChargeCommand` y `RejectChargeCommand` se invocan exclusivamente desde Event Handlers (5.6.3), nunca desde un endpoint REST, consistente con el patrón de integración por eventos entre bounded contexts usado en todo el capítulo (observación previa #4). Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: sus integraciones salientes se resuelven mediante el adaptador de Stripe y los Domain Events hacia Soporte Técnico, Comunicaciones y Analíticas.
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | SubscriptionController |
-| Categoría | Controller |
-| Propósito | Exponer la comparación de planes, la selección y contratación de suscripciones, y la aceptación o el rechazo de adaptaciones de plan. |
-| Aggregate/Entity relacionado | Subscription |
-| Ruta base | /api/v1/subscriptions |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getAvailablePlans | /plans (GET) | — | Lista el catálogo de planes disponibles | GetAvailablePlansQuery |
-| selectSubscription | / (POST) | body: SelectSubscriptionResource { accountId: Long, homeProfileId: Long, planId: Long } | Selecciona un plan de suscripción | SelectSubscriptionCommand |
-| getSubscriptionById | /{subscriptionId} (GET) | path: subscriptionId: Long | Obtiene el detalle de una suscripción | GetSubscriptionByIdQuery |
-| confirmContracting | /{subscriptionId}/confirm-contracting (POST) | path: subscriptionId: Long; body: ConfirmContractingResource { paymentMethodReference: String } | Confirma la contratación y preautoriza el pago | ConfirmContractingCommand |
-| proposeAdaptation | /{subscriptionId}/adaptation/propose (POST) | path: subscriptionId: Long; body: ProposeAdaptationResource { adaptedPlanId: Long, proposedBy: Long } | Propone una adaptación del plan (observación previa #5) | ProposeAdaptationCommand |
-| acceptAdaptation | /{subscriptionId}/adaptation/accept (POST) | path: subscriptionId: Long | Acepta la adaptación propuesta | AcceptAdaptationCommand |
-| rejectAdaptation | /{subscriptionId}/adaptation/reject (POST) | path: subscriptionId: Long | Rechaza la adaptación propuesta y cancela la suscripción | RejectAdaptationCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | PaymentController |
-| Categoría | Controller |
-| Propósito | Exponer la consulta del detalle de pagos y de los pagos asociados a una suscripción. |
-| Aggregate/Entity relacionado | Payment |
-| Ruta base | /api/v1/payments |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getPaymentById | /{paymentId} (GET) | path: paymentId: Long | Obtiene el detalle de un pago | GetPaymentByIdQuery |
-| getPaymentsBySubscription | /by-subscription/{subscriptionId} (GET) | path: subscriptionId: Long | Lista los pagos asociados a una suscripción | GetPaymentsBySubscriptionIdQuery |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.6.3. Application Layer
 
-La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante cinco Event Handlers las integraciones identificadas en las Observaciones Previas: tres consumen eventos externos de Soporte Técnico (observaciones previas #3 y #4, ver 5.7), y dos reaccionan a eventos propios de Payment.
-
-**HomeViabilityEvaluatedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | HomeViabilityEvaluatedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Según el resultado de la evaluación, proponer la adaptación del plan (parcialmente viable) o cancelar la suscripción (no viable); si es viable, no realiza ninguna acción adicional. |
-| Command/Query/Evento que maneja | HomeViabilityEvaluated (evento externo, BC de origen: Soporte Técnico, ver 5.7.1) |
-| Repositorios y servicios que usa | ProposeAdaptationCommand, CancelSubscriptionCommand (invocados internamente) |
-| Eventos que publica | PlanAdaptationProposed o SubscriptionCancelled (vía los commands invocados) |
-| User story/capability que habilita | Resuelve la observación previa #3 |
-
-**InstallationCompletedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | InstallationCompletedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Confirmar el cobro del pago asociado a la suscripción instalada. |
-| Command/Query/Evento que maneja | InstallationCompleted (evento externo, BC de origen: Soporte Técnico, ver 5.7.1) |
-| Repositorios y servicios que usa | PaymentRepository (para localizar el Payment por subscriptionId), ConfirmChargeCommand (invocado internamente) |
-| Eventos que publica | PaymentCharged (vía el command invocado) |
-| User story/capability que habilita | Resuelve la observación previa #4; Supuesto del Canvas: "Soporte técnico solicita el cobro cuando la instalación queda completada" |
-
-**InstallationFailedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | InstallationFailedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Rechazar el cobro del pago asociado cuando la instalación no pudo completarse. |
-| Command/Query/Evento que maneja | InstallationFailed (evento externo, BC de origen: Soporte Técnico, ver 5.7.1) |
-| Repositorios y servicios que usa | PaymentRepository (para localizar el Payment por subscriptionId), RejectChargeCommand (invocado internamente) |
-| Eventos que publica | PaymentChargeRejected (vía el command invocado) |
-| User story/capability que habilita | Resuelve la observación previa #4 |
-
-**PaymentChargedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | PaymentChargedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Activar la suscripción cuando su pago asociado queda cobrado. |
-| Command/Query/Evento que maneja | PaymentCharged (evento propio de Pagos y Suscripciones) |
-| Repositorios y servicios que usa | ActivateSubscriptionCommand (invocado internamente) |
-| Eventos que publica | SubscriptionActivated (vía el command invocado) |
-| User story/capability que habilita | Decisión de negocio del Canvas: "la cuenta se habilita y la suscripción se activa al confirmarse el cobro" |
-
-**PaymentChargeRejectedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | PaymentChargeRejectedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Cancelar la suscripción cuando su pago asociado es rechazado. |
-| Command/Query/Evento que maneja | PaymentChargeRejected (evento propio de Pagos y Suscripciones) |
-| Repositorios y servicios que usa | CancelSubscriptionCommand (invocado internamente) |
-| Eventos que publica | SubscriptionCancelled (vía el command invocado) |
-| User story/capability que habilita | Decisión de negocio del Canvas |
-
-**SelectSubscriptionCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | SelectSubscriptionCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear la suscripción en estado SELECTED con una copia del plan elegido. |
-| Command/Query/Evento que maneja | SelectSubscriptionCommand |
-| Repositorios y servicios que usa | SubscriptionRepository |
-| Eventos que publica | SubscriptionSelected |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**ConfirmContractingCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ConfirmContractingCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Confirmar la contratación y preautorizar el pago; si la preautorización es rechazada, la suscripción permanece en SELECTED (observación previa #1). |
-| Command/Query/Evento que maneja | ConfirmContractingCommand |
-| Repositorios y servicios que usa | SubscriptionRepository, PreauthorizePaymentCommand (invocado internamente) |
-| Eventos que publica | ContractingConfirmed |
-| User story/capability que habilita | Decisión de negocio del Canvas: "el pago se procesa en dos etapas" |
-
-**ProposeAdaptationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ProposeAdaptationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Proponer la adaptación del plan cuando la vivienda resulta parcialmente viable. |
-| Command/Query/Evento que maneja | ProposeAdaptationCommand |
-| Repositorios y servicios que usa | SubscriptionRepository |
-| Eventos que publica | PlanAdaptationProposed |
-| User story/capability que habilita | Resuelve la observación previa #5; invocado manualmente por el Gestor de suscripciones o automáticamente por HomeViabilityEvaluatedEventHandler |
-
-**AcceptAdaptationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AcceptAdaptationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Aceptar la adaptación propuesta, retomando el proceso hacia la coordinación de instalación. |
-| Command/Query/Evento que maneja | AcceptAdaptationCommand |
-| Repositorios y servicios que usa | SubscriptionRepository |
-| Eventos que publica | PlanAdaptationAccepted |
-| User story/capability que habilita | Decisión de negocio del Canvas |
-
-**RejectAdaptationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RejectAdaptationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Rechazar la adaptación propuesta y cancelar la suscripción. |
-| Command/Query/Evento que maneja | RejectAdaptationCommand |
-| Repositorios y servicios que usa | SubscriptionRepository, CancelSubscriptionCommand (invocado internamente) |
-| Eventos que publica | PlanAdaptationRejected |
-| User story/capability que habilita | Resuelve la observación previa #2 |
-
-**ActivateSubscriptionCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ActivateSubscriptionCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Activar la suscripción. |
-| Command/Query/Evento que maneja | ActivateSubscriptionCommand |
-| Repositorios y servicios que usa | SubscriptionRepository |
-| Eventos que publica | SubscriptionActivated |
-| User story/capability que habilita | Invocado únicamente por PaymentChargedEventHandler |
-
-**CancelSubscriptionCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | CancelSubscriptionCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Cancelar la suscripción. |
-| Command/Query/Evento que maneja | CancelSubscriptionCommand |
-| Repositorios y servicios que usa | SubscriptionRepository |
-| Eventos que publica | SubscriptionCancelled |
-| User story/capability que habilita | Invocado por HomeViabilityEvaluatedEventHandler, RejectAdaptationCommandHandler o PaymentChargeRejectedEventHandler |
-
-**PreauthorizePaymentCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | PreauthorizePaymentCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear el Payment y preautorizar el monto en Stripe. |
-| Command/Query/Evento que maneja | PreauthorizePaymentCommand |
-| Repositorios y servicios que usa | PaymentRepository, PaymentGateway |
-| Eventos que publica | PaymentPreauthorized o PaymentPreauthorizationRejected |
-| User story/capability que habilita | Invocado únicamente por ConfirmContractingCommandHandler |
-
-**ConfirmChargeCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ConfirmChargeCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Confirmar el cobro del monto preautorizado en Stripe. |
-| Command/Query/Evento que maneja | ConfirmChargeCommand |
-| Repositorios y servicios que usa | PaymentRepository, PaymentGateway |
-| Eventos que publica | PaymentCharged |
-| User story/capability que habilita | Invocado únicamente por InstallationCompletedEventHandler |
-
-**RejectChargeCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RejectChargeCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Rechazar el cobro y liberar/devolver el importe retenido en Stripe. |
-| Command/Query/Evento que maneja | RejectChargeCommand |
-| Repositorios y servicios que usa | PaymentRepository, PaymentGateway |
-| Eventos que publica | PaymentChargeRejected |
-| User story/capability que habilita | Invocado únicamente por InstallationFailedEventHandler |
-
-**GetAvailablePlansQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetAvailablePlansQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el catálogo de planes disponibles para comparar. |
-| Command/Query/Evento que maneja | GetAvailablePlansQuery |
-| Repositorios y servicios que usa | PlanCatalogReadModel |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getAvailablePlans |
-
-**GetSubscriptionByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetSubscriptionByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de una suscripción. |
-| Command/Query/Evento que maneja | GetSubscriptionByIdQuery |
-| Repositorios y servicios que usa | SubscriptionRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getSubscriptionById |
-
-**GetPaymentByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetPaymentByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un pago. |
-| Command/Query/Evento que maneja | GetPaymentByIdQuery |
-| Repositorios y servicios que usa | PaymentRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getPaymentById |
-
-**GetPaymentsBySubscriptionIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetPaymentsBySubscriptionIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Listar los pagos asociados a una suscripción. |
-| Command/Query/Evento que maneja | GetPaymentsBySubscriptionIdQuery |
-| Repositorios y servicios que usa | PaymentRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getPaymentsBySubscription |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.6.4. Infrastructure Layer
 
-La Infrastructure Layer implementa los repositorios de Subscription y Payment sobre PostgreSQL, consistente con el carácter transaccional de cuentas y suscripciones (TS-47), el adaptador hacia Stripe, y el suscriptor del bus de eventos interno que conecta a Pagos y Suscripciones con Soporte Técnico.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| SubscriptionRepositoryJpa | SubscriptionRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Subscription. |
-| PaymentRepositoryJpa | PaymentRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Payment. |
-| PlanCatalogReadModelJpa | PlanCatalogReadModel | Spring Data JPA sobre PostgreSQL | Expone el catálogo estático de planes consultado por GetAvailablePlansQuery; no gestiona su ciclo de vida (5.6.1). |
+### 5.6.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `PagosSuscripcionesJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Subscription` y `Payment` sobre el motor PostgreSQL.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| StripePaymentGateway | Gateway | PaymentGateway | Stripe | Preautoriza, cobra y devuelve montos sin almacenar datos bancarios localmente (Supuesto del Canvas). |
-| DomainEventBusSubscriber | Event Subscriber | HomeViabilityEvaluatedListener, InstallationCompletedListener, InstallationFailedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por Soporte Técnico hacia los Event Handlers de Pagos y Suscripciones (observaciones previas #3 y #4). |
+### 5.6.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| subscriptions | Almacena el aggregate Subscription: plan elegido, estado y referencias a accountId y homeProfileId. |
-| payments | Almacena el aggregate Payment: montos, estado y referencia a subscriptionId. |
-| plan_catalog | Almacena el catálogo estático de planes consultado por GetAvailablePlansQuery (5.6.1). |
+#### 5.6.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Cuenta / credenciales | IAM | La autenticación y el estado de acceso de la cuenta son responsabilidad de IAM; Pagos y Suscripciones solo referencia accountId. |
-| Perfil de hogar | Perfiles | Los datos y la ubicación del hogar se gestionan en Perfiles; Pagos y Suscripciones solo referencia homeProfileId. |
-| Evaluación de viabilidad / instalación | Soporte Técnico | La evaluación técnica de la vivienda y la instalación de dispositivos son responsabilidad de Soporte Técnico (5.7); Pagos y Suscripciones solo reacciona a sus eventos (observaciones previas #3 y #4). |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-**Verificación de trazabilidad — Pagos y Suscripciones**
+#### 5.6.7.2. Bounded Context Database Design Diagram
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 10 commands y las 4 queries de 5.6.1 tienen su handler correspondiente en 5.6.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | ProposeAdaptationCommand se usa tanto desde el endpoint manual como desde HomeViabilityEvaluatedEventHandler (observación previa #5); PreauthorizePaymentCommand, ConfirmChargeCommand, RejectChargeCommand, ActivateSubscriptionCommand y CancelSubscriptionCommand se usan exclusivamente desde Event Handlers, justificado en 5.6.2 y 5.6.3. |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.6.2) mapea 1:1 los parámetros del Command correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | SubscriptionController se relaciona con Subscription; PaymentController se relaciona con Payment. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | SubscriptionRepository ↔ SubscriptionRepositoryJpa; PaymentRepository ↔ PaymentRepositoryJpa. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | ContractingConfirmed y PlanAdaptationAccepted los consume Soporte Técnico; PaymentPreauthorizationRejected lo consume Comunicaciones; PaymentCharged y SubscriptionActivated los consume Analíticas; PaymentCharged y PaymentChargeRejected además disparan Event Handlers propios (5.6.3); el resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría. |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Subscription y Payment son exclusivos de este bounded context. |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PaymentGateway se declara como puerto en Domain; su implementación concreta (StripePaymentGateway) está en Infrastructure (5.6.4). |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 <div style="page-break-after: always;"></div>
 
 ## 5.7. Bounded Context: Soporte Técnico
 
-El bounded context **Soporte Técnico** gestiona las operaciones técnicas de campo: evaluar la viabilidad técnica de la vivienda, coordinar e instalar los dispositivos, y atender incidencias técnicas. Es un subdominio de soporte orientado a reducción de costos. Participan el **Cuidador** (solicita la evaluación, reporta dispositivos) y el **Técnico** (evalúa, instala, atiende incidencias y genera informes). Este bounded context cierra los tres compromisos pendientes con Pagos y Suscripciones (5.6): consume `ContractingConfirmed` y `PlanAdaptationAccepted`, y publica `HomeViabilityEvaluated`, `InstallationCompleted` e `InstallationFailed`.
+En el código, este bounded context es el paquete `support`. Gestiona la evaluación técnica de la vivienda, la instalación de los dispositivos y la atención de incidencias.
 
 ### 5.7.1. Domain Layer
 
-La Domain Layer modela tres aggregates independientes, fieles al EventStorming de Paso 10: `Evaluation`, que determina la viabilidad técnica de la vivienda; `Installation`, que despliega los dispositivos; e `Incident`, que gestiona el reporte, la atención y el informe de incidencias técnicas.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Evaluation | Aggregate Root | Representa el proceso de verificar si una vivienda es técnicamente viable. El veredicto se determina evaluando la instalación eléctrica y la compatibilidad de dispositivos (observación previa #1): viable, parcialmente viable o no viable. |
-| Installation | Aggregate Root | Representa el despliegue físico de los dispositivos en la vivienda. Solo se programa tras una vivienda viable o una adaptación de plan aceptada; puede fallar (observación previa #5), lo que rechaza el cobro asociado en Pagos y Suscripciones. |
-| Incident | Aggregate Root | Representa un problema reportado sobre un dispositivo que requiere atención de soporte, desde su clasificación hasta la generación del informe técnico. Un dispositivo clasificado en una incidencia se avisa a la administración (decisión de negocio del Canvas). |
-
-No se identifican Entities en este bounded context: los tres aggregates son simples, sin componentes internos con identidad propia.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| EvaluationId | Value Object | Identificador tipado del aggregate Evaluation; no admite valores nulos ni negativos. |
-| InstallationId | Value Object | Identificador tipado del aggregate Installation; no admite valores nulos ni negativos. |
-| IncidentId | Value Object | Identificador tipado del aggregate Incident; no admite valores nulos ni negativos. |
-| HomeAddress | Value Object | Dirección de la vivienda a evaluar, geocodificada mediante Google Maps (Supuesto del Canvas); no admite valores vacíos. |
-| CompatibilityResult | Value Object | Resultado de evaluar la instalación eléctrica y la compatibilidad de dispositivos de una vivienda; determina el veredicto de viabilidad (observación previa #1). |
-| IncidentDescription | Value Object | Descripción del problema reportado sobre un dispositivo; no admite valores vacíos. |
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| ViabilityResult | Enum | Veredicto de una Evaluation: `VIABLE` (permite programar la instalación directamente), `PARTIALLY_VIABLE` (requiere adaptar el plan de suscripción antes de instalar), `NOT_VIABLE` (cancela la suscripción, observación previa #2). No exhibe transiciones: es el resultado final de RecordEvaluationResultCommand. |
-| InstallationStatus | Enum | Estado de la instalación. Transiciones permitidas: `SCHEDULED` → `IN_PROGRESS` al iniciarse; `IN_PROGRESS` → `COMPLETED` (terminal) al instalarse los dispositivos; `IN_PROGRESS` → `FAILED` (terminal) si no puede completarse (observación previa #5). |
-
-No se declaran Factories ni Domain Services en este bounded context: los tres aggregates se referencian solo por identificador (subscriptionId, homeProfileId), sin colaboración síncrona entre ellos en el mismo proceso de escritura.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| RequestHomeEvaluationCommand | Solicita la evaluación técnica de una vivienda y programa la visita del técnico, de forma manual (Cuidador) o automática al confirmarse la contratación. | subscriptionId: Long, homeProfileId: Long, address: String, requestedBy: Long |
-| RecordEvaluationResultCommand | Registra el resultado de la visita técnica y determina el veredicto de viabilidad (observación previa #1). | evaluationId: Long, electricalInstallationOk: Boolean, deviceCompatible: Boolean |
-| ScheduleInstallationCommand | Programa la fecha de instalación, invocado automáticamente tras una vivienda viable o una adaptación de plan aceptada. | evaluationId: Long, subscriptionId: Long, scheduledDate: LocalDateTime |
-| InstallDevicesCommand | Instala los dispositivos en la vivienda y completa la instalación. | installationId: Long |
-| MarkInstallationAsFailedCommand | Marca la instalación como fallida (observación previa #5). | installationId: Long, reason: String |
-| ReportDeviceIssueCommand | Reporta un problema sobre un dispositivo e inicia una incidencia técnica. | deviceId: Long, description: String, reportedBy: Long |
-| AttendTechnicalIncidentCommand | Atiende la incidencia: genera la alerta, programa mantenimiento si corresponde, diagnostica, repara y restablece el servicio. | incidentId: Long |
-| GenerateTechnicalReportCommand | Genera el informe técnico que resume el diagnóstico y la resolución de la incidencia (observación previa #4). | incidentId: Long |
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetEvaluationByIdQuery | Obtiene el detalle de una evaluación. | evaluationId: Long |
-| GetInstallationByIdQuery | Obtiene el detalle de una instalación. | installationId: Long |
-| GetIncidentByIdQuery | Obtiene el detalle de una incidencia, incluyendo su informe técnico. | incidentId: Long |
-| GetIncidentsByDeviceIdQuery | Lista las incidencias reportadas sobre un dispositivo. | deviceId: Long |
-
-`HomeViabilityEvaluated` lo consume `HomeViabilityEvaluatedEventHandler` de Pagos y Suscripciones (5.6.3); `InstallationCompleted` e `InstallationFailed` los consumen `InstallationCompletedEventHandler` e `InstallationFailedEventHandler` de Pagos y Suscripciones (5.6.3), respectivamente; `DeviceIssueReported` lo consume `DeviceIssueReportedEventHandler` de Comunicaciones (5.8.3). El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| HomeEvaluationRequested | Se publica al solicitarse la evaluación de una vivienda y programarse la visita técnica. | evaluationId: Long, subscriptionId: Long, homeProfileId: Long, address: String, requestedAt: LocalDateTime |
-| HomeViabilityEvaluated | Se publica al determinarse el veredicto de viabilidad; es consumido por Pagos y Suscripciones (5.6.3) para activar, adaptar o cancelar la suscripción. | evaluationId: Long, subscriptionId: Long, result: ViabilityResult, evaluatedAt: LocalDateTime |
-| InstallationScheduled | Se publica al programarse la fecha de instalación. | installationId: Long, evaluationId: Long, subscriptionId: Long, scheduledDate: LocalDateTime |
-| InstallationStarted | Se publica al iniciarse la instalación. | installationId: Long, startedAt: LocalDateTime |
-| InstallationCompleted | Se publica al completarse la instalación; es consumido por Pagos y Suscripciones (5.6.3) para confirmar el cobro. | installationId: Long, subscriptionId: Long, completedAt: LocalDateTime |
-| InstallationFailed | Se publica al no poder completarse la instalación; es consumido por Pagos y Suscripciones (5.6.3) para rechazar el cobro (observación previa #5). | installationId: Long, subscriptionId: Long, reason: String, failedAt: LocalDateTime |
-| DeviceIssueReported | Se publica al reportarse y clasificarse un problema sobre un dispositivo; es consumido por Comunicaciones para avisar a la administración (decisión de negocio del Canvas, ver 5.8.3). | incidentId: Long, deviceId: Long, classification: String, reportedAt: LocalDateTime |
-| IncidentAttended | Se publica al completarse la atención de una incidencia (alerta, mantenimiento, diagnóstico, reparación y restablecimiento del servicio). | incidentId: Long, attendedAt: LocalDateTime |
-| TechnicalReportGenerated | Se publica al generarse el informe técnico de una incidencia (observación previa #4). | incidentId: Long, generatedAt: LocalDateTime |
-
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| EvaluationRepository | Evaluation | Persiste y recupera el aggregate Evaluation. |
-| InstallationRepository | Installation | Persiste y recupera el aggregate Installation; expone la búsqueda por subscriptionId para los Event Handlers de Pagos y Suscripciones. |
-| IncidentRepository | Incident | Persiste y recupera el aggregate Incident; expone la búsqueda por deviceId. |
-
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| Installation | asociación | Evaluation | Installation referencia a la evaluación que la originó mediante evaluationId. |
-| EvaluationRepository | depende de | Evaluation | El repositorio persiste y recupera el aggregate Evaluation. |
-| InstallationRepository | depende de | Installation | El repositorio persiste y recupera el aggregate Installation. |
-| IncidentRepository | depende de | Incident | El repositorio persiste y recupera el aggregate Incident. |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.7.2. Interface Layer
 
-La Interface Layer expone un controller por cada aggregate root: `EvaluationController`, `InstallationController` e `IncidentController`. `ScheduleInstallationCommand` no se expone directamente, ya que se invoca únicamente desde Event Handlers (5.7.3). Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL: sus integraciones salientes se resuelven mediante el adaptador de Google Maps y los Domain Events hacia Pagos y Suscripciones y Comunicaciones.
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | EvaluationController |
-| Categoría | Controller |
-| Propósito | Exponer la solicitud de evaluación de vivienda y el registro de su resultado. |
-| Aggregate/Entity relacionado | Evaluation |
-| Ruta base | /api/v1/evaluations |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| requestHomeEvaluation | / (POST) | body: RequestHomeEvaluationResource { subscriptionId: Long, homeProfileId: Long, address: String, requestedBy: Long } | Solicita la evaluación técnica de una vivienda | RequestHomeEvaluationCommand |
-| getEvaluationById | /{evaluationId} (GET) | path: evaluationId: Long | Obtiene el detalle de una evaluación | GetEvaluationByIdQuery |
-| recordEvaluationResult | /{evaluationId}/result (POST) | path: evaluationId: Long; body: RecordEvaluationResultResource { electricalInstallationOk: Boolean, deviceCompatible: Boolean } | Registra el resultado y determina el veredicto de viabilidad | RecordEvaluationResultCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | InstallationController |
-| Categoría | Controller |
-| Propósito | Exponer la consulta, la ejecución y el registro de fallas de la instalación de dispositivos. |
-| Aggregate/Entity relacionado | Installation |
-| Ruta base | /api/v1/installations |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getInstallationById | /{installationId} (GET) | path: installationId: Long | Obtiene el detalle de una instalación | GetInstallationByIdQuery |
-| installDevices | /{installationId}/install (POST) | path: installationId: Long | Instala los dispositivos y completa la instalación | InstallDevicesCommand |
-| markInstallationAsFailed | /{installationId}/fail (POST) | path: installationId: Long; body: MarkInstallationAsFailedResource { reason: String } | Marca la instalación como fallida (observación previa #5) | MarkInstallationAsFailedCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | IncidentController |
-| Categoría | Controller |
-| Propósito | Exponer el reporte de dispositivos, la atención de incidencias técnicas y la generación de su informe. |
-| Aggregate/Entity relacionado | Incident |
-| Ruta base | /api/v1/incidents |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| reportDeviceIssue | / (POST) | body: ReportDeviceIssueResource { deviceId: Long, description: String, reportedBy: Long } | Reporta un problema sobre un dispositivo | ReportDeviceIssueCommand |
-| getIncidentById | /{incidentId} (GET) | path: incidentId: Long | Obtiene el detalle de una incidencia | GetIncidentByIdQuery |
-| getIncidentsByDevice | /by-device/{deviceId} (GET) | path: deviceId: Long | Lista las incidencias reportadas sobre un dispositivo | GetIncidentsByDeviceIdQuery |
-| attendIncident | /{incidentId}/attend (POST) | path: incidentId: Long | Atiende la incidencia técnica | AttendTechnicalIncidentCommand |
-| generateTechnicalReport | /{incidentId}/report (POST) | path: incidentId: Long | Genera el informe técnico de la incidencia | GenerateTechnicalReportCommand |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.7.3. Application Layer
 
-La Application Layer traduce cada Command y Query de la Domain Layer en un handler dedicado, y resuelve mediante tres Event Handlers las integraciones con Pagos y Suscripciones: dos consumen eventos externos (`ContractingConfirmed`, `PlanAdaptationAccepted`) y uno reacciona al propio `HomeViabilityEvaluated` para programar la instalación cuando la vivienda es viable sin necesitar la confirmación de otro bounded context.
-
-**ContractingConfirmedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ContractingConfirmedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Solicitar automáticamente la evaluación técnica de la vivienda al confirmarse la contratación. |
-| Command/Query/Evento que maneja | ContractingConfirmed (evento externo, BC de origen: Pagos y Suscripciones, ver 5.6.1) |
-| Repositorios y servicios que usa | RequestHomeEvaluationCommand (invocado internamente) |
-| Eventos que publica | HomeEvaluationRequested (vía el command invocado) |
-| User story/capability que habilita | Supuesto del Canvas: "el BC Pagos y suscripciones inicia la evaluación" |
-
-**PlanAdaptationAcceptedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | PlanAdaptationAcceptedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Programar la fecha de instalación tras aceptarse la adaptación del plan. |
-| Command/Query/Evento que maneja | PlanAdaptationAccepted (evento externo, BC de origen: Pagos y Suscripciones, ver 5.6.1) |
-| Repositorios y servicios que usa | ScheduleInstallationCommand (invocado internamente) |
-| Eventos que publica | InstallationScheduled (vía el command invocado) |
-| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Pagos y suscripciones (coordinar fecha de instalación)" |
-
-**HomeViabilityEvaluatedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | HomeViabilityEvaluatedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Programar la instalación directamente cuando la vivienda resulta viable, sin esperar una confirmación externa; si resulta parcialmente viable o no viable, no realiza ninguna acción adicional (la reacción ocurre en Pagos y Suscripciones, 5.6.3). |
-| Command/Query/Evento que maneja | HomeViabilityEvaluated (evento propio de Soporte Técnico) |
-| Repositorios y servicios que usa | ScheduleInstallationCommand (invocado internamente, solo si result = VIABLE) |
-| Eventos que publica | InstallationScheduled (vía el command invocado) |
-| User story/capability que habilita | Decisión de negocio del Canvas: "una vivienda declarada viable permite programar la fecha de instalación" |
-
-**RequestHomeEvaluationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RequestHomeEvaluationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear la evaluación, geocodificar la dirección y programar la visita técnica. |
-| Command/Query/Evento que maneja | RequestHomeEvaluationCommand |
-| Repositorios y servicios que usa | EvaluationRepository, GeocodingService |
-| Eventos que publica | HomeEvaluationRequested |
-| User story/capability que habilita | Invocado manualmente por el Cuidador o automáticamente por ContractingConfirmedEventHandler |
-
-**RecordEvaluationResultCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RecordEvaluationResultCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Registrar el resultado de la visita técnica y determinar el veredicto de viabilidad (observación previa #1). |
-| Command/Query/Evento que maneja | RecordEvaluationResultCommand |
-| Repositorios y servicios que usa | EvaluationRepository |
-| Eventos que publica | HomeViabilityEvaluated |
-| User story/capability que habilita | Resuelve las observaciones previas #1, #2 y #3 |
-
-**ScheduleInstallationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ScheduleInstallationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear la instalación en estado SCHEDULED con la fecha coordinada. |
-| Command/Query/Evento que maneja | ScheduleInstallationCommand |
-| Repositorios y servicios que usa | InstallationRepository |
-| Eventos que publica | InstallationScheduled |
-| User story/capability que habilita | Invocado únicamente por HomeViabilityEvaluatedEventHandler o PlanAdaptationAcceptedEventHandler |
-
-**InstallDevicesCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | InstallDevicesCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Iniciar y completar la instalación de los dispositivos en la vivienda. |
-| Command/Query/Evento que maneja | InstallDevicesCommand |
-| Repositorios y servicios que usa | InstallationRepository |
-| Eventos que publica | InstallationStarted, InstallationCompleted |
-| User story/capability que habilita | Decisión de negocio del Canvas: "al completarse la instalación se solicita el cobro" |
-
-**MarkInstallationAsFailedCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | MarkInstallationAsFailedCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Marcar la instalación como fallida. |
-| Command/Query/Evento que maneja | MarkInstallationAsFailedCommand |
-| Repositorios y servicios que usa | InstallationRepository |
-| Eventos que publica | InstallationFailed |
-| User story/capability que habilita | Resuelve la observación previa #5 |
-
-**ReportDeviceIssueCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ReportDeviceIssueCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear la incidencia, identificar y clasificar el dispositivo objetivo. |
-| Command/Query/Evento que maneja | ReportDeviceIssueCommand |
-| Repositorios y servicios que usa | IncidentRepository |
-| Eventos que publica | DeviceIssueReported |
-| User story/capability que habilita | Decisión de negocio del Canvas: "un dispositivo clasificado en una incidencia se avisa a la administración" |
-
-**AttendTechnicalIncidentCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AttendTechnicalIncidentCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Atender la incidencia: generar la alerta, programar mantenimiento si corresponde, diagnosticar, reparar y restablecer el servicio. |
-| Command/Query/Evento que maneja | AttendTechnicalIncidentCommand |
-| Repositorios y servicios que usa | IncidentRepository |
-| Eventos que publica | IncidentAttended |
-| User story/capability que habilita | Derivado del Bounded Context Canvas 4.2.4 |
-
-**GenerateTechnicalReportCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GenerateTechnicalReportCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Generar el informe técnico de diagnóstico y resolución de la incidencia. |
-| Command/Query/Evento que maneja | GenerateTechnicalReportCommand |
-| Repositorios y servicios que usa | IncidentRepository |
-| Eventos que publica | TechnicalReportGenerated |
-| User story/capability que habilita | Resuelve la observación previa #4 |
-
-**GetEvaluationByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetEvaluationByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de una evaluación. |
-| Command/Query/Evento que maneja | GetEvaluationByIdQuery |
-| Repositorios y servicios que usa | EvaluationRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getEvaluationById |
-
-**GetInstallationByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetInstallationByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de una instalación. |
-| Command/Query/Evento que maneja | GetInstallationByIdQuery |
-| Repositorios y servicios que usa | InstallationRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getInstallationById |
-
-**GetIncidentByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetIncidentByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de una incidencia, incluyendo su informe técnico. |
-| Command/Query/Evento que maneja | GetIncidentByIdQuery |
-| Repositorios y servicios que usa | IncidentRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getIncidentById |
-
-**GetIncidentsByDeviceIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetIncidentsByDeviceIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Listar las incidencias reportadas sobre un dispositivo. |
-| Command/Query/Evento que maneja | GetIncidentsByDeviceIdQuery |
-| Repositorios y servicios que usa | IncidentRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getIncidentsByDevice |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.7.4. Infrastructure Layer
 
-La Infrastructure Layer implementa los repositorios de los tres aggregates sobre PostgreSQL, el adaptador hacia Google Maps, y el suscriptor del bus de eventos interno que conecta a Soporte Técnico con Pagos y Suscripciones.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| EvaluationRepositoryJpa | EvaluationRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Evaluation. |
-| InstallationRepositoryJpa | InstallationRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Installation. |
-| IncidentRepositoryJpa | IncidentRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Incident. |
+### 5.7.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `SoporteTecnicoJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de los tres aggregates sobre el motor PostgreSQL.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| GoogleMapsGeocodingAdapter | Gateway | GeocodingService | Google Maps | Geocodifica la dirección de la vivienda a evaluar. |
-| DomainEventBusSubscriber | Event Subscriber | ContractingConfirmedListener, PlanAdaptationAcceptedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por Pagos y Suscripciones hacia los Event Handlers de Soporte Técnico. |
+### 5.7.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| evaluations | Almacena el aggregate Evaluation: dirección, resultado de compatibilidad y veredicto de viabilidad. |
-| installations | Almacena el aggregate Installation: estado y referencias a evaluationId y subscriptionId. |
-| incidents | Almacena el aggregate Incident: clasificación del dispositivo, atención e informe técnico. |
+#### 5.7.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Suscripción / pago | Pagos y Suscripciones | El estado comercial de la suscripción y el procesamiento del pago son responsabilidad de Pagos y Suscripciones; Soporte Técnico solo reacciona a sus eventos y publica el veredicto de viabilidad y el resultado de la instalación (5.6). |
-| Perfil de hogar | Perfiles | Los datos y la ubicación base del hogar se gestionan en Perfiles; Soporte Técnico solo referencia homeProfileId al solicitar la evaluación. |
-| Dispositivo (bien) | Bienes | El registro y la configuración del dispositivo como activo de la vivienda son responsabilidad de Bienes (5.11); Soporte Técnico solo referencia deviceId al reportar o instalar. |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-**Verificación de trazabilidad — Soporte Técnico**
+#### 5.7.7.2. Bounded Context Database Design Diagram
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 8 commands y las 4 queries de 5.7.1 tienen su handler correspondiente en 5.7.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | RequestHomeEvaluationCommand se usa desde el endpoint manual y desde ContractingConfirmedEventHandler; ScheduleInstallationCommand se usa exclusivamente desde los dos Event Handlers de viabilidad/adaptación, justificado en 5.7.2. |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.7.2) mapea 1:1 los parámetros del Command correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | Cada uno de los tres controllers se relaciona con su aggregate root correspondiente. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | Los tres repositorios de 5.7.1 tienen su implementación Jpa correspondiente en 5.7.4. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | HomeViabilityEvaluated, InstallationCompleted e InstallationFailed los consume Pagos y Suscripciones (5.6.3); HomeViabilityEvaluated también lo consume el propio HomeViabilityEvaluatedEventHandler (5.7.3); DeviceIssueReported lo consume Comunicaciones (5.8.3); el resto se publica para auditoría. |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Evaluation, Installation e Incident son exclusivos de este bounded context. |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | GeocodingService se declara como puerto en Domain; su implementación concreta (GoogleMapsGeocodingAdapter) está en Infrastructure (5.7.4). |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 <div style="page-break-after: always;"></div>
 
 ## 5.8. Bounded Context: Comunicaciones
 
-El bounded context **Comunicaciones** gestiona la generación, priorización y envío de notificaciones y alertas hacia el cuidador principal, asegurando que se registre su confirmación y que las notificaciones críticas se reenvíen si no son atendidas a tiempo. Es un dominio núcleo orientado a interacción. El Context Mapping (4.2.5) lo describe como nodo central alimentado por seis bounded contexts proveedores (IAM, Cuidado, Bienes, Telemetría, Pagos y Suscripciones, Soporte Técnico), mientras que su propio Bounded Context Canvas (4.2.4) solo detalla explícitamente a dos de ellos (Telemetría y Soporte Técnico) además del actor Cuidador. Este capítulo honra el Context Mapping como fuente de verdad sobre qué bounded contexts integran, formalizando las integraciones concretas con los que ya fueron modelados (IAM, Pagos y Suscripciones, Soporte Técnico, Telemetría); Cuidado y Bienes quedan fuera del alcance actual por no tener un evento de origen nombrado en ningún Canvas (ver "Objetos excluidos", 5.8.4).
+En el código, este bounded context es el paquete `communication`. Envía los correos y las notificaciones de la plataforma. Aquí se trasladará la enumeración `EmailTemplate` de Shared.
 
 ### 5.8.1. Domain Layer
 
-La Domain Layer modela un único aggregate, `Notification`, fiel al EventStorming de Paso 10, con un campo `audience` que distingue si el destinatario es el cuidador principal de un hogar o la administración del negocio (observación previa #1, criterio de prioridad), evitando que este bounded context necesite conocer la estructura interna de los bounded contexts que lo alimentan.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Notification | Aggregate Root | Representa un mensaje generado para alertar sobre un evento relevante. Toda notificación registra su estado (enviada, atendida, confirmada, cerrada) en el historial (decisión de negocio del Canvas); si es de prioridad CRITICAL y no se confirma dentro del tiempo límite configurable, se repite (observación previa #2). |
-
-No se identifican Entities en este bounded context: `Notification` es un aggregate simple sin componentes internos con identidad propia.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| NotificationId | Value Object | Identificador tipado del aggregate Notification; no admite valores nulos ni negativos. |
-| NotificationMessage | Value Object | Contenido del mensaje a enviar; no admite valores vacíos. |
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| NotificationStatus | Enum | Estado de la notificación. Transiciones permitidas: `GENERATED` → `SENT` al enviarse vía Firebase; `SENT` → `PENDING_CRITICAL` si vence el tiempo límite sin confirmación y la prioridad es CRITICAL; `PENDING_CRITICAL` → `SENT` al reenviarse (observación previa #2); `SENT`/`PENDING_CRITICAL` → `CONFIRMED` (terminal intermedio) al confirmar el cuidador; `CONFIRMED` → `CLOSED` (terminal) al cerrarse. |
-| NotificationPriority | Enum | Prioridad de la notificación: `NORMAL` o `CRITICAL`. Se determina por el tipo de evento de origen (observación previa #1): eventos de Telemetría y Soporte Técnico se clasifican CRITICAL por defecto; eventos de IAM y Pagos y Suscripciones se clasifican NORMAL. No exhibe transiciones adicionales. |
-| NotificationAudience | Enum | Destinatario de la notificación: `ACCOUNT_HOLDER` (el recipientAccountId viaja directamente en el evento de origen, como en los eventos de IAM); `PRINCIPAL_CAREGIVER` (el evento de origen solo trae homeProfileId/subscriptionId, y el recipientAccountId se resuelve vía PerfilesFacade, 5.3.2); o `ADMINISTRATION` (sin accountId específico; se distribuye a un canal de administración configurado en Infrastructure). |
-
-No se declaran Factories ni Domain Services en este bounded context: `Notification` es un aggregate autónomo cuya creación no requiere colaboración con otros aggregates del mismo tipo.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GenerateNotificationCommand | Genera una notificación a partir de un evento de origen, determinando su prioridad y su destinatario. | sourceEventType: String, sourceBc: String, message: String, priority: NotificationPriority, audience: NotificationAudience, recipientAccountId: Long |
-| SendNotificationCommand | Envía la notificación vía Firebase Cloud Messaging, invocado automáticamente tras generarse. | notificationId: Long |
-| ConfirmNotificationCommand | Confirma la notificación por parte del cuidador y la cierra. | notificationId: Long, caregiverAccountId: Long |
-| RepeatNotificationCommand | Reenvía una notificación crítica no confirmada dentro del tiempo límite, invocado por el scheduler de Infrastructure (observación previa #2). | notificationId: Long |
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetNotificationByIdQuery | Obtiene el detalle de una notificación. | notificationId: Long |
-| GetNotificationsByCaregiverIdQuery | Lista el historial de notificaciones de un cuidador, para el panel de notificaciones. | caregiverAccountId: Long |
-
-Ninguno de los siguientes Domain Events tiene un consumidor externo declarado en el Bounded Context Canvas (4.2.4): su Comunicación Saliente solo registra integraciones hacia Firebase Cloud Messaging y el panel de notificaciones interno.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| NotificationGenerated | Se publica al generarse una notificación. | notificationId: Long, sourceEventType: String, sourceBc: String, priority: NotificationPriority, audience: NotificationAudience, generatedAt: LocalDateTime |
-| NotificationSent | Se publica al enviarse la notificación vía Firebase. | notificationId: Long, sentAt: LocalDateTime |
-| NotificationConfirmed | Se publica al confirmarse la notificación. | notificationId: Long, confirmedAt: LocalDateTime |
-| NotificationClosed | Se publica al cerrarse la notificación tras su confirmación. | notificationId: Long, closedAt: LocalDateTime |
-| NotificationRepeated | Se publica al reenviarse una notificación crítica no atendida a tiempo. | notificationId: Long, repeatedAt: LocalDateTime |
-
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| NotificationRepository | Notification | Persiste y recupera el aggregate Notification; expone la búsqueda por recipientAccountId para el panel de notificaciones y por estado para el proceso de reenvío. |
-
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| NotificationRepository | depende de | Notification | El repositorio persiste y recupera el aggregate Notification. |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.8.2. Interface Layer
 
-La Interface Layer expone un único controller, `NotificationController`. `GenerateNotificationCommand`, `SendNotificationCommand` y `RepeatNotificationCommand` no se exponen vía REST: el primero se invoca exclusivamente desde los Event Handlers de la Application Layer (5.8.3), y los otros dos son reacciones internas. Este bounded context no consume mensajería de dispositivos IoT y no expone un facade/ACL propio: consume el `PerfilesFacade` de Perfiles (5.3.2) para resolver destinatarios, y sus integraciones entrantes se resuelven mediante Domain Events de IAM, Pagos y Suscripciones, Soporte Técnico y Telemetría.
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | NotificationController |
-| Categoría | Controller |
-| Propósito | Exponer la consulta del historial de notificaciones y la confirmación por parte del cuidador. |
-| Aggregate/Entity relacionado | Notification |
-| Ruta base | /api/v1/notifications |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getNotificationById | /{notificationId} (GET) | path: notificationId: Long | Obtiene el detalle de una notificación | GetNotificationByIdQuery |
-| getNotificationsByCaregiver | /by-caregiver/{caregiverAccountId} (GET) | path: caregiverAccountId: Long | Lista el historial de notificaciones de un cuidador | GetNotificationsByCaregiverIdQuery |
-| confirmNotification | /{notificationId}/confirm (POST) | path: notificationId: Long; body: ConfirmNotificationResource { caregiverAccountId: Long } | Confirma la notificación y la cierra | ConfirmNotificationCommand |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.8.3. Application Layer
 
-La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante nueve Event Handlers las integraciones entrantes: cuatro consumen eventos de IAM (5.1.1), uno de Pagos y Suscripciones (5.6.1), uno de Soporte Técnico (5.7.1), y tres de Telemetría (ver 5.10.1). Todos convergen en `GenerateNotificationCommand`.
-
-**AccountEmailVerifiedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AccountEmailVerifiedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Notificar al titular la activación de su cuenta. |
-| Command/Query/Evento que maneja | AccountEmailVerified (evento externo, BC de origen: IAM, ver 5.1.1) |
-| Repositorios y servicios que usa | GenerateNotificationCommand (invocado internamente) |
-| Eventos que publica | NotificationGenerated (vía el command invocado) |
-| User story/capability que habilita | Resuelve la integración declarada en 5.1.1 (Context Mapping 4.2.5) |
-
-**PasswordResetEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | PasswordResetEventHandler |
-| Categoría | Event Handler |
-| Propósito | Notificar al titular el cambio de su contraseña. |
-| Command/Query/Evento que maneja | PasswordReset (evento externo, BC de origen: IAM, ver 5.1.1) |
-| Repositorios y servicios que usa | GenerateNotificationCommand (invocado internamente) |
-| Eventos que publica | NotificationGenerated (vía el command invocado) |
-| User story/capability que habilita | Resuelve la integración declarada en 5.1.1 |
-
-**AccountSuspendedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AccountSuspendedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Notificar al titular la suspensión de su cuenta. |
-| Command/Query/Evento que maneja | AccountSuspended (evento externo, BC de origen: IAM, ver 5.1.1) |
-| Repositorios y servicios que usa | GenerateNotificationCommand (invocado internamente) |
-| Eventos que publica | NotificationGenerated (vía el command invocado) |
-| User story/capability que habilita | Resuelve la integración declarada en 5.1.1 |
-
-**AccountReactivatedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AccountReactivatedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Notificar al titular la reactivación de su cuenta. |
-| Command/Query/Evento que maneja | AccountReactivated (evento externo, BC de origen: IAM, ver 5.1.1) |
-| Repositorios y servicios que usa | GenerateNotificationCommand (invocado internamente) |
-| Eventos que publica | NotificationGenerated (vía el command invocado) |
-| User story/capability que habilita | Resuelve la integración declarada en 5.1.1 |
-
-**PaymentPreauthorizationRejectedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | PaymentPreauthorizationRejectedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Resolver al cuidador principal del hogar vía PerfilesFacade y notificarle el rechazo de la preautorización, sin reintento automático (observación previa #1 de Pagos y Suscripciones). |
-| Command/Query/Evento que maneja | PaymentPreauthorizationRejected (evento externo, BC de origen: Pagos y Suscripciones, ver 5.6.1) |
-| Repositorios y servicios que usa | PerfilesFacade, GenerateNotificationCommand (invocado internamente) |
-| Eventos que publica | NotificationGenerated (vía el command invocado) |
-| User story/capability que habilita | Resuelve la integración declarada en 5.6.1 |
-
-**DeviceIssueReportedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | DeviceIssueReportedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Avisar a la administración cuando un dispositivo es clasificado en una incidencia técnica. |
-| Command/Query/Evento que maneja | DeviceIssueReported (evento externo, BC de origen: Soporte Técnico, ver 5.7.1) |
-| Repositorios y servicios que usa | GenerateNotificationCommand (invocado internamente, audience = ADMINISTRATION) |
-| Eventos que publica | NotificationGenerated (vía el command invocado) |
-| User story/capability que habilita | Decisión de negocio del Canvas de Soporte Técnico: "un dispositivo clasificado en una incidencia se avisa a la administración" |
-
-**DeviceFailureDetectedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | DeviceFailureDetectedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Resolver al cuidador principal del hogar vía PerfilesFacade y notificarle la falla detectada en un dispositivo. |
-| Command/Query/Evento que maneja | DeviceFailureDetected (evento externo, BC de origen: Telemetría, ver 5.10.1) |
-| Repositorios y servicios que usa | PerfilesFacade, GenerateNotificationCommand (invocado internamente) |
-| Eventos que publica | NotificationGenerated (vía el command invocado) |
-| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Telemetría (fallas y batería baja del dispositivo)" |
-
-**LowBatteryDetectedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | LowBatteryDetectedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Resolver al cuidador principal del hogar vía PerfilesFacade y notificarle la batería baja de un dispositivo. |
-| Command/Query/Evento que maneja | LowBatteryDetected (evento externo, BC de origen: Telemetría, ver 5.10.1) |
-| Repositorios y servicios que usa | PerfilesFacade, GenerateNotificationCommand (invocado internamente) |
-| Eventos que publica | NotificationGenerated (vía el command invocado) |
-| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Telemetría (fallas y batería baja del dispositivo)" |
-
-**HelpAlertDetectedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | HelpAlertDetectedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Resolver al cuidador principal del hogar vía PerfilesFacade y notificarle con prioridad crítica una alerta de auxilio detectada. |
-| Command/Query/Evento que maneja | HelpAlertDetected (evento externo, BC de origen: Telemetría, ver 5.10.1) |
-| Repositorios y servicios que usa | PerfilesFacade, GenerateNotificationCommand (invocado internamente, priority = CRITICAL) |
-| Eventos que publica | NotificationGenerated (vía el command invocado) |
-| User story/capability que habilita | Resuelve la observación previa #1 de Telemetría: "si se genera una alerta de auxilio, ¿el cuidador podrá visualizar la alerta?" |
-
-**GenerateNotificationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GenerateNotificationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear la notificación en estado GENERATED y disparar su envío. |
-| Command/Query/Evento que maneja | GenerateNotificationCommand |
-| Repositorios y servicios que usa | NotificationRepository, SendNotificationCommand (invocado internamente) |
-| Eventos que publica | NotificationGenerated |
-| User story/capability que habilita | Invocado por los nueve Event Handlers entrantes (5.8.3) |
-
-**SendNotificationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | SendNotificationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Enviar la notificación push vía Firebase Cloud Messaging al destinatario resuelto. |
-| Command/Query/Evento que maneja | SendNotificationCommand |
-| Repositorios y servicios que usa | NotificationRepository, PushNotificationGateway |
-| Eventos que publica | NotificationSent |
-| User story/capability que habilita | Supuesto del Canvas: "Firebase Cloud Messaging es el proveedor de envío" |
-
-**ConfirmNotificationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ConfirmNotificationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Confirmar la notificación por parte del cuidador y cerrarla. |
-| Command/Query/Evento que maneja | ConfirmNotificationCommand |
-| Repositorios y servicios que usa | NotificationRepository |
-| Eventos que publica | NotificationConfirmed, NotificationClosed |
-| User story/capability que habilita | Decisión de negocio del Canvas: "toda notificación registra su estado (atendida, confirmada, cerrada)" |
-
-**RepeatNotificationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RepeatNotificationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Reenviar una notificación crítica que no fue confirmada dentro del tiempo límite configurable. |
-| Command/Query/Evento que maneja | RepeatNotificationCommand |
-| Repositorios y servicios que usa | NotificationRepository, PushNotificationGateway |
-| Eventos que publica | NotificationRepeated |
-| User story/capability que habilita | Resuelve la observación previa #2; invocado únicamente por el scheduler de Infrastructure (5.8.4) |
-
-**GetNotificationByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetNotificationByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de una notificación. |
-| Command/Query/Evento que maneja | GetNotificationByIdQuery |
-| Repositorios y servicios que usa | NotificationRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getNotificationById |
-
-**GetNotificationsByCaregiverIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetNotificationsByCaregiverIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el historial de notificaciones de un cuidador para el panel de notificaciones. |
-| Command/Query/Evento que maneja | GetNotificationsByCaregiverIdQuery |
-| Repositorios y servicios que usa | NotificationRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getNotificationsByCaregiver |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.8.4. Infrastructure Layer
 
-La Infrastructure Layer implementa el repositorio de Notification sobre PostgreSQL, el adaptador hacia Firebase Cloud Messaging, un scheduler que detecta notificaciones críticas vencidas, y el suscriptor del bus de eventos interno que conecta a Comunicaciones con IAM, Pagos y Suscripciones, Soporte Técnico y Telemetría.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| NotificationRepositoryJpa | NotificationRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Notification. |
+### 5.8.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `ComunicacionesJpaConfiguration`, que habilita el repositorio Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de `Notification` sobre el motor PostgreSQL.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| FirebaseCloudMessagingGateway | Gateway | PushNotificationGateway | Firebase Cloud Messaging | Envía las notificaciones push al dispositivo móvil del destinatario. |
-| NotificationExpirationScheduler | Scheduler | — (tarea programada local) | — | Detecta notificaciones CRITICAL en SENT que vencieron su tiempo límite configurable sin confirmación e invoca RepeatNotificationCommand (observación previa #2). |
-| DomainEventBusSubscriber | Event Subscriber | AccountEmailVerifiedListener, PasswordResetListener, AccountSuspendedListener, AccountReactivatedListener, PaymentPreauthorizationRejectedListener, DeviceIssueReportedListener, DeviceFailureDetectedListener, LowBatteryDetectedListener, HelpAlertDetectedListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos de IAM, Pagos y Suscripciones, Soporte Técnico y Telemetría hacia los nueve Event Handlers de Comunicaciones. |
+### 5.8.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| notifications | Almacena el aggregate Notification: mensaje, prioridad, audiencia, destinatario y estado. |
+#### 5.8.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Cuenta / credenciales | IAM | La identidad del destinatario es responsabilidad de IAM; Comunicaciones solo referencia recipientAccountId. |
-| Cuidador principal de un hogar | Perfiles | La asignación del cuidador principal es responsabilidad de Perfiles; Comunicaciones la resuelve vía PerfilesFacade (5.3.2), sin acceder directamente a HomeProfile. |
-| Invitación / vinculación de cuidadores | Cuidado | No se modela una integración entrante desde Cuidado en este capítulo: ningún Canvas (ni el de Cuidado ni el de Comunicaciones) nombra un evento concreto que la sustente, pese a que el Context Mapping (4.2.5) lo mencione como proveedor. Queda como una brecha de documentación a nivel estratégico, no resuelta aquí para no inventar un contrato sin evidencia. |
-| Alertas de dispositivos (Bienes) | Bienes | Mismo caso que Cuidado: el Context Mapping lo nombra como proveedor, pero ningún Canvas concreto nombra el evento; no se modela para evitar inventar un contrato sin evidencia (a revisar si surge evidencia en 5.11). |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-**Verificación de trazabilidad — Comunicaciones**
+#### 5.8.7.2. Bounded Context Database Design Diagram
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 4 commands y las 2 queries de 5.8.1 tienen su handler correspondiente en 5.8.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | GenerateNotificationCommand se usa desde los nueve Event Handlers entrantes; SendNotificationCommand y RepeatNotificationCommand se usan desde GenerateNotificationCommandHandler y el scheduler respectivamente, justificado en 5.8.2. |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de la tabla de endpoints (5.8.2) mapea 1:1 los parámetros del Command correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | NotificationController se relaciona con Notification. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | NotificationRepository ↔ NotificationRepositoryJpa. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | Los eventos del ciclo de vida de Notification no tienen consumidor externo declarado en el Canvas (4.2.4) y se publican para auditoría; esto es consistente con el patrón de otros bounded contexts terminales del flujo de notificación. |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Notification es exclusivo de este bounded context. |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | PushNotificationGateway se declara como puerto en Domain; su implementación concreta (FirebaseCloudMessagingGateway) está en Infrastructure (5.8.4). |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 <div style="page-break-after: always;"></div>
 
 ## 5.9. Bounded Context: Analíticas
 
-El bounded context **Analíticas** consolida y expone las métricas del sistema —globales, de ventas y de rendimiento de dispositivos— a través de un dashboard principal, según el rol del usuario (decisión de negocio del Canvas). A diferencia de los bounded contexts anteriores (contexto de ejecución), Analíticas tiene rol de **contexto de análisis** (4.2.4): sus datos se calculan en tiempo real a partir de registros ya existentes en Pagos y Suscripciones y Telemetría, sin refresco periódico ni histórico almacenado (Supuesto del Canvas: "el dashboard se actualiza al momento de solicitar las métricas"), lo que resuelve directamente las dos preguntas abiertas del Canvas. Participan el **Administrador** (métricas globales), el **Gestor de suscripciones** (ventas) y el **Cuidador** (rendimiento de dispositivos); el BC Bienes también consulta las métricas globales como colaborador de lectura.
+En el código, este bounded context es el paquete `analytics`. Calcula las métricas globales, de ventas y de rendimiento de los dispositivos.
 
 ### 5.9.1. Domain Layer
 
-La Domain Layer modela dos aggregates de solo registro (append-only), fieles al EventStorming de Paso 10: `Sale`, que representa una venta de suscripción concluida, y `DeviceMetric`, que representa un registro de rendimiento de un dispositivo. Ninguno tiene ciclo de vida con estados: ambos se crean una vez y no se modifican.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Sale | Aggregate Root | Representa una venta de suscripción concluida, relevante para el Gestor de suscripciones (lenguaje ubicuo del Canvas). Se crea al consumir SubscriptionActivated de Pagos y Suscripciones (5.6.1); no se modifica después de creada. |
-| DeviceMetric | Aggregate Root | Representa un indicador de rendimiento de un dispositivo, calculado a partir de la telemetría. Se crea al consumir DeviceMetricsRegistered de Telemetría (ver 5.10.1); no se modifica después de creado. |
-
-No se identifican Entities ni Enums en este bounded context: ambos aggregates son registros simples sin estados ni componentes internos con identidad propia.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| SaleId | Value Object | Identificador tipado del aggregate Sale; no admite valores nulos ni negativos. |
-| DeviceMetricId | Value Object | Identificador tipado del aggregate DeviceMetric; no admite valores nulos ni negativos. |
-| MetricValue | Value Object | Valor numérico de una métrica con su unidad; no admite valores nulos. |
-
-No se declaran Factories ni Domain Services en este bounded context: `Sale` y `DeviceMetric` son aggregates de solo registro, sin colaboración entre sí ni con otros aggregates en el mismo proceso de escritura. Las métricas agregadas (globales, de ventas, de rendimiento) se calculan en tiempo real dentro de los Query Handlers (5.9.3), no mediante un Domain Service, dado que no imponen ninguna regla de negocio, solo lectura y agregación.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| RegisterSaleCommand | Registra una venta de suscripción concluida, invocado únicamente por SubscriptionActivatedEventHandler. | subscriptionId: Long, planId: Long, amount: Money |
-| RegisterDeviceMetricCommand | Registra un indicador de rendimiento de un dispositivo, invocado únicamente por DeviceMetricsRegisteredEventHandler. | deviceId: Long, metricType: String, value: Double |
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetGlobalMetricsQuery | Calcula en tiempo real las métricas globales del sistema a partir de Sale y DeviceMetric, visibles para el Administrador (decisión de negocio del Canvas: "cada rol accede solo a las métricas relevantes para su función"). | — |
-| GetSalesMetricsQuery | Calcula en tiempo real las métricas de ventas a partir de Sale, relevantes para el Gestor de suscripciones. | — |
-| GetDevicePerformanceQuery | Calcula en tiempo real el rendimiento de un dispositivo a partir de DeviceMetric, consultable por el Cuidador. | deviceId: Long |
-
-Ninguno de los siguientes Domain Events tiene un consumidor externo declarado en el Canvas (4.2.4): este bounded context es terminal en el flujo de datos (contexto de análisis) y no alimenta a otro BC.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| SaleRegistered | Se publica al registrarse una venta de suscripción concluida. | saleId: Long, subscriptionId: Long, planId: Long, amount: Money, registeredAt: LocalDateTime |
-| DeviceMetricRegistered | Se publica al registrarse un indicador de rendimiento de un dispositivo. | metricId: Long, deviceId: Long, metricType: String, value: Double, registeredAt: LocalDateTime |
-
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| SaleRepository | Sale | Persiste y recupera el aggregate Sale. |
-| DeviceMetricRepository | DeviceMetric | Persiste y recupera el aggregate DeviceMetric; expone la búsqueda por deviceId. |
-
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| SaleRepository | depende de | Sale | El repositorio persiste y recupera el aggregate Sale. |
-| DeviceMetricRepository | depende de | DeviceMetric | El repositorio persiste y recupera el aggregate DeviceMetric. |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.9.2. Interface Layer
 
-La Interface Layer expone un único controller, `AnalyticsController`, en lugar de un controller por aggregate: ni `Sale` ni `DeviceMetric` se manipulan directamente vía REST (se crean exclusivamente desde Event Handlers, 5.9.3); lo que los actores consumen son las tres queries agregadas del dashboard. Este bounded context no consume mensajería de dispositivos IoT directamente y no expone un facade/ACL: es terminal en el flujo de datos, consumiendo de Pagos y Suscripciones y Telemetría mediante Domain Events.
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | AnalyticsController |
-| Categoría | Controller |
-| Propósito | Exponer las métricas globales, de ventas y de rendimiento de dispositivos del dashboard principal. |
-| Aggregate/Entity relacionado | Sale, DeviceMetric |
-| Ruta base | /api/v1/analytics |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getGlobalMetrics | /global-metrics (GET) | — | Obtiene las métricas globales del sistema | GetGlobalMetricsQuery |
-| getSalesMetrics | /sales-metrics (GET) | — | Obtiene las métricas de ventas | GetSalesMetricsQuery |
-| getDevicePerformance | /devices/{deviceId}/performance (GET) | path: deviceId: Long | Obtiene el rendimiento de un dispositivo | GetDevicePerformanceQuery |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.9.3. Application Layer
 
-La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante dos Event Handlers las integraciones entrantes: una con Pagos y Suscripciones (5.6.1) y una con Telemetría (5.10.1).
-
-**SubscriptionActivatedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | SubscriptionActivatedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Registrar la venta concluida al activarse una suscripción. |
-| Command/Query/Evento que maneja | SubscriptionActivated (evento externo, BC de origen: Pagos y Suscripciones, ver 5.6.1) |
-| Repositorios y servicios que usa | RegisterSaleCommand (invocado internamente) |
-| Eventos que publica | SaleRegistered (vía el command invocado) |
-| User story/capability que habilita | Lenguaje ubicuo del Canvas: "Venta: transacción de suscripción concluida" |
-
-**DeviceMetricsRegisteredEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | DeviceMetricsRegisteredEventHandler |
-| Categoría | Event Handler |
-| Propósito | Registrar el indicador de rendimiento calculado a partir de la telemetría de un dispositivo. |
-| Command/Query/Evento que maneja | DeviceMetricsRegistered (evento externo, BC de origen: Telemetría, ver 5.10.1) |
-| Repositorios y servicios que usa | RegisterDeviceMetricCommand (invocado internamente) |
-| Eventos que publica | DeviceMetricRegistered (vía el command invocado) |
-| User story/capability que habilita | Supuesto del Canvas: "las métricas de rendimiento de dispositivos provienen del BC Telemetría" |
-
-**RegisterSaleCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterSaleCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear el registro de venta concluida. |
-| Command/Query/Evento que maneja | RegisterSaleCommand |
-| Repositorios y servicios que usa | SaleRepository |
-| Eventos que publica | SaleRegistered |
-| User story/capability que habilita | Invocado únicamente por SubscriptionActivatedEventHandler |
-
-**RegisterDeviceMetricCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterDeviceMetricCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Crear el registro de rendimiento de un dispositivo. |
-| Command/Query/Evento que maneja | RegisterDeviceMetricCommand |
-| Repositorios y servicios que usa | DeviceMetricRepository |
-| Eventos que publica | DeviceMetricRegistered |
-| User story/capability que habilita | Invocado únicamente por DeviceMetricsRegisteredEventHandler |
-
-**GetGlobalMetricsQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetGlobalMetricsQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Calcular en tiempo real las métricas globales agregando Sale y DeviceMetric. |
-| Command/Query/Evento que maneja | GetGlobalMetricsQuery |
-| Repositorios y servicios que usa | SaleRepository, DeviceMetricRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getGlobalMetrics, usado también por el BC Bienes |
-
-**GetSalesMetricsQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetSalesMetricsQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Calcular en tiempo real las métricas de ventas agregando Sale. |
-| Command/Query/Evento que maneja | GetSalesMetricsQuery |
-| Repositorios y servicios que usa | SaleRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getSalesMetrics |
-
-**GetDevicePerformanceQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetDevicePerformanceQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Calcular en tiempo real el rendimiento de un dispositivo agregando DeviceMetric. |
-| Command/Query/Evento que maneja | GetDevicePerformanceQuery |
-| Repositorios y servicios que usa | DeviceMetricRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getDevicePerformance |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.9.4. Infrastructure Layer
 
-La Infrastructure Layer implementa el repositorio de Sale sobre PostgreSQL y el de DeviceMetric sobre MongoDB, honrando la persistencia políglota decidida en el capítulo 4 (TS-47/TS-48): datos transaccionales de ventas en PostgreSQL, datos de telemetría de alto volumen y esquema variable en MongoDB.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| SaleRepositoryJpa | SaleRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Sale. |
-| DeviceMetricRepositoryMongo | DeviceMetricRepository | Spring Data MongoDB | Persiste y recupera el aggregate DeviceMetric. |
+### 5.9.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `AnaliticasPersistenceConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) para `Sale` y Spring Data MongoDB (`@EnableMongoRepositories`) para `DeviceMetric`.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| DomainEventBusSubscriber | Event Subscriber | SubscriptionActivatedListener, DeviceMetricsRegisteredListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos de Pagos y Suscripciones y Telemetría hacia los Event Handlers de Analíticas. |
+### 5.9.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| sales (PostgreSQL) | Almacena el aggregate Sale: suscripción, plan y monto de cada venta concluida. |
-| device_metrics (MongoDB) | Almacena el aggregate DeviceMetric: indicadores de rendimiento por dispositivo. |
+#### 5.9.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Suscripción / pago | Pagos y Suscripciones | El ciclo de vida comercial de la suscripción es responsabilidad de Pagos y Suscripciones; Analíticas solo registra la venta concluida al consumir SubscriptionActivated. |
-| Telemetría cruda de dispositivos | Telemetría | Los datos crudos de telemetría son responsabilidad de Telemetría (5.10); Analíticas solo registra los indicadores ya calculados. |
-| Datos operativos de Soporte Técnico y Bienes | Soporte Técnico / Bienes | El Context Mapping (4.2.5) menciona un patrón conformista hacia estos dos BC, pero ningún Canvas concreto (ni el de Soporte Técnico ni el de Analíticas) nombra un evento de métricas que lo sustente; no se modela para evitar inventar un contrato sin evidencia (misma brecha documentada en 5.8.4 para Comunicaciones). |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-**Verificación de trazabilidad — Analíticas**
+#### 5.9.7.2. Bounded Context Database Design Diagram
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 2 commands y las 3 queries de 5.9.1 tienen su handler correspondiente en 5.9.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | RegisterSaleCommand y RegisterDeviceMetricCommand se usan exclusivamente desde sus Event Handlers respectivos, justificado en 5.9.2; las 3 queries se usan desde AnalyticsController. |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada endpoint de la tabla (5.9.2) mapea 1:1 los parámetros de la Query correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | AnalyticsController se relaciona con Sale y DeviceMetric, justificado como excepción deliberada en 5.9.2. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | SaleRepository ↔ SaleRepositoryJpa; DeviceMetricRepository ↔ DeviceMetricRepositoryMongo. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí, con justificación | SaleRegistered y DeviceMetricRegistered no tienen consumidor externo declarado en el Canvas (4.2.4): este bounded context es terminal en el flujo de datos (contexto de análisis). |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Sale y DeviceMetric son exclusivos de este bounded context. |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | Los repositorios se declaran como puertos en Domain; sus implementaciones concretas (SaleRepositoryJpa, DeviceMetricRepositoryMongo) están en Infrastructure (5.9.4). |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 <div style="page-break-after: always;"></div>
 
 ## 5.10. Bounded Context: Telemetría
 
-El bounded context **Telemetría** monitorea el estado y las fallas de los dispositivos del hogar, informa ese estado a cuidadores y técnicos, y garantiza la continuidad del servicio cuando se pierde la conexión mediante almacenamiento local y sincronización posterior. Es un dominio núcleo. Participan el **Técnico** (monitorea el estado) y el **Cuidador** (reporta irregularidades). Los datos capturados de los dispositivos llegan desde el BC Bienes (Supuesto del Canvas, ver 5.11). Este bounded context cierra dos compromisos pendientes: publica `DeviceMetricsRegistered` (consumido por Analíticas, 5.9.3) y `DeviceFailureDetected`/`LowBatteryDetected` (consumidos por Comunicaciones, 5.8.3); además resuelve su propia pregunta abierta sobre alertas de auxilio publicando `HelpAlertDetected`, que agrega como un tercer compromiso con Comunicaciones (observación previa #1).
+En el código, este bounded context es el paquete `tracking`. Monitorea el estado de los dispositivos instalados. Sus datos se guardan en MongoDB.
 
 ### 5.10.1. Domain Layer
 
-La Domain Layer modela dos aggregates independientes, fieles al EventStorming de Paso 10: `Monitoring`, que registra el seguimiento del estado y las fallas de un dispositivo, y `Synchronization`, que gestiona la operación sin conexión y la sincronización posterior de eventos.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Monitoring | Aggregate Root | Representa el seguimiento del estado y de las fallas de un dispositivo. Las fallas, la batería baja y las alertas de auxilio se comunican al cuidador principal (decisión de negocio del Canvas, observación previa #1); las métricas se registran al informar el estado del dispositivo. |
-| Synchronization | Aggregate Root | Representa la operación sin conexión de un dispositivo. Si se pierde la conexión, los eventos se almacenan localmente y se sincronizan al restablecerse (decisión de negocio del Canvas); no se modela un límite de tiempo ni un escalamiento adicional por desconexión prolongada (observación previa #2). |
-
-No se identifican Entities en este bounded context: ambos aggregates son simples, sin componentes internos con identidad propia.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| MonitoringId | Value Object | Identificador tipado del aggregate Monitoring; no admite valores nulos ni negativos. |
-| SynchronizationId | Value Object | Identificador tipado del aggregate Synchronization; no admite valores nulos ni negativos. |
-| IrregularityDescription | Value Object | Descripción de la irregularidad reportada por el Cuidador; no admite valores vacíos. |
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| DeviceEventType | Enum | Tipo de evento capturado de un dispositivo: `DOOR_FAILURE`, `WINDOW_FAILURE`, `LIGHTING_FAILURE`, `MICROPHONE_FAILURE`, `LOW_BATTERY`, `HELP_ALERT` (observación previa #1) o `STATUS_UPDATE`. No exhibe transiciones: determina qué Domain Event publica RegisterDeviceEventCommand. |
-| SynchronizationStatus | Enum | Estado de la sincronización de un dispositivo. Transiciones permitidas: `ONLINE` → `OFFLINE` al perderse la conexión; `OFFLINE` → `SYNCING` al restablecerse; `SYNCING` → `COMPLETED` al sincronizarse los eventos almacenados; `COMPLETED` → `ONLINE`, cerrando el ciclo (decisión de negocio del Canvas). |
-
-No se declaran Factories ni Domain Services en este bounded context: `Monitoring` y `Synchronization` son aggregates independientes por dispositivo, sin colaboración entre sí en el mismo proceso de escritura.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| RegisterDeviceEventCommand | Registra un evento capturado de un dispositivo (falla, batería baja, alerta de auxilio o actualización de estado), invocado al consumir los datos del BC Bienes. | deviceId: Long, eventType: DeviceEventType, detail: String |
-| ReportIrregularityCommand | Reporta una irregularidad sobre un dispositivo, a solicitud del Cuidador. | deviceId: Long, description: String, reportedBy: Long |
-| StartOfflineOperationCommand | Marca un dispositivo como operando sin conexión, invocado al consumir la pérdida de conexión reportada por el BC Bienes. | deviceId: Long |
-| SynchronizeEventsCommand | Sincroniza los eventos almacenados localmente al restablecerse la conexión. | deviceId: Long, eventCount: Int |
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetMonitoringByDeviceIdQuery | Obtiene el estado de monitoreo de un dispositivo. | deviceId: Long |
-| GetSynchronizationByDeviceIdQuery | Obtiene el estado de sincronización de un dispositivo. | deviceId: Long |
-
-`DeviceFailureDetected`, `LowBatteryDetected` y `HelpAlertDetected` los consume Comunicaciones (5.8.3, el tercero a agregar como seguimiento de esta sección); `DeviceMetricsRegistered` lo consume Analíticas (5.9.3). El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| DeviceFailureDetected | Se publica al registrarse una falla de puerta, ventana, iluminación o micrófono; es consumido por Comunicaciones (5.8.3). | deviceId: Long, failureType: DeviceEventType, detectedAt: LocalDateTime |
-| LowBatteryDetected | Se publica al detectarse batería baja; es consumido por Comunicaciones (5.8.3). | deviceId: Long, detectedAt: LocalDateTime |
-| HelpAlertDetected | Se publica al detectarse una alerta de auxilio; resuelve la observación previa #1 y es consumido por Comunicaciones. | deviceId: Long, detectedAt: LocalDateTime |
-| DeviceStatusUpdated | Se publica al actualizarse el estado rutinario de un dispositivo. | deviceId: Long, updatedAt: LocalDateTime |
-| DeviceMetricsRegistered | Se publica al informar el estado del dispositivo o al completar una sincronización; es consumido por Analíticas (5.9.3). | deviceId: Long, metricType: String, value: Double, registeredAt: LocalDateTime |
-| IrregularityReported | Se publica al reportarse una irregularidad sobre un dispositivo. | monitoringId: Long, deviceId: Long, description: String, reportedAt: LocalDateTime |
-| OfflineOperationStarted | Se publica al marcarse un dispositivo como operando sin conexión. | synchronizationId: Long, deviceId: Long, startedAt: LocalDateTime |
-| EventsSynchronized | Se publica al completarse la sincronización de los eventos almacenados localmente (observación previa #2: sin límite de tiempo evidenciado). | synchronizationId: Long, deviceId: Long, eventCount: Int, completedAt: LocalDateTime |
-
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| MonitoringRepository | Monitoring | Persiste y recupera el aggregate Monitoring; expone la búsqueda por deviceId. |
-| SynchronizationRepository | Synchronization | Persiste y recupera el aggregate Synchronization; expone la búsqueda por deviceId. |
-
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| MonitoringRepository | depende de | Monitoring | El repositorio persiste y recupera el aggregate Monitoring. |
-| SynchronizationRepository | depende de | Synchronization | El repositorio persiste y recupera el aggregate Synchronization. |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.10.2. Interface Layer
 
-La Interface Layer expone un controller por cada aggregate root: `MonitoringController` y `SynchronizationController`. `RegisterDeviceEventCommand`, `StartOfflineOperationCommand` y `SynchronizeEventsCommand` no se exponen vía REST: se invocan exclusivamente desde los Event Handlers que consumen datos del BC Bienes (5.10.3). Este bounded context no expone un facade/ACL: sus integraciones salientes se resuelven mediante el adaptador de Firebase y los Domain Events hacia Comunicaciones y Analíticas.
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | MonitoringController |
-| Categoría | Controller |
-| Propósito | Exponer la consulta del estado de monitoreo y el reporte de irregularidades de un dispositivo. |
-| Aggregate/Entity relacionado | Monitoring |
-| Ruta base | /api/v1/monitoring |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getMonitoringByDevice | /{deviceId} (GET) | path: deviceId: Long | Obtiene el estado de monitoreo de un dispositivo | GetMonitoringByDeviceIdQuery |
-| reportIrregularity | /{deviceId}/irregularities (POST) | path: deviceId: Long; body: ReportIrregularityResource { description: String, reportedBy: Long } | Reporta una irregularidad sobre un dispositivo | ReportIrregularityCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | SynchronizationController |
-| Categoría | Controller |
-| Propósito | Exponer la consulta del estado de sincronización de un dispositivo. |
-| Aggregate/Entity relacionado | Synchronization |
-| Ruta base | /api/v1/synchronization |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getSynchronizationByDevice | /{deviceId} (GET) | path: deviceId: Long | Obtiene el estado de sincronización de un dispositivo | GetSynchronizationByDeviceIdQuery |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.10.3. Application Layer
 
-La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante tres Event Handlers las integraciones entrantes desde el BC Bienes (Supuesto del Canvas: "los datos capturados de los dispositivos llegan desde el BC Bienes", ver 5.11.1).
-
-**DeviceDataCapturedEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | DeviceDataCapturedEventHandler |
-| Categoría | Event Handler |
-| Propósito | Registrar el evento capturado de un dispositivo (falla, batería baja, alerta de auxilio o actualización de estado). |
-| Command/Query/Evento que maneja | DeviceDataCaptured (evento externo, BC de origen: Bienes, ver 5.11.1) |
-| Repositorios y servicios que usa | RegisterDeviceEventCommand (invocado internamente) |
-| Eventos que publica | DeviceFailureDetected, LowBatteryDetected, HelpAlertDetected, DeviceStatusUpdated o DeviceMetricsRegistered, según el tipo de evento (vía el command invocado) |
-| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Bienes (datos capturados de los dispositivos) → Monitorear dispositivo" |
-
-**DeviceConnectionLostEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | DeviceConnectionLostEventHandler |
-| Categoría | Event Handler |
-| Propósito | Marcar el dispositivo como operando sin conexión. |
-| Command/Query/Evento que maneja | DeviceConnectionLost (evento externo, BC de origen: Bienes, ver 5.11.1) |
-| Repositorios y servicios que usa | StartOfflineOperationCommand (invocado internamente) |
-| Eventos que publica | OfflineOperationStarted (vía el command invocado) |
-| User story/capability que habilita | Comunicación Entrante del Canvas: "BC Bienes (datos capturados de los dispositivos) → Operar sin conexión" |
-
-**DeviceConnectionRestoredEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | DeviceConnectionRestoredEventHandler |
-| Categoría | Event Handler |
-| Propósito | Sincronizar los eventos almacenados localmente durante la desconexión. |
-| Command/Query/Evento que maneja | DeviceConnectionRestored (evento externo, BC de origen: Bienes, ver 5.11.1) |
-| Repositorios y servicios que usa | SynchronizeEventsCommand (invocado internamente) |
-| Eventos que publica | EventsSynchronized, DeviceMetricsRegistered (vía el command invocado) |
-| User story/capability que habilita | Decisión de negocio del Canvas: "si se pierde la conexión, los eventos se almacenan localmente y se sincronizan al restablecerse" |
-
-**RegisterDeviceEventCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterDeviceEventCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Registrar el evento en Monitoring y publicar el Domain Event correspondiente según su tipo. |
-| Command/Query/Evento que maneja | RegisterDeviceEventCommand |
-| Repositorios y servicios que usa | MonitoringRepository |
-| Eventos que publica | DeviceFailureDetected, LowBatteryDetected, HelpAlertDetected, DeviceStatusUpdated o DeviceMetricsRegistered, según eventType |
-| User story/capability que habilita | Invocado únicamente por DeviceDataCapturedEventHandler |
-
-**ReportIrregularityCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ReportIrregularityCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Registrar la irregularidad reportada por el Cuidador sobre un dispositivo. |
-| Command/Query/Evento que maneja | ReportIrregularityCommand |
-| Repositorios y servicios que usa | MonitoringRepository |
-| Eventos que publica | IrregularityReported |
-| User story/capability que habilita | Comunicación Entrante del Canvas: "Cuidador → Monitorear irregularidades del dispositivo" |
-
-**StartOfflineOperationCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | StartOfflineOperationCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Marcar el dispositivo como OFFLINE. |
-| Command/Query/Evento que maneja | StartOfflineOperationCommand |
-| Repositorios y servicios que usa | SynchronizationRepository |
-| Eventos que publica | OfflineOperationStarted |
-| User story/capability que habilita | Invocado únicamente por DeviceConnectionLostEventHandler |
-
-**SynchronizeEventsCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | SynchronizeEventsCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Completar la sincronización de los eventos almacenados localmente y registrar las métricas resultantes. |
-| Command/Query/Evento que maneja | SynchronizeEventsCommand |
-| Repositorios y servicios que usa | SynchronizationRepository |
-| Eventos que publica | EventsSynchronized, DeviceMetricsRegistered |
-| User story/capability que habilita | Decisión de negocio del Canvas: "las métricas se registran... al completar la sincronización"; invocado únicamente por DeviceConnectionRestoredEventHandler |
-
-**GetMonitoringByDeviceIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetMonitoringByDeviceIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el estado de monitoreo de un dispositivo. |
-| Command/Query/Evento que maneja | GetMonitoringByDeviceIdQuery |
-| Repositorios y servicios que usa | MonitoringRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getMonitoringByDevice |
-
-**GetSynchronizationByDeviceIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetSynchronizationByDeviceIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el estado de sincronización de un dispositivo. |
-| Command/Query/Evento que maneja | GetSynchronizationByDeviceIdQuery |
-| Repositorios y servicios que usa | SynchronizationRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getSynchronizationByDevice |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.10.4. Infrastructure Layer
 
-La Infrastructure Layer implementa los repositorios de Monitoring y Synchronization sobre MongoDB, consistente con la decisión TS-48 de persistencia de telemetría y eventos IoT de alto volumen; el adaptador hacia Firebase para informar el estado del dispositivo; y el suscriptor del bus de eventos interno que conecta a Telemetría con Bienes.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| MonitoringRepositoryMongo | MonitoringRepository | Spring Data MongoDB | Persiste y recupera el aggregate Monitoring. |
-| SynchronizationRepositoryMongo | SynchronizationRepository | Spring Data MongoDB | Persiste y recupera el aggregate Synchronization. |
+### 5.10.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `TelemetriaPersistenceConfiguration`, que habilita los repositorios Spring Data MongoDB (`@EnableMongoRepositories`) para `Monitoring` y `Synchronization`.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| FirebaseCloudMessagingGateway | Gateway | DeviceStatusGateway | Firebase Cloud Messaging | Informa el estado del dispositivo (Supuesto del Canvas). |
-| DomainEventBusSubscriber | Event Subscriber | DeviceDataCapturedListener, DeviceConnectionLostListener, DeviceConnectionRestoredListener | Bus de eventos interno del monolito modular (Spring Application Events) | Enruta los eventos publicados por Bienes hacia los Event Handlers de Telemetría. |
+### 5.10.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| monitoring (MongoDB) | Almacena el aggregate Monitoring: eventos, fallas e irregularidades por dispositivo. |
-| synchronization (MongoDB) | Almacena el aggregate Synchronization: estado de conectividad y sincronización por dispositivo. |
+#### 5.10.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Dispositivo (registro, configuración) | Bienes | El registro y la configuración del dispositivo como activo son responsabilidad de Bienes (5.11); Telemetría solo referencia deviceId y consume sus eventos de datos capturados. |
-| Notificación al cuidador | Comunicaciones | El envío y la confirmación de la notificación son responsabilidad de Comunicaciones; Telemetría solo publica los eventos de origen (DeviceFailureDetected, LowBatteryDetected, HelpAlertDetected). |
-| Métrica agregada del dashboard | Analíticas | El cálculo y la exposición de las métricas agregadas son responsabilidad de Analíticas; Telemetría solo publica el registro individual (DeviceMetricsRegistered). |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-**Verificación de trazabilidad — Telemetría**
+#### 5.10.7.2. Bounded Context Database Design Diagram
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 4 commands y las 2 queries de 5.10.1 tienen su handler correspondiente en 5.10.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | RegisterDeviceEventCommand, StartOfflineOperationCommand y SynchronizeEventsCommand se usan exclusivamente desde los tres Event Handlers entrantes, justificado en 5.10.2; ReportIrregularityCommand se usa desde el endpoint manual. |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.10.2) mapea 1:1 los parámetros del Command correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | MonitoringController se relaciona con Monitoring; SynchronizationController se relaciona con Synchronization. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | MonitoringRepository ↔ MonitoringRepositoryMongo; SynchronizationRepository ↔ SynchronizationRepositoryMongo. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | DeviceFailureDetected, LowBatteryDetected y HelpAlertDetected los consume Comunicaciones (5.8.3, el tercero a agregar como seguimiento); DeviceMetricsRegistered lo consume Analíticas (5.9.3); el resto se publica para auditoría. |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Monitoring y Synchronization son exclusivos de este bounded context. |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | DeviceStatusGateway se declara como puerto en Domain; su implementación concreta (FirebaseCloudMessagingGateway) está en Infrastructure (5.10.4). |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 <div style="page-break-after: always;"></div>
 
 ## 5.11. Bounded Context: Bienes
 
-El bounded context **Bienes** gestiona el ciclo de vida de los dispositivos del hogar vinculados a Alivia: dispositivos de voz, dispositivos accionadores (puertas, ventanas, luces) y el registro general de dispositivos. Es un dominio núcleo. Participan la **Persona con discapacidad** (emite comandos de voz), el **Cuidador** (registra, configura y desactiva dispositivos) y, de forma indirecta, el **Técnico** (a través de Soporte Técnico, 5.7). Este bounded context cierra los últimos tres compromisos pendientes del capítulo: publica `DeviceDataCaptured`, `DeviceConnectionLost` y `DeviceConnectionRestored` (consumidos por Telemetría, 5.10.3), y consulta a Analíticas (5.9.2) para visualizar métricas globales, cerrando así todas las integraciones cruzadas abiertas en capítulos anteriores.
+En el código, este bounded context es el paquete `assets`. Gestiona los dispositivos físicos del hogar y las acciones sobre ellos.
 
 ### 5.11.1. Domain Layer
 
-La Domain Layer modela tres aggregates independientes, fieles al EventStorming de Paso 10: `Device`, que representa el registro general de un dispositivo (credenciales, asignación a un hogar, estado de conexión); `VoiceDevice`, que captura y procesa comandos de voz; y `ActuatorDevice`, que ejecuta acciones físicas sobre puertas, ventanas y luces.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| Device | Aggregate Root | Representa el registro general de un dispositivo del hogar. Requiere credenciales de autorización y estar asignado a una casa antes de ejecutar comandos (decisión de negocio del Canvas); un dispositivo inactivo o desconectado no puede ejecutar acciones (Supuesto del Canvas). Al desactivarse, se detiene su telemetría y se desasigna de la casa. |
-| VoiceDevice | Aggregate Root | Representa el hardware que captura y procesa comandos hablados, referenciado mediante deviceId. Si el comando no es reconocido, el flujo termina sin reintento automático ni notificación adicional (observación previa #1); una solicitud de auxilio se trata como un comando de voz interpretado como pedido de ayuda (lenguaje ubicuo del Canvas). |
-| ActuatorDevice | Aggregate Root | Representa el dispositivo físico (puerta, ventana, luz) controlado remotamente, referenciado mediante deviceId. Cada comando dirigido a un ActuatorDevice distinto se procesa de forma independiente, sin conflicto entre comandos concurrentes dirigidos a dispositivos distintos (observación previa #2). |
-
-No se identifican Entities en este bounded context: los tres aggregates son simples, sin componentes internos con identidad propia.
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| DeviceId | Value Object | Identificador tipado del aggregate Device; no admite valores nulos ni negativos. |
-| VoiceDeviceId | Value Object | Identificador tipado del aggregate VoiceDevice; no admite valores nulos ni negativos. |
-| ActuatorDeviceId | Value Object | Identificador tipado del aggregate ActuatorDevice; no admite valores nulos ni negativos. |
-| DeviceCredentials | Value Object | Credenciales de autorización del dispositivo; no admite valores vacíos (decisión de negocio del Canvas). |
-| AudioReference | Value Object | Referencia al audio capturado por un dispositivo de voz; no admite valores vacíos. |
-
-| Nombre | Categoría | Descripción |
-| --- | --- | --- |
-| DeviceType | Enum | Tipo de dispositivo: `VOICE` o `ACTUATOR`. No exhibe transiciones; se define al registrarse el Device. |
-| DeviceStatus | Enum | Estado del Device. Transiciones permitidas: `ACTIVE` → `INACTIVE` al desactivarse (detiene su telemetría y lo desasigna de la casa); `ACTIVE` → `DISCONNECTED` al perderse la conexión; `DISCONNECTED` → `ACTIVE` al restablecerse. Un dispositivo `INACTIVE` o `DISCONNECTED` no puede ejecutar acciones (Supuesto del Canvas). |
-| ActuatorAction | Enum | Acción física ejecutable por un ActuatorDevice: `OPEN_DOOR`, `CLOSE_DOOR`, `OPEN_WINDOW`, `CLOSE_WINDOW`, `TURN_ON_LIGHT`, `TURN_OFF_LIGHT`. No exhibe transiciones: determina qué Domain Event publica ExecuteActionCommand. |
-
-No se declaran Factories ni Domain Services en este bounded context: los tres aggregates se referencian solo por identificador (deviceId). La validación de que el Device esté ACTIVE antes de ejecutar un comando de voz o una acción se resuelve en ProcessVoiceCommandCommandHandler y ExecuteActionCommandHandler mediante DeviceRepository, sin requerir un Domain Service.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| RegisterDeviceCommand | Registra un nuevo dispositivo, asignándolo a un hogar con sus credenciales de autorización. | homeProfileId: Long, deviceType: DeviceType, credentials: String |
-| ConfigureDeviceCommand | Configura el dispositivo y lo entrena con la voz de la persona asistida (Supuesto del Canvas: "el entrenamiento de voz se realiza por dispositivo y por persona asistida"). | deviceId: Long, trainedForAssistedPerson: Boolean |
-| DeactivateDeviceCommand | Desactiva el dispositivo, deteniendo su telemetría y desasignándolo de la casa. | deviceId: Long |
-| MarkDeviceConnectionLostCommand | Marca el dispositivo como desconectado, invocado por el monitor de conectividad de Infrastructure. | deviceId: Long |
-| MarkDeviceConnectionRestoredCommand | Marca el dispositivo como reconectado, invocado por el monitor de conectividad de Infrastructure. | deviceId: Long |
-| ProcessVoiceCommandCommand | Procesa un comando de voz capturado, identificando el dispositivo objetivo y la acción, o registrando que no fue reconocido (observación previa #1). | voiceDeviceId: Long, audioReference: String |
-| ExecuteActionCommand | Ejecuta una acción física sobre un dispositivo accionador. | actuatorDeviceId: Long, action: ActuatorAction |
-| SendDeviceDataToTelemetryCommand | Reenvía como dato capturado hacia Telemetría toda acción confirmada, comando no reconocido o solicitud de auxilio (decisión de negocio del Canvas), invocado únicamente por los Event Handlers internos (5.11.3). | deviceId: Long, dataType: String, payload: String |
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| GetDeviceByIdQuery | Obtiene el detalle de un dispositivo. | deviceId: Long |
-| GetDevicesByHomeProfileIdQuery | Lista los dispositivos registrados en un hogar. | homeProfileId: Long |
-| GetVoiceDeviceByIdQuery | Obtiene el detalle de un dispositivo de voz. | voiceDeviceId: Long |
-| GetActuatorDeviceByIdQuery | Obtiene el detalle de un dispositivo accionador. | actuatorDeviceId: Long |
-
-`DeviceDataCaptured`, `DeviceConnectionLost` y `DeviceConnectionRestored` los consume Telemetría (5.10.3), cerrando el último compromiso cruzado del capítulo. El resto no tiene consumidor externo declarado en el Canvas y se publica para auditoría o para los Event Handlers internos que alimentan SendDeviceDataToTelemetryCommand.
-
-| Nombre | Descripción | Parámetros |
-| --- | --- | --- |
-| DeviceRegistered | Se publica al registrarse un dispositivo. | deviceId: Long, homeProfileId: Long, deviceType: DeviceType, registeredAt: LocalDateTime |
-| DeviceConfigured | Se publica al configurarse y entrenarse un dispositivo. | deviceId: Long, configuredAt: LocalDateTime |
-| DeviceDeactivated | Se publica al desactivarse un dispositivo. | deviceId: Long, deactivatedAt: LocalDateTime |
-| DeviceConnectionLost | Se publica al perderse la conexión de un dispositivo; es consumido por Telemetría (5.10.3). | deviceId: Long, lostAt: LocalDateTime |
-| DeviceConnectionRestored | Se publica al restablecerse la conexión de un dispositivo; es consumido por Telemetría (5.10.3). | deviceId: Long, restoredAt: LocalDateTime |
-| VoiceCommandProcessed | Se publica al procesarse exitosamente un comando de voz, identificando el dispositivo objetivo y la acción. | voiceDeviceId: Long, targetActuatorDeviceId: Long, action: ActuatorAction, processedAt: LocalDateTime |
-| VoiceCommandNotRecognized | Se publica cuando un comando de voz no es reconocido; el flujo termina sin reintento automático (observación previa #1). | voiceDeviceId: Long, occurredAt: LocalDateTime |
-| HelpAlertRequested | Se publica al interpretarse un comando de voz como solicitud de auxilio. | voiceDeviceId: Long, requestedAt: LocalDateTime |
-| DoorOpened | Se publica al abrirse una puerta. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
-| DoorClosed | Se publica al cerrarse una puerta. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
-| WindowOpened | Se publica al abrirse una ventana. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
-| WindowClosed | Se publica al cerrarse una ventana. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
-| LightTurnedOn | Se publica al encenderse una luz. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
-| LightTurnedOff | Se publica al apagarse una luz. | actuatorDeviceId: Long, occurredAt: LocalDateTime |
-| DeviceDataCaptured | Se publica al reenviarse un dato capturado hacia Telemetría; es consumido por Telemetría (5.10.3). | deviceId: Long, dataType: String, payload: String, capturedAt: LocalDateTime |
-
-| Nombre | Aggregate que gestiona | Descripción |
-| --- | --- | --- |
-| DeviceRepository | Device | Persiste y recupera el aggregate Device; expone la búsqueda por homeProfileId. |
-| VoiceDeviceRepository | VoiceDevice | Persiste y recupera el aggregate VoiceDevice. |
-| ActuatorDeviceRepository | ActuatorDevice | Persiste y recupera el aggregate ActuatorDevice. |
-
-| Clase origen | Relación | Clase destino | Descripción |
-| --- | --- | --- | --- |
-| VoiceDevice | asociación | Device | VoiceDevice referencia su registro general mediante deviceId. |
-| ActuatorDevice | asociación | Device | ActuatorDevice referencia su registro general mediante deviceId. |
-| VoiceDevice | asociación | ActuatorDevice | VoiceDevice identifica al dispositivo accionador objetivo de un comando de voz procesado mediante targetActuatorDeviceId. |
-| DeviceRepository | depende de | Device | El repositorio persiste y recupera el aggregate Device. |
-| VoiceDeviceRepository | depende de | VoiceDevice | El repositorio persiste y recupera el aggregate VoiceDevice. |
-| ActuatorDeviceRepository | depende de | ActuatorDevice | El repositorio persiste y recupera el aggregate ActuatorDevice. |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.11.2. Interface Layer
 
-La Interface Layer expone un controller por cada aggregate root: `DeviceController`, `VoiceDeviceController` y `ActuatorDeviceController`. `MarkDeviceConnectionLostCommand`, `MarkDeviceConnectionRestoredCommand` y `SendDeviceDataToTelemetryCommand` no se exponen vía REST: se invocan desde el monitor de conectividad y desde los Event Handlers internos de la Application Layer (5.11.3). Este bounded context no expone un facade/ACL propio: consulta a Analíticas (5.9.2) de forma síncrona para visualizar métricas globales, y sus integraciones salientes hacia Telemetría se resuelven mediante Domain Events.
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | DeviceController |
-| Categoría | Controller |
-| Propósito | Exponer el registro, la configuración, la desactivación y la consulta de dispositivos. |
-| Aggregate/Entity relacionado | Device |
-| Ruta base | /api/v1/devices |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| registerDevice | / (POST) | body: RegisterDeviceResource { homeProfileId: Long, deviceType: String, credentials: String } | Registra un nuevo dispositivo | RegisterDeviceCommand |
-| getDeviceById | /{deviceId} (GET) | path: deviceId: Long | Obtiene el detalle de un dispositivo | GetDeviceByIdQuery |
-| getDevicesByHomeProfile | /by-home-profile/{homeProfileId} (GET) | path: homeProfileId: Long | Lista los dispositivos de un hogar | GetDevicesByHomeProfileIdQuery |
-| configureDevice | /{deviceId}/configure (POST) | path: deviceId: Long; body: ConfigureDeviceResource { trainedForAssistedPerson: Boolean } | Configura y entrena el dispositivo | ConfigureDeviceCommand |
-| deactivateDevice | /{deviceId}/deactivate (POST) | path: deviceId: Long | Desactiva el dispositivo | DeactivateDeviceCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | VoiceDeviceController |
-| Categoría | Controller |
-| Propósito | Exponer la consulta y el procesamiento de comandos de voz. |
-| Aggregate/Entity relacionado | VoiceDevice |
-| Ruta base | /api/v1/voice-devices |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getVoiceDeviceById | /{voiceDeviceId} (GET) | path: voiceDeviceId: Long | Obtiene el detalle de un dispositivo de voz | GetVoiceDeviceByIdQuery |
-| processVoiceCommand | /{voiceDeviceId}/process (POST) | path: voiceDeviceId: Long; body: ProcessVoiceCommandResource { audioReference: String } | Procesa un comando de voz capturado | ProcessVoiceCommandCommand |
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ActuatorDeviceController |
-| Categoría | Controller |
-| Propósito | Exponer la consulta y la ejecución de acciones sobre dispositivos accionadores. |
-| Aggregate/Entity relacionado | ActuatorDevice |
-| Ruta base | /api/v1/actuator-devices |
-
-| Nombre | Ruta REST (verbo HTTP) | Parámetros | Acción | Command/Query que maneja |
-| --- | --- | --- | --- | --- |
-| getActuatorDeviceById | /{actuatorDeviceId} (GET) | path: actuatorDeviceId: Long | Obtiene el detalle de un dispositivo accionador | GetActuatorDeviceByIdQuery |
-| executeAction | /{actuatorDeviceId}/execute (POST) | path: actuatorDeviceId: Long; body: ExecuteActionResource { action: String } | Ejecuta una acción física sobre el dispositivo | ExecuteActionCommand |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.11.3. Application Layer
 
-La Application Layer traduce cada Command y Query en un handler dedicado, y resuelve mediante dos Event Handlers internos la decisión de negocio del Canvas ("toda acción confirmada, comando no reconocido o solicitud de auxilio se envía como dato capturado a Telemetría"), convergiendo en `SendDeviceDataToTelemetryCommand`.
-
-**VoiceDeviceActivityEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | VoiceDeviceActivityEventHandler |
-| Categoría | Event Handler |
-| Propósito | Reenviar como dato capturado hacia Telemetría los comandos de voz no reconocidos y las solicitudes de auxilio. |
-| Command/Query/Evento que maneja | VoiceCommandNotRecognized, HelpAlertRequested (eventos propios de Bienes) |
-| Repositorios y servicios que usa | SendDeviceDataToTelemetryCommand (invocado internamente) |
-| Eventos que publica | DeviceDataCaptured (vía el command invocado) |
-| User story/capability que habilita | Decisión de negocio del Canvas |
-
-**ActuatorDeviceActivityEventHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ActuatorDeviceActivityEventHandler |
-| Categoría | Event Handler |
-| Propósito | Reenviar como dato capturado hacia Telemetría toda acción confirmada sobre un dispositivo accionador. |
-| Command/Query/Evento que maneja | DoorOpened, DoorClosed, WindowOpened, WindowClosed, LightTurnedOn, LightTurnedOff (eventos propios de Bienes) |
-| Repositorios y servicios que usa | SendDeviceDataToTelemetryCommand (invocado internamente) |
-| Eventos que publica | DeviceDataCaptured (vía el command invocado) |
-| User story/capability que habilita | Decisión de negocio del Canvas |
-
-**RegisterDeviceCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | RegisterDeviceCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Registrar el dispositivo en estado ACTIVE, asignado al hogar con sus credenciales. |
-| Command/Query/Evento que maneja | RegisterDeviceCommand |
-| Repositorios y servicios que usa | DeviceRepository |
-| Eventos que publica | DeviceRegistered |
-| User story/capability que habilita | Comunicación Entrante del Canvas: "Cuidador → Registrar nuevo dispositivo" |
-
-**ConfigureDeviceCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ConfigureDeviceCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Configurar y entrenar el dispositivo con la voz de la persona asistida. |
-| Command/Query/Evento que maneja | ConfigureDeviceCommand |
-| Repositorios y servicios que usa | DeviceRepository |
-| Eventos que publica | DeviceConfigured |
-| User story/capability que habilita | Supuesto del Canvas: "el entrenamiento de voz se realiza por dispositivo y por persona asistida" |
-
-**DeactivateDeviceCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | DeactivateDeviceCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Desactivar el dispositivo, detener su telemetría y desasignarlo de la casa. |
-| Command/Query/Evento que maneja | DeactivateDeviceCommand |
-| Repositorios y servicios que usa | DeviceRepository |
-| Eventos que publica | DeviceDeactivated |
-| User story/capability que habilita | Decisión de negocio del Canvas: "al desactivar un dispositivo se detiene su telemetría y se desasigna de la casa" |
-
-**MarkDeviceConnectionLostCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | MarkDeviceConnectionLostCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Marcar el dispositivo como desconectado. |
-| Command/Query/Evento que maneja | MarkDeviceConnectionLostCommand |
-| Repositorios y servicios que usa | DeviceRepository |
-| Eventos que publica | DeviceConnectionLost |
-| User story/capability que habilita | Invocado únicamente por el monitor de conectividad de Infrastructure (5.11.4) |
-
-**MarkDeviceConnectionRestoredCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | MarkDeviceConnectionRestoredCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Marcar el dispositivo como reconectado. |
-| Command/Query/Evento que maneja | MarkDeviceConnectionRestoredCommand |
-| Repositorios y servicios que usa | DeviceRepository |
-| Eventos que publica | DeviceConnectionRestored |
-| User story/capability que habilita | Invocado únicamente por el monitor de conectividad de Infrastructure (5.11.4) |
-
-**ProcessVoiceCommandCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ProcessVoiceCommandCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Validar que el Device esté ACTIVE, interpretar el audio capturado e identificar el dispositivo accionador objetivo y la acción, o registrar que no fue reconocido. |
-| Command/Query/Evento que maneja | ProcessVoiceCommandCommand |
-| Repositorios y servicios que usa | VoiceDeviceRepository, DeviceRepository, VoiceRecognitionGateway |
-| Eventos que publica | VoiceCommandProcessed, VoiceCommandNotRecognized o HelpAlertRequested |
-| User story/capability que habilita | Resuelve la observación previa #1 |
-
-**ExecuteActionCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | ExecuteActionCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Validar que el Device esté ACTIVE y ejecutar la acción física sobre el dispositivo accionador, de forma independiente para cada dispositivo (observación previa #2). |
-| Command/Query/Evento que maneja | ExecuteActionCommand |
-| Repositorios y servicios que usa | ActuatorDeviceRepository, DeviceRepository, ActuatorGateway |
-| Eventos que publica | DoorOpened, DoorClosed, WindowOpened, WindowClosed, LightTurnedOn o LightTurnedOff, según action |
-| User story/capability que habilita | Resuelve la observación previa #2; invocado directamente o por VoiceCommandProcessed |
-
-**SendDeviceDataToTelemetryCommandHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | SendDeviceDataToTelemetryCommandHandler |
-| Categoría | Command Handler |
-| Propósito | Publicar el dato capturado hacia Telemetría. |
-| Command/Query/Evento que maneja | SendDeviceDataToTelemetryCommand |
-| Repositorios y servicios que usa | — (no persiste estado propio) |
-| Eventos que publica | DeviceDataCaptured |
-| User story/capability que habilita | Invocado únicamente por VoiceDeviceActivityEventHandler y ActuatorDeviceActivityEventHandler |
-
-**GetDeviceByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetDeviceByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un dispositivo. |
-| Command/Query/Evento que maneja | GetDeviceByIdQuery |
-| Repositorios y servicios que usa | DeviceRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getDeviceById |
-
-**GetDevicesByHomeProfileIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetDevicesByHomeProfileIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Listar los dispositivos registrados en un hogar. |
-| Command/Query/Evento que maneja | GetDevicesByHomeProfileIdQuery |
-| Repositorios y servicios que usa | DeviceRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getDevicesByHomeProfile |
-
-**GetVoiceDeviceByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetVoiceDeviceByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un dispositivo de voz. |
-| Command/Query/Evento que maneja | GetVoiceDeviceByIdQuery |
-| Repositorios y servicios que usa | VoiceDeviceRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getVoiceDeviceById |
-
-**GetActuatorDeviceByIdQueryHandler**
-
-| Propiedad | Valor |
-| --- | --- |
-| Nombre | GetActuatorDeviceByIdQueryHandler |
-| Categoría | Query Handler |
-| Propósito | Recuperar el detalle de un dispositivo accionador. |
-| Command/Query/Evento que maneja | GetActuatorDeviceByIdQuery |
-| Repositorios y servicios que usa | ActuatorDeviceRepository |
-| Eventos que publica | No aplica |
-| User story/capability que habilita | Soporta la consulta desde el endpoint getActuatorDeviceById |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 ### 5.11.4. Infrastructure Layer
 
-La Infrastructure Layer implementa los repositorios de los tres aggregates sobre PostgreSQL, consistente con la decisión TS-47 de persistencia transaccional para "perfiles, devices, suscripciones"; los adaptadores hacia el hardware de voz y los servos (Supuesto del Canvas: "proveedores externos ya integrados"); y un monitor de conectividad que detecta pérdidas y restablecimientos de conexión.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Interfaz que implementa | Tecnología | Propósito |
-| --- | --- | --- | --- |
-| DeviceRepositoryJpa | DeviceRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate Device. |
-| VoiceDeviceRepositoryJpa | VoiceDeviceRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate VoiceDevice. |
-| ActuatorDeviceRepositoryJpa | ActuatorDeviceRepository | Spring Data JPA sobre PostgreSQL | Persiste y recupera el aggregate ActuatorDevice. |
+### 5.11.6. Bounded Context Software Architecture Component Level Diagrams
 
-La persistencia se configura mediante `BienesJpaConfiguration`, que habilita los repositorios Spring Data JPA (`@EnableJpaRepositories`) y el mapeo objeto-relacional de los tres aggregates sobre el motor PostgreSQL.
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-| Nombre | Categoría | Interfaz que implementa | Servicio externo | Propósito |
-| --- | --- | --- | --- | --- |
-| VoiceRecognitionGateway | Gateway | VoiceRecognitionGateway (puerto homónimo) | Hardware de micrófono y altavoz (externo) | Captura y procesa el audio de los comandos de voz. |
-| ActuatorGateway | Gateway | ActuatorGateway (puerto homónimo) | Hardware con servos (externo) | Ejecuta físicamente las acciones sobre puertas, ventanas y luces. |
-| DeviceConnectivityMonitor | Scheduler | — (tarea programada local) | — | Detecta pérdidas y restablecimientos de conexión de los dispositivos e invoca MarkDeviceConnectionLostCommand / MarkDeviceConnectionRestoredCommand. |
+### 5.11.7. Bounded Context Software Architecture Code Level Diagrams
 
-| Tabla/Colección | Propósito |
-| --- | --- |
-| devices | Almacena el aggregate Device: credenciales, tipo, estado y hogar asignado. |
-| voice_devices | Almacena el aggregate VoiceDevice: referencia a su Device. |
-| actuator_devices | Almacena el aggregate ActuatorDevice: referencia a su Device. |
+#### 5.11.7.1. Bounded Context Domain Layer Class Diagrams
 
-| Objeto | BC responsable | Justificación |
-| --- | --- | --- |
-| Hogar / persona asistida | Perfiles | Los datos del hogar y de la persona asistida son responsabilidad de Perfiles; Bienes solo referencia homeProfileId al registrar un dispositivo. |
-| Evaluación e instalación técnica | Soporte Técnico | La evaluación de viabilidad y la instalación física de los dispositivos son responsabilidad de Soporte Técnico (5.7); Bienes gestiona el ciclo de vida del dispositivo una vez instalado. |
-| Telemetría cruda y sincronización | Telemetría | El almacenamiento, el monitoreo y la sincronización de los datos de los dispositivos son responsabilidad de Telemetría (5.10); Bienes solo publica los eventos de origen. |
-| Métricas agregadas del dashboard | Analíticas | El cálculo y la exposición de las métricas agregadas son responsabilidad de Analíticas (5.9); Bienes solo las consulta como colaborador de lectura. |
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
-**Verificación de trazabilidad — Bienes**
+#### 5.11.7.2. Bounded Context Database Design Diagram
 
-| Criterio | Cumple | Evidencia |
-| --- | --- | --- |
-| Todo Command/Query usado en un endpoint o consumer existe en Domain y tiene su handler en Application | Sí | Los 8 commands y las 4 queries de 5.11.1 tienen su handler correspondiente en 5.11.3. |
-| Todo Command/Query declarado en Domain es usado por algún endpoint, consumer o event handler (o se justifica) | Sí | MarkDeviceConnectionLostCommand, MarkDeviceConnectionRestoredCommand y SendDeviceDataToTelemetryCommand se usan exclusivamente desde el monitor de conectividad y los Event Handlers internos, justificado en 5.11.2 y 5.11.3. |
-| Los parámetros de cada endpoint cubren los parámetros del Command/Query que despacha | Sí | Cada Resource de las tablas de endpoints (5.11.2) mapea 1:1 los parámetros del Command correspondiente. |
-| Todo controller está relacionado con un aggregate o entity existente en la Domain Layer | Sí | Cada uno de los tres controllers se relaciona con su aggregate root correspondiente. |
-| Toda interfaz de repositorio del Domain tiene implementación en Infrastructure, y viceversa | Sí | Los tres repositorios de 5.11.1 tienen su implementación Jpa correspondiente en 5.11.4. |
-| Todo Domain Event publicado tiene al menos un handler o consumidor identificado (en este u otro BC) | Sí | DeviceDataCaptured, DeviceConnectionLost y DeviceConnectionRestored los consume Telemetría (5.10.3); VoiceCommandNotRecognized, HelpAlertRequested y los seis eventos de ActuatorDevice los consumen los dos Event Handlers internos (5.11.3); el resto se publica para auditoría. |
-| Ningún aggregate de este BC es aggregate root en otro BC | Sí | Device, VoiceDevice y ActuatorDevice son exclusivos de este bounded context. |
-| Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | VoiceRecognitionGateway y ActuatorGateway se declaran como puertos en Domain; sus implementaciones concretas están en Infrastructure (5.11.4). |
-
-### 5.11.6. Bounded Context Software Architecture Code Level Diagrams
-
-#### 5.11.6.1. Bounded Context Domain Layer Class Diagrams
-
-El siguiente diagrama de clases presenta la capa de dominio del bounded context **Bienes**. Su aggregate root es **Device**, que hereda de `AbstractAggregateRoot` (Shared) y se describe con los value objects `BusinessId` y `MacAddress` y los enums `DeviceType` y `DeviceStatus`. Se incluyen los commands para registrar, actualizar y cambiar el estado de los dispositivos, las queries por identificador, por negocio y por negocio y estado, las interfaces `DeviceCommandServices` y `DeviceQueryServices`, y las excepciones de dominio `DeviceNotFoundException`, `DeviceAlreadyExistsException` e `InvalidMacAddressException`.
-
-![Diagrama de clases de la capa de dominio - Bienes](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assets/devices-backend-diagram.puml)
-
-#### 5.11.6.2. Bounded Context Database Design Diagram
-
-El siguiente diagrama de base de datos muestra el modelo relacional del bounded context **Bienes**. La tabla `devices` almacena cada dispositivo con su tipo, estado y dirección MAC. La tabla `businesses` aparece en gris porque pertenece a Gestión del Negocio; `devices` solo la referencia de forma lógica mediante la columna `business_id`, sin clave foránea entre bounded contexts.
-
-![Diagrama de base de datos - Bienes](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assets/devices-database-diagram.puml)
+Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
 
 <div style="page-break-after: always;"></div>
 
-<div style="page-break-after: always;"></div>
