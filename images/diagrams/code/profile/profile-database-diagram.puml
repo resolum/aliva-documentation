@@ -1,75 +1,126 @@
 @startuml
-' Base de datos: Profile
-' Aggregates: UserProfile, HouseholdProfile (heredan id, created_at, updated_at de AuditableAbstractAggregateRoot).
-' Value objects embebidos como columnas: DocumentNumber, PhoneNumber, ProfileImage (Photo), Address, GeographicLocation, etc.
-
 hide circle
+skinparam packageStyle rectangle
 skinparam linetype ortho
 skinparam shadowing false
+skinparam roundCorner 8
+skinparam defaultFontName Arial
 skinparam defaultFontSize 12
-skinparam entity {
-  BorderColor #333333
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #6A1B9A
+  BorderThickness 1.2
+  HeaderBackgroundColor #F3E5F5
   ArrowColor #444444
 }
-
-legend left
-  |= Símbolo |= Significado |
-  | <<PK>> | Llave primaria |
-  | <<UK>> | Único |
-  | <<FK>> | Llave foránea |
-  | <<LFK>> | Referencia lógica (sin FK física) |
-endlegend
-
-entity "user_profiles" as user_profiles #DCEBFA {
-  * id : BIGINT <<PK>>
-  --
-  * iam_user_id : BIGINT <<UK>> <<LFK>>
-  first_name : VARCHAR(100)
-  last_name : VARCHAR(100)
-  document_number : VARCHAR(20)
-  phone_number : VARCHAR(20)
-  profile_image_url : VARCHAR(500)
-  profile_image_public_id : VARCHAR(255)
-  * status : VARCHAR(20)
-  * completed : BOOLEAN
-  ..
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
 }
 
-entity "household_profiles" as household_profiles #D5F0D8 {
-  * id : BIGINT <<PK>>
-  --
-  * alias : VARCHAR(100)
-  * associated_email : VARCHAR(150)
-  * phone_number : VARCHAR(20)
-  normalized_address : VARCHAR(255)
-  district : VARCHAR(100)
-  province : VARCHAR(100)
-  department : VARCHAR(100)
-  country : VARCHAR(100)
-  latitude : DOUBLE
-  longitude : DOUBLE
-  place_id : VARCHAR(255)
-  address_reference : VARCHAR(255)
-  * created_by_user_id : BIGINT <<LFK>>
-  * location_status : VARCHAR(30)
-  * status : VARCHAR(20)
-  ..
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
+package "Bounded Context: Profiles" as ctx_profiles #FBF7FC {
+
+  entity "person_profiles" as person_profiles {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    email_address : VARCHAR(254) <<UK>> <<null>>
+    photo_url : VARCHAR(512) <<null>>
+    photo_public_id : VARCHAR(255) <<null>>
+    * phone_number : VARCHAR(15)
+    * first_name : VARCHAR(100)
+    * last_name : VARCHAR(100)
+    * dni : CHAR(8) <<UK>>
+    * birth_date : DATE
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+
+  entity "business_profiles" as business_profiles {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * email_address : VARCHAR(254) <<UK>>
+    photo_url : VARCHAR(512) <<null>>
+    photo_public_id : VARCHAR(255) <<null>>
+    * phone_number : VARCHAR(15)
+    * ruc : BIGINT <<UK>>
+    * business_name : VARCHAR(150) <<UK>>
+    * legal_name : VARCHAR(200) <<UK>>
+    description : TEXT <<null>>
+    * main_activity : VARCHAR(150)
+    whatsapp_num : VARCHAR(15) <<null>>
+    emergency_phone : VARCHAR(15) <<null>>
+    slogan : VARCHAR(255) <<null>>
+    support_email : VARCHAR(254) <<null>>
+    * address_formatted_address : VARCHAR(255)
+    * address_latitude : NUMERIC(9,6)
+    * address_longitude : NUMERIC(9,6)
+    * address_place_id : VARCHAR(255)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+
+  entity "business_profile_opening_periods" as opening_periods {
+    * business_profile_id : BIGINT <<FK>>
+    --
+    * week_days : VARCHAR(70)
+    * start_time : TIME
+    * end_time : TIME
+  }
 }
 
-user_profiles ||..o{ household_profiles : "created_by_user_id =\niam_user_id"
+business_profiles ||--|{ opening_periods : "business_hours\n(1..*)"
 
-note bottom of user_profiles
-  iam_user_id apunta a la cuenta en el contexto IAM.
-  status: PENDING | ACTIVE | INACTIVE
+note right of person_profiles
+  <b>person_profiles</b> (aggregate PersonProfile)
+  Datos personales de administradores, familiares y
+  personas asistidas. Otros contextos guardan su id
+  como person_profile_id.
+  Profile es una base abstracta sin tabla propia: sus
+  columnas (email, foto, teléfono) se repiten aquí y
+  en business_profiles.
+  --
+  email_address: único pero opcional (la persona
+  asistida puede no tener correo). En PostgreSQL un
+  índice único admite varios NULL.
+  No se modifican: email_address, dni, birth_date.
+  dni: índice único que respalda DniAlreadyExists y
+  ExistsPersonProfileByDniQuery (solo responde si
+  existe; ningún perfil se recupera por dni).
+  phone_number: solo dígitos, código de país incluido
+  (máx. 15, E.164 sin "+"); puede repetirse.
 end note
 
-note bottom of household_profiles
-  location_status: PENDING_VALIDATION | VALIDATED | REVALIDATION_REQUIRED
-  status: PENDING | ACTIVE | INACTIVE
+note right of business_profiles
+  <b>business_profiles</b> (aggregate BusinessProfile)
+  Datos públicos y legales del negocio. Company guarda
+  su id como business_profile_id.
+  --
+  Únicos: email_address, ruc, business_name, legal_name.
+  No se modifican: ruc, email_address y la dirección.
+  address_*: value object Address (Google Maps).
+  ruc: BIGINT porque el value object Ruc recibe Long
+  (11 dígitos, nunca empieza en 0).
+end note
+
+note bottom of opening_periods
+  <b>business_profile_opening_periods</b>
+  Value object BusinessHours (@ElementCollection):
+  una fila por cada WeeklyPeriod del horario. No tiene
+  id propio: es parte del valor de BusinessProfile.
+  week_days: días separados por coma
+  (MONDAY,TUESDAY,...) con un AttributeConverter.
+  start_time anterior a end_time: el negocio no
+  atiende cruzando medianoche.
+  Al cambiar el horario, las filas se reemplazan.
 end note
 
 @enduml

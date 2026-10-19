@@ -1,6 +1,39 @@
 @startuml
 ' Bounded Context: Assistance. Solo capa domain.
 '
+' Cambios de la revisión de Domain (ver informe):
+'  A1  El dominio recibe el instante actual como parámetro (now / today): isExpired,
+'      accept, assign, updateAssignment y las fábricas de ActivityLog. No consulta el reloj.
+'  A2  "ONE_TIME no está en el pasado" sale del constructor de Schedule (al reconstruir
+'      asignaciones antiguas fallaría) y pasa a CareActivity.assign / updateAssignment.
+'  A3  InvitationCreatedEvent lee el invitationId del aggregate al publicarse: al
+'      registrarse en el constructor la Invitation aún no tiene id.
+'  A4  accept valida que quien acepta sea el usuario asignado (InvitationNotForUser).
+'  A5  Una ocurrencia solo se completa dentro de su horario (OccurrenceNotStarted, OccurrenceEnded).
+'  A6  Reglas que dependen de un solo aggregate pasan a sus métodos; las notas de
+'      services conservan solo las que cruzan aggregates.
+'  A7  ActivityAssignments se documenta como componente mutable, no value object.
+'  A8  AgendaItem define su fábrica y la regla de cálculo de OccurrenceStatus.
+'  A9  Los commands usan los enums del dominio (CareActivityType, ScheduleType).
+'  A10 El PersonProfile de Relative y AssistedPerson se crea siempre nuevo; el email solo se
+'      valida con ExistsPersonProfileByEmailAddressQuery. Se eliminan RelativeAlreadyExists y
+'      AssistedPersonAlreadyExists: el perfil y el usuario siempre son nuevos.
+'  A11 Las asignaciones pueden cruzar medianoche (22:00-06:00). La ocurrencia pertenece al día
+'      en que empieza y se cierra al terminar el día en que acaba su rango (fecha de cierre).
+'      Se ajustan MISSED, el estado de la agenda y los cruces de horario.
+'  A12 Se agrega GetPendingInvitationsByCaregiverUserIdQuery: IAM avisa la aceptación con el
+'      userId y AcceptInvitationCommand necesita el invitationId.
+'  A13 EmailAddressAlreadyExists propia: el ACL traduce el rechazo de Profiles sin importar
+'      clases de otro contexto (igual que BusinessNotFound con Company).
+'  A14 Las tareas solo se completan dentro de su horario: se eliminan isLate, COMPLETED_LATE y
+'      OVERDUE. Una ocurrencia que terminó sin registro se muestra como MISSED.
+'  A15 El familiar cancela cualquier ocurrencia que aún no terminó; las pasadas no.
+'  A16 Un cuidador que ya tiene cuenta no recibe una nueva: le llega una notificación y acepta
+'      desde la app (assignExistingCaregiverAccount, InvitationNotificationRequestedEvent,
+'      SendInvitationNotificationCommand). Antes de asignar la cuenta se valida CaregiverAlreadyExists.
+'  A17 Una AssistedPerson no se da de baja; lo que se revoca es el acceso de un cuidador.
+'  A18 El dni de Relative y AssistedPerson se valida con ExistsPersonProfileByDniQuery (DniAlreadyExists).
+'
 ' Reglas de negocio:
 '  - Un Relative gestiona varias AssistedPerson; cada AssistedPerson pertenece a un solo Relative.
 '  - Cada AssistedPerson puede tener varios Caregivers (Caregiver = userId + assistedPersonId).
@@ -10,24 +43,32 @@
 '  - Las ocurrencias NO se guardan: se calculan con Schedule.occursOn(fecha).
 '    Solo se guarda ActivityLog (COMPLETED / CANCELLED / MISSED) por (assignmentId, fecha).
 '    El familiar consulta el historial de todos (él y sus cuidadores); cada cuidador, el suyo.
-'  - Programada / En curso / Vencida / Completada con retraso se calculan (AgendaItem), no se guardan.
-'  - Una ocurrencia se puede completar durante el mismo día, incluso después de su rango.
-'  - Al cerrar el día, un proceso programado crea un ActivityLog MISSED por cada ocurrencia sin registro.
-'    Un log MISSED queda cerrado.
-'  - Dentro del contexto, los aggregates se referencian directamente entre sí
-'    (igual que Enrollment -> Course en Learning). Solo las referencias a otros contextos
-'    pasan por un Value Object (UserId, PersonProfileId), como ProfileId y TutorialId en Learning.
-'  - ActivityAssignment es una entidad interna de CareActivity: ActivityLog la referencia por
-'    assignmentId (como TutorialId en Learning), no por objeto.
+'  - Programada / En curso se calculan (AgendaItem), no se guardan.
+'  - Un rango puede cruzar medianoche (22:00-06:00). La ocurrencia pertenece a la fecha en que
+'    empieza; su fecha de cierre es la del día en que termina (la misma o la siguiente).
+'  - Una ocurrencia solo se completa dentro de su horario (desde el inicio hasta el fin del rango).
+'    El familiar puede cancelar cualquier ocurrencia que aún no terminó.
+'  - Una AssistedPerson no se da de baja; lo que se revoca es el acceso de un cuidador.
+'  - Al terminar cada día, un proceso programado crea un ActivityLog MISSED por cada ocurrencia
+'    sin registro cuya fecha de cierre es ese día. Un log MISSED queda cerrado.
+'  - Dentro del contexto, los aggregates se referencian directamente entre sí. Las referencias a
+'    otros contextos pasan solo por un Value Object de identidad (UserId, PersonProfileId, BusinessId).
+'  - ActivityAssignment es una entidad interna de CareActivity y se agrupa en el componente
+'    embebido ActivityAssignments. ActivityLog la referencia por assignmentId, no por objeto.
 '  - Los eventos son internos: cada evento activa el siguiente command.
 '  - Una invitación vencida (PENDING con expiresAt pasado) se calcula, no se guarda; se reenvía
 '    con ResendInvitationCommand sobre la misma invitación.
-'  - IAM y Communication se consumen por ACL (capa application, aún no implementada).
-'    Profiles solo se referencia por PersonProfileId; no se consume en este diagrama.
+'  - IAM, Communication, Profiles y Company se consumen por ACL (capa application, aún no implementada).
+'    Al crear un Relative: el ACL de Profiles valida que el email y el dni no estén registrados y crea el
+'    PersonProfile (devuelve el personProfileId), IAM crea el usuario con emailAddress + password
+'    (devuelve el userId) y Company valida que el Business exista (BusinessId).
+'    Los perfiles se buscan solo por id: nunca por email ni por dni.
+'    Al crear una AssistedPerson: solo Profiles (no tiene usuario en IAM).
 '  - Shared (herencia y Value Objects importados) solo se documenta en una nota; no se dibuja.
 '  - Todas las validaciones de negocio se hacen en el backend (la UI solo las refleja).
 '  - La zona horaria (Clock, America/Lima) es configuración global en Shared y el scheduler es
-'    infraestructura: no van en este diagrama.
+'    infraestructura: no van en este diagrama. El dominio recibe el instante actual (now / today)
+'    como parámetro de los métodos que lo necesitan.
 
 left to right direction
 skinparam linetype ortho
@@ -64,6 +105,7 @@ legend left
   |<#FFEBEE>   | Exception (dominio) |
   |<#E67E22>   | Command que crea / cambia un aggregate |
   |<#7E57C2>   | Referencia directa entre aggregates (mismo contexto) |
+  |<#AD1457>   | Entity -> componente embebido -> Aggregate (ActivityAssignment -> ActivityAssignments -> CareActivity) |
   |<#00838F>   | Evento interno: activa el siguiente command |
 endlegend
 
@@ -79,47 +121,90 @@ package alivia.platform.Assistance {
       - InvitationStatus status
       - LocalDateTime expiresAt
       --
+      + Invitation(AssistedPerson assistedPerson, Relative inviter, EmailAddress inviteeEmail, LocalDateTime expiresAt)
       + assignCaregiverAccount(UserId userId, String passwordSetupUrl)
-      + accept()
+      + assignExistingCaregiverAccount(UserId userId)
+      + accept(UserId caregiverUserId, LocalDateTime now)
       + renew(LocalDateTime newExpiresAt)
       + revoke()
-      + isExpired() : boolean
+      + isExpired(LocalDateTime now) : boolean
     }
 
     note bottom of Invitation
       <b>Invitation</b>
       Vencida = PENDING con expiresAt anterior a la hora actual
       (zona horaria global de Shared): se calcula con
-      isExpired(), no se guarda (por eso InvitationStatus no
+      isExpired(now), no se guarda (por eso InvitationStatus no
       tiene EXPIRED).
       Una vencida no se acepta (InvitationExpired) pero se puede
       reenviar: renew() le da una nueva vigencia y vuelve a
-      correr el mismo ciclo (cuenta, correo, aceptación) sobre
+      correr el mismo ciclo (cuenta, aviso, aceptación) sobre
       la misma invitación y la misma cuenta del cuidador.
+      Dos caminos según IAM:
+      cuenta nueva: assignCaregiverAccount, correo con url y
+      se acepta al cambiar la contraseña.
+      cuenta existente: assignExistingCaregiverAccount,
+      notificación en la app y el cuidador acepta desde ahí.
       Si fue REVOKED se crea una invitación nueva; si fue
       ACCEPTED, el Caregiver ya existe.
+      --
+      <b>Invariantes de sus métodos</b>
+      Constructor: assistedPerson.isManagedBy(inviter)
+      (AssistedPersonNotManagedByRelative); estado PENDING;
+      registra InvitationCreatedEvent.
+      assignCaregiverAccount: PENDING (InvitationNotPending); si ya
+      tenía cuenta, debe ser el mismo userId (reenvío).
+      Registra InvitationAccountCreatedEvent.
+      assignExistingCaregiverAccount: mismas reglas;
+      registra InvitationNotificationRequestedEvent.
+      accept: PENDING (InvitationNotPending), no vencida
+      (InvitationExpired), con cuenta asignada
+      (CaregiverAccountNotAssigned) y caregiverUserId igual al
+      asignado (InvitationNotForUser). Registra InvitationAcceptedEvent.
+      renew: PENDING (InvitationNotPending). Registra InvitationResentEvent.
+      revoke: PENDING (InvitationNotPending).
     end note
 
     class Relative #DCEBFA {
       - UserId userId
       - PersonProfileId personProfileId
+      - BusinessId businessId
+      --
+      + Relative(UserId userId, PersonProfileId personProfileId, BusinessId businessId)
     }
 
     class AssistedPerson #DCEBFA {
       - PersonProfileId personProfileId
       - Relative relative
       --
+      + AssistedPerson(PersonProfileId personProfileId, Relative relative)
       + isManagedBy(Relative relative) : boolean
     }
+
+    note bottom of AssistedPerson
+      No se da de baja: no tiene estado ni método para
+      eliminarla. Lo que se revoca es el acceso de un
+      cuidador (Caregiver.revoke).
+      Su PersonProfile puede no tener email.
+    end note
 
     class Caregiver #DCEBFA {
       - UserId userId
       - AssistedPerson assistedPerson
       - CaregiverStatus status
       --
+      + Caregiver(UserId userId, AssistedPerson assistedPerson)
       + revoke()
       + isActive() : boolean
+      + isCaregiverOf(AssistedPerson assistedPerson) : boolean
     }
+
+    note bottom of Caregiver
+      <b>Invariantes de sus métodos</b>
+      Constructor: estado ACTIVE.
+      revoke: ACTIVE (CaregiverAlreadyRevoked); pasa a
+      REVOKED y registra CaregiverAccessRevokedEvent.
+    end note
 
     class CareActivity #DCEBFA {
       - AssistedPerson assistedPerson
@@ -127,19 +212,37 @@ package alivia.platform.Assistance {
       - String title
       - String description
       - ActivityStatus status
-      - List<ActivityAssignment> assignments
+      - ActivityAssignments activityAssignments
       --
+      + CareActivity(AssistedPerson assistedPerson, CareActivityType type, String title, String description)
       + update(CareActivityType type, String title, String description)
       + activate()
       + deactivate()
-      + assign(Caregiver caregiver, Schedule schedule)
-      + updateAssignment(ActivityAssignment assignment, Caregiver caregiver, Schedule schedule)
-      + activateAssignment(ActivityAssignment assignment)
-      + deactivateAssignment(ActivityAssignment assignment)
+      + assign(Caregiver caregiver, Schedule schedule, LocalDate today)
+      + updateAssignment(Long assignmentId, Caregiver caregiver, Schedule schedule, LocalDate today)
+      + activateAssignment(Long assignmentId)
+      + deactivateAssignment(Long assignmentId)
       + reassignToRelative(Caregiver revokedCaregiver)
       + occurrencesOn(LocalDate date) : List<ActivityAssignment>
       + isActive() : boolean
     }
+
+    note bottom of CareActivity
+      <b>Invariantes de sus métodos</b>
+      assign / updateAssignment: actividad ACTIVE
+      (CareActivityNotActive); si caregiver no es null,
+      caregiver.isActive() (CaregiverNotActive) y
+      caregiver.isCaregiverOf(assistedPerson)
+      (CaregiverNotFound); ONE_TIME con fecha no anterior
+      a today (InvalidSchedule).
+      updateAssignment / activateAssignment /
+      deactivateAssignment: la asignación existe
+      (ActivityAssignmentNotFound).
+      Lo que cruza aggregates queda en el service:
+      ScheduleConflict (asignaciones del mismo cuidador en
+      otras CareActivity) y ScheduleNotEditable (requiere
+      consultar los ActivityLog).
+    end note
 
     class ActivityLog #DCEBFA {
       - AssistedPerson assistedPerson
@@ -154,10 +257,9 @@ package alivia.platform.Assistance {
       - LocalDateTime completedAt
       - String notes
       --
-      + {static} completed(...)
-      + {static} cancelled(...)
-      + {static} missed(...)
-      + isLate() : boolean
+      + {static} completed(CareActivity activity, ActivityAssignment assignment, LocalDate date, Caregiver completedBy, LocalDateTime at, String notes) : ActivityLog
+      + {static} cancelled(CareActivity activity, ActivityAssignment assignment, LocalDate date, LocalDateTime at) : ActivityLog
+      + {static} missed(CareActivity activity, ActivityAssignment assignment, LocalDate date, LocalDate today) : ActivityLog
     }
 
     note bottom of ActivityLog
@@ -169,23 +271,34 @@ package alivia.platform.Assistance {
       lo vigente ese día: el historial no cambia si la
       asignación se edita después.
       assignmentId: ActivityAssignment es entidad interna de
-      CareActivity, por eso el log la guarda por id (como
-      TutorialId en Learning).
+      CareActivity, por eso el log la guarda por id.
       completedBy null = lo completó el familiar.
       MISSED no tiene completedBy: nadie lo hizo.
-      isLate() = completedAt posterior al fin del timeRange.
-      "Completada con retraso" no es un cuarto estado: es
-      COMPLETED con isLate() = true.
       Es el historial que consulta el familiar (el de él y el de
       todos sus cuidadores) y cada cuidador (solo el suyo).
       --
-      <b>Parámetros de las fábricas</b>
-      completed / cancelled / missed reciben:
-      CareActivity activity, ActivityAssignment assignment,
-      LocalDate date
-      completed además: Caregiver completedBy,
-      LocalDateTime at, String notes
-      cancelled además: LocalDateTime at
+      <b>Invariantes de las fábricas</b>
+      Las tres: assignment pertenece a activity
+      (ActivityAssignmentNotFound) y assignment.occursOn(date)
+      (OccurrenceNotScheduled). assistedPerson se toma de
+      activity, title de activity y timeRange de
+      assignment.schedule.effectiveTimeRange(): no se reciben
+      por separado y no pueden contradecirse.
+      completed: actividad y asignación ACTIVE
+      (CareActivityNotActive, ActivityAssignmentNotActive);
+      completedBy es el responsable de la asignación
+      (NotResponsibleForActivity) y, si es cuidador, está ACTIVE
+      (CaregiverNotActive); at cae dentro del horario:
+      entre occurrenceStart(date) y occurrenceEnd(date)
+      (OccurrenceNotStarted antes, OccurrenceEnded después).
+      cancelled: la ocurrencia aún no terminó, at anterior a
+      occurrenceEnd(date) (OccurrenceEnded); actividad y
+      asignación ACTIVE. Puede ser cualquier fecha futura.
+      missed: la fecha de cierre es anterior a today
+      (DayNotClosedYet).
+      La unicidad (assignmentId, date) cruza aggregates: la
+      valida el service (OccurrenceClosed) y la respalda la
+      restricción única.
     end note
 
   }
@@ -211,16 +324,27 @@ package alivia.platform.Assistance {
       caregiver null = la actividad la hace el familiar.
       Vive dentro de CareActivity: solo se accede por su root.
       careActivity = referencia de vuelta a su root: lado dueño
-      de la relación (igual que LearningPathItem -> Course en
-      Learning).
+      de la relación.
+      Se agrupa en el componente ActivityAssignments.
     end note
   }
 
   package "domain.model.events" #DDF3F5 {
 
-    class InvitationCreatedEvent <<Record>> #CDEFF2 {
-      + InvitationCreatedEvent(Long invitationId)
+    class InvitationCreatedEvent #CDEFF2 {
+      - Invitation invitation
+      --
+      + InvitationCreatedEvent(Invitation invitation)
+      + getInvitationId() : Long
     }
+
+    note bottom of InvitationCreatedEvent
+      Se registra en el constructor de Invitation, cuando
+      aún no hay id. getInvitationId() lo lee del aggregate
+      al publicarse, después del save.
+      Los demás eventos se registran sobre aggregates ya
+      guardados y pueden llevar el id directamente.
+    end note
 
     class InvitationResentEvent <<Record>> #CDEFF2 {
       + InvitationResentEvent(Long invitationId)
@@ -228,6 +352,10 @@ package alivia.platform.Assistance {
 
     class InvitationAccountCreatedEvent <<Record>> #CDEFF2 {
       + InvitationAccountCreatedEvent(Long invitationId, String inviteeEmail, String passwordSetupUrl)
+    }
+
+    class InvitationNotificationRequestedEvent <<Record>> #CDEFF2 {
+      + InvitationNotificationRequestedEvent(Long invitationId, Long caregiverUserId)
     }
 
     class InvitationAcceptedEvent <<Record>> #CDEFF2 {
@@ -241,6 +369,40 @@ package alivia.platform.Assistance {
 
   package "domain.model.valueobjects" #F9F4FD {
 
+    class ActivityAssignments <<Embedded>> #EADCF8 {
+      - List<ActivityAssignment> activityAssignments
+      --
+      + ActivityAssignments()
+      + getAssignmentWithId(Long assignmentId) : ActivityAssignment
+      - getFirstAssignmentWhere(Predicate<ActivityAssignment> predicate) : ActivityAssignment
+      + addAssignment(CareActivity careActivity, Caregiver caregiver, Schedule schedule) : ActivityAssignment
+      + updateAssignment(Long assignmentId, Caregiver caregiver, Schedule schedule)
+      + activateAssignment(Long assignmentId)
+      + deactivateAssignment(Long assignmentId)
+      + reassignToRelative(Caregiver revokedCaregiver)
+      + occurrencesOn(LocalDate date) : List<ActivityAssignment>
+      + isEmpty() : boolean
+    }
+
+    note bottom of ActivityAssignments
+      <b>ActivityAssignments</b> (propio de Assistance)
+      Componente embebido en CareActivity que agrupa sus
+      ActivityAssignment.
+      No es un value object en sentido estricto: es mutable
+      y contiene entidades con identidad. Se ubica en
+      valueobjects porque se embebe en el aggregate.
+      Flujo: ActivityAssignment -> ActivityAssignments ->
+      CareActivity. CareActivity delega en él: assign agrega
+      con addAssignment; update / activate / deactivate buscan
+      la asignación por assignmentId.
+      Las asignaciones solo se acceden por su root.
+      Constructor: inicia la lista vacía y mutable (new ArrayList):
+      con una lista inmutable, assign fallaría en una
+      CareActivity recién creada.
+      getAssignmentWithId usa getFirstAssignmentWhere y lanza
+      ActivityAssignmentNotFound si no existe (nunca devuelve null).
+    end note
+
     class Schedule <<Record>> #EADCF8 {
       - ScheduleType type
       - LocalDate date
@@ -251,6 +413,9 @@ package alivia.platform.Assistance {
       + {static} weekly(WeeklyPeriod weeklyPeriod) : Schedule
       + occursOn(LocalDate date) : boolean
       + effectiveTimeRange() : TimeRange
+      + occurrenceStart(LocalDate date) : LocalDateTime
+      + occurrenceEnd(LocalDate date) : LocalDateTime
+      + closingDate(LocalDate date) : LocalDate
       + overlapsWith(Schedule other) : boolean
     }
 
@@ -265,10 +430,27 @@ package alivia.platform.Assistance {
       weeklyPeriod.
       effectiveTimeRange: el rango de cualquiera de las dos
       formas (es el que se copia al ActivityLog).
+      Rango que cruza medianoche: la ocurrencia pertenece a
+      la fecha en que empieza. Lunes 22:00-06:00 es la
+      ocurrencia del lunes y termina el martes a las 06:00.
+      occurrenceStart / occurrenceEnd: fecha y hora reales
+      de inicio y fin de la ocurrencia de date.
+      closingDate: occurrenceEnd(date).toLocalDate(); el día
+      en que MarkMissedActivitiesCommand la cierra.
+      overlapsWith: alguna ocurrencia de uno se cruza en el
+      tiempo con alguna del otro, comparando fecha y hora
+      reales (lunes 22:00-06:00 se cruza con martes
+      05:00-07:00; ONE_TIME contra WEEKLY usa el día de la
+      semana de la fecha).
+      El constructor solo valida la forma (InvalidSchedule).
+      "La fecha no está en el pasado" no va aquí: al
+      reconstruir una asignación antigua fallaría. La valida
+      CareActivity.assign / updateAssignment con today.
     end note
 
     class AgendaItem <<Record>> #EADCF8 {
       + AgendaItem(...)
+      + {static} of(CareActivity activity, ActivityAssignment assignment, LocalDate date, ActivityLog log, LocalDateTime now) : AgendaItem
     }
 
     note bottom of AgendaItem
@@ -278,8 +460,8 @@ package alivia.platform.Assistance {
       con los ActivityLog y la hora actual.
       No tiene services propios: no es un aggregate. Sus
       queries las resuelve CareActivityQueryService.
-      GetAgendaByAssistedPersonId: toda la persona (familiar
-      y cuidadores). GetAgendaByCaregiverId: solo lo asignado
+      GetAgendaByAssistedPersonIdQuery: toda la persona (familiar
+      y cuidadores). GetAgendaByCaregiverIdQuery: solo lo asignado
       a ese cuidador.
       --
       Long careActivityId
@@ -291,6 +473,17 @@ package alivia.platform.Assistance {
       Long caregiverId
       boolean recurring
       OccurrenceStatus status
+      --
+      <b>Cálculo de status en of(...)</b> (log puede ser null)
+      log CANCELLED: CANCELLED. log MISSED: MISSED.
+      log COMPLETED: COMPLETED.
+      Sin log, comparando now con occurrenceStart y
+      occurrenceEnd: SCHEDULED antes del inicio,
+      IN_PROGRESS dentro del rango y MISSED después del fin
+      (ya no se puede completar; MarkMissedActivitiesCommand
+      registra el log después).
+      La agenda de una fecha muestra las ocurrencias que
+      empiezan ese día.
     end note
 
     enum ScheduleType <<Enum>> #EADCF8 {
@@ -322,9 +515,7 @@ package alivia.platform.Assistance {
     enum OccurrenceStatus <<Enum>> #EADCF8 {
       SCHEDULED
       IN_PROGRESS
-      OVERDUE
       COMPLETED
-      COMPLETED_LATE
       CANCELLED
       MISSED
     }
@@ -355,6 +546,10 @@ package alivia.platform.Assistance {
       + InvitationExpired()
     }
 
+    class InvitationNotForUser <<Exception>> #FFEBEE {
+      + InvitationNotForUser()
+    }
+
     class InvitationAlreadyExists <<Exception>> #FFEBEE {
       + InvitationAlreadyExists()
     }
@@ -367,17 +562,23 @@ package alivia.platform.Assistance {
       + RelativeNotFound()
     }
 
-    class RelativeAlreadyExists <<Exception>> #FFEBEE {
-      + RelativeAlreadyExists()
+
+    class DniAlreadyExists <<Exception>> #FFEBEE {
+      + DniAlreadyExists()
+    }
+
+    class EmailAddressAlreadyExists <<Exception>> #FFEBEE {
+      + EmailAddressAlreadyExists()
+    }
+
+    class BusinessNotFound <<Exception>> #FFEBEE {
+      + BusinessNotFound()
     }
 
     class AssistedPersonNotFound <<Exception>> #FFEBEE {
       + AssistedPersonNotFound()
     }
 
-    class AssistedPersonAlreadyExists <<Exception>> #FFEBEE {
-      + AssistedPersonAlreadyExists()
-    }
 
     class AssistedPersonNotManagedByRelative <<Exception>> #FFEBEE {
       + AssistedPersonNotManagedByRelative()
@@ -431,12 +632,16 @@ package alivia.platform.Assistance {
       + OccurrenceNotScheduled()
     }
 
-    class OccurrenceInFuture <<Exception>> #FFEBEE {
-      + OccurrenceInFuture()
+    class OccurrenceNotStarted <<Exception>> #FFEBEE {
+      + OccurrenceNotStarted()
     }
 
     class OccurrenceClosed <<Exception>> #FFEBEE {
       + OccurrenceClosed()
+    }
+
+    class OccurrenceEnded <<Exception>> #FFEBEE {
+      + OccurrenceEnded()
     }
 
     class NotResponsibleForActivity <<Exception>> #FFEBEE {
@@ -451,11 +656,11 @@ package alivia.platform.Assistance {
   package "domain.model.commands" #FFF8EE {
 
     class CreateRelativeCommand <<Record>> #FFE4C4 {
-      + CreateRelativeCommand(Long userId, Long personProfileId)
+      + CreateRelativeCommand(...)
     }
 
     class CreateAssistedPersonCommand <<Record>> #FFE4C4 {
-      + CreateAssistedPersonCommand(Long relativeId, Long personProfileId)
+      + CreateAssistedPersonCommand(...)
     }
 
     class CreateInvitationCommand <<Record>> #FFE4C4 {
@@ -464,6 +669,10 @@ package alivia.platform.Assistance {
 
     class RegisterCaregiverAccountCommand <<Record>> #FFE4C4 {
       + RegisterCaregiverAccountCommand(Long invitationId)
+    }
+
+    class SendInvitationNotificationCommand <<Record>> #FFE4C4 {
+      + SendInvitationNotificationCommand(Long invitationId, Long caregiverUserId)
     }
 
     class SendInvitationEmailCommand <<Record>> #FFE4C4 {
@@ -531,70 +740,78 @@ package alivia.platform.Assistance {
     }
 
     class CancelActivityOccurrenceCommand <<Record>> #FFE4C4 {
-      + CancelActivityOccurrenceCommand(Long assignmentId, LocalDate date, Long relativeId)
+      + CancelActivityOccurrenceCommand(Long careActivityId, Long assignmentId, LocalDate date, Long relativeId)
     }
 
     class MarkMissedActivitiesCommand <<Record>> #FFE4C4 {
-      + MarkMissedActivitiesCommand(LocalDate date)
+      + MarkMissedActivitiesCommand(LocalDate closingDate)
     }
   }
 
   package "domain.model.queries" #F3FBF4 {
 
-    class GetInvitationById <<Record>> #D5F0D8 {
-      + GetInvitationById(Long invitationId)
+    class GetInvitationByIdQuery <<Record>> #D5F0D8 {
+      + GetInvitationByIdQuery(Long invitationId)
     }
 
-    class GetInvitationsByAssistedPersonId <<Record>> #D5F0D8 {
-      + GetInvitationsByAssistedPersonId(Long assistedPersonId)
+    class GetPendingInvitationsByCaregiverUserIdQuery <<Record>> #D5F0D8 {
+      + GetPendingInvitationsByCaregiverUserIdQuery(Long caregiverUserId)
     }
 
-    class GetAssistedPersonsByRelativeId <<Record>> #D5F0D8 {
-      + GetAssistedPersonsByRelativeId(Long relativeId)
+    class GetInvitationsByAssistedPersonIdQuery <<Record>> #D5F0D8 {
+      + GetInvitationsByAssistedPersonIdQuery(Long assistedPersonId)
     }
 
-    class GetAssistedPersonById <<Record>> #D5F0D8 {
-      + GetAssistedPersonById(Long assistedPersonId, Long relativeId)
+    class GetAssistedPersonsByRelativeIdQuery <<Record>> #D5F0D8 {
+      + GetAssistedPersonsByRelativeIdQuery(Long relativeId)
     }
 
-    class GetRelativeById <<Record>> #D5F0D8 {
-      + GetRelativeById(Long relativeId)
+    class GetAssistedPersonByIdQuery <<Record>> #D5F0D8 {
+      + GetAssistedPersonByIdQuery(Long assistedPersonId)
     }
 
-    class GetRelativeByUserId <<Record>> #D5F0D8 {
-      + GetRelativeByUserId(Long userId)
+    class GetRelativeByIdQuery <<Record>> #D5F0D8 {
+      + GetRelativeByIdQuery(Long relativeId)
     }
 
-    class GetCaregiversByAssistedPersonId <<Record>> #D5F0D8 {
-      + GetCaregiversByAssistedPersonId(Long assistedPersonId)
+    class GetRelativeByUserIdQuery <<Record>> #D5F0D8 {
+      + GetRelativeByUserIdQuery(Long userId)
     }
 
-    class GetCaregiversByUserId <<Record>> #D5F0D8 {
-      + GetCaregiversByUserId(Long userId)
+    class GetRelativesByBusinessIdQuery <<Record>> #D5F0D8 {
+      + GetRelativesByBusinessIdQuery(Long businessId)
     }
 
-    class GetCareActivityById <<Record>> #D5F0D8 {
-      + GetCareActivityById(Long careActivityId)
+    class GetCaregiversByAssistedPersonIdQuery <<Record>> #D5F0D8 {
+      + GetCaregiversByAssistedPersonIdQuery(Long assistedPersonId)
     }
 
-    class GetCareActivitiesByAssistedPersonId <<Record>> #D5F0D8 {
-      + GetCareActivitiesByAssistedPersonId(Long assistedPersonId)
+    class GetCaregiversByUserIdQuery <<Record>> #D5F0D8 {
+      + GetCaregiversByUserIdQuery(Long userId)
     }
 
-    class GetAgendaByAssistedPersonId <<Record>> #D5F0D8 {
-      + GetAgendaByAssistedPersonId(Long assistedPersonId, LocalDate from, LocalDate to)
+    class GetCareActivityByIdQuery <<Record>> #D5F0D8 {
+      + GetCareActivityByIdQuery(Long careActivityId)
     }
 
-    class GetAgendaByCaregiverId <<Record>> #D5F0D8 {
-      + GetAgendaByCaregiverId(Long caregiverId, LocalDate from, LocalDate to)
+    class GetCareActivitiesByAssistedPersonIdQuery <<Record>> #D5F0D8 {
+      + GetCareActivitiesByAssistedPersonIdQuery(Long assistedPersonId)
     }
 
-    class GetActivityLogsByAssistedPersonId <<Record>> #D5F0D8 {
-      + GetActivityLogsByAssistedPersonId(Long assistedPersonId, LocalDate from, LocalDate to)
+    class GetAgendaByAssistedPersonIdQuery <<Record>> #D5F0D8 {
+      + GetAgendaByAssistedPersonIdQuery(Long assistedPersonId, LocalDate from, LocalDate to)
     }
 
-    class GetActivityLogsByCaregiverId <<Record>> #D5F0D8 {
-      + GetActivityLogsByCaregiverId(Long caregiverId, LocalDate from, LocalDate to)
+    class GetAgendaByCaregiverIdQuery <<Record>> #D5F0D8 {
+      + GetAgendaByCaregiverIdQuery(Long caregiverId, LocalDate from, LocalDate to)
+    }
+
+    class GetActivityLogsByAssistedPersonIdQuery <<Record>> #D5F0D8 {
+      + GetActivityLogsByAssistedPersonIdQuery(Long assistedPersonId, LocalDate from, LocalDate to)
+    }
+
+    class GetActivityLogsByCaregiverIdQuery <<Record>> #D5F0D8 {
+      + GetActivityLogsByCaregiverIdQuery(Long caregiverId, LocalDate from, LocalDate to)
     }
   }
 
@@ -612,6 +829,7 @@ package alivia.platform.Assistance {
       Long handle(CreateInvitationCommand command)
       Long handle(RegisterCaregiverAccountCommand command)
       void handle(SendInvitationEmailCommand command)
+      void handle(SendInvitationNotificationCommand command)
       Long handle(AcceptInvitationCommand command)
       Long handle(RevokeInvitationCommand command)
       Long handle(ResendInvitationCommand command)
@@ -641,35 +859,37 @@ package alivia.platform.Assistance {
     }
 
     interface InvitationQueryService #FFF3B0 {
-      Optional<Invitation> handle(GetInvitationById query)
-      List<Invitation> handle(GetInvitationsByAssistedPersonId query)
+      Optional<Invitation> handle(GetInvitationByIdQuery query)
+      List<Invitation> handle(GetInvitationsByAssistedPersonIdQuery query)
+      List<Invitation> handle(GetPendingInvitationsByCaregiverUserIdQuery query)
     }
 
     interface RelativeQueryService #FFF3B0 {
-      Optional<Relative> handle(GetRelativeById query)
-      Optional<Relative> handle(GetRelativeByUserId query)
+      Optional<Relative> handle(GetRelativeByIdQuery query)
+      Optional<Relative> handle(GetRelativeByUserIdQuery query)
+      List<Relative> handle(GetRelativesByBusinessIdQuery query)
     }
 
     interface AssistedPersonQueryService #FFF3B0 {
-      List<AssistedPerson> handle(GetAssistedPersonsByRelativeId query)
-      Optional<AssistedPerson> handle(GetAssistedPersonById query)
+      List<AssistedPerson> handle(GetAssistedPersonsByRelativeIdQuery query)
+      Optional<AssistedPerson> handle(GetAssistedPersonByIdQuery query)
     }
 
     interface CaregiverQueryService #FFF3B0 {
-      List<Caregiver> handle(GetCaregiversByAssistedPersonId query)
-      List<Caregiver> handle(GetCaregiversByUserId query)
+      List<Caregiver> handle(GetCaregiversByAssistedPersonIdQuery query)
+      List<Caregiver> handle(GetCaregiversByUserIdQuery query)
     }
 
     interface CareActivityQueryService #FFF3B0 {
-      Optional<CareActivity> handle(GetCareActivityById query)
-      List<CareActivity> handle(GetCareActivitiesByAssistedPersonId query)
-      List<AgendaItem> handle(GetAgendaByAssistedPersonId query)
-      List<AgendaItem> handle(GetAgendaByCaregiverId query)
+      Optional<CareActivity> handle(GetCareActivityByIdQuery query)
+      List<CareActivity> handle(GetCareActivitiesByAssistedPersonIdQuery query)
+      List<AgendaItem> handle(GetAgendaByAssistedPersonIdQuery query)
+      List<AgendaItem> handle(GetAgendaByCaregiverIdQuery query)
     }
 
     interface ActivityLogQueryService #FFF3B0 {
-      List<ActivityLog> handle(GetActivityLogsByAssistedPersonId query)
-      List<ActivityLog> handle(GetActivityLogsByCaregiverId query)
+      List<ActivityLog> handle(GetActivityLogsByAssistedPersonIdQuery query)
+      List<ActivityLog> handle(GetActivityLogsByCaregiverIdQuery query)
     }
   }
 }
@@ -677,19 +897,30 @@ package alivia.platform.Assistance {
 note as N_ContextosExternos
   <b>Contextos externos (fuera de este diagrama)</b>
   --
-  <b>IAM</b> (ACL): crea la cuenta del cuidador con inviteeEmail y devuelve
-  userId + url para cambiar la contraseña. Cuando la contraseña se
-  cambia, avisa y se ejecuta AcceptInvitationCommand.
+  <b>IAM</b> (ACL): el usuario es email + password. Al crear un
+  Relative crea el usuario con emailAddress + password y devuelve
+  el userId. Al invitar a un cuidador: si inviteeEmail ya tiene
+  cuenta, devuelve su userId sin crear otra; si no, crea la
+  cuenta y devuelve userId + url para cambiar la contraseña.
+  Cuando la contraseña se cambia, avisa y se ejecuta
+  AcceptInvitationCommand.
   <b>Communication</b> (ACL): envía el correo con la url
-  (SendInvitationEmailCommand).
-  <b>Profiles</b>: dueño del perfil de Relative y AssistedPerson
-  (el perfil se crea allí antes; aquí solo llega el
-  PersonProfileId).
+  (SendInvitationEmailCommand) o la notificación en la app
+  (SendInvitationNotificationCommand).
+  <b>Profiles</b> (ACL): dueño del PersonProfile de Relative y
+  AssistedPerson. Al crear un Relative o una AssistedPerson,
+  valida que el email y el dni no estén registrados (en la
+  AssistedPerson el email es opcional) y crea el perfil con
+  los datos del command; devuelve el personProfileId.
+  <b>Company</b> (ACL): dueño del Business. Al crear un Relative
+  valida que el negocio exista con su businessId.
   --
   UserId identifica al usuario de IAM (Relative, Caregiver e
   Invitation lo guardan).
-  PersonProfileId identifica el perfil de Profiles (Relative y
-  AssistedPerson lo guardan).
+  PersonProfileId identifica el PersonProfile de Profiles
+  (Relative y AssistedPerson lo guardan).
+  BusinessId identifica el Business de Company (Relative lo
+  guarda).
 end note
 
 ' ---------- REFERENCIAS DIRECTAS ENTRE AGGREGATES (mismo contexto) ----------
@@ -704,8 +935,11 @@ ActivityLog .[#7E57C2].> CareActivity
 ActivityLog .[#7E57C2].> Caregiver
 
 ' ---------- COMPOSICIÓN ----------
-CareActivity "1" *-- "0..*" ActivityAssignment : assignments
 ActivityAssignment *-- Schedule
+
+' ---------- ENTITY -> VALUE OBJECT -> AGGREGATE ----------
+ActivityAssignment -[#AD1457]-> ActivityAssignments
+ActivityAssignments -[#AD1457]-> CareActivity
 
 ' ---------- ALTA DE RELATIVE Y ASSISTEDPERSON ----------
 CreateRelativeCommand -[#E67E22]-> Relative
@@ -718,6 +952,8 @@ InvitationCreatedEvent .[#00838F].> RegisterCaregiverAccountCommand
 RegisterCaregiverAccountCommand -[#E67E22]-> Invitation
 Invitation .[#00838F].> InvitationAccountCreatedEvent
 InvitationAccountCreatedEvent .[#00838F].> SendInvitationEmailCommand
+Invitation .[#00838F].> InvitationNotificationRequestedEvent
+InvitationNotificationRequestedEvent .[#00838F].> SendInvitationNotificationCommand
 AcceptInvitationCommand -[#E67E22]-> Invitation
 Invitation .[#00838F].> InvitationAcceptedEvent
 InvitationAcceptedEvent .[#00838F].> CreateCaregiverCommand
@@ -749,12 +985,65 @@ CancelActivityOccurrenceCommand -[#E67E22]-> ActivityLog
 MarkMissedActivitiesCommand -[#E67E22]-> ActivityLog
 
 ' ---------- NOTAS: VARIABLES Y REGLAS DE CADA COMMAND ----------
+note as N_CreateRelative
+  <b>CreateRelativeCommand</b>
+  --
+  Long businessId  // BusinessId: Business del contexto Company
+  // credenciales (IAM)
+  String emailAddress  // también es el email del PersonProfile
+  String password  // oculto en toString() para que no llegue a los logs
+  // datos del PersonProfile (Profiles)
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  String dni
+  LocalDate birthDate
+  --
+  <b>Valida</b>
+  El negocio existe en Company (BusinessNotFound).
+  Profiles (ACL) valida que el email y el dni no estén
+  registrados (ExistsPersonProfileByEmailAddressQuery,
+  ExistsPersonProfileByDniQuery; EmailAddressAlreadyExists,
+  DniAlreadyExists) y crea el PersonProfile con estos datos;
+  devuelve el personProfileId.
+  Los perfiles nunca se buscan por email ni por dni: solo por id.
+  IAM (ACL) crea el usuario con emailAddress + password y
+  devuelve el userId, que se guarda en el Relative.
+end note
+
+note as N_CreateAssistedPerson
+  <b>CreateAssistedPersonCommand</b>
+  --
+  Long relativeId
+  // datos del PersonProfile (Profiles)
+  String emailAddress  // opcional
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  String dni
+  LocalDate birthDate
+  --
+  <b>Valida</b>
+  El Relative existe (RelativeNotFound).
+  Profiles (ACL) valida que el dni y, si viene, el email no
+  estén registrados (ExistsPersonProfileByDniQuery,
+  ExistsPersonProfileByEmailAddressQuery; DniAlreadyExists,
+  EmailAddressAlreadyExists) y crea el PersonProfile con estos
+  datos; devuelve el personProfileId.
+  Los perfiles nunca se buscan por email ni por dni: solo por id.
+  Queda gestionada por ese Relative.
+end note
+
 note as N_CreateCareActivity
   <b>CreateCareActivityCommand</b>
   --
   Long relativeId
   Long assistedPersonId
-  String type  // CareActivityType
+  CareActivityType type
   String title
   String description
   --
@@ -767,7 +1056,7 @@ note as N_UpdateCareActivity
   --
   Long careActivityId
   Long relativeId
-  String type  // CareActivityType
+  CareActivityType type
   String title
   String description
   --
@@ -782,7 +1071,7 @@ note as N_AssignCareActivity
   Long careActivityId
   Long relativeId
   Long caregiverId  // opcional: null = la hace el familiar
-  String scheduleType  // ONE_TIME | WEEKLY
+  ScheduleType scheduleType
   Set<DayOfWeek> days  // solo WEEKLY
   LocalDate date  // solo ONE_TIME
   LocalTime startTime
@@ -794,7 +1083,9 @@ note as N_AssignCareActivity
   Si hay caregiverId: es Caregiver ACTIVE de esa persona
   (CaregiverNotActive).
   Schedule válido: ONE_TIME con date, WEEKLY con days,
-  startTime < endTime (InvalidSchedule).
+  startTime distinto de endTime (InvalidSchedule).
+  Si endTime es anterior a startTime, cruza medianoche
+  y termina al día siguiente (22:00-06:00).
   ONE_TIME: la fecha no está en el pasado.
   No choca con otra asignación ACTIVE del mismo
   cuidador (ScheduleConflict).
@@ -807,7 +1098,7 @@ note as N_UpdateAssignment
   Long assignmentId
   Long relativeId
   Long caregiverId  // opcional: null = la hace el familiar
-  String scheduleType  // ONE_TIME | WEEKLY
+  ScheduleType scheduleType
   Set<DayOfWeek> days  // solo WEEKLY
   LocalDate date  // solo ONE_TIME
   LocalTime startTime
@@ -824,6 +1115,7 @@ end note
 note as N_CompleteActivity
   <b>CompleteActivityCommand</b>
   --
+  Long careActivityId
   Long assignmentId
   Long relativeId  // exactamente uno de relativeId
   Long caregiverId  // o caregiverId viene informado
@@ -831,20 +1123,28 @@ note as N_CompleteActivity
   String notes
   --
   <b>Valida</b>
+  La actividad existe (CareActivityNotFound) y la asignación
+  está en ella (ActivityAssignmentNotFound).
   La actividad y la asignación están ACTIVE
   (CareActivityNotActive, ActivityAssignmentNotActive).
   La asignación ocurre en esa fecha
   (OccurrenceNotScheduled).
-  La fecha no es posterior a hoy (OccurrenceInFuture).
+  Se completa solo dentro del horario de la ocurrencia
+  (OccurrenceNotStarted antes del inicio, OccurrenceEnded
+  después del fin).
   Quien completa es el responsable de la asignación
   (NotResponsibleForActivity); si es cuidador,
   sigue ACTIVE (CaregiverNotActive).
   No existe log para (assignmentId, date). Si ya hay uno
   (COMPLETED, CANCELLED o MISSED): OccurrenceClosed.
-  Se puede completar después de su rango horario,
-  solo durante ese mismo día (queda "tarde").
+  Lunes 22:00-06:00: se completa entre el lunes 22:00 y
+  el martes 06:00.
+  Todo excepto la unicidad del log lo valida
+  ActivityLog.completed(...).
 end note
 
+CreateRelativeCommand .. N_CreateRelative
+CreateAssistedPersonCommand .. N_CreateAssistedPerson
 CreateCareActivityCommand .. N_CreateCareActivity
 UpdateCareActivityCommand .. N_UpdateCareActivity
 AssignCareActivityCommand .. N_AssignCareActivity
@@ -855,20 +1155,23 @@ CompleteActivityCommand .. N_CompleteActivity
 note as N_RulesRelative
   <b>Reglas de Relative y AssistedPerson</b>
   --
-  CreateRelativeCommand: el familiar ya tiene usuario en IAM
-  y perfil en Profiles; no existe otro Relative para ese
-  userId (RelativeAlreadyExists).
+  CreateRelativeCommand: IAM (ACL) crea el usuario con
+  emailAddress + password y devuelve el userId; Profiles (ACL)
+  valida que el email y el dni no estén registrados
+  (EmailAddressAlreadyExists, DniAlreadyExists) y crea el
+  perfil con los datos
+  del command. Guarda el userId, el personProfileId y el
+  businessId (el Business debe existir en Company:
+  BusinessNotFound).
   CreateAssistedPersonCommand: el Relative existe
-  (RelativeNotFound); el perfil de la persona se crea antes en
-  Profiles y aquí solo llega su personProfileId; no existe otra
-  AssistedPerson con ese personProfileId
-  (AssistedPersonAlreadyExists). Queda gestionada por ese Relative.
-  GetAssistedPersonById: la AssistedPerson existe
-  (AssistedPersonNotFound) y pertenece a relativeId
-  (AssistedPersonNotManagedByRelative). Devuelve el aggregate;
-  nombre y datos personales viven en Profiles y se resuelven por
-  personProfileId fuera de este contexto.
-  GetRelativeByUserId y GetCaregiversByUserId resuelven, desde
+  (RelativeNotFound); Profiles (ACL) valida que el dni y, si
+  viene, el email no estén registrados (DniAlreadyExists,
+  EmailAddressAlreadyExists) y crea el perfil con los datos del
+  command. Queda gestionada por ese Relative.
+  GetAssistedPersonByIdQuery: devuelve el aggregate (Optional vacío
+  si no existe); nombre y datos personales viven en Profiles y
+  se resuelven por personProfileId fuera de este contexto.
+  GetRelativeByUserIdQuery y GetCaregiversByUserIdQuery resuelven, desde
   el usuario logueado (UserId de IAM), los ids que piden los
   demás commands y queries. Un usuario tiene a lo sumo un
   Relative y puede tener varios Caregiver ACTIVE (uno por
@@ -884,26 +1187,37 @@ note as N_RulesInvitation
   Si la anterior venció, se usa ResendInvitationCommand.
   La vigencia (expiresAt) la fija application, desde configuración.
   RegisterCaregiverAccountCommand: la invitación está
-  PENDING; después del ACL con IAM llama a
+  PENDING; el ACL con IAM consulta inviteeEmail.
+  Si ya tiene cuenta con contraseña definida: no existe un
+  Caregiver ACTIVE de
+  ese userId para esa AssistedPerson (CaregiverAlreadyExists)
+  y llama a invitation.assignExistingCaregiverAccount(userId).
+  Si no: IAM crea la cuenta y llama a
   invitation.assignCaregiverAccount(userId, passwordSetupUrl).
-  El ACL es idempotente por inviteeEmail: si la cuenta ya
-  existe y su contraseña nunca se cambió, regenera la url (la
-  anterior deja de valer) y devuelve el mismo userId.
+  Si la cuenta se creó en un envío anterior y su contraseña
+  nunca se cambió, IAM regenera la url (la anterior deja de
+  valer) y devuelve el mismo userId.
   La url vence en expiresAt, junto con la invitación.
   ResendInvitationCommand: la invitación pertenece a
   relativeId (inviterId) y está PENDING, vigente o vencida
   (InvitationNotPending si fue ACCEPTED o REVOKED). Llama a
   invitation.renew(nuevo expiresAt) y activa de nuevo el
-  registro de cuenta y el envío del correo.
-  AcceptInvitationCommand: la invitación está PENDING
-  y no venció (InvitationNotPending, InvitationExpired);
-  ya tiene cuenta asignada: si la cuenta aún no se generó,
-  CaregiverAccountNotAssigned.
+  registro de cuenta y el aviso (correo o notificación).
+  AcceptInvitationCommand: invitation.accept(userId, now)
+  valida PENDING, no vencida, cuenta asignada y que
+  caregiverUserId sea el de la invitación
+  (InvitationNotPending, InvitationExpired,
+  CaregiverAccountNotAssigned, InvitationNotForUser).
+  Cuenta nueva: IAM avisa el cambio de contraseña con el
+  userId; GetPendingInvitationsByCaregiverUserIdQuery da sus
+  invitaciones PENDING y se acepta cada una.
+  Cuenta existente: el cuidador ve sus invitaciones con la
+  misma query desde la app y acepta la que elija
+  (AcceptInvitationCommand con su userId de sesión).
   RevokeInvitationCommand: la invitación pertenece a
   relativeId (inviterId) y está PENDING.
-  El Caregiver se crea recién al aceptar (cuando el cuidador
-  cambia su contraseña): hasta entonces no existe y no puede
-  operar.
+  El Caregiver se crea recién al aceptar: hasta entonces no
+  existe y no puede operar.
 end note
 
 note as N_RulesCaregiver
@@ -928,31 +1242,61 @@ note as N_RulesCareActivity
   ReassignCaregiverActivitiesCommand: lo activa
   CaregiverAccessRevokedEvent; las asignaciones del
   cuidador revocado pasan al familiar (caregiverId = null).
+  ScheduleConflict se valida aquí porque compara con
+  asignaciones de otras CareActivity (otros aggregates):
+  no lo puede garantizar un solo aggregate.
 end note
 
 note as N_RulesActivityLog
   <b>Reglas de ActivityLogCommandService</b>
   --
   CancelActivityOccurrenceCommand ("hoy no hay caminata"):
-  solo el familiar dueño; crea un log CANCELLED solo para
-  ese día; no debe existir log para (assignmentId, date).
+  la asignación se busca dentro de su CareActivity
+  (careActivityId + assignmentId); solo el familiar dueño.
+  Puede cancelar cualquier fecha que aún no terminó, incluso
+  futuras; las pasadas no (OccurrenceEnded).
+  Crea un log CANCELLED solo para esa ocurrencia; no debe
+  existir log para (assignmentId, date).
   MarkMissedActivitiesCommand: lo dispara un proceso
   programado de application / infrastructure
-  (00:05 en la zona horaria global, con la fecha de ayer).
-  La fecha debe ser anterior a hoy (DayNotClosedYet).
-  Crea un log MISSED por cada ocurrencia ACTIVE de esa
-  fecha sin log. Es idempotente por (assignmentId, date).
+  (00:05 en la zona horaria global, con la fecha de ayer
+  como closingDate). closingDate debe ser anterior a hoy
+  (DayNotClosedYet).
+  Crea un log MISSED por cada ocurrencia ACTIVE sin log
+  cuya fecha de cierre es closingDate: las de ese día que
+  no cruzan medianoche y las del día anterior que sí.
+  Es idempotente por (assignmentId, date).
   Un log MISSED queda cerrado: ya no se puede completar.
+end note
+
+note as N_RulesQueries
+  <b>Datos que piden las queries</b>
+  --
+  Cada query lleva solo el id por el que se busca (GetXById: el
+  id de X; GetXByYId: el id de Y) y, en agenda e historial, el
+  rango from / to.
+  Las queries no validan pertenencia: no llevan relativeId. Quién
+  puede ver qué se resuelve antes, desde el usuario logueado:
+  GetRelativeByUserIdQuery y GetCaregiversByUserIdQuery entregan el
+  relativeId / caregiverId, y AssistedPerson.isManagedBy(relative)
+  confirma que la persona es suya (AssistedPersonNotManagedByRelative).
+  Los commands sí llevan relativeId y validan la pertenencia.
+  Las del cuidador usan su caregiverId (GetAgendaByCaregiverIdQuery y
+  GetActivityLogsByCaregiverIdQuery).
+  GetRelativesByBusinessIdQuery: los familiares de un negocio
+  (businessId, el Business de Company).
+  GetRelativeByUserIdQuery y GetCaregiversByUserIdQuery solo llevan userId:
+  parten del usuario logueado.
 end note
 
 note as N_RulesActivityLogQuery
   <b>Reglas de ActivityLogQueryService</b>
   --
-  GetActivityLogsByAssistedPersonId: historial de toda la
+  GetActivityLogsByAssistedPersonIdQuery: historial de toda la
   persona asistida en el rango (lo del familiar y lo de
   cada cuidador). Es la vista con la que el familiar sigue
   el flujo de las actividades.
-  GetActivityLogsByCaregiverId: solo los logs cuyo
+  GetActivityLogsByCaregiverIdQuery: solo los logs cuyo
   assignedCaregiver es ese cuidador (incluye CANCELLED y
   MISSED, que no tienen completedBy). Es la vista propia
   del cuidador.
@@ -966,6 +1310,11 @@ CaregiverCommandService .. N_RulesCaregiver
 CareActivityCommandService .. N_RulesCareActivity
 ActivityLogCommandService .. N_RulesActivityLog
 ActivityLogQueryService .. N_RulesActivityLogQuery
+RelativeQueryService .. N_RulesQueries
+InvitationQueryService .. N_RulesQueries
+CaregiverQueryService .. N_RulesQueries
+CareActivityQueryService .. N_RulesQueries
+ActivityLogQueryService .. N_RulesQueries
 
 ' ---------- NOTA: RETORNO DE LOS COMMANDSERVICE ----------
 note as N_RetornoCommands
@@ -975,9 +1324,15 @@ note as N_RetornoCommands
   (id del ActivityLog en ActivityLogCommandService; id de la
   CareActivity en las operaciones sobre sus asignaciones).
   void cuando no hay aggregate que devolver:
-  SendInvitationEmailCommand, ReassignCaregiverActivitiesCommand
-  y MarkMissedActivitiesCommand.
+  SendInvitationEmailCommand, SendInvitationNotificationCommand,
+  ReassignCaregiverActivitiesCommand y MarkMissedActivitiesCommand.
   Optional solo en los QueryService.
+  --
+  Id inexistente: los commands lanzan la excepción NotFound
+  del aggregate (RelativeNotFound, AssistedPersonNotFound,
+  InvitationNotFound, CaregiverNotFound, CareActivityNotFound,
+  ActivityAssignmentNotFound); las queries devuelven Optional
+  vacío o lista vacía.
 end note
 
 ' ---------- NOTA: SHARED (IMPORTADO) ----------
@@ -993,13 +1348,42 @@ note as N_Herencia
   (id, createdAt, updatedAt).
   --
   <b>Value Objects usados</b>
-  UserId, PersonProfileId, EmailAddress,
-  TimeRange (start, end; overlaps, contains),
+  UserId, PersonProfileId, BusinessId, EmailAddress,
+  TimeRange (start, end; overlaps, contains, crossesMidnight),
   WeeklyPeriod (days, range; occursOn, overlapsWith).
   --
   <b>Configuración global</b>
   Zona horaria (Clock, America/Lima): se configura una vez
-  en Shared; el dominio no la maneja ni la recibe.
+  en Shared. El dominio no consulta el reloj: recibe now /
+  today como parámetro, calculados con esa zona horaria.
+end note
+
+note as N_Clases
+  <b>Qué representa cada clase</b>
+  --
+  <b>Relative</b>: el familiar responsable, registrado por un
+  Business. Gestiona a sus personas asistidas, crea sus
+  actividades de cuidado e invita cuidadores.
+  <b>AssistedPerson</b>: la persona con discapacidad que recibe
+  el cuidado. Pertenece a un solo Relative y no se da de baja.
+  <b>Invitation</b>: la invitación de un Relative a un cuidador
+  por correo, con su ciclo PENDING, ACCEPTED o REVOKED.
+  <b>Caregiver</b>: el acceso de un usuario como cuidador de una
+  AssistedPerson. Se crea al aceptar la invitación y el
+  Relative puede revocarlo.
+  <b>CareActivity</b>: una actividad de cuidado (medicación,
+  baño, comida...) de una AssistedPerson.
+  <b>ActivityAssignment</b>: quién realiza la actividad (un
+  cuidador o el familiar) y cuándo (Schedule).
+  <b>ActivityLog</b>: lo que pasó con una ocurrencia:
+  completada, cancelada o perdida. Es el historial.
+  --
+  <b>Schedule</b>: cuándo ocurre una asignación: una fecha o
+  ciertos días de la semana, con su rango de horas.
+  <b>AgendaItem</b>: una ocurrencia calculada para mostrar en
+  la agenda, con su estado actual; no se guarda.
+  <b>Events</b>: avisos internos; cada uno activa el siguiente
+  command del flujo.
 end note
 
 @enduml

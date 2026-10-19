@@ -1,9 +1,26 @@
 @startuml
 ' Bounded Context: Company
-' Solo capa domain: aggregates, value objects, commands, queries y services.
+' Solo capa domain: aggregates, commands, queries, services y exceptions.
 ' Los parámetros de cada command se detallan en notas para que se lean mejor.
-' El aggregate Business solo guarda BusinessProfileId (conecta con el contexto de Profile).
-' Los nombres de las variables coinciden con los del contexto Profile.
+' El aggregate Business solo guarda BusinessProfileId (conecta con el contexto de Profiles).
+' Los nombres de las variables coinciden con los del contexto Profiles.
+'
+' Cambios de la revisión de Domain (ver informe):
+'  C1  BusinessProfileId pasa a Shared, igual que PersonProfileId, UserId y BusinessId.
+'  C2  Atributos de los aggregates privados (-) y comportamiento explícito.
+'  C3  CreateAdministratorCommand ya no lleva personProfileId ni userId (los obtiene el ACL).
+'  C4  Services en singular (BusinessCommandService ...) y update devuelve Long.
+'  C5  Queries con sufijo Query; se agrega GetAdministratorByUserIdQuery.
+'  C6  El PersonProfile del administrador se crea siempre nuevo; el email solo se valida
+'      con ExistsPersonProfileByEmailAddressQuery. Ningún perfil se busca por email ni por dni.
+'  C7  Nota de UpdateBusinessCommand: se retira la cita a la Ley N° 29733; legalName solo lo modifica el
+'      Administrator del Business; no se manejan estados de SUNAT/SUNARP.
+'  C8  Se elimina AdministratorAlreadyExists: userId y personProfileId siempre son nuevos.
+'  C9  EmailAddressAlreadyExists propia: el ACL traduce el rechazo de Profiles sin importar
+'      clases de otro contexto (igual que BusinessNotFound en Assistance).
+'  C10 businessName, legalName y ruc son únicos (los guarda Profiles); Company tiene sus propias
+'      excepciones para traducir el rechazo. El email del negocio no se modifica.
+'  C11 El dni del administrador se valida con ExistsPersonProfileByDniQuery (DniAlreadyExists).
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -48,21 +65,20 @@ package alivia.platform.Company #F5F5F5 {
   package "domain.model.aggregates" #F4F9FE {
 
     class Business #DCEBFA {
-      + BusinessProfileId businessProfileId
-      + Administrator administrator
+      - BusinessProfileId businessProfileId
+      - Administrator administrator
+      --
+      + Business(BusinessProfileId businessProfileId, Administrator administrator)
+      + isManagedBy(Administrator administrator) : boolean
     }
 
     class Administrator #DCEBFA {
-      + PersonProfileId personProfileId
-      + UserId userId
-      + EmailAddress backupPersonalEmail
-    }
-  }
-
-  package "domain.model.valueobjects" #F9F4FD {
-
-    class BusinessProfileId <<Record>> #EADCF8 {
-      + BusinessProfileId(Long businessProfileId)
+      - UserId userId
+      - PersonProfileId personProfileId
+      - EmailAddress backupPersonalEmail
+      --
+      + Administrator(UserId userId, PersonProfileId personProfileId, EmailAddress backupPersonalEmail)
+      + updateBackupPersonalEmail(EmailAddress backupPersonalEmail)
     }
   }
 
@@ -87,38 +103,43 @@ package alivia.platform.Company #F5F5F5 {
 
   package "domain.model.queries" #F3FBF4 {
 
-    class GetBusinessByAdministratorId <<Record>> #D5F0D8 {
-      + GetBusinessByAdministratorId(Long administratorId)
+    class GetBusinessByAdministratorIdQuery <<Record>> #D5F0D8 {
+      + GetBusinessByAdministratorIdQuery(Long administratorId)
     }
 
-    class GetAdministratorById <<Record>> #D5F0D8 {
-      + GetAdministratorById(Long administratorId)
+    class GetBusinessByIdQuery <<Record>> #D5F0D8 {
+      + GetBusinessByIdQuery(Long businessId)
     }
 
-    class GetBusinessById <<Record>> #D5F0D8 {
-      + GetBusinessById(Long id)
+    class GetAdministratorByIdQuery <<Record>> #D5F0D8 {
+      + GetAdministratorByIdQuery(Long administratorId)
+    }
+
+    class GetAdministratorByUserIdQuery <<Record>> #D5F0D8 {
+      + GetAdministratorByUserIdQuery(Long userId)
     }
   }
 
   package "domain.services" #FFFCEA {
 
-    interface BusinessCommandServices #FFF3B0 {
+    interface BusinessCommandService #FFF3B0 {
       Long handle(CreateBusinessCommand command)
-      Optional<Business> handle(UpdateBusinessCommand command)
+      Long handle(UpdateBusinessCommand command)
     }
 
-    interface BusinessQueryServices #FFF3B0 {
-      Optional<Business> handle(GetBusinessByAdministratorId query)
-      Optional<Business> handle(GetBusinessById query)
+    interface BusinessQueryService #FFF3B0 {
+      Optional<Business> handle(GetBusinessByAdministratorIdQuery query)
+      Optional<Business> handle(GetBusinessByIdQuery query)
     }
 
-    interface AdministratorCommandServices #FFF3B0 {
+    interface AdministratorCommandService #FFF3B0 {
       Long handle(CreateAdministratorCommand command)
-      Optional<Administrator> handle(UpdateAdministratorCommand command)
+      Long handle(UpdateAdministratorCommand command)
     }
 
-    interface AdministratorQueryServices #FFF3B0 {
-      Optional<Administrator> handle(GetAdministratorById query)
+    interface AdministratorQueryService #FFF3B0 {
+      Optional<Administrator> handle(GetAdministratorByIdQuery query)
+      Optional<Administrator> handle(GetAdministratorByUserIdQuery query)
     }
   }
 
@@ -132,12 +153,29 @@ package alivia.platform.Company #F5F5F5 {
       + AdministratorNotFound()
     }
 
-    class AdministratorAlreadyExists <<Exception>> #FFCDD2 {
-      + AdministratorAlreadyExists()
-    }
 
     class BusinessAlreadyExistsForAdministrator <<Exception>> #FFCDD2 {
       + BusinessAlreadyExistsForAdministrator()
+    }
+
+    class DniAlreadyExists <<Exception>> #FFCDD2 {
+      + DniAlreadyExists()
+    }
+
+    class EmailAddressAlreadyExists <<Exception>> #FFCDD2 {
+      + EmailAddressAlreadyExists()
+    }
+
+    class BusinessNameAlreadyExists <<Exception>> #FFCDD2 {
+      + BusinessNameAlreadyExists()
+    }
+
+    class LegalNameAlreadyExists <<Exception>> #FFCDD2 {
+      + LegalNameAlreadyExists()
+    }
+
+    class RucAlreadyExists <<Exception>> #FFCDD2 {
+      + RucAlreadyExists()
     }
 
     class BackupPersonalEmailAlreadyExists <<Exception>> #FFCDD2 {
@@ -147,29 +185,24 @@ package alivia.platform.Company #F5F5F5 {
 }
 
 ' ---------- FLUJO DE ESCRITURA (naranja) ----------
-BusinessCommandServices -[#E67E22]-> CreateBusinessCommand : "1. recibe"
-
-BusinessCommandServices -[#E67E22]-> UpdateBusinessCommand : "1. recibe"
-
-AdministratorCommandServices -[#E67E22]-> CreateAdministratorCommand : "1. recibe"
-
-AdministratorCommandServices -[#E67E22]-> UpdateAdministratorCommand : "1. recibe"
+BusinessCommandService -[#E67E22]-> CreateBusinessCommand : "1. recibe"
+BusinessCommandService -[#E67E22]-> UpdateBusinessCommand : "1. recibe"
+AdministratorCommandService -[#E67E22]-> CreateAdministratorCommand : "1. recibe"
+AdministratorCommandService -[#E67E22]-> UpdateAdministratorCommand : "1. recibe"
 
 ' ---------- FLUJO DE LECTURA (verde) ----------
-BusinessQueryServices -[#2E8B57]-> GetBusinessByAdministratorId : "recibe"
-BusinessQueryServices -[#2E8B57]-> GetBusinessById : "recibe"
-
-AdministratorQueryServices -[#2E8B57]-> GetAdministratorById : "recibe"
+BusinessQueryService -[#2E8B57]-> GetBusinessByAdministratorIdQuery : "recibe"
+BusinessQueryService -[#2E8B57]-> GetBusinessByIdQuery : "recibe"
+AdministratorQueryService -[#2E8B57]-> GetAdministratorByIdQuery : "recibe"
+AdministratorQueryService -[#2E8B57]-> GetAdministratorByUserIdQuery : "recibe"
 
 ' ---------- RESULTADO SOBRE EL AGGREGATE (azul) ----------
-BusinessCommandServices -[#1F6FB2]-> Business : "2. crea / actualiza"
-AdministratorCommandServices -[#1F6FB2]-> Administrator : "2. crea / actualiza"
-BusinessQueryServices -[#2E8B57]-> Business : "devuelve"
-AdministratorQueryServices -[#2E8B57]-> Administrator : "devuelve"
+BusinessCommandService -[#1F6FB2]-> Business : "2. crea / actualiza"
+AdministratorCommandService -[#1F6FB2]-> Administrator : "2. crea / actualiza"
+BusinessQueryService -[#2E8B57]-> Business : "devuelve"
+AdministratorQueryService -[#2E8B57]-> Administrator : "devuelve"
 
-' ---------- COMPOSICIÓN DEL AGGREGATE (morado) ----------
-Business *-[#7E57C2]- BusinessProfileId : "referencia al perfil"
-
+' ---------- REFERENCIA ENTRE AGGREGATES (mismo contexto) ----------
 Business "1" -[#1F6FB2]-> "1" Administrator : "gestionado por"
 
 ' ---------- PARÁMETROS DE LOS CONSTRUCTORES (notas fuera del package) ----------
@@ -192,18 +225,30 @@ note as N_CreateBusiness
   Double longitude
   String placeId
   --Información para clientes--
-  String businessHours
+  String businessHours  // texto/JSON de periodos; Profiles lo convierte
   String supportEmail
   String emergencyPhone
   String whatsappNum
   String slogan
   --Relaciones--
   Long administratorId
+  ..
+  **Valida**
+  El Administrator existe (AdministratorNotFound).
+  El Administrator no gestiona otro Business
+  (BusinessAlreadyExistsForAdministrator).
+  Los datos del negocio los crea Profiles (ACL) y
+  devuelven el BusinessProfileId que guarda Business.
+  Profiles rechaza emailAddress, ruc, businessName o
+  legalName ya registrados; el ACL lo traduce a
+  EmailAddressAlreadyExists, RucAlreadyExists,
+  BusinessNameAlreadyExists o LegalNameAlreadyExists.
 end note
 
 note as N_UpdateBusiness
   **UpdateBusinessCommand**
   Long businessId
+  Long administratorId  // quien solicita el cambio
   --Identidad del negocio--
   byte[] photoData
   String photoFileName
@@ -212,29 +257,32 @@ note as N_UpdateBusiness
   String mainActivity
   String description
   --Información de contacto--
-  String emailAddress
   String phoneNumber
   --Información para clientes--
-  String businessHours
+  String businessHours  // texto/JSON de periodos; Profiles lo convierte
   String supportEmail
   String emergencyPhone
   String whatsappNum
   String slogan
   ..
-  No incluye ruc ni la ubicación corporativa
-  (son inmutables). Solo el Administrador
-  General puede modificar legalName
-  (Ley N° 29733). Los estados "Vigente y
-  Validado" y "Activo Habido" los determina
-  el sistema (SUNAT/SUNARP), no el command.
+  El Business existe (BusinessNotFound).
+  No incluye ruc, emailAddress ni la ubicación
+  corporativa: ruc nunca se modifica.
+  businessName y legalName siguen siendo únicos
+  (BusinessNameAlreadyExists, LegalNameAlreadyExists).
+  Solo el Administrator del Business puede
+  modificarlo, incluido legalName:
+  business.isManagedBy(administrator).
+  Business no cambia: los datos se actualizan en
+  BusinessProfile (Profiles) mediante el ACL.
 end note
 
 note as N_CreateAdministrator
   **CreateAdministratorCommand**
-  --Credenciales--
-  String emailAddress
-  String password
-  --Información personal--
+  --Credenciales (IAM)--
+  String emailAddress  // también es el email del PersonProfile
+  String password  // oculto en toString()
+  --Información personal (Profiles)--
   byte[] photoData
   String photoFileName
   String firstName
@@ -243,15 +291,24 @@ note as N_CreateAdministrator
   String phoneNumber
   --Información de contacto--
   String backupPersonalEmail  // opcional
-  --Relaciones--
-  Long personProfileId
-  Long userId
+  ..
+  **Valida**
+  Profiles (ACL) valida que el email y el dni no estén
+  registrados (ExistsPersonProfileByEmailAddressQuery,
+  ExistsPersonProfileByDniQuery; EmailAddressAlreadyExists,
+  DniAlreadyExists) y crea el PersonProfile con estos datos;
+  devuelve el personProfileId.
+  Los perfiles nunca se buscan por email ni por dni: solo por id.
+  IAM (ACL) crea el usuario con emailAddress + password
+  y devuelve el userId.
+  backupPersonalEmail no está registrado en otro
+  Administrator (BackupPersonalEmailAlreadyExists).
 end note
 
 note as N_UpdateAdministrator
   **UpdateAdministratorCommand**
   Long administratorId
-  --Información personal--
+  --Información personal (Profiles)--
   byte[] photoData
   String photoFileName
   String firstName
@@ -259,6 +316,11 @@ note as N_UpdateAdministrator
   String phoneNumber
   --Información de contacto--
   String backupPersonalEmail  // opcional
+  ..
+  El Administrator existe (AdministratorNotFound).
+  Administrator solo cambia backupPersonalEmail;
+  los demás datos se actualizan en el PersonProfile
+  (Profiles) mediante el ACL.
 end note
 
 CreateBusinessCommand .. N_CreateBusiness
@@ -267,16 +329,48 @@ CreateAdministratorCommand .. N_CreateAdministrator
 UpdateAdministratorCommand .. N_UpdateAdministrator
 
 note bottom of Administrator
-  PersonProfileId y UserId son value objects
-  del contexto Shared (alivia.platform.shared).
+  UserId, PersonProfileId y EmailAddress son
+  value objects del contexto Shared (alivia.platform.shared).
   backupPersonalEmail se guarda aquí; los demás
-  datos personales van a PersonProfile (Profile)
-  y password al contexto de iam.
+  datos personales van a PersonProfile (Profiles)
+  y password al contexto de IAM.
+  GetAdministratorByUserIdQuery resuelve el
+  Administrator desde el usuario logueado (UserId de IAM).
 end note
 
 note bottom of Business
   Los datos del negocio se guardan en BusinessProfile
-  (contexto Profiles), referenciado solo por BusinessProfileId.
+  (contexto Profiles), referenciado solo por
+  BusinessProfileId (value object de Shared).
+  El id de Business es el que otros contextos guardan
+  como BusinessId (por ejemplo, Relative en Assistance).
+end note
+
+note as N_Shared
+  **Shared (importado, no se dibuja)**
+  Business y Administrator extienden
+  AuditableAbstractAggregateRoot (id, createdAt, updatedAt).
+  Value objects: UserId, PersonProfileId,
+  BusinessProfileId, EmailAddress.
+end note
+
+note as N_Clases
+  **Qué representa cada clase**
+  --
+  **Business**: el negocio cliente de Alivia que contrata la
+  plataforma. Sus datos públicos y legales viven en
+  BusinessProfile (Profiles); aquí solo se guarda su identidad
+  y quién lo gestiona. Su id es el BusinessId que usan los
+  demás contextos (Relative en Assistance).
+  **Administrator**: la persona que gestiona el Business en la
+  plataforma. Enlaza su usuario de IAM (UserId) y su perfil
+  personal (PersonProfileId); solo guarda aquí su correo
+  personal de respaldo.
+  **Commands / Queries**: las operaciones de escritura y
+  lectura que expone el contexto; las atienden los services.
+  **Exceptions**: reglas de negocio incumplidas. Las que
+  repiten nombre con Profiles traducen su rechazo a este
+  contexto.
 end note
 
 @enduml

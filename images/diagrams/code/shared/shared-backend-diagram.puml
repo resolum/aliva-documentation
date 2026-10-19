@@ -1,6 +1,20 @@
 
 @startuml
 
+' Bounded Context: Shared. Solo capa domain.
+'
+' Cambios de la revisión de Domain (ver informe):
+'  S1  Paquetes en plural (aggregates, valueobjects), como los demás contextos de Alivia.
+'  S2  Las bases auditables son abstractas.
+'  S3  Se agrega BusinessProfileId: Company lo usa y no existía.
+'  S4  Estereotipos uniformes (<<ValueObject, record>>); WeeklyPeriod declara su constructor.
+'  S5  Se documentan las invariantes de cada value object, en especial la normalización
+'      de EmailAddress (Profiles valida que no se repita) y la
+'      semántica de TimeRange (lo usan BusinessHours, Schedule y WeeklyPeriod).
+'  S6  PhoneNumber acepta cualquier país: solo dígitos y válido según el país de su código.
+'  S7  TimeRange admite rangos que cruzan medianoche (crossesMidnight). Cada contexto decide
+'      si los acepta: BusinessHours (Profiles) no; Schedule (Assistance) sí.
+
 ' ==============================
 ' CONFIGURACIÓN GENERAL
 ' ==============================
@@ -70,16 +84,16 @@ skinparam note {
 
 package alivia.platform.shared {
 
-  package domain.model.aggregate {
+  package domain.model.aggregates {
 
-    class AuditableAbstractAggregateRoot <<AggregateRoot>> {
+    abstract class AuditableAbstractAggregateRoot <<AggregateRoot>> {
       - id : Long
       - createdAt : LocalDateTime
       - updatedAt : LocalDateTime
       + addDomainEvent(event : Object) : void
     }
 
-    class AuditableMongoAggregateRoot <<AggregateRoot>> {
+    abstract class AuditableMongoAggregateRoot <<AggregateRoot>> {
       - id : String
       - createdAt : LocalDateTime
       - updatedAt : LocalDateTime
@@ -87,7 +101,7 @@ package alivia.platform.shared {
     }
   }
 
-  package domain.model.valueobject {
+  package domain.model.valueobjects {
 
     class EmailAddress <<ValueObject, record>> {
       + EmailAddress(String emailAddress)
@@ -106,6 +120,10 @@ package alivia.platform.shared {
       + PersonProfileId(Long personProfileId)
     }
 
+    class BusinessProfileId <<ValueObject, record>> {
+      + BusinessProfileId(Long businessProfileId)
+    }
+
     class UserId <<ValueObject, record>> {
       + UserId(Long userId)
     }
@@ -120,19 +138,22 @@ package alivia.platform.shared {
       + contains(other : TimeRange) : boolean
       + overlaps(other : TimeRange) : boolean
       + duration() : Duration
+      + crossesMidnight() : boolean
     }
 
-    class PhoneNumber <<ValueObject, Record>> {
+    class PhoneNumber <<ValueObject, record>> {
       + PhoneNumber(String phoneNumber)
+      + countryCallingCode() : String
     }
 
     class Address <<ValueObject, record>> {
       + Address(String formattedAddress, Double latitude, Double longitude, String placeId)
     }
 
-    class WeeklyPeriod <<record>> {
+    class WeeklyPeriod <<ValueObject, record>> {
       - Set<DayOfWeek> days
       - TimeRange range
+      + WeeklyPeriod(Set<DayOfWeek> days, TimeRange range)
       + occursOn(LocalDate date) : boolean
       + overlapsWith(WeeklyPeriod other) : boolean
     }
@@ -140,7 +161,7 @@ package alivia.platform.shared {
 
   package domain.model.entities {
 
-    class AuditableModel <<Entity>> {
+    abstract class AuditableModel <<Entity>> {
       - id : Long
       - createdAt : LocalDateTime
       - updatedAt : LocalDateTime
@@ -148,25 +169,91 @@ package alivia.platform.shared {
   }
 }
 
+WeeklyPeriod *-- TimeRange
+
 note as N_TimeRange
   <b><color:#B45309>◷ TimeRange</color></b>
-  Representa un intervalo de horas dentro de un día,
-  desde <i>start</i> hasta <i>end</i>.
-  Lo usa BusinessHours (vía OpeningPeriod) para
-  definir los horarios de atención.
+  Representa un intervalo de horas desde <i>start</i>
+  hasta <i>end</i>, semiabierto: [start, end).
+  Lo usan BusinessHours (Profiles, vía WeeklyPeriod) y
+  Schedule (Assistance, directo o vía WeeklyPeriod).
+  Invariante: start y end no nulos y distintos.
+  Si end es anterior a start, el rango cruza medianoche:
+  22:00-06:00 empieza un día y termina al día siguiente.
+  Cada contexto decide si acepta rangos así.
   --
+  <b>crossesMidnight()</b>
+  Verdadero si end es anterior a start.
   <b>contains(time)</b>
-  Indica si una hora está dentro del rango.
+  Indica si una hora está dentro del rango
+  (start incluido, end excluido). En 22:00-06:00,
+  las 23:00 y las 03:00 están dentro.
   <b>contains(other)</b>
   Indica si otro rango está completamente dentro
   de este.
   <b>overlaps(other)</b>
-  Indica si ambos rangos comparten algún tramo
-  de tiempo.
+  Indica si ambos rangos comparten algún tramo,
+  empezando los dos el mismo día.
+  09:00-10:00 y 10:00-11:00 no se cruzan.
   <b>duration()</b>
-  Devuelve el tiempo total entre start y end.
+  Devuelve el tiempo total entre start y end
+  (22:00-06:00 dura 8 horas).
+end note
+
+note as N_Invariantes
+  <b>Invariantes de los value objects</b>
+  --
+  <b>EmailAddress</b>: formato válido; se guarda sin espacios y
+  en minúsculas. Así, la validación de email ya registrado
+  trata Ana@x.com y ana@x.com como el mismo correo.
+  <b>PersonProfileId, BusinessProfileId, UserId, BusinessId</b>:
+  no nulos y mayores que 0. Cada uno identifica el aggregate
+  de un solo contexto (PersonProfile y BusinessProfile en
+  Profiles, User en IAM, Business en Company).
+  <b>WeeklyPeriod</b>: days no vacío; range válido.
+  occursOn compara el día de la semana en que empieza
+  la ocurrencia. overlapsWith: alguna ocurrencia de uno se
+  cruza con alguna del otro; si un rango cruza medianoche,
+  también se compara con el día siguiente (lunes 22:00-06:00
+  se cruza con martes 05:00-07:00).
+  <b>Address</b>: formattedAddress no vacío; latitud entre -90
+  y 90; longitud entre -180 y 180.
+  <b>Photo</b>: photoUrl no vacío. El archivo (byte[]) que llega
+  en los commands se sube fuera del dominio; el aggregate
+  solo guarda la referencia.
+  <b>PhoneNumber</b>: número internacional sin "+": código de país
+  seguido del número nacional (ej. 51987654321). Solo dígitos,
+  sin letras, espacios ni símbolos; máximo 15 dígitos (E.164).
+  Debe ser válido según el plan de numeración del país que
+  indica su código (ej. Perú: 51 + móvil de 9 dígitos que
+  empieza en 9). Si no cumple, el constructor lo rechaza,
+  igual que los demás value objects.
+  --
+  <b>EmailTemplate</b>: se moverá a Communication cuando se
+  revise ese contexto (allí se agregan las plantillas de
+  invitación del cuidador).
 end note
 
 TimeRange .. N_TimeRange
+
+note as N_Clases
+  <b>Qué representa cada clase</b>
+  --
+  <b>AuditableAbstractAggregateRoot</b>: base de los aggregates
+  guardados en base de datos relacional: id, fechas de
+  auditoría y registro de eventos de dominio.
+  <b>AuditableMongoAggregateRoot</b>: la misma base para
+  aggregates guardados en MongoDB (id de texto).
+  <b>AuditableModel</b>: base de las entidades internas de un
+  aggregate (por ejemplo, ActivityAssignment).
+  --
+  <b>PersonProfileId, BusinessProfileId, UserId, BusinessId</b>:
+  la identidad de un aggregate de otro contexto. Es la única
+  forma en que un contexto referencia a otro.
+  <b>EmailAddress, PhoneNumber, Photo, Address</b>: datos de
+  contacto y ubicación que comparten varios contextos.
+  <b>TimeRange, WeeklyPeriod</b>: rangos de horas y periodos
+  semanales para horarios de negocio y de cuidado.
+end note
 
 @enduml

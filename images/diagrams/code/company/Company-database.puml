@@ -1,62 +1,83 @@
 @startuml
-' Base de datos: Company
-' Aggregates: Business y Administrator. Los datos del negocio viven en Profile (business_profile_id).
-
 hide circle
+skinparam packageStyle rectangle
 skinparam linetype ortho
 skinparam shadowing false
+skinparam roundCorner 8
+skinparam defaultFontName Arial
 skinparam defaultFontSize 12
-skinparam entity {
-  BorderColor #333333
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #1F6FB2
+  BorderThickness 1.2
+  HeaderBackgroundColor #DCEBFA
   ArrowColor #444444
 }
-
-legend left
-  |= Símbolo |= Significado |
-  | <<PK>> | Llave primaria |
-  | <<UK>> | Único |
-  | <<FK>> | Llave foránea |
-  | <<LFK>> | Referencia lógica a otro contexto |
-endlegend
-
-entity "administrators" as administrators #DCEBFA {
-  * id : BIGINT <<PK>>
-  --
-  * person_profile_id : BIGINT <<LFK>>
-  * user_id : BIGINT <<UK>> <<LFK>>
-  ..
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
 }
 
-entity "businesses" as businesses #DCEBFA {
-  * id : BIGINT <<PK>>
-  --
-  * business_profile_id : BIGINT <<LFK>>
-  * administrator_id : BIGINT <<FK>> <<UK>>
-  ..
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
+package "Bounded Context: Company" as ctx_company #F7FAFE {
+
+  entity "administrators" as administrators {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * user_id : BIGINT <<UK>> <<ref IAM>>
+    * person_profile_id : BIGINT <<UK>> <<ref Profiles>>
+    backup_personal_email : VARCHAR(254) <<UK>> <<null>>
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+
+  entity "businesses" as businesses {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * business_profile_id : BIGINT <<UK>> <<ref Profiles>>
+    * administrator_id : BIGINT <<FK>> <<UK>>
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
 }
 
-entity "business_profiles\n(Profile · pendiente)" as business_profiles #E0E0E0 {
-  * id : BIGINT <<PK>>
+administrators ||--o| businesses : "gestiona\n(1 : 0..1)"
+
+note right of administrators
+  <b>administrators</b> (aggregate Administrator)
+  La persona que gestiona un Business en Alivia.
   --
-  logo, razón social, RUC,
-  contacto, ubicación...
-}
-
-administrators ||--|| businesses : "gestiona"
-businesses }o..|| business_profiles : "business_profile_id"
-
-note bottom of administrators
-  person_profile_id → user_profiles.id en Profile.
-  user_id → cuenta en IAM.
+  user_id: usuario de IAM (UserId). Sin FK.
+  person_profile_id: su PersonProfile (PersonProfileId).
+  Sin FK.
+  Ambos únicos: cada administrador tiene un usuario y
+  un perfil propios, creados al registrarlo.
+  backup_personal_email: opcional y único
+  (BackupPersonalEmailAlreadyExists).
 end note
 
-note bottom of business_profiles
-  Hoy Profile solo tiene user_profiles y household_profiles:
-  esta tabla aún no existe.
+note right of businesses
+  <b>businesses</b> (aggregate Business)
+  El negocio cliente de Alivia. Su id es el BusinessId
+  que guardan otros contextos (relatives.business_id
+  en Assistance).
+  --
+  business_profile_id: sus datos públicos y legales en
+  Profiles (BusinessProfileId). Sin FK.
+  administrator_id: FK dentro del contexto. Único:
+  un administrador gestiona un solo Business
+  (BusinessAlreadyExistsForAdministrator).
+  El administrador se registra primero y luego crea el
+  negocio: por eso un administrador puede existir aún
+  sin Business (0..1).
 end note
 
 @enduml

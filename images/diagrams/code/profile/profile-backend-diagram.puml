@@ -1,4 +1,26 @@
 @startuml
+' Bounded Context: Profiles. Solo capa domain.
+'
+' Cambios de la revisión de Domain (ver informe):
+'  P1  Profile es la base abstracta (no un aggregate propio); atributos privados.
+'  P2  Comportamiento explícito: constructores y métodos de actualización.
+'  P3  Se agregan ExistsPersonProfileByEmailAddressQuery y ExistsBusinessProfileByEmailAddressQuery:
+'      validan si un email ya está registrado. Los perfiles se buscan solo por id.
+'  P4  GetAll* devuelve List (antes Optional); GetAllBusinessProfilesQuery en plural.
+'  P5  Se elimina PersonNameAlreadyExists: dos personas pueden llamarse igual.
+'  P6  Se agrega EmailAddressAlreadyExists: el email de un perfil no se repite.
+'  P7  Ningún perfil se busca ni se recupera por dni: solo se valida si existe
+'      (ExistsPersonProfileByDniQuery). Dni es dato de identificación, no clave de búsqueda.
+'  P8  Los commands reciben BusinessHours (value object), no texto/JSON.
+'  P9  Value objects por composición (*--), igual que en Company y Assistance.
+'  P10 Se define PersonName: PersonProfile lo usaba y no existía en ningún diagrama (tampoco en Shared).
+'  P11 BusinessHours usa WeeklyPeriod de Shared; se elimina OpeningPeriod (misma estructura y comportamiento).
+'  P12 PhoneNumber: cualquier país, solo dígitos, válido según el plan de numeración de su país (Shared).
+'  P13 BusinessHours no acepta rangos que cruzan medianoche: el negocio atiende dentro del día.
+'  P14 El email no se modifica en ningún perfil; es opcional solo en PersonProfile (persona asistida).
+'  P15 businessName y legalName son únicos (LegalName pasa a value object con LegalNameAlreadyExists);
+'      dni único; el teléfono puede repetirse (se elimina PhoneNumberAlreadyExists).
+
 skinparam shadowing false
 skinparam packageStyle rectangle
 skinparam classAttributeIconSize 0
@@ -56,22 +78,29 @@ package alivia.platform.Profiles #F5F5F5 {
 
   package domain.model.aggregates #F3E5F5 {
 
-    abstract Profile <<Aggregate>> {
-      + EmailAddress emailAddress
-      + Photo photo
-      + PhoneNumber phoneNumber
+    abstract class Profile {
+      - EmailAddress emailAddress
+      - Photo photo
+      - PhoneNumber phoneNumber
+      --
+      # Profile(EmailAddress emailAddress, Photo photo, PhoneNumber phoneNumber)
+      # updateContactInformation(PhoneNumber phoneNumber, Photo photo)
     }
 
     class PersonProfile <<Aggregate>> {
       - PersonName personName
       - Dni dni
       - BirthDate birthDate
+      --
+      + PersonProfile(EmailAddress emailAddress, Photo photo, PhoneNumber phoneNumber,
+      \t PersonName personName, Dni dni, BirthDate birthDate)
+      + updatePersonalInformation(PersonName personName, PhoneNumber phoneNumber, Photo photo)
     }
 
     class BusinessProfile <<Aggregate>> {
       - Ruc ruc
       - BusinessName businessName
-      - String legalName
+      - LegalName legalName
       - String description
       - String mainActivity
       - PhoneNumber whatsappNum
@@ -80,6 +109,16 @@ package alivia.platform.Profiles #F5F5F5 {
       - String slogan
       - EmailAddress supportEmail
       - Address address
+      --
+      + BusinessProfile(EmailAddress emailAddress, Photo photo, PhoneNumber phoneNumber,
+      \t Ruc ruc, BusinessName businessName, LegalName legalName, String description,
+      \t String mainActivity, PhoneNumber whatsappNum, PhoneNumber emergencyPhone,
+      \t BusinessHours businessHours, String slogan, EmailAddress supportEmail, Address address)
+      + updateInformation(Photo photo, PhoneNumber phoneNumber, BusinessName businessName,
+      \t LegalName legalName, String description, String mainActivity, PhoneNumber whatsappNum,
+      \t PhoneNumber emergencyPhone, BusinessHours businessHours, String slogan,
+      \t EmailAddress supportEmail)
+      + isOpenAt(DayOfWeek day, LocalTime time) : boolean
     }
   }
 
@@ -89,18 +128,24 @@ package alivia.platform.Profiles #F5F5F5 {
       + Ruc(Long ruc)
     }
 
+    class LegalName <<Record>> {
+      + LegalName(String legalName)
+    }
+
     class BusinessName <<Record>> {
       + BusinessName(String businessName)
     }
 
     class BusinessHours <<Record>> {
-      + List<OpeningPeriod> periods
+      + List<WeeklyPeriod> periods
+      + BusinessHours(List<WeeklyPeriod> periods)
       + isOpenAt(DayOfWeek day, LocalTime time): boolean
     }
 
-    class OpeningPeriod <<Record>> {
-      + Set<DayOfWeek> days
-      + TimeRange range
+    class PersonName <<Record>> {
+      + String firstName
+      + String lastName
+      + PersonName(String firstName, String lastName)
     }
 
     class Dni <<Record>> {
@@ -119,16 +164,16 @@ package alivia.platform.Profiles #F5F5F5 {
       + BusinessNameAlreadyExists()
     }
 
-    class PersonNameAlreadyExists <<Exception>> {
-      + PersonNameAlreadyExists()
-    }
-
     class RucAlreadyExists <<Exception>> {
       + RucAlreadyExists()
     }
 
     class DniAlreadyExists <<Exception>> {
       + DniAlreadyExists()
+    }
+
+    class EmailAddressAlreadyExists <<Exception>> {
+      + EmailAddressAlreadyExists()
     }
 
     class PersonProfileNotFound <<Exception>> {
@@ -143,8 +188,8 @@ package alivia.platform.Profiles #F5F5F5 {
       + InvalidBusinessHours()
     }
 
-    class PhoneNumberAlreadyExists <<Exception>> {
-      + PhoneNumberAlreadyExists()
+    class LegalNameAlreadyExists <<Exception>> {
+      + LegalNameAlreadyExists()
     }
   }
 
@@ -173,6 +218,18 @@ package alivia.platform.Profiles #F5F5F5 {
       + GetPersonProfileByIdQuery(Long id)
     }
 
+    class ExistsPersonProfileByEmailAddressQuery <<Record>> <<Query>> {
+      + ExistsPersonProfileByEmailAddressQuery(EmailAddress emailAddress)
+    }
+
+    class ExistsPersonProfileByDniQuery <<Record>> <<Query>> {
+      + ExistsPersonProfileByDniQuery(Dni dni)
+    }
+
+    class ExistsBusinessProfileByEmailAddressQuery <<Record>> <<Query>> {
+      + ExistsBusinessProfileByEmailAddressQuery(EmailAddress emailAddress)
+    }
+
     class GetBusinessProfileByIdQuery <<Record>> <<Query>> {
       + GetBusinessProfileByIdQuery(Long id)
     }
@@ -181,8 +238,8 @@ package alivia.platform.Profiles #F5F5F5 {
       + GetAllPersonProfilesQuery()
     }
 
-    class GetAllBusinessProfileQuery <<Record>> <<Query>> {
-      + GetAllBusinessProfileQuery()
+    class GetAllBusinessProfilesQuery <<Record>> <<Query>> {
+      + GetAllBusinessProfilesQuery()
     }
   }
 
@@ -195,12 +252,15 @@ package alivia.platform.Profiles #F5F5F5 {
 
     interface PersonProfileQueryService {
       Optional<PersonProfile> handle(GetPersonProfileByIdQuery query)
-      Optional<PersonProfile> handle(GetAllPersonProfilesQuery query)
+      boolean handle(ExistsPersonProfileByEmailAddressQuery query)
+      boolean handle(ExistsPersonProfileByDniQuery query)
+      List<PersonProfile> handle(GetAllPersonProfilesQuery query)
     }
 
     interface BusinessProfileQueryService {
       Optional<BusinessProfile> handle(GetBusinessProfileByIdQuery query)
-      Optional<BusinessProfile> handle(GetAllBusinessProfileQuery query)
+      boolean handle(ExistsBusinessProfileByEmailAddressQuery query)
+      List<BusinessProfile> handle(GetAllBusinessProfilesQuery query)
     }
 
     interface BusinessProfileCommandService {
@@ -212,24 +272,28 @@ package alivia.platform.Profiles #F5F5F5 {
   Profile <|-- PersonProfile
   Profile <|-- BusinessProfile
 
-  PersonProfile ..> domain.model.valueobjects.Dni
-  PersonProfile ..> domain.model.valueobjects.BirthDate
-  BusinessProfile ..> domain.model.valueobjects.BusinessName
-  BusinessProfile ..> domain.model.valueobjects.Ruc
-  BusinessProfile ..> BusinessHours
-  BusinessHours ..> OpeningPeriod
+  PersonProfile *-- PersonName
+  PersonProfile *-- Dni
+  PersonProfile *-- BirthDate
+  BusinessProfile *-- BusinessName
+  BusinessProfile *-- LegalName
+  BusinessProfile *-- Ruc
+  BusinessProfile *-- BusinessHours
 
-  GetAllBusinessProfileQuery --> BusinessProfileQueryService
-  GetBusinessProfileByIdQuery --> BusinessProfileQueryService
+  BusinessProfileQueryService ..> GetAllBusinessProfilesQuery : recibe
+  BusinessProfileQueryService ..> GetBusinessProfileByIdQuery : recibe
 
-  GetAllPersonProfilesQuery --> PersonProfileQueryService
-  GetPersonProfileByIdQuery --> PersonProfileQueryService
+  PersonProfileQueryService ..> GetAllPersonProfilesQuery : recibe
+  PersonProfileQueryService ..> GetPersonProfileByIdQuery : recibe
+  PersonProfileQueryService ..> ExistsPersonProfileByEmailAddressQuery : recibe
+  PersonProfileQueryService ..> ExistsPersonProfileByDniQuery : recibe
+  BusinessProfileQueryService ..> ExistsBusinessProfileByEmailAddressQuery : recibe
 
-  CreateBusinessProfileCommand --> BusinessProfileCommandService
-  UpdateBusinessProfileCommand --> BusinessProfileCommandService
+  BusinessProfileCommandService ..> CreateBusinessProfileCommand : recibe
+  BusinessProfileCommandService ..> UpdateBusinessProfileCommand : recibe
 
-  CreatePersonProfileCommand --> PersonProfileCommandService
-  UpdatePersonProfileCommand --> PersonProfileCommandService
+  PersonProfileCommandService ..> CreatePersonProfileCommand : recibe
+  PersonProfileCommandService ..> UpdatePersonProfileCommand : recibe
 }
 
 ' ===== Notas con las variables de los comandos (fuera del package) =====
@@ -237,7 +301,7 @@ package alivia.platform.Profiles #F5F5F5 {
 note as N_CreatePerson
   <b>CreatePersonProfileCommand</b>
   --
-  String emailAddress
+  String emailAddress  // opcional
   byte[] photoData
   String photoFileName
   String phoneNumber
@@ -245,18 +309,30 @@ note as N_CreatePerson
   String lastName
   String dni
   LocalDate birthDate
+  --
+  <b>Valida</b>
+  emailAddress es opcional (la persona asistida puede no
+  tener correo). Si viene, no pertenece a otro
+  PersonProfile (EmailAddressAlreadyExists).
+  dni no pertenece a otro PersonProfile (DniAlreadyExists).
+  Los contextos que crean perfiles lo validan antes con
+  ExistsPersonProfileByDniQuery, que solo responde si
+  existe: ningún perfil se busca ni se recupera por dni.
 end note
 
 note as N_UpdatePerson
   <b>UpdatePersonProfileCommand</b>
   --
   Long id
-  String emailAddress
   byte[] photoData
   String photoFileName
   String phoneNumber
   String firstName
   String lastName
+  --
+  El perfil existe (PersonProfileNotFound).
+  dni (nunca) y birthDate no se modifican.
+  emailAddress no se modifica.
 end note
 
 note as N_CreateBusiness
@@ -273,20 +349,26 @@ note as N_CreateBusiness
   String mainActivity
   String whatsappNum
   String emergencyPhone
-  String businessHours  // texto/JSON de periodos
+  BusinessHours businessHours
   String slogan
   String supportEmail
   String formattedAddress
   Double latitude
   Double longitude
   String placeId
+  --
+  <b>Valida</b>
+  emailAddress no pertenece a otro BusinessProfile
+  (EmailAddressAlreadyExists).
+  ruc, businessName y legalName no pertenecen a otro
+  BusinessProfile (RucAlreadyExists, BusinessNameAlreadyExists,
+  LegalNameAlreadyExists).
 end note
 
 note as N_UpdateBusiness
   <b>UpdateBusinessProfileCommand</b>
   --
   Long id
-  String emailAddress
   byte[] photoData
   String photoFileName
   String phoneNumber
@@ -296,9 +378,18 @@ note as N_UpdateBusiness
   String mainActivity
   String whatsappNum
   String emergencyPhone
-  String businessHours  // texto/JSON de periodos
+  BusinessHours businessHours
   String slogan
   String supportEmail
+  --
+  El perfil existe (BusinessProfileNotFound).
+  ruc (nunca), address y emailAddress no se modifican.
+  Solo llega desde Company, donde se valida que quien
+  actualiza (incluido legalName) es el Administrator del
+  Business. Profiles no valida roles.
+  Si businessName o legalName cambian, no pertenecen a
+  otro BusinessProfile (BusinessNameAlreadyExists,
+  LegalNameAlreadyExists).
 end note
 
 CreatePersonProfileCommand .. N_CreatePerson
@@ -307,36 +398,76 @@ CreateBusinessProfileCommand .. N_CreateBusiness
 UpdateBusinessProfileCommand .. N_UpdateBusiness
 
 note bottom of Profile
-  Address (solo BusinessProfile), PhoneNumber, EmailAddress
-  y Photo son value objects del contexto Shared.
+  Base abstracta: no tiene repositorio ni services
+  propios. Los aggregates son PersonProfile y BusinessProfile.
+  Address (solo BusinessProfile), PhoneNumber, EmailAddress,
+  Photo y WeeklyPeriod son value objects del contexto Shared.
+  El id de PersonProfile es el que otros contextos guardan
+  como PersonProfileId; el de BusinessProfile, como
+  BusinessProfileId.
+end note
+
+note as N_ValueObjects
+  <b>Invariantes de los value objects</b>
+  --
+  Dni: 8 dígitos (String, admite ceros a la izquierda).
+  Es un dato de identificación personal: no identifica
+  al aggregate ni se usa para buscar o enlazar perfiles.
+  Ruc: 11 dígitos.
+  BirthDate: no posterior a hoy.
+  BusinessName y LegalName: no vacíos.
+  PersonName: firstName y lastName no vacíos.
+  BusinessHours: al menos un WeeklyPeriod; ningún rango
+  cruza medianoche (range.crossesMidnight() es falso) y
+  ningún par de periodos se cruza el mismo día
+  (InvalidBusinessHours).
+  --
+  <b>Email</b>: obligatorio en BusinessProfile; opcional en
+  PersonProfile (persona asistida). Relative y Administrator
+  lo exigen en su propio contexto. No se modifica.
+  <b>Teléfono</b>: puede repetirse entre perfiles.
 end note
 
 note as N_BusinessHours
   <b>BusinessHours</b>
   Horario de atención de un negocio. Agrupa una
-  lista de OpeningPeriod, uno por cada bloque
+  lista de WeeklyPeriod (Shared), uno por cada bloque
   de días con el mismo horario.
-  En los comandos llega como String
-  (texto/JSON) y se convierte a este value object.
+  Ejemplo: Lun-Vie 09:00-18:00 y Sáb 09:00-13:00
+  son dos WeeklyPeriod.
+  Los commands ya lo reciben como value object:
+  la conversión desde texto/JSON se hace en el
+  borde del contexto (Interfaces o fachada del ACL).
   --
   <b>isOpenAt(day, time)</b>
   Indica si el negocio está abierto en ese día
   y a esa hora, revisando todos sus periodos.
 end note
 
-note as N_OpeningPeriod
-  <b>OpeningPeriod</b>
-  Un bloque de atención: un conjunto de días
-  (<i>days</i>) que comparten el mismo rango de horas
-  (<i>range</i>, un TimeRange de Shared).
-  --
-  Ejemplo:
-  Lun–Vie 09:00–18:00
-  Sáb 09:00–13:00
-  (son dos OpeningPeriod dentro de BusinessHours)
-end note
 
 BusinessHours .. N_BusinessHours
-OpeningPeriod .. N_OpeningPeriod
+
+note as N_Clases
+  <b>Qué representa cada clase</b>
+  --
+  <b>PersonProfile</b>: los datos personales de una persona en
+  Alivia: administrador, familiar o persona asistida. Lo
+  crean otros contextos y lo referencian por PersonProfileId.
+  <b>BusinessProfile</b>: los datos públicos y legales del
+  negocio (ruc, razón social, nombre comercial, horario,
+  ubicación y contacto). Company lo referencia por
+  BusinessProfileId.
+  <b>Profile</b>: base común con email, foto y teléfono.
+  --
+  <b>Dni / Ruc</b>: documentos de identificación, únicos y
+  no modificables. <b>LegalName</b>: razón social, única.
+  <b>BusinessName</b>: nombre comercial, único.
+  <b>PersonName</b>: nombres y apellidos. <b>BirthDate</b>:
+  fecha de nacimiento. <b>BusinessHours</b>: horario de
+  atención del negocio, dentro del día.
+  --
+  <b>Exists...Query</b>: solo responden si un email o dni ya
+  está registrado; los perfiles se recuperan solo por id.
+end note
 
 @enduml
