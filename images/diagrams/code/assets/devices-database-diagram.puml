@@ -1,67 +1,133 @@
 @startuml
-title Alivia · Database Diagram - Bounded Context Assets
-
 hide circle
+skinparam packageStyle rectangle
 skinparam linetype ortho
 skinparam shadowing false
-skinparam backgroundColor #FFFFFF
-skinparam defaultFontName Helvetica
-skinparam ArrowColor #64748B
-skinparam entity {
-  BackgroundColor #EEF2FF
-  BorderColor #4F46E5
+skinparam roundCorner 8
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2E7D32
+  BorderThickness 1.2
+  HeaderBackgroundColor #E8F5E9
+  ArrowColor #444444
+}
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
 }
 
-' =====================================================
-' TABLES
-' =====================================================
+package "Bounded Context: Assets" as ctx_assets #F6FBF6 {
 
-entity "devices" as devices {
-  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
-  --
-  * business_id : BIGINT <<INDEX>>
-  * mac_address : VARCHAR(17) <<UNIQUE>>
-  * device_type : VARCHAR(20)
-  * device_status : VARCHAR(20)
-  --
-  * created_at : DATETIME
-  * updated_at : DATETIME
+  entity "edges" as edges {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * business_id : BIGINT <<IDX>> <<ref Company>>
+    * mac_address : CHAR(17) <<UK>>
+    * type : VARCHAR(20)
+    * status : VARCHAR(15)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+
+  entity "devices" as devices {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * business_id : BIGINT <<IDX>> <<ref Company>>
+    * mac_address : CHAR(17) <<UK>>
+    * type : VARCHAR(20)
+    * status : VARCHAR(15)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+
+  entity "device_networks" as networks {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * installation_id : BIGINT <<ref Soporte Técnico>>
+    * business_id : BIGINT <<IDX>> <<ref Company>>
+    * status : VARCHAR(15)
+    microphone_edge_id : BIGINT <<FK>>
+    actuator_edge_id : BIGINT <<FK>>
+    microphone_id : BIGINT <<FK>>
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    UK parcial (installation_id) WHERE status = 'ACTIVE'
+    UK (microphone_edge_id), UK (actuator_edge_id), UK (microphone_id)
+  }
+
+  entity "network_actuators" as actuators {
+    * network_id : BIGINT <<FK>>
+    * device_id : BIGINT <<FK>> <<UK>>
+    --
+  }
 }
 
-' Referencia externa (otro bounded context, sin FK física)
-entity "businesses" as businesses #F1F5F9 {
-  * id : BIGINT <<PK>>
-  --
-  ...
-}
+networks }o--o| edges : "microphone_edge_id\n(0..1)"
+networks }o--o| edges : "actuator_edge_id\n(0..1)"
+networks }o--o| devices : "microphone_id\n(0..1)"
+networks ||--o{ actuators : "actuators\n(0..*)"
+actuators }o--|| devices : "device_id"
 
-' =====================================================
-' RELATIONSHIPS
-' =====================================================
-
-businesses ||..o{ devices : "business_id\n(referencia lógica)"
-
-' =====================================================
-' NOTES
-' =====================================================
-
-note right of devices
-  **device_type** (enum DeviceType):
-  EDGE, ACTUATOR, MICROPHONE
-
-  **device_status** (enum DeviceStatus):
-  OPERATIONAL, IN_USE,
-  MAINTENANCE, BROKEN
-
-  **Índices sugeridos:**
-  - UNIQUE (mac_address)
-  - INDEX (business_id)
-  - INDEX (business_id, device_status)
+note right of edges
+  <b>edges</b> (aggregate Edge)
+  type: MICROPHONE_EDGE o ACTUATOR_EDGE.
+  status: AVAILABLE, IN_USE, MAINTENANCE o BROKEN.
+  mac_address normalizada (AA:BB:CC:DD:EE:FF).
+  business_id: Business de Company. Sin FK.
+  Sin límite de registros por negocio.
 end note
 
-note bottom of businesses
-  Pertenece a otro bounded context.
-  Solo se guarda su id en devices.
+note right of devices
+  <b>devices</b> (aggregate Device)
+  type: MICROPHONE, DOOR, WINDOW, CURTAIN o LIGHT.
+  Mismos estados que edges.
+  La MAC es única en cada tabla; que no se repita entre
+  edges y devices lo valida el dominio
+  (MacAddressAlreadyExists).
+end note
+
+note bottom of networks
+  <b>device_networks</b> (aggregate DeviceNetwork)
+  installation_id: instalación de Soporte Técnico
+  (InstallationId). Sin FK: otro contexto.
+  microphone_edge_id, actuator_edge_id y microphone_id:
+  referencias directas (mismo contexto) con FK. Un solo
+  campo por tipo: una red tiene 1 edge de micrófono, 1
+  edge de actuadores y 1 micrófono. Son nulos mientras
+  el equipo retirado no se reemplaza.
+  UK de cada campo de equipo: un equipo está en una
+  sola red. PostgreSQL admite varios NULL en un UNIQUE,
+  y al desactivar la red sus campos quedan vacíos.
+  UK parcial de installation_id: una instalación tiene
+  una sola red ACTIVE; las DEACTIVATED se conservan,
+  pero sin equipos.
+end note
+
+note bottom of actuators
+  <b>network_actuators</b>
+  Lista de actuadores de la red (@ManyToMany de
+  DeviceNetwork a Device). Sin id propio.
+  UK (device_id): un actuador está en una sola red a la
+  vez. Al retirarlo o desactivar la red, su fila se borra.
+end note
+
+note as N_Table
+  <b>Tabla de accesos</b>
+  No tiene tabla propia: DeviceNetwork.tableFor la
+  calcula con estos campos y se envía a los edges por
+  eventos.
 end note
 
 @enduml
