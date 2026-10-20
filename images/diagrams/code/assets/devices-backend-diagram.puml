@@ -27,7 +27,8 @@
 '  B10 Nombres alineados con los demás contextos: exceptions sin sufijo Exception, services en singular,
 '      commands en PascalCase, GetAll...By...Query, paquetes en plural.
 '  B11 Eventos: cada cambio de la red envía las tablas actualizadas a sus edges (AccessTableUpdatedEvent)
-'      y mantiene el estado de cada equipo (AssetAssigned/RemovedEvent, AssetStatusChangedEvent).
+'      y mantiene el estado de cada equipo (AssetAssignedToNetworkEvent, AssetRemovedFromNetworkEvent,
+'      AssetStatusChangedEvent).
 '  B12 DeviceNetwork es aggregate (no entidad suelta como Role de IAM): tiene invariantes, cambia por
 '      commands y registra eventos.
 '  B13 DeviceNetwork referencia directamente a Edge y Device (mismo contexto, como en Assistance): se
@@ -37,6 +38,7 @@
 '      edge estuvo desconectado, al reconectarse la pide con GetEdgeAccessTableQuery.
 '  B15 ExistsEdgeByMacAddressQuery y ExistsDeviceByMacAddressQuery validan que la MAC no se repita entre
 '      edges y devices (MacAddressAlreadyExists), como las Exists...Query de Profiles.
+'  B16 Se declara BusinessNotFound en domain.exceptions, igual que en HCM y Assistance.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -104,7 +106,8 @@ package alivia.platform.Assets {
       markBroken: AVAILABLE, IN_USE o MAINTENANCE a BROKEN.
       markRepaired: MAINTENANCE o BROKEN a AVAILABLE.
       IN_USE y AVAILABLE por asignación solo cambian por la
-      red (AssetAssigned/RemovedEvent).
+      red (AssetAssignedToNetworkEvent y
+      AssetRemovedFromNetworkEvent).
       <b>Equipo instalado con falla</b>: Soporte Técnico lo
       revisa y, si hay que cambiarlo, lo pasa de IN_USE a
       MAINTENANCE o BROKEN. Eso registra
@@ -471,6 +474,9 @@ package alivia.platform.Assets {
     class MacAddressAlreadyExists <<Exception>> {
       + MacAddressAlreadyExists(String macAddress)
     }
+    class BusinessNotFound <<Exception>> {
+      + BusinessNotFound(Long businessId)
+    }
     class AssetNotInBusiness <<Exception>> {
       + AssetNotInBusiness(Long assetId)
     }
@@ -591,6 +597,7 @@ EdgeNotFound -[hidden]down- DeviceNotFound
 DeviceNotFound -[hidden]down- DeviceNetworkNotFound
 DeviceNetworkNotFound -[hidden]down- InvalidMacAddress
 InvalidMacAddress -[hidden]down- MacAddressAlreadyExists
+MacAddressAlreadyExists -[hidden]down- BusinessNotFound
 AssetNotInBusiness -[hidden]down- InvalidAssetStatusTransition
 InvalidAssetStatusTransition -[hidden]down- AssetNotAvailable
 AssetNotAvailable -[hidden]down- AssetNotEditable
@@ -700,13 +707,18 @@ note as N_RulesNetwork
   Add / Remove / Deactivate: la red existe
   (DeviceNetworkNotFound) y carga el equipo por id; las
   demás reglas las valida DeviceNetwork.
-  Remove...FromNetworkCommand también llega por
+  RemoveEdgeFromNetworkCommand y
+  RemoveDeviceFromNetworkCommand también llegan por
   AssetStatusChangedEvent: application busca la red con
   GetDeviceNetworkByEdgeIdQuery o
   GetDeviceNetworkByDeviceIdQuery.
   <b>Quién valida qué</b>
   Assets decide quién puede enviar a quién (tableFor).
-  IAM solo autentica al edge cuando llama a la API.
+  IAM solo autentica al edge cuando llama a la API: al
+  asignar un edge a la red, application pide su
+  credencial a IAM (ACL, IssueDeviceCredentialCommand) y
+  devuelve el secreto a Soporte Técnico para configurarlo;
+  al retirarlo, IAM la revoca (AssetRemovedFromNetworkEvent).
   Telemetría guarda las acciones y estados que envían los
   edges (MongoDB); Assets no los guarda.
 end note

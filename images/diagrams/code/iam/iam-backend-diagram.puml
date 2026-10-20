@@ -1,277 +1,694 @@
 @startuml
-title Class Diagram - Identity And Access Management: Domain Layer
-
-skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
 skinparam shadowing false
-skinparam backgroundColor #FFFFFF
-skinparam ArrowColor #455A64
-
-' =====================================================
-' SHARED KERNEL
-' =====================================================
-
-package "Shared" as SharedCtx #ECEFF1 {
-  package "Domain" as SharedDomain #F5F5F5 {
-    package "Model" as SharedModel #FFF8E1 {
-
-      package "Aggregates" as SharedAggregates #FFE0B2 {
-        abstract class AuditableAbstractAggregateRoot {
-          - id: Long
-          - createdAt: LocalDateTime
-          - updatedAt: LocalDateTime
-          + addDomainEvent(event: Object): void
-        }
-      }
-
-      package "Value Objects" as SharedVO #E8EAF6 {
-        class EmailAddress <<value object>> {
-          - emailAddress: String
-          + EmailAddress(emailAddress: String)
-          + value(): String
-        }
-      }
-
-    }
-  }
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+  BackgroundColor<<Exception>> #FFEBEE
+  BorderColor<<Exception>> #C62828
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #B8A800
+}
+skinparam package {
+  BorderColor #888888
+  FontStyle bold
 }
 
-' =====================================================
-' IDENTITY AND ACCESS MANAGEMENT
-' =====================================================
-
-package "Identity and Access Management" as IAMCtx #E3F2FD {
-  package "Domain" as IAMDomain #E8F5E9 {
-
-    package "Model" as IAMModel #FFFDE7 {
-
-      package "Aggregates" as IAMAggregates #FFECB3 {
-        class User <<aggregate root>> {
-          - email: EmailAddress
-          - password: PasswordHash
-          - accessRole: AccessRole
-          - status: UserStatus
-          - emailVerified: Boolean
-          - failedAccessAttempts: Integer
-
-          + User(email: EmailAddress, password: PasswordHash, accessRole: AccessRole)
-          + verifyEmail(): void
-          + changePassword(password: PasswordHash): void
-          + assignAccessRole(accessRole: AccessRole): void
-          + registerFailedAccess(): void
-          + resetFailedAccessAttempts(): void
-          + activate(): void
-          + block(): void
-          + deactivate(): void
-          + canSignIn(): Boolean
-        }
-      }
-
-      package "Value Objects" as IAMVO #EDE7F6 {
-        class PasswordHash <<value object>> {
-          - value: String
-          + PasswordHash(value: String)
-          + value(): String
-        }
-
-        class EmailVerificationToken <<value object>> {
-          - value: String
-          - expiresAt: LocalDateTime
-          + isExpired(): Boolean
-        }
-
-        class PasswordRecoveryCode <<value object>> {
-          - value: String
-          - expiresAt: LocalDateTime
-          + isExpired(): Boolean
-          + matches(code: String): Boolean
-        }
-
-        class PasswordRecoveryToken <<value object>> {
-          - value: String
-          - expiresAt: LocalDateTime
-          + isExpired(): Boolean
-        }
-
-        enum AccessRole {
-          ADMINISTRATOR
-          CAREGIVER
-          TECHNICIAN
-          SUBSCRIPTION_MANAGER
-        }
-
-        enum UserStatus {
-          PENDING_VERIFICATION
-          ACTIVE
-          BLOCKED
-          INACTIVE
-        }
-
-        enum RecoveryChannel {
-          MOBILE_CODE
-          WEB_LINK
-        }
-      }
-
-      package "Commands" as IAMCommands #E1F5FE {
-        class SignUpCommand <<record>> {
-          email: String
-          password: String
-        }
-
-        class VerifyEmailCommand <<record>> {
-          verificationToken: String
-        }
-
-        class SignInCommand <<record>> {
-          email: String
-          password: String
-        }
-
-        class RequestPasswordRecoveryCommand <<record>> {
-          email: String
-          channel: RecoveryChannel
-        }
-
-        class ValidateRecoveryCodeCommand <<record>> {
-          email: String
-          recoveryCode: String
-        }
-
-        class ResetPasswordWithCodeCommand <<record>> {
-          email: String
-          recoveryCode: String
-          newPassword: String
-        }
-
-        class ResetPasswordWithTokenCommand <<record>> {
-          recoveryToken: String
-          newPassword: String
-        }
-
-        class ChangePasswordCommand <<record>> {
-          userId: Long
-          currentPassword: String
-          newPassword: String
-        }
-
-        class CreateEmployeeAccessCommand <<record>> {
-          employeeId: Long
-          institutionalEmail: String
-          accessRole: AccessRole
-        }
-
-        class SetInitialPasswordCommand <<record>> {
-          activationToken: String
-          password: String
-        }
-
-        class AssignAccessRoleCommand <<record>> {
-          userId: Long
-          accessRole: AccessRole
-        }
-
-        class ChangeUserStatusCommand <<record>> {
-          userId: Long
-          status: UserStatus
-        }
-      }
-
-      package "Queries" as IAMQueries #E0F2F1 {
-        class GetUserByIdQuery <<record>> {
-          userId: Long
-        }
-
-        class GetUserByEmailQuery <<record>> {
-          email: String
-        }
-
-        class GetAllUsersQuery <<record>>
-      }
-    }
-
-    package "Services" as IAMServices #FCE4EC {
-      interface UserCommandService {
-        + handle(command: SignUpCommand): User
-        + handle(command: VerifyEmailCommand): void
-        + handle(command: SignInCommand): User
-        + handle(command: RequestPasswordRecoveryCommand): void
-        + handle(command: ValidateRecoveryCodeCommand): Boolean
-        + handle(command: ResetPasswordWithCodeCommand): void
-        + handle(command: ResetPasswordWithTokenCommand): void
-        + handle(command: ChangePasswordCommand): void
-        + handle(command: CreateEmployeeAccessCommand): User
-        + handle(command: SetInitialPasswordCommand): void
-        + handle(command: AssignAccessRoleCommand): void
-        + handle(command: ChangeUserStatusCommand): void
-      }
-
-      interface UserQueryService {
-        + handle(query: GetUserByIdQuery): Optional<User>
-        + handle(query: GetUserByEmailQuery): Optional<User>
-        + handle(query: GetAllUsersQuery): List<User>
-      }
-    }
-
-  }
-}
-
-' =====================================================
-' AGGREGATE RELATIONSHIPS
-' =====================================================
-
-User --|> AuditableAbstractAggregateRoot : inherits
-User *-- EmailAddress : email
-User *-- PasswordHash : password
-User --> AccessRole : authorized as
-User --> UserStatus : has status
-
-' =====================================================
-' COMMAND DEPENDENCIES
-' =====================================================
-
-RequestPasswordRecoveryCommand --> RecoveryChannel
-CreateEmployeeAccessCommand --> AccessRole
-AssignAccessRoleCommand --> AccessRole
-ChangeUserStatusCommand --> UserStatus
-
-' =====================================================
-' COMMAND SERVICE DEPENDENCIES
-' =====================================================
-
-UserCommandService ..> User
-UserCommandService ..> SignUpCommand
-UserCommandService ..> VerifyEmailCommand
-UserCommandService ..> SignInCommand
-UserCommandService ..> RequestPasswordRecoveryCommand
-UserCommandService ..> ValidateRecoveryCodeCommand
-UserCommandService ..> ResetPasswordWithCodeCommand
-UserCommandService ..> ResetPasswordWithTokenCommand
-UserCommandService ..> ChangePasswordCommand
-UserCommandService ..> CreateEmployeeAccessCommand
-UserCommandService ..> SetInitialPasswordCommand
-UserCommandService ..> AssignAccessRoleCommand
-UserCommandService ..> ChangeUserStatusCommand
-
-' =====================================================
-' QUERY SERVICE DEPENDENCIES
-' =====================================================
-
-UserQueryService ..> User
-UserQueryService ..> GetUserByIdQuery
-UserQueryService ..> GetUserByEmailQuery
-UserQueryService ..> GetAllUsersQuery
-
-legend right
-  |= Color |= Layer |
-  |<#ECEFF1>| Shared |
-  |<#E3F2FD>| IAM Bounded Context |
-  |<#E8F5E9>| Domain |
-  |<#FFFDE7>| Model |
-  |<#FFECB3>| Aggregates |
-  |<#EDE7F6>| Value Objects |
-  |<#E1F5FE>| Commands |
-  |<#E0F2F1>| Queries |
-  |<#FCE4EC>| Domain Services |
+legend left
+  |= Color |= Significado |
+  |<#DCEBFA>   | Aggregate |
+  |<#FDE7EE>   | Entity |
+  |<#EADCF8>   | Value Object / Enum |
+  |<#FFE4C4>   | Command (escritura) |
+  |<#D5F0D8>   | Query (lectura) |
+  |<#FFF3B0>   | Service (interface) |
+  |<#CDEFF2>   | Event |
+  |<#FFEBEE>   | Exception (dominio) |
 endlegend
+
+package alivia.platform.Iam {
+
+  package "domain.model.aggregates" #F4F9FE {
+
+    class User #DCEBFA {
+      - EmailAddress emailAddress
+      - HashedPassword password
+      - boolean temporaryPassword
+      - AccountType accountType
+      - AccountStatus status
+      - Set<Role> roles
+      - PasswordToken passwordToken
+      - boolean emailVerified
+      - VerificationCode verificationCode
+      --
+      + {static} signUp(EmailAddress emailAddress, HashedPassword password, Role role,
+      \t VerificationCode code, String rawCode) : User
+      + {static} invited(EmailAddress emailAddress, Role caregiverRole, PasswordToken token) : User
+      + {static} corporate(EmailAddress emailAddress, HashedPassword temporaryPassword, Role role) : User
+      + replaceCorporateRole(Role role)
+      + hasRole(Roles role) : boolean
+      + verifyEmail(String codeHash, LocalDateTime now)
+      + renewVerificationCode(VerificationCode code, String rawCode)
+      + issuePasswordToken(PasswordToken token)
+      + definePassword(String tokenHash, HashedPassword password, LocalDateTime now)
+      + changeTemporaryPassword(HashedPassword password)
+      + changePassword(HashedPassword password)
+      + block()
+      + unblock()
+      + deactivate()
+      + canSignIn() : boolean
+      + hasDefinedPassword() : boolean
+      + isEmailVerified() : boolean
+    }
+
+    note bottom of User
+      <b>User</b>: una cuenta de Alivia (correo + contraseña).
+      Las fábricas ponen el tipo de cuenta según el rol.
+      --
+      <b>Fábricas</b>
+      signUp: cuenta PENDING con la contraseña del usuario
+      (administrador o familiar) y un código de verificación;
+      registra EmailVerificationRequestedEvent.
+      invited y corporate nacen con emailVerified = true
+      al activarse: el enlace o la contraseña temporal
+      llegaron a su correo.
+      invited: cuenta PERSONAL PENDING, sin contraseña, con
+      ROLE_CAREGIVER y un token SETUP.
+      corporate: cuenta CORPORATE PENDING con contraseña
+      temporal (temporaryPassword = true) y el rol del
+      empleado. Registra CorporateAccountCreatedEvent.
+      --
+      <b>Invariantes</b>
+      Cada rol es de su tipo de cuenta
+      (RoleNotAllowedForAccountType). Una cuenta PERSONAL tiene
+      un solo rol: ROLE_RELATIVE o ROLE_CAREGIVER.
+      verifyEmail: el código coincide (InvalidVerificationCode)
+      y no venció (VerificationCodeExpired); el correo no
+      estaba verificado (EmailAlreadyVerified). Deja la
+      cuenta ACTIVE y borra el código.
+      renewVerificationCode: solo si el correo no está
+      verificado (EmailAlreadyVerified); el código anterior
+      deja de valer. Registra EmailVerificationRequestedEvent.
+      replaceCorporateRole: solo cuentas CORPORATE con rol
+      de empleado; reemplaza el anterior.
+      issuePasswordToken: SETUP solo en una cuenta PENDING
+      sin contraseña (regenera el enlace; el anterior deja
+      de valer); RESET solo en una cuenta ACTIVE
+      (AccountNotActive). Registra
+      PasswordResetRequestedEvent si es RESET.
+      definePassword: el token coincide y es del propósito
+      esperado (InvalidPasswordToken), no venció
+      (PasswordTokenExpired); deja la cuenta ACTIVE, borra
+      el token y, si estaba PENDING, registra
+      PasswordDefinedEvent.
+      changeTemporaryPassword: la contraseña es temporal
+      (PasswordNotTemporary); deja la cuenta ACTIVE y
+      registra PasswordDefinedEvent.
+      changePassword: cuenta ACTIVE (AccountNotActive).
+      Transiciones (InvalidAccountStatusTransition):
+      block: PENDING o ACTIVE a BLOCKED.
+      unblock: BLOCKED a ACTIVE, o a PENDING si aún no
+      completó su activación.
+      deactivate: cualquiera a DEACTIVATED (final).
+      canSignIn: ACTIVE (una cuenta ACTIVE siempre tiene el
+      correo verificado y una contraseña definitiva).
+    end note
+
+    class DeviceCredential #DCEBFA {
+      - Long edgeId
+      - HashedPassword secret
+      - CredentialStatus status
+      --
+      + DeviceCredential(Long edgeId, HashedPassword secret)
+      + revoke()
+      + isActive() : boolean
+    }
+
+    note bottom of DeviceCredential
+      <b>DeviceCredential</b>: credencial con la que un edge
+      se autentica ante la API. edgeId es el id del Edge
+      de Assets (referencia por id).
+      Constructor: ACTIVE. revoke: ACTIVE a REVOKED
+      (DeviceCredentialRevoked si ya lo está).
+      Un edge tiene una sola credencial ACTIVE
+      (DeviceCredentialAlreadyExists).
+      El secreto se genera en application, se muestra una
+      sola vez para configurar el edge y se guarda hasheado.
+    end note
+  }
+
+  package "domain.model.entities" #FDE7EE {
+
+    class Role #FDE7EE {
+      - Roles name
+      --
+      + Role(Roles name)
+      + getStringName() : String
+      + allowedFor(AccountType type) : boolean
+      + isEmployeeRole() : boolean
+      + {static} toRoleFromName(String name) : Role
+    }
+
+    note bottom of Role
+      Entidad de catálogo, como en la referencia: una fila
+      por cada valor de Roles, creada por SeedRolesCommand
+      al iniciar la aplicación. No cambia.
+      allowedFor: ROLE_ADMIN, ROLE_TECH,
+      ROLE_SUBSCRIPTION_MANAGER y ROLE_CLEANING son
+      CORPORATE; ROLE_RELATIVE y ROLE_CAREGIVER, PERSONAL.
+      isEmployeeRole: TECH, SUBSCRIPTION_MANAGER o CLEANING.
+    end note
+  }
+
+  package "domain.model.valueobjects" #F9F4FD {
+
+    class HashedPassword <<Record>> #EADCF8 {
+      + String value
+      + HashedPassword(String value)
+    }
+
+    class PasswordToken <<Record>> #EADCF8 {
+      + String tokenHash
+      + TokenPurpose purpose
+      + LocalDateTime expiresAt
+      + PasswordToken(String tokenHash, TokenPurpose purpose, LocalDateTime expiresAt)
+      + matches(String tokenHash, TokenPurpose purpose) : boolean
+      + isExpired(LocalDateTime now) : boolean
+    }
+
+    note bottom of PasswordToken
+      HashedPassword: contraseña o secreto ya hasheado por
+      HashingService (application). No vacío.
+      PasswordToken: enlace de un solo uso. El token real
+      va en la url; aquí solo su hash.
+      SETUP: definir la contraseña de una cuenta invitada;
+      vence junto con la invitación (expiresAt de
+      Assistance).
+      RESET: recuperar la contraseña; la vigencia la fija
+      application desde configuración.
+    end note
+
+    class VerificationCode <<Record>> #EADCF8 {
+      + String codeHash
+      + LocalDateTime expiresAt
+      + VerificationCode(String codeHash, LocalDateTime expiresAt)
+      + matches(String codeHash) : boolean
+      + isExpired(LocalDateTime now) : boolean
+    }
+
+    note bottom of VerificationCode
+      Código numérico que llega al correo al registrarse.
+      Se guarda solo su hash. La vigencia la fija
+      application desde configuración.
+    end note
+
+    enum Roles #EADCF8 {
+      ROLE_ADMIN
+      ROLE_TECH
+      ROLE_SUBSCRIPTION_MANAGER
+      ROLE_CLEANING
+      ROLE_RELATIVE
+      ROLE_CAREGIVER
+    }
+
+    enum AccountType #EADCF8 {
+      PERSONAL
+      CORPORATE
+    }
+
+    enum AccountStatus #EADCF8 {
+      PENDING
+      ACTIVE
+      BLOCKED
+      DEACTIVATED
+    }
+
+    enum TokenPurpose #EADCF8 {
+      SETUP
+      RESET
+    }
+
+    enum CredentialStatus #EADCF8 {
+      ACTIVE
+      REVOKED
+    }
+  }
+
+  package "domain.model.events" #DDF3F5 {
+
+    class PasswordDefinedEvent <<Record>> #CDEFF2 {
+      + PasswordDefinedEvent(Long userId)
+    }
+
+    class CorporateAccountCreatedEvent #CDEFF2 {
+      - User user
+      - String temporaryPassword
+      --
+      + CorporateAccountCreatedEvent(User user, String temporaryPassword)
+      + getUserId() : Long
+      + getEmailAddress() : String
+      + getTemporaryPassword() : String
+    }
+
+    class EmailVerificationRequestedEvent #CDEFF2 {
+      - User user
+      - String code
+      --
+      + EmailVerificationRequestedEvent(User user, String code)
+      + getUserId() : Long
+      + getEmailAddress() : String
+      + getCode() : String
+    }
+
+    class PasswordResetRequestedEvent <<Record>> #CDEFF2 {
+      + PasswordResetRequestedEvent(Long userId, String emailAddress, String resetUrl)
+    }
+
+    note bottom of CorporateAccountCreatedEvent
+      PasswordDefinedEvent: el usuario definió su primera
+      contraseña. Assistance acepta sus invitaciones
+      PENDING (GetPendingInvitationsByCaregiverUserIdQuery).
+      CorporateAccountCreatedEvent: Communication envía la
+      bienvenida con la contraseña temporal al correo
+      corporativo. Lee el id al publicarse. La contraseña
+      temporal solo viaja en el evento; se guarda hasheada.
+      PasswordResetRequestedEvent: Communication envía el
+      enlace de recuperación.
+      EmailVerificationRequestedEvent: Communication envía
+      el código de verificación. Lee el id al publicarse.
+    end note
+  }
+
+  package "domain.model.commands" #FFF6EC {
+
+    class SeedRolesCommand <<Record>> #FFE4C4 {
+      + SeedRolesCommand()
+    }
+
+    class SignUpCommand <<Record>> #FFE4C4 {
+      + SignUpCommand(String emailAddress, String password, Roles role)
+    }
+
+    class VerifyEmailCommand <<Record>> #FFE4C4 {
+      + VerifyEmailCommand(String emailAddress, String code)
+    }
+
+    class ResendVerificationCodeCommand <<Record>> #FFE4C4 {
+      + ResendVerificationCodeCommand(String emailAddress)
+    }
+
+    class SignInCommand <<Record>> #FFE4C4 {
+      + SignInCommand(String emailAddress, String password)
+    }
+
+    class RegisterInvitedCaregiverCommand <<Record>> #FFE4C4 {
+      + RegisterInvitedCaregiverCommand(String emailAddress, LocalDateTime expiresAt)
+    }
+
+    class CreateCorporateAccountCommand <<Record>> #FFE4C4 {
+      + CreateCorporateAccountCommand(String emailAddress, Roles role)
+    }
+
+    class DefinePasswordCommand <<Record>> #FFE4C4 {
+      + DefinePasswordCommand(String token, TokenPurpose purpose, String newPassword)
+    }
+
+    class ChangeTemporaryPasswordCommand <<Record>> #FFE4C4 {
+      + ChangeTemporaryPasswordCommand(String emailAddress, String temporaryPassword, String newPassword)
+    }
+
+    class ChangePasswordCommand <<Record>> #FFE4C4 {
+      + ChangePasswordCommand(Long userId, String currentPassword, String newPassword)
+    }
+
+    class RequestPasswordResetCommand <<Record>> #FFE4C4 {
+      + RequestPasswordResetCommand(String emailAddress)
+    }
+
+    class ChangeUserRoleCommand <<Record>> #FFE4C4 {
+      + ChangeUserRoleCommand(Long userId, Roles role)
+    }
+
+    class BlockUserCommand <<Record>> #FFE4C4 {
+      + BlockUserCommand(Long userId)
+    }
+
+    class UnblockUserCommand <<Record>> #FFE4C4 {
+      + UnblockUserCommand(Long userId)
+    }
+
+    class DeactivateUserCommand <<Record>> #FFE4C4 {
+      + DeactivateUserCommand(Long userId)
+    }
+
+    class IssueDeviceCredentialCommand <<Record>> #FFE4C4 {
+      + IssueDeviceCredentialCommand(Long edgeId)
+    }
+
+    class RevokeDeviceCredentialCommand <<Record>> #FFE4C4 {
+      + RevokeDeviceCredentialCommand(Long edgeId)
+    }
+
+    class AuthenticateDeviceCommand <<Record>> #FFE4C4 {
+      + AuthenticateDeviceCommand(Long edgeId, String secret)
+    }
+  }
+
+  package "domain.model.queries" #EEF8EF {
+
+    class GetUserByIdQuery <<Record>> #D5F0D8 {
+      + GetUserByIdQuery(Long userId)
+    }
+
+    class GetUserByEmailAddressQuery <<Record>> #D5F0D8 {
+      + GetUserByEmailAddressQuery(String emailAddress)
+    }
+
+    class ExistsUserByEmailAddressQuery <<Record>> #D5F0D8 {
+      + ExistsUserByEmailAddressQuery(String emailAddress)
+    }
+
+    class GetAllUsersQuery <<Record>> #D5F0D8 {
+      + GetAllUsersQuery()
+    }
+
+    class GetAllRolesQuery <<Record>> #D5F0D8 {
+      + GetAllRolesQuery()
+    }
+
+    class GetRoleByNameQuery <<Record>> #D5F0D8 {
+      + GetRoleByNameQuery(Roles name)
+    }
+
+    class GetDeviceCredentialByEdgeIdQuery <<Record>> #D5F0D8 {
+      + GetDeviceCredentialByEdgeIdQuery(Long edgeId)
+    }
+  }
+
+  package "domain.exceptions" #FFF5F6 {
+    class UserNotFound <<Exception>> {
+      + UserNotFound(Long userId)
+    }
+    class EmailAddressAlreadyExists <<Exception>> {
+      + EmailAddressAlreadyExists(String emailAddress)
+    }
+    class InvalidCredentials <<Exception>> {
+      + InvalidCredentials()
+    }
+    class AccountNotActive <<Exception>> {
+      + AccountNotActive(AccountStatus status)
+    }
+    class PasswordChangeRequired <<Exception>> {
+      + PasswordChangeRequired()
+    }
+    class EmailNotVerified <<Exception>> {
+      + EmailNotVerified()
+    }
+    class EmailAlreadyVerified <<Exception>> {
+      + EmailAlreadyVerified()
+    }
+    class InvalidVerificationCode <<Exception>> {
+      + InvalidVerificationCode()
+    }
+    class VerificationCodeExpired <<Exception>> {
+      + VerificationCodeExpired()
+    }
+    class PasswordNotTemporary <<Exception>> {
+      + PasswordNotTemporary()
+    }
+    class InvalidPasswordToken <<Exception>> {
+      + InvalidPasswordToken()
+    }
+    class PasswordTokenExpired <<Exception>> {
+      + PasswordTokenExpired()
+    }
+    class RoleNotFound <<Exception>> {
+      + RoleNotFound(Roles name)
+    }
+    class RoleNotAllowedForAccountType <<Exception>> {
+      + RoleNotAllowedForAccountType(Roles role, AccountType type)
+    }
+    class InvalidAccountStatusTransition <<Exception>> {
+      + InvalidAccountStatusTransition(AccountStatus from, AccountStatus to)
+    }
+    class DeviceCredentialNotFound <<Exception>> {
+      + DeviceCredentialNotFound(Long edgeId)
+    }
+    class DeviceCredentialAlreadyExists <<Exception>> {
+      + DeviceCredentialAlreadyExists(Long edgeId)
+    }
+    class DeviceCredentialRevoked <<Exception>> {
+      + DeviceCredentialRevoked(Long edgeId)
+    }
+  }
+
+  package "domain.services" #FFFCEA {
+
+    interface UserCommandService #FFF3B0 {
+      Optional<User> handle(SignUpCommand command)
+      void handle(VerifyEmailCommand command)
+      void handle(ResendVerificationCodeCommand command)
+      Optional<ImmutablePair<User, String>> handle(SignInCommand command)
+      Optional<ImmutablePair<User, String>> handle(RegisterInvitedCaregiverCommand command)
+      Optional<User> handle(CreateCorporateAccountCommand command)
+      void handle(DefinePasswordCommand command)
+      void handle(ChangeTemporaryPasswordCommand command)
+      void handle(ChangePasswordCommand command)
+      void handle(RequestPasswordResetCommand command)
+      void handle(ChangeUserRoleCommand command)
+      void handle(BlockUserCommand command)
+      void handle(UnblockUserCommand command)
+      void handle(DeactivateUserCommand command)
+    }
+
+    interface UserQueryService #FFF3B0 {
+      Optional<User> handle(GetUserByIdQuery query)
+      Optional<User> handle(GetUserByEmailAddressQuery query)
+      boolean handle(ExistsUserByEmailAddressQuery query)
+      List<User> handle(GetAllUsersQuery query)
+    }
+
+    interface RoleCommandService #FFF3B0 {
+      void handle(SeedRolesCommand command)
+    }
+
+    interface RoleQueryService #FFF3B0 {
+      List<Role> handle(GetAllRolesQuery query)
+      Optional<Role> handle(GetRoleByNameQuery query)
+    }
+
+    interface DeviceCredentialCommandService #FFF3B0 {
+      Optional<ImmutablePair<DeviceCredential, String>> handle(IssueDeviceCredentialCommand command)
+      void handle(RevokeDeviceCredentialCommand command)
+      Optional<String> handle(AuthenticateDeviceCommand command)
+    }
+
+    interface DeviceCredentialQueryService #FFF3B0 {
+      Optional<DeviceCredential> handle(GetDeviceCredentialByEdgeIdQuery query)
+    }
+  }
+}
+
+note as N_Shared
+  <b>Value objects de Shared que usa IAM</b>
+  --
+  <b>EmailAddress</b>: correo de la cuenta, normalizado en
+  minúsculas. Es el mismo correo del PersonProfile o del
+  StaffProfile de la persona.
+  <b>UserId</b>: los demás contextos guardan el id de User
+  con este value object; IAM no guarda ids de otros
+  contextos de personas.
+end note
+
+' ---------- DISPOSICIÓN ----------
+SeedRolesCommand -[hidden]down- SignUpCommand
+SignUpCommand -[hidden]down- VerifyEmailCommand
+VerifyEmailCommand -[hidden]down- ResendVerificationCodeCommand
+ResendVerificationCodeCommand -[hidden]down- SignInCommand
+SignInCommand -[hidden]down- RegisterInvitedCaregiverCommand
+RegisterInvitedCaregiverCommand -[hidden]down- CreateCorporateAccountCommand
+CreateCorporateAccountCommand -[hidden]down- DefinePasswordCommand
+DefinePasswordCommand -[hidden]down- ChangeTemporaryPasswordCommand
+ChangeTemporaryPasswordCommand -[hidden]down- ChangePasswordCommand
+ChangePasswordCommand -[hidden]down- RequestPasswordResetCommand
+ChangeUserRoleCommand -[hidden]down- BlockUserCommand
+BlockUserCommand -[hidden]down- UnblockUserCommand
+UnblockUserCommand -[hidden]down- DeactivateUserCommand
+DeactivateUserCommand -[hidden]down- IssueDeviceCredentialCommand
+IssueDeviceCredentialCommand -[hidden]down- RevokeDeviceCredentialCommand
+RevokeDeviceCredentialCommand -[hidden]down- AuthenticateDeviceCommand
+GetUserByIdQuery -[hidden]down- GetUserByEmailAddressQuery
+GetUserByEmailAddressQuery -[hidden]down- ExistsUserByEmailAddressQuery
+ExistsUserByEmailAddressQuery -[hidden]down- GetAllUsersQuery
+GetAllRolesQuery -[hidden]down- GetRoleByNameQuery
+GetRoleByNameQuery -[hidden]down- GetDeviceCredentialByEdgeIdQuery
+UserNotFound -[hidden]down- EmailAddressAlreadyExists
+EmailAddressAlreadyExists -[hidden]down- InvalidCredentials
+InvalidCredentials -[hidden]down- AccountNotActive
+AccountNotActive -[hidden]down- PasswordChangeRequired
+EmailNotVerified -[hidden]down- EmailAlreadyVerified
+EmailAlreadyVerified -[hidden]down- InvalidVerificationCode
+InvalidVerificationCode -[hidden]down- VerificationCodeExpired
+PasswordNotTemporary -[hidden]down- InvalidPasswordToken
+InvalidPasswordToken -[hidden]down- PasswordTokenExpired
+PasswordTokenExpired -[hidden]down- RoleNotFound
+RoleNotFound -[hidden]down- RoleNotAllowedForAccountType
+InvalidAccountStatusTransition -[hidden]down- DeviceCredentialNotFound
+DeviceCredentialNotFound -[hidden]down- DeviceCredentialAlreadyExists
+DeviceCredentialAlreadyExists -[hidden]down- DeviceCredentialRevoked
+
+' ---------- COMPOSICIÓN Y ASOCIACIONES ----------
+User "0..*" -[#6A1B9A]-> "1..*" Role : roles >
+User "1" *-- "0..1" HashedPassword : password
+User "1" *-- "0..1" PasswordToken : passwordToken
+User "1" *-- "0..1" VerificationCode : verificationCode
+User "0..*" --> "1" AccountType : accountType
+User "0..*" --> "1" AccountStatus : status
+Role "0..*" --> "1" Roles : name
+PasswordToken "0..*" --> "1" TokenPurpose : purpose
+DeviceCredential "1" *-- "1" HashedPassword : secret
+DeviceCredential "0..*" --> "1" CredentialStatus : status
+
+' ---------- EVENTOS ----------
+User ..> PasswordDefinedEvent : registra >
+User ..> CorporateAccountCreatedEvent : registra >
+User ..> PasswordResetRequestedEvent : registra >
+User ..> EmailVerificationRequestedEvent : registra >
+
+' ---------- SERVICES ----------
+UserCommandService ..> SignUpCommand : recibe >
+UserCommandService ..> VerifyEmailCommand : recibe >
+UserCommandService ..> ResendVerificationCodeCommand : recibe >
+UserCommandService ..> SignInCommand : recibe >
+UserCommandService ..> RegisterInvitedCaregiverCommand : recibe >
+UserCommandService ..> CreateCorporateAccountCommand : recibe >
+UserCommandService ..> DefinePasswordCommand : recibe >
+UserCommandService ..> ChangeTemporaryPasswordCommand : recibe >
+UserCommandService ..> ChangePasswordCommand : recibe >
+UserCommandService ..> RequestPasswordResetCommand : recibe >
+UserCommandService ..> ChangeUserRoleCommand : recibe >
+UserCommandService ..> BlockUserCommand : recibe >
+UserCommandService ..> UnblockUserCommand : recibe >
+UserCommandService ..> DeactivateUserCommand : recibe >
+UserCommandService ..> User : crea / modifica >
+UserQueryService ..> GetUserByIdQuery : recibe >
+UserQueryService ..> GetUserByEmailAddressQuery : recibe >
+UserQueryService ..> ExistsUserByEmailAddressQuery : recibe >
+UserQueryService ..> GetAllUsersQuery : recibe >
+UserQueryService ..> User : devuelve >
+RoleCommandService ..> SeedRolesCommand : recibe >
+RoleCommandService ..> Role : crea >
+RoleQueryService ..> GetAllRolesQuery : recibe >
+RoleQueryService ..> GetRoleByNameQuery : recibe >
+RoleQueryService ..> Role : devuelve >
+DeviceCredentialCommandService ..> IssueDeviceCredentialCommand : recibe >
+DeviceCredentialCommandService ..> RevokeDeviceCredentialCommand : recibe >
+DeviceCredentialCommandService ..> AuthenticateDeviceCommand : recibe >
+DeviceCredentialCommandService ..> DeviceCredential : crea / modifica >
+DeviceCredentialQueryService ..> GetDeviceCredentialByEdgeIdQuery : recibe >
+DeviceCredentialQueryService ..> DeviceCredential : devuelve >
+
+' ---------- REGLAS DE LOS SERVICES ----------
+note as N_RulesUser
+  <b>Reglas de UserCommandService</b>
+  --
+  SignUpCommand (Company: administrador; Assistance:
+  familiar): el rol existe (RoleNotFound) y es ROLE_ADMIN
+  o ROLE_RELATIVE.
+  El correo no tiene cuenta (EmailAddressAlreadyExists):
+  un cuidador que se registra como familiar usa otro
+  correo. Crea User.signUp (PENDING hasta verificar el
+  correo); application genera el código.
+  Devuelve el User (su id es el UserId que guardan los
+  demás contextos).
+  VerifyEmailCommand: el correo existe (InvalidCredentials)
+  y llama a verifyEmail.
+  ResendVerificationCodeCommand: genera un código nuevo
+  (renewVerificationCode); si el correo no existe no lanza
+  error.
+  SignInCommand: el correo existe y la contraseña coincide
+  (InvalidCredentials, el mismo error para ambos casos);
+  el correo está verificado (EmailNotVerified); con
+  contraseña temporal pide cambiarla
+  (PasswordChangeRequired); la cuenta está ACTIVE
+  (AccountNotActive). Devuelve el User y el token JWT.
+  RegisterInvitedCaregiverCommand (Assistance):
+  correo sin cuenta: crea User.invited y devuelve el
+  token SETUP para la url. Cuenta PENDING sin contraseña
+  (invitación anterior sin aceptar): regenera el token.
+  Cuenta de cuidador con contraseña (ya cuida a otra
+  persona): la reutiliza y no devuelve token (la invitación
+  llega como notificación).
+  Cuenta de familiar o CORPORATE: EmailAddressAlreadyExists
+  (para cuidar a otra persona se usa otro correo).
+  CreateCorporateAccountCommand (HCM): el correo no tiene
+  cuenta (EmailAddressAlreadyExists); el rol es de
+  empleado. application genera la contraseña temporal.
+  DefinePasswordCommand: busca la cuenta por el hash del
+  token (InvalidPasswordToken) y llama a definePassword.
+  ChangeTemporaryPasswordCommand: la contraseña temporal
+  coincide (InvalidCredentials).
+  ChangePasswordCommand: la contraseña actual coincide
+  (InvalidCredentials).
+  RequestPasswordResetCommand: si el correo no tiene
+  cuenta no lanza error (no revela qué correos existen).
+  ChangeUserRoleCommand, BlockUserCommand,
+  UnblockUserCommand y DeactivateUserCommand: el usuario
+  existe (UserNotFound). Los activan los eventos de HCM.
+end note
+
+note as N_ExternalContexts
+  <b>Contextos que usan IAM</b>
+  --
+  <b>Company</b> (ACL): SignUpCommand con ROLE_ADMIN; guarda
+  el userId en Administrator.
+  <b>Assistance</b> (ACL): SignUpCommand con ROLE_RELATIVE
+  (el familiar paga la suscripción);
+  RegisterInvitedCaregiverCommand al invitar a un
+  cuidador. Escucha PasswordDefinedEvent para aceptar sus
+  invitaciones.
+  <b>HCM</b> (ACL y eventos): CreateCorporateAccountCommand con
+  el rol del empleado. EmployeeSuspendedEvent: Block;
+  EmployeeReinstatedEvent: Unblock; EmployeeTerminatedEvent:
+  Deactivate; EmployeeRoleChangedEvent: ChangeUserRole.
+  La cuenta personal de familiar, si la tiene, no cambia.
+  <b>Assets</b> (ACL y eventos): al asignar un edge a una red
+  pide IssueDeviceCredentialCommand; el secreto vuelve a
+  Soporte Técnico para configurar el edge.
+  AssetRemovedFromNetworkEvent de un edge:
+  RevokeDeviceCredentialCommand.
+  <b>Communication</b> (eventos): envía el código de
+  verificación, la contraseña temporal y el enlace de
+  recuperación.
+  <b>Autorización</b>: cada request lleva el token; el rol
+  decide qué endpoints puede usar. Qué familiar o
+  cuidador ve qué persona asistida lo valida Assistance.
+end note
+
+note as N_RulesDevice
+  <b>Reglas de DeviceCredentialCommandService</b>
+  --
+  IssueDeviceCredentialCommand: el edge no tiene otra
+  credencial ACTIVE (DeviceCredentialAlreadyExists).
+  application genera el secreto y lo devuelve una sola vez.
+  RevokeDeviceCredentialCommand: existe una credencial del
+  edge (DeviceCredentialNotFound) y está ACTIVE
+  (DeviceCredentialRevoked).
+  AuthenticateDeviceCommand: existe (DeviceCredentialNotFound),
+  está ACTIVE (DeviceCredentialRevoked) y el secreto
+  coincide (InvalidCredentials). Devuelve el token del edge.
+end note
+
+UserCommandService .. N_RulesUser
+DeviceCredentialCommandService .. N_RulesDevice
+UserQueryService .. N_ExternalContexts
 
 @enduml

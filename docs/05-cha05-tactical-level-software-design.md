@@ -300,37 +300,926 @@ Shared no tiene tablas propias. Sus bases se reflejan en las tablas de cada cont
 
 ## 5.1. Bounded Context: IAM
 
-En el código, este bounded context es el paquete `iam`. Gestiona las cuentas de usuario de Alivia: el registro, la autenticación, la recuperación de contraseña y los roles de acceso. Los demás contextos lo referencian por `UserId`.
+En el código, este bounded context es el paquete `iam`. IAM gestiona las cuentas con las que las personas y los edges acceden a Alivia: el registro con verificación de correo, el inicio de sesión, las contraseñas, los roles y las credenciales de los edges. Una cuenta se identifica con su correo, que es el mismo del perfil de la persona, y cada correo es una sola cuenta. Las cuentas son personales (familiar o cuidador, con un solo rol) o corporativas (administrador y empleados). Los demás contextos guardan solo el `UserId` de la cuenta y le piden a IAM, mediante su ACL, que la cree; IAM no guarda ids de otros contextos de personas. Se basa en el contexto IAM del repositorio de referencia (`User`, `Role`, `SignUp`, `SignIn` y la carga inicial de roles), con el hash de contraseñas y los tokens JWT en la capa de aplicación.
 
 ### 5.1.1. Domain Layer
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+#### Aggregates
+
+<table>
+<tr><th colspan="4" align="left"><code>User</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>AuditableAbstractAggregateRoot</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Una cuenta de Alivia: correo, contraseña, tipo de cuenta, estado y roles.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private</td><td>Correo de la cuenta, normalizado en minúsculas. Es el usuario para iniciar sesión y no se repite (<code>EmailAddressAlreadyExists</code>).</td></tr>
+<tr><td><code>password</code></td><td><code>HashedPassword</code></td><td>private</td><td>Contraseña hasheada. Vacía mientras un cuidador invitado no define la suya.</td></tr>
+<tr><td><code>temporaryPassword</code></td><td><code>boolean</code></td><td>private</td><td>Verdadero mientras el empleado no cambia su contraseña temporal.</td></tr>
+<tr><td><code>accountType</code></td><td><code>AccountType</code></td><td>private</td><td><code>PERSONAL</code> o <code>CORPORATE</code>.</td></tr>
+<tr><td><code>status</code></td><td><code>AccountStatus</code></td><td>private</td><td><code>PENDING</code>, <code>ACTIVE</code>, <code>BLOCKED</code> o <code>DEACTIVATED</code>.</td></tr>
+<tr><td><code>roles</code></td><td><code>Set&lt;Role&gt;</code></td><td>private</td><td>Roles de la cuenta. Una cuenta personal tiene un solo rol: <code>ROLE_RELATIVE</code> o <code>ROLE_CAREGIVER</code>.</td></tr>
+<tr><td><code>passwordToken</code></td><td><code>PasswordToken</code></td><td>private</td><td>Enlace vigente para definir o recuperar la contraseña, si lo hay.</td></tr>
+<tr><td><code>emailVerified</code></td><td><code>boolean</code></td><td>private</td><td>Verdadero cuando el correo está verificado.</td></tr>
+<tr><td><code>verificationCode</code></td><td><code>VerificationCode</code></td><td>private</td><td>Código de verificación vigente, si lo hay.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>signUp(EmailAddress emailAddress, HashedPassword password, Role role, VerificationCode code, String rawCode)</code></td><td><code>User</code></td><td>public static</td><td>Cuenta de quien se registra solo (administrador o familiar): <code>PENDING</code> hasta verificar su correo. El tipo de cuenta sale del rol. Registra <code>EmailVerificationRequestedEvent</code>.</td></tr>
+<tr><td><code>invited(EmailAddress emailAddress, Role caregiverRole, PasswordToken token)</code></td><td><code>User</code></td><td>public static</td><td>Cuenta personal <code>PENDING</code> de un cuidador invitado, sin contraseña, con <code>ROLE_CAREGIVER</code> y un token <code>SETUP</code>.</td></tr>
+<tr><td><code>corporate(EmailAddress emailAddress, HashedPassword temporaryPassword, Role role)</code></td><td><code>User</code></td><td>public static</td><td>Cuenta corporativa <code>PENDING</code> de un empleado, con contraseña temporal y su rol. Registra <code>CorporateAccountCreatedEvent</code>.</td></tr>
+<tr><td><code>replaceCorporateRole(Role role)</code></td><td><code>void</code></td><td>public</td><td>Cambia el rol de un empleado; solo en cuentas corporativas con rol de empleado.</td></tr>
+<tr><td><code>hasRole(Roles role)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la cuenta tiene el rol.</td></tr>
+<tr><td><code>verifyEmail(String codeHash, LocalDateTime now)</code></td><td><code>void</code></td><td>public</td><td>Verifica el correo: el código coincide (<code>InvalidVerificationCode</code>), no venció (<code>VerificationCodeExpired</code>) y el correo no estaba verificado (<code>EmailAlreadyVerified</code>). Deja la cuenta <code>ACTIVE</code>.</td></tr>
+<tr><td><code>renewVerificationCode(VerificationCode code, String rawCode)</code></td><td><code>void</code></td><td>public</td><td>Reemplaza el código si el correo no está verificado (<code>EmailAlreadyVerified</code>). Registra <code>EmailVerificationRequestedEvent</code>.</td></tr>
+<tr><td><code>issuePasswordToken(PasswordToken token)</code></td><td><code>void</code></td><td>public</td><td><code>SETUP</code>: solo en una cuenta <code>PENDING</code> sin contraseña (regenera el enlace). <code>RESET</code>: solo en una cuenta <code>ACTIVE</code> (<code>AccountNotActive</code>); registra <code>PasswordResetRequestedEvent</code>.</td></tr>
+<tr><td><code>definePassword(String tokenHash, HashedPassword password, LocalDateTime now)</code></td><td><code>void</code></td><td>public</td><td>Define la contraseña con el enlace: el token coincide (<code>InvalidPasswordToken</code>) y no venció (<code>PasswordTokenExpired</code>). Deja la cuenta <code>ACTIVE</code> y, si estaba <code>PENDING</code>, registra <code>PasswordDefinedEvent</code>.</td></tr>
+<tr><td><code>changeTemporaryPassword(HashedPassword password)</code></td><td><code>void</code></td><td>public</td><td>El empleado reemplaza su contraseña temporal (<code>PasswordNotTemporary</code>). Deja la cuenta <code>ACTIVE</code> y registra <code>PasswordDefinedEvent</code>.</td></tr>
+<tr><td><code>changePassword(HashedPassword password)</code></td><td><code>void</code></td><td>public</td><td>Cambia la contraseña de una cuenta <code>ACTIVE</code> (<code>AccountNotActive</code>).</td></tr>
+<tr><td><code>block()</code></td><td><code>void</code></td><td>public</td><td>De <code>PENDING</code> o <code>ACTIVE</code> a <code>BLOCKED</code> (empleado suspendido).</td></tr>
+<tr><td><code>unblock()</code></td><td><code>void</code></td><td>public</td><td>De <code>BLOCKED</code> a <code>ACTIVE</code>, o a <code>PENDING</code> si aún no completó su activación.</td></tr>
+<tr><td><code>deactivate()</code></td><td><code>void</code></td><td>public</td><td>A <code>DEACTIVATED</code>, estado final (empleado cesado).</td></tr>
+<tr><td><code>canSignIn()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la cuenta está <code>ACTIVE</code>.</td></tr>
+<tr><td><code>hasDefinedPassword()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si ya tiene una contraseña.</td></tr>
+<tr><td><code>isEmailVerified()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el correo está verificado.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Cada rol se asigna solo a su tipo de cuenta (<code>RoleNotAllowedForAccountType</code>). Una transición de estado no permitida lanza <code>InvalidAccountStatusTransition</code>. Una cuenta <code>ACTIVE</code> siempre tiene el correo verificado y una contraseña definitiva. El cuidador invitado y el empleado verifican su correo al activarse, porque el enlace o la contraseña temporal les llegó a ese correo.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación dirigida (<code>roles</code>)</td><td><code>Role</code></td><td>0..* a 1..*</td><td>Roles de la cuenta.</td></tr>
+<tr><td>Composición (<code>password</code>)</td><td><code>HashedPassword</code></td><td>1 a 0..1</td><td>Contraseña hasheada.</td></tr>
+<tr><td>Composición (<code>passwordToken</code>)</td><td><code>PasswordToken</code></td><td>1 a 0..1</td><td>Enlace vigente.</td></tr>
+<tr><td>Composición (<code>verificationCode</code>)</td><td><code>VerificationCode</code></td><td>1 a 0..1</td><td>Código vigente.</td></tr>
+<tr><td>Asociaciones (<code>accountType</code>, <code>status</code>)</td><td><code>AccountType</code>, <code>AccountStatus</code></td><td>0..* a 1</td><td>Tipo y estado de la cuenta.</td></tr>
+<tr><td>Dependencia "registra"</td><td>Eventos de la cuenta</td><td>No aplica</td><td>Verificación, contraseña definida, cuenta corporativa y recuperación.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceCredential</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>AuditableAbstractAggregateRoot</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Credencial con la que un edge se autentica ante la API. Assets decide qué puede enviar el edge; IAM solo lo autentica.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private</td><td>Id del <code>Edge</code> de Assets.</td></tr>
+<tr><td><code>secret</code></td><td><code>HashedPassword</code></td><td>private</td><td>Secreto del edge, hasheado.</td></tr>
+<tr><td><code>status</code></td><td><code>CredentialStatus</code></td><td>private</td><td><code>ACTIVE</code> o <code>REVOKED</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeviceCredential(Long edgeId, HashedPassword secret)</code></td><td>(constructor)</td><td>public</td><td>Crea la credencial <code>ACTIVE</code>.</td></tr>
+<tr><td><code>revoke()</code></td><td><code>void</code></td><td>public</td><td>De <code>ACTIVE</code> a <code>REVOKED</code> (<code>DeviceCredentialRevoked</code> si ya lo está).</td></tr>
+<tr><td><code>isActive()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la credencial está <code>ACTIVE</code>.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Un edge tiene una sola credencial <code>ACTIVE</code> (<code>DeviceCredentialAlreadyExists</code>). Se emite cuando el edge se asigna a una red; el secreto se genera en la capa de aplicación, se muestra una sola vez para configurar el edge y se guarda hasheado. Se revoca cuando el edge sale de la red.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>secret</code>)</td><td><code>HashedPassword</code></td><td>1 a 1</td><td>Secreto hasheado.</td></tr>
+<tr><td>Asociación (<code>status</code>)</td><td><code>CredentialStatus</code></td><td>0..* a 1</td><td>Estado de la credencial.</td></tr>
+</table>
+
+#### Entities
+
+<table>
+<tr><th colspan="4" align="left"><code>Role</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Entity de catálogo</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Un rol de Alivia, como en el repositorio de referencia: una fila por cada valor de <code>Roles</code>, creada al iniciar la aplicación con <code>SeedRolesCommand</code>. No cambia.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>name</code></td><td><code>Roles</code></td><td>private</td><td>Nombre del rol.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Role(Roles name)</code></td><td>(constructor)</td><td>public</td><td>Crea el rol.</td></tr>
+<tr><td><code>getStringName()</code></td><td><code>String</code></td><td>public</td><td>Nombre del rol como texto.</td></tr>
+<tr><td><code>allowedFor(AccountType type)</code></td><td><code>boolean</code></td><td>public</td><td><code>ROLE_ADMIN</code>, <code>ROLE_TECH</code>, <code>ROLE_SUBSCRIPTION_MANAGER</code> y <code>ROLE_CLEANING</code> son corporativos; <code>ROLE_RELATIVE</code> y <code>ROLE_CAREGIVER</code>, personales.</td></tr>
+<tr><td><code>isEmployeeRole()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si es <code>ROLE_TECH</code>, <code>ROLE_SUBSCRIPTION_MANAGER</code> o <code>ROLE_CLEANING</code>.</td></tr>
+<tr><td><code>toRoleFromName(String name)</code></td><td><code>Role</code></td><td>public static</td><td>Crea el rol desde su nombre.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación (<code>name</code>)</td><td><code>Roles</code></td><td>0..* a 1</td><td>Valor del rol.</td></tr>
+</table>
+
+#### Value Objects
+
+<table>
+<tr><th colspan="4" align="left"><code>HashedPassword</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Contraseña o secreto ya hasheado por <code>HashingService</code> en la capa de aplicación. No vacío.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>value</code></td><td><code>String</code></td><td>private final</td><td>Hash de la contraseña o del secreto.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>HashedPassword(String value)</code></td><td>(constructor)</td><td>public</td><td>Crea la instancia y valida sus invariantes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>PasswordToken</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Enlace de un solo uso para definir la contraseña de una cuenta invitada (<code>SETUP</code>) o recuperarla (<code>RESET</code>). El token real va en la url; aquí solo su hash.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>tokenHash</code></td><td><code>String</code></td><td>private final</td><td>Hash del token.</td></tr>
+<tr><td><code>purpose</code></td><td><code>TokenPurpose</code></td><td>private final</td><td><code>SETUP</code> o <code>RESET</code>.</td></tr>
+<tr><td><code>expiresAt</code></td><td><code>LocalDateTime</code></td><td>private final</td><td>Vencimiento. <code>SETUP</code> vence con la invitación; <code>RESET</code>, según configuración.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PasswordToken(String tokenHash, TokenPurpose purpose, LocalDateTime expiresAt)</code></td><td>(constructor)</td><td>public</td><td>Crea el token.</td></tr>
+<tr><td><code>matches(String tokenHash, TokenPurpose purpose)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el token y el propósito coinciden.</td></tr>
+<tr><td><code>isExpired(LocalDateTime now)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si venció.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación (<code>purpose</code>)</td><td><code>TokenPurpose</code></td><td>0..* a 1</td><td>Propósito del token.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>VerificationCode</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Código numérico que llega al correo al registrarse. Se guarda solo su hash; la vigencia se configura en la capa de aplicación.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>codeHash</code></td><td><code>String</code></td><td>private final</td><td>Hash del código.</td></tr>
+<tr><td><code>expiresAt</code></td><td><code>LocalDateTime</code></td><td>private final</td><td>Vencimiento del código.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>VerificationCode(String codeHash, LocalDateTime expiresAt)</code></td><td>(constructor)</td><td>public</td><td>Crea el código.</td></tr>
+<tr><td><code>matches(String codeHash)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el código coincide.</td></tr>
+<tr><td><code>isExpired(LocalDateTime now)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si venció.</td></tr>
+</table>
+
+#### Enumerations
+
+<table>
+<tr><th colspan="4" align="left"><code>Roles</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Roles de Alivia. Los de empleado son los <code>EmployeeRole</code> de HCM.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>ROLE_ADMIN</code>, <code>ROLE_TECH</code>, <code>ROLE_SUBSCRIPTION_MANAGER</code>, <code>ROLE_CLEANING</code>, <code>ROLE_RELATIVE</code>, <code>ROLE_CAREGIVER</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AccountType</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cuenta de cliente (familiar o cuidador) o del personal (administrador o empleado).</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>PERSONAL</code>, <code>CORPORATE</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AccountStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Estado de la cuenta. <code>PENDING</code>: aún no verifica su correo, no define su contraseña o tiene una contraseña temporal.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>PENDING</code>, <code>ACTIVE</code>, <code>BLOCKED</code>, <code>DEACTIVATED</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>TokenPurpose</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Propósito de un enlace de contraseña.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>SETUP</code>, <code>RESET</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CredentialStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Estado de la credencial de un edge.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>ACTIVE</code>, <code>REVOKED</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+#### Domain Events
+
+<table>
+<tr><th colspan="4" align="left"><code>EmailVerificationRequestedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que una cuenta necesita verificar su correo con un código.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>user</code></td><td><code>User</code></td><td>private</td><td>Cuenta que originó el evento; su id se lee al publicarse.</td></tr>
+<tr><td><code>code</code></td><td><code>String</code></td><td>private</td><td>Código de verificación recibido en el correo.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmailVerificationRequestedEvent(User user, String code)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><code>getUserId()</code></td><td><code>Long</code></td><td>public</td><td>Devuelve <code>userId</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><code>getEmailAddress()</code></td><td><code>String</code></td><td>public</td><td>Devuelve <code>emailAddress</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><code>getCode()</code></td><td><code>String</code></td><td>public</td><td>Devuelve <code>code</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>User.signUp</code> y <code>User.renewVerificationCode</code></td></tr>
+<tr><td><b>Activa</b></td><td colspan="3">Communication envía el código al correo. Lee el id al publicarse, porque una cuenta nueva aún no lo tiene.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>PasswordDefinedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que una cuenta definió su primera contraseña y quedó activa.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PasswordDefinedEvent(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>User.definePassword</code> y <code>User.changeTemporaryPassword</code></td></tr>
+<tr><td><b>Activa</b></td><td colspan="3">Assistance acepta las invitaciones pendientes del cuidador.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CorporateAccountCreatedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que se creó la cuenta corporativa de un empleado con una contraseña temporal.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>user</code></td><td><code>User</code></td><td>private</td><td>Cuenta corporativa creada; su id se lee al publicarse.</td></tr>
+<tr><td><code>temporaryPassword</code></td><td><code>String</code></td><td>private</td><td>Contraseña temporal del empleado.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CorporateAccountCreatedEvent(User user, String temporaryPassword)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><code>getUserId()</code></td><td><code>Long</code></td><td>public</td><td>Devuelve <code>userId</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><code>getEmailAddress()</code></td><td><code>String</code></td><td>public</td><td>Devuelve <code>emailAddress</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><code>getTemporaryPassword()</code></td><td><code>String</code></td><td>public</td><td>Devuelve <code>temporaryPassword</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>User.corporate</code></td></tr>
+<tr><td><b>Activa</b></td><td colspan="3">Communication envía la contraseña temporal al correo corporativo. La contraseña temporal solo viaja en el evento; se guarda hasheada.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>PasswordResetRequestedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que una cuenta pidió recuperar su contraseña.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><td><code>resetUrl</code></td><td><code>String</code></td><td>private final</td><td>Url del enlace de recuperación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PasswordResetRequestedEvent(Long userId, String emailAddress, String resetUrl)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>User.issuePasswordToken</code> con <code>RESET</code></td></tr>
+<tr><td><b>Activa</b></td><td colspan="3">Communication envía el enlace de recuperación.</td></tr>
+</table>
+
+#### Commands
+
+Reglas: `ChangeUserRoleCommand`, `BlockUserCommand`, `UnblockUserCommand` y `DeactivateUserCommand` validan que el usuario exista (`UserNotFound`).
+
+<table>
+<tr><th colspan="4" align="left"><code>SeedRolesCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Crea los roles que falten al iniciar la aplicación.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>SeedRolesCommand()</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>SignUpCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Registro del administrador (Company, <code>ROLE_ADMIN</code>) o del familiar (Assistance, <code>ROLE_RELATIVE</code>). El correo no tiene cuenta (<code>EmailAddressAlreadyExists</code>): un cuidador que se registra como familiar usa otro correo. El rol existe (<code>RoleNotFound</code>). La cuenta queda <code>PENDING</code> hasta verificar el correo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><td><code>password</code></td><td><code>String</code></td><td>private final</td><td>Contraseña de su cuenta. Se oculta en <code>toString()</code>.</td></tr>
+<tr><td><code>role</code></td><td><code>Roles</code></td><td>private final</td><td>Rol en el negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>SignUpCommand(String emailAddress, String password, Roles role)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>VerifyEmailCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Verifica el correo con el código recibido (<code>User.verifyEmail</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><td><code>code</code></td><td><code>String</code></td><td>private final</td><td>Código de verificación recibido en el correo.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>VerifyEmailCommand(String emailAddress, String code)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ResendVerificationCodeCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Envía un código nuevo; el anterior deja de valer. Si el correo no existe no lanza error.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ResendVerificationCodeCommand(String emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>SignInCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Inicia sesión y devuelve el token. El correo existe y la contraseña coincide (<code>InvalidCredentials</code>, el mismo error en ambos casos); el correo está verificado (<code>EmailNotVerified</code>); si la contraseña es temporal, pide cambiarla (<code>PasswordChangeRequired</code>); la cuenta está <code>ACTIVE</code> (<code>AccountNotActive</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><td><code>password</code></td><td><code>String</code></td><td>private final</td><td>Contraseña de su cuenta. Se oculta en <code>toString()</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>SignInCommand(String emailAddress, String password)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RegisterInvitedCaregiverCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Invitación de un cuidador (Assistance). Correo sin cuenta: crea la cuenta invitada y devuelve el token del enlace. Cuenta invitada sin contraseña: regenera el enlace. Cuenta de cuidador activa (cuida a otra persona): la reutiliza sin token. Cuenta de familiar o corporativa: <code>EmailAddressAlreadyExists</code>, se usa otro correo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><td><code>expiresAt</code></td><td><code>LocalDateTime</code></td><td>private final</td><td>Fecha y hora de vencimiento.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RegisterInvitedCaregiverCommand(String emailAddress, LocalDateTime expiresAt)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateCorporateAccountCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cuenta corporativa de un empleado (HCM) con su rol. El correo no tiene cuenta (<code>EmailAddressAlreadyExists</code>) y el rol es de empleado. La capa de aplicación genera la contraseña temporal.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><td><code>role</code></td><td><code>Roles</code></td><td>private final</td><td>Rol en el negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateCorporateAccountCommand(String emailAddress, Roles role)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DefinePasswordCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define la contraseña con un enlace de invitación o de recuperación. La cuenta se busca por el hash del token (<code>InvalidPasswordToken</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>token</code></td><td><code>String</code></td><td>private final</td><td>Token recibido en el enlace.</td></tr>
+<tr><td><code>purpose</code></td><td><code>TokenPurpose</code></td><td>private final</td><td><code>SETUP</code> (invitación) o <code>RESET</code> (recuperación).</td></tr>
+<tr><td><code>newPassword</code></td><td><code>String</code></td><td>private final</td><td>Contraseña nueva.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DefinePasswordCommand(String token, TokenPurpose purpose, String newPassword)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ChangeTemporaryPasswordCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">El empleado cambia su contraseña temporal; la temporal coincide (<code>InvalidCredentials</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><td><code>temporaryPassword</code></td><td><code>String</code></td><td>private final</td><td>Contraseña temporal del empleado.</td></tr>
+<tr><td><code>newPassword</code></td><td><code>String</code></td><td>private final</td><td>Contraseña nueva.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ChangeTemporaryPasswordCommand(String emailAddress, String temporaryPassword, String newPassword)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ChangePasswordCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cambio de contraseña con la sesión iniciada; la actual coincide (<code>InvalidCredentials</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><td><code>currentPassword</code></td><td><code>String</code></td><td>private final</td><td>Contraseña actual.</td></tr>
+<tr><td><code>newPassword</code></td><td><code>String</code></td><td>private final</td><td>Contraseña nueva.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ChangePasswordCommand(Long userId, String currentPassword, String newPassword)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RequestPasswordResetCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Pide un enlace de recuperación. Si el correo no tiene cuenta no lanza error, para no revelar qué correos existen.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RequestPasswordResetCommand(String emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ChangeUserRoleCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cambia el rol de un empleado. Lo activa <code>EmployeeRoleChangedEvent</code> de HCM.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><td><code>role</code></td><td><code>Roles</code></td><td>private final</td><td>Rol en el negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ChangeUserRoleCommand(Long userId, Roles role)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BlockUserCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Bloquea la cuenta. Lo activa <code>EmployeeSuspendedEvent</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BlockUserCommand(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UnblockUserCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Desbloquea la cuenta. Lo activa <code>EmployeeReinstatedEvent</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UnblockUserCommand(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeactivateUserCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Desactiva la cuenta. Lo activa <code>EmployeeTerminatedEvent</code>; la cuenta personal de la misma persona, si la tiene, no cambia.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeactivateUserCommand(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>IssueDeviceCredentialCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Crea la credencial de un edge al asignarlo a una red (Assets, por ACL); devuelve el secreto una sola vez. El edge no tiene otra credencial <code>ACTIVE</code> (<code>DeviceCredentialAlreadyExists</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>IssueDeviceCredentialCommand(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RevokeDeviceCredentialCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Revoca la credencial cuando el edge sale de la red (<code>AssetRemovedFromNetworkEvent</code>). Existe (<code>DeviceCredentialNotFound</code>) y está <code>ACTIVE</code> (<code>DeviceCredentialRevoked</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RevokeDeviceCredentialCommand(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AuthenticateDeviceCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Autentica al edge y devuelve su token. Existe (<code>DeviceCredentialNotFound</code>), está <code>ACTIVE</code> (<code>DeviceCredentialRevoked</code>) y el secreto coincide (<code>InvalidCredentials</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><td><code>secret</code></td><td><code>String</code></td><td>private final</td><td>Secreto del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AuthenticateDeviceCommand(Long edgeId, String secret)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+#### Queries
+
+<table>
+<tr><th colspan="4" align="left"><code>GetUserByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cuenta por id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetUserByIdQuery(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;User&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetUserByEmailAddressQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Cuenta por correo; la usa el inicio de sesión y la invitación de cuidadores.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetUserByEmailAddressQuery(String emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;User&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ExistsUserByEmailAddressQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica si el correo ya tiene cuenta.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>emailAddress</code></td><td><code>String</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ExistsUserByEmailAddressQuery(String emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>boolean</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllUsersQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Todas las cuentas.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllUsersQuery()</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;User&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllRolesQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Todos los roles.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllRolesQuery()</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Role&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetRoleByNameQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Rol por nombre.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>name</code></td><td><code>Roles</code></td><td>private final</td><td>Nombre del rol.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetRoleByNameQuery(Roles name)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Role&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetDeviceCredentialByEdgeIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Credencial activa de un edge.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetDeviceCredentialByEdgeIdQuery(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;DeviceCredential&gt;</code></td></tr>
+</table>
+
+#### Domain Services
+
+<table>
+<tr><th colspan="4" align="left"><code>UserCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>User</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(SignUpCommand command)</code></td><td><code>Optional&lt;User&gt;</code></td><td>public</td><td>Ejecuta <code>SignUpCommand</code>.</td></tr>
+<tr><td><code>handle(VerifyEmailCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>VerifyEmailCommand</code>.</td></tr>
+<tr><td><code>handle(ResendVerificationCodeCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>ResendVerificationCodeCommand</code>.</td></tr>
+<tr><td><code>handle(SignInCommand command)</code></td><td><code>Optional&lt;ImmutablePair&lt;User, String&gt;&gt;</code></td><td>public</td><td>Ejecuta <code>SignInCommand</code>.</td></tr>
+<tr><td><code>handle(RegisterInvitedCaregiverCommand command)</code></td><td><code>Optional&lt;ImmutablePair&lt;User, String&gt;&gt;</code></td><td>public</td><td>Ejecuta <code>RegisterInvitedCaregiverCommand</code>.</td></tr>
+<tr><td><code>handle(CreateCorporateAccountCommand command)</code></td><td><code>Optional&lt;User&gt;</code></td><td>public</td><td>Ejecuta <code>CreateCorporateAccountCommand</code>.</td></tr>
+<tr><td><code>handle(DefinePasswordCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>DefinePasswordCommand</code>.</td></tr>
+<tr><td><code>handle(ChangeTemporaryPasswordCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>ChangeTemporaryPasswordCommand</code>.</td></tr>
+<tr><td><code>handle(ChangePasswordCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>ChangePasswordCommand</code>.</td></tr>
+<tr><td><code>handle(RequestPasswordResetCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>RequestPasswordResetCommand</code>.</td></tr>
+<tr><td><code>handle(ChangeUserRoleCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>ChangeUserRoleCommand</code>.</td></tr>
+<tr><td><code>handle(BlockUserCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>BlockUserCommand</code>.</td></tr>
+<tr><td><code>handle(UnblockUserCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>UnblockUserCommand</code>.</td></tr>
+<tr><td><code>handle(DeactivateUserCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>DeactivateUserCommand</code>.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UserQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>User</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetUserByIdQuery query)</code></td><td><code>Optional&lt;User&gt;</code></td><td>public</td><td>Resuelve <code>GetUserByIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetUserByEmailAddressQuery query)</code></td><td><code>Optional&lt;User&gt;</code></td><td>public</td><td>Resuelve <code>GetUserByEmailAddressQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(ExistsUserByEmailAddressQuery query)</code></td><td><code>boolean</code></td><td>public</td><td>Resuelve <code>ExistsUserByEmailAddressQuery</code>.</td></tr>
+<tr><td><code>handle(GetAllUsersQuery query)</code></td><td><code>List&lt;User&gt;</code></td><td>public</td><td>Resuelve <code>GetAllUsersQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RoleCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>Role</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(SeedRolesCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>SeedRolesCommand</code>.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RoleQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>Role</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetAllRolesQuery query)</code></td><td><code>List&lt;Role&gt;</code></td><td>public</td><td>Resuelve <code>GetAllRolesQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(GetRoleByNameQuery query)</code></td><td><code>Optional&lt;Role&gt;</code></td><td>public</td><td>Resuelve <code>GetRoleByNameQuery</code>; devuelve vacío si no existe.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceCredentialCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>DeviceCredential</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(IssueDeviceCredentialCommand command)</code></td><td><code>Optional&lt;ImmutablePair&lt;DeviceCredential, String&gt;&gt;</code></td><td>public</td><td>Ejecuta <code>IssueDeviceCredentialCommand</code>.</td></tr>
+<tr><td><code>handle(RevokeDeviceCredentialCommand command)</code></td><td><code>void</code></td><td>public</td><td>Ejecuta <code>RevokeDeviceCredentialCommand</code>.</td></tr>
+<tr><td><code>handle(AuthenticateDeviceCommand command)</code></td><td><code>Optional&lt;String&gt;</code></td><td>public</td><td>Ejecuta <code>AuthenticateDeviceCommand</code>.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceCredentialQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>DeviceCredential</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetDeviceCredentialByEdgeIdQuery query)</code></td><td><code>Optional&lt;DeviceCredential&gt;</code></td><td>public</td><td>Resuelve <code>GetDeviceCredentialByEdgeIdQuery</code>; devuelve vacío si no existe.</td></tr>
+</table>
+
+#### Exceptions
+
+<table>
+<tr><th colspan="4" align="left"><code>UserNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe la cuenta indicada.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UserNotFound(Long userId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmailAddressAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el correo ya tiene una cuenta (o, en una invitación, es de un familiar o de una cuenta corporativa).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmailAddressAlreadyExists(String emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidCredentials</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el correo, la contraseña o el secreto no coinciden.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidCredentials()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AccountNotActive</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la operación pide una cuenta <code>ACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AccountNotActive(AccountStatus status)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>PasswordChangeRequired</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el empleado inicia sesión con su contraseña temporal.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PasswordChangeRequired()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmailNotVerified</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se inicia sesión sin verificar el correo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmailNotVerified()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmailAlreadyVerified</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se verifica o se pide un código para un correo ya verificado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmailAlreadyVerified()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidVerificationCode</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el código de verificación no coincide.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidVerificationCode()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>VerificationCodeExpired</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el código de verificación venció.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>VerificationCodeExpired()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>PasswordNotTemporary</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se cambia como temporal una contraseña que no lo es.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PasswordNotTemporary()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidPasswordToken</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el enlace no existe, ya se usó o no es del propósito esperado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidPasswordToken()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>PasswordTokenExpired</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el enlace venció.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>PasswordTokenExpired()</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RoleNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el rol no existe en el catálogo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RoleNotFound(Roles name)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RoleNotAllowedForAccountType</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el rol no corresponde al tipo de cuenta.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RoleNotAllowedForAccountType(Roles role, AccountType type)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidAccountStatusTransition</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el cambio de estado de la cuenta no está permitido.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidAccountStatusTransition(AccountStatus from, AccountStatus to)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceCredentialNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el edge no tiene credencial.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeviceCredentialNotFound(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceCredentialAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el edge ya tiene una credencial <code>ACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeviceCredentialAlreadyExists(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceCredentialRevoked</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la credencial del edge está revocada.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeviceCredentialRevoked(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
 
 ### 5.1.2. Interface Layer
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.1.1.
 
 ### 5.1.3. Application Layer
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.1.1.
 
 ### 5.1.4. Infrastructure Layer
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.1.1.
 
 ### 5.1.6. Bounded Context Software Architecture Component Level Diagrams
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.1.1.
 
 ### 5.1.7. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.1.7.1. Bounded Context Domain Layer Class Diagrams
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+El diagrama muestra los aggregates `User` y `DeviceCredential` y la entidad de catálogo `Role`, con la asociación dirigida "roles" (0..* a 1..*). `User` se compone de sus value objects `HashedPassword`, `PasswordToken` y `VerificationCode` (0..1 cada uno) y registra los cuatro eventos que consumen Assistance y Communication. Los services reciben sus commands y queries, y las notas detallan las reglas de cada service y los contextos que usan IAM: Company, Assistance, HCM, Assets y Communication.
+
+![Diagrama de clases de la capa de dominio - IAM](../images/diagrams/img/chapter-5/iam-backend-diagram.svg)
 
 #### 5.1.7.2. Bounded Context Database Design Diagram
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+La base de datos es PostgreSQL.
+
+| Tabla | Aggregate, entidad o value object | Llaves y restricciones |
+|---|---|---|
+| `users` | `User` (con `PasswordToken` y `VerificationCode` embebidos) | PK `id`. UK `email_address`. UK `password_token_hash`. Los tokens y códigos se guardan solo como hash. |
+| `roles` | `Role` | PK `id`. UK `name`. |
+| `user_roles` | Relación `roles` de `User` | PK compuesta (`user_id`, `role_id`). FK hacia `users` y `roles`. |
+| `device_credentials` | `DeviceCredential` | PK `id`. UK parcial `edge_id` donde `status = 'ACTIVE'` (referencia a Assets, sin FK). |
+
+Relaciones: una cuenta tiene uno o más roles y un rol lo tienen cero o más cuentas, mediante `user_roles`. `device_credentials` no se relaciona con las demás tablas. Ninguna cuenta ni credencial se borra: las desactivadas y revocadas quedan como historial.
+
+![Diagrama de base de datos - IAM](../images/diagrams/img/chapter-5/iam-database-diagram.svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -437,7 +1326,7 @@ Este bounded context no declara Entities, Value Objects, Enumerations ni Domain 
 <tr><td><code>latitude</code></td><td><code>Double</code></td><td>private final</td><td>Latitud.</td></tr>
 <tr><td><code>longitude</code></td><td><code>Double</code></td><td>private final</td><td>Longitud.</td></tr>
 <tr><td><code>placeId</code></td><td><code>String</code></td><td>private final</td><td>Id del lugar en Google Maps.</td></tr>
-<tr><td><code>businessHours</code></td><td><code>List&lt;WeeklyPeriod&gt;</code></td><td>private final</td><td>Periodos de atención con el value object <code>WeeklyPeriod</code> de Shared; Profiles los valida como <code>BusinessHours</code> (<code>InvalidBusinessHours</code>).</td></tr>
+<tr><td><code>businessHours</code></td><td><code>String</code></td><td>private final</td><td>Horario en texto o JSON; Profiles lo convierte a <code>BusinessHours</code>.</td></tr>
 <tr><td><code>supportEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo de soporte.</td></tr>
 <tr><td><code>emergencyPhone</code></td><td><code>String</code></td><td>private final</td><td>Teléfono de emergencia.</td></tr>
 <tr><td><code>whatsappNum</code></td><td><code>String</code></td><td>private final</td><td>WhatsApp.</td></tr>
@@ -445,7 +1334,7 @@ Este bounded context no declara Entities, Value Objects, Enumerations ni Domain 
 <tr><td><code>administratorId</code></td><td><code>Long</code></td><td>private final</td><td>Administrador que crea el negocio.</td></tr>
 <tr><th colspan="4" align="left">Métodos</th></tr>
 <tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
-<tr><td><code>CreateBusinessCommand(byte[] photoData, String photoFileName, String businessName, String legalName, Long ruc, String mainActivity, String description, String emailAddress, String phoneNumber, String formattedAddress, Double latitude, Double longitude, String placeId, List&lt;WeeklyPeriod&gt; businessHours, String supportEmail, String emergencyPhone, String whatsappNum, String slogan, Long administratorId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><code>CreateBusinessCommand(byte[] photoData, String photoFileName, String businessName, String legalName, Long ruc, String mainActivity, String description, String emailAddress, String phoneNumber, String formattedAddress, Double latitude, Double longitude, String placeId, String businessHours, String supportEmail, String emergencyPhone, String whatsappNum, String slogan, Long administratorId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
 <tr><td><b>Reglas</b></td><td colspan="3">El administrador existe (<code>AdministratorNotFound</code>) y no gestiona otro negocio (<code>BusinessAlreadyExistsForAdministrator</code>). Profiles crea el <code>BusinessProfile</code> y devuelve su id; si rechaza email, RUC, nombre comercial o razón social ya registrados, se traduce a <code>EmailAddressAlreadyExists</code>, <code>RucAlreadyExists</code>, <code>BusinessNameAlreadyExists</code> o <code>LegalNameAlreadyExists</code>.</td></tr>
 </table>
 
@@ -464,14 +1353,14 @@ Este bounded context no declara Entities, Value Objects, Enumerations ni Domain 
 <tr><td><code>mainActivity</code></td><td><code>String</code></td><td>private final</td><td>Actividad principal.</td></tr>
 <tr><td><code>description</code></td><td><code>String</code></td><td>private final</td><td>Descripción.</td></tr>
 <tr><td><code>phoneNumber</code></td><td><code>String</code></td><td>private final</td><td>Teléfono.</td></tr>
-<tr><td><code>businessHours</code></td><td><code>List&lt;WeeklyPeriod&gt;</code></td><td>private final</td><td>Periodos de atención (<code>WeeklyPeriod</code> de Shared).</td></tr>
+<tr><td><code>businessHours</code></td><td><code>String</code></td><td>private final</td><td>Horario en texto o JSON.</td></tr>
 <tr><td><code>supportEmail</code></td><td><code>String</code></td><td>private final</td><td>Correo de soporte.</td></tr>
 <tr><td><code>emergencyPhone</code></td><td><code>String</code></td><td>private final</td><td>Teléfono de emergencia.</td></tr>
 <tr><td><code>whatsappNum</code></td><td><code>String</code></td><td>private final</td><td>WhatsApp.</td></tr>
 <tr><td><code>slogan</code></td><td><code>String</code></td><td>private final</td><td>Eslogan.</td></tr>
 <tr><th colspan="4" align="left">Métodos</th></tr>
 <tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
-<tr><td><code>UpdateBusinessCommand(Long businessId, Long administratorId, byte[] photoData, String photoFileName, String businessName, String legalName, String mainActivity, String description, String phoneNumber, List&lt;WeeklyPeriod&gt; businessHours, String supportEmail, String emergencyPhone, String whatsappNum, String slogan)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><code>UpdateBusinessCommand(Long businessId, Long administratorId, byte[] photoData, String photoFileName, String businessName, String legalName, String mainActivity, String description, String phoneNumber, String businessHours, String supportEmail, String emergencyPhone, String whatsappNum, String slogan)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
 <tr><td><b>Reglas</b></td><td colspan="3">El negocio existe (<code>BusinessNotFound</code>). Solo su administrador lo modifica, incluida la razón social (<code>business.isManagedBy(administrator)</code>). No incluye RUC, email ni ubicación, que no se modifican. Nombre comercial y razón social siguen siendo únicos (<code>BusinessNameAlreadyExists</code>, <code>LegalNameAlreadyExists</code>). <code>Business</code> no cambia: los datos se actualizan en <code>BusinessProfile</code>.</td></tr>
 </table>
 
@@ -1090,7 +1979,7 @@ Este bounded context no declara Entities, Enumerations ni Domain Events propios.
 <tr><td><b>Propósito</b></td><td colspan="3">Indica si el email ya está registrado en un perfil de cliente.</td></tr>
 <tr><th colspan="4" align="left">Atributos</th></tr>
 <tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
-<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private final</td><td>Correo con formato válido, sin espacios y en minúsculas.</td></tr>
+<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
 <tr><th colspan="4" align="left">Métodos</th></tr>
 <tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
 <tr><td><code>ExistsPersonProfileByEmailAddressQuery(EmailAddress emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
@@ -1141,7 +2030,7 @@ Este bounded context no declara Entities, Enumerations ni Domain Events propios.
 <tr><td><b>Propósito</b></td><td colspan="3">Indica si el correo corporativo ya está registrado.</td></tr>
 <tr><th colspan="4" align="left">Atributos</th></tr>
 <tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
-<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private final</td><td>Correo con formato válido, sin espacios y en minúsculas.</td></tr>
+<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
 <tr><th colspan="4" align="left">Métodos</th></tr>
 <tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
 <tr><td><code>ExistsStaffProfileByEmailAddressQuery(EmailAddress emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
@@ -1179,7 +2068,7 @@ Este bounded context no declara Entities, Enumerations ni Domain Events propios.
 <tr><td><b>Propósito</b></td><td colspan="3">Indica si el email ya está registrado en un negocio.</td></tr>
 <tr><th colspan="4" align="left">Atributos</th></tr>
 <tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
-<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private final</td><td>Correo con formato válido, sin espacios y en minúsculas.</td></tr>
+<tr><td><code>emailAddress</code></td><td><code>EmailAddress</code></td><td>private final</td><td>Correo de la cuenta.</td></tr>
 <tr><th colspan="4" align="left">Métodos</th></tr>
 <tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
 <tr><td><code>ExistsBusinessProfileByEmailAddressQuery(EmailAddress emailAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
@@ -1437,7 +2326,7 @@ En el código, este bounded context es el paquete `hcm`. HCM (Human Capital Mana
 <tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
 <tr><td><code>Employee(BusinessId businessId, UserId userId, StaffProfileId staffProfileId, EmployeeRole role, WorkSchedule workSchedule, OperatingHours operatingHours, ContractPeriod firstContractPeriod, TypeOfContract firstContractType, LocalDate today)</code></td><td>(constructor)</td><td>public</td><td>Contrata al empleado: estado <code>ACTIVE</code>, crea su primer contrato, valida que el horario quepa en el del negocio y registra <code>EmployeeHiredEvent</code>.</td></tr>
 <tr><td><code>belongsTo(BusinessId businessId)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si es del negocio indicado.</td></tr>
-<tr><td><code>changeRole(EmployeeRole role)</code></td><td><code>void</code></td><td>public</td><td>Cambia el rol.</td></tr>
+<tr><td><code>changeRole(EmployeeRole role)</code></td><td><code>void</code></td><td>public</td><td>Cambia el rol y registra <code>EmployeeRoleChangedEvent</code>.</td></tr>
 <tr><td><code>updateWorkSchedule(WorkSchedule workSchedule, OperatingHours operatingHours)</code></td><td><code>void</code></td><td>public</td><td>Cambia el horario; cada turno cabe en el horario del negocio (<code>WorkScheduleOutsideOperatingHours</code>).</td></tr>
 <tr><td><code>addContract(ContractPeriod period, TypeOfContract type, LocalDate today)</code></td><td><code>void</code></td><td>public</td><td>Renueva con un nuevo contrato: no empieza antes de <code>today</code> (<code>InvalidContractPeriod</code>) y no se cruza con otro <code>ACTIVE</code> (<code>ContractOverlap</code>).</td></tr>
 <tr><td><code>terminateContract(Long contractId)</code></td><td><code>void</code></td><td>public</td><td>Termina un contrato existente (<code>ContractNotFound</code>) y <code>ACTIVE</code> (<code>ContractNotActive</code>).</td></tr>
@@ -1689,7 +2578,7 @@ Los consumen IAM (habilita, bloquea o desactiva la cuenta corporativa) y Communi
 <tr><td><code>getUserId()</code></td><td><code>Long</code></td><td>public</td><td>Devuelve <code>userId</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
 <tr><td><code>getRole()</code></td><td><code>EmployeeRole</code></td><td>public</td><td>Devuelve <code>role</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
 <tr><td><b>Lo registra</b></td><td colspan="3">Constructor de <code>Employee</code></td></tr>
-<tr><td><b>Reacción esperada</b></td><td colspan="3">IAM registra el rol de empleado; Communication envía la bienvenida con la contraseña temporal. Lee el id al publicarse, porque al registrarse el empleado aún no tiene id.</td></tr>
+<tr><td><b>Reacción esperada</b></td><td colspan="3">Communication avisa la contratación. La contraseña temporal la envía Communication con el evento <code>CorporateAccountCreatedEvent</code> de IAM, que recibe el rol al crear la cuenta. Lee el id al publicarse, porque al registrarse el empleado aún no tiene id.</td></tr>
 </table>
 
 <table>
@@ -1738,6 +2627,23 @@ Los consumen IAM (habilita, bloquea o desactiva la cuenta corporativa) y Communi
 <tr><td><code>EmployeeTerminatedEvent(Long employeeId, Long businessId, Long userId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
 <tr><td><b>Lo registra</b></td><td colspan="3"><code>Employee.terminate</code></td></tr>
 <tr><td><b>Reacción esperada</b></td><td colspan="3">IAM desactiva la cuenta corporativa.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EmployeeRoleChangedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que cambió el rol de un empleado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>employeeId</code></td><td><code>Long</code></td><td>private final</td><td>Empleado.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>userId</code></td><td><code>Long</code></td><td>private final</td><td>Su cuenta corporativa en IAM.</td></tr>
+<tr><td><code>role</code></td><td><code>EmployeeRole</code></td><td>private final</td><td>Rol en el negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EmployeeRoleChangedEvent(Long employeeId, Long businessId, Long userId, EmployeeRole role)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>Employee.changeRole</code></td></tr>
+<tr><td><b>Reacción esperada</b></td><td colspan="3">IAM cambia el rol de la cuenta corporativa.</td></tr>
 </table>
 
 #### Commands
@@ -4832,6 +5738,17 @@ Este bounded context no declara Entities propios.
 <tr><th colspan="4" align="left">Métodos</th></tr>
 <tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
 <tr><td><code>MacAddressAlreadyExists(String macAddress)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>BusinessNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el negocio no existe en Company (validado vía ACL al registrar un equipo).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>BusinessNotFound(Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
 </table>
 
 <table>

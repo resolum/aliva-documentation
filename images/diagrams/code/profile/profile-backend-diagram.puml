@@ -26,6 +26,7 @@
 '      cada tipo; el email, entre todos los perfiles de personas (cada uno es una cuenta de IAM).
 '  P17 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
 '      domain.model, domain.services y domain.exceptions.
+'  P18 Composiciones con nombre y multiplicidad (5.X.7.1).
 
 skinparam shadowing false
 skinparam packageStyle rectangle
@@ -329,16 +330,16 @@ package alivia.platform.Profiles #F5F5F5 {
   Profile <|-- StaffProfile
   Profile <|-- BusinessProfile
 
-  PersonProfile *-- PersonName
-  PersonProfile *-- Dni
-  PersonProfile *-- BirthDate
-  StaffProfile *-- PersonName
-  StaffProfile *-- Dni
-  StaffProfile *-- BirthDate
-  BusinessProfile *-- BusinessName
-  BusinessProfile *-- LegalName
-  BusinessProfile *-- Ruc
-  BusinessProfile *-- BusinessHours
+  PersonProfile "1" *-- "1" PersonName : personName
+  PersonProfile "1" *-- "1" Dni : dni
+  PersonProfile "1" *-- "1" BirthDate : birthDate
+  StaffProfile "1" *-- "1" PersonName : personName
+  StaffProfile "1" *-- "1" Dni : dni
+  StaffProfile "1" *-- "1" BirthDate : birthDate
+  BusinessProfile "1" *-- "1" BusinessName : businessName
+  BusinessProfile "1" *-- "1" LegalName : legalName
+  BusinessProfile "1" *-- "1" Ruc : ruc
+  BusinessProfile "1" *-- "1" BusinessHours : businessHours
 
   BusinessProfileQueryService ..> GetAllBusinessProfilesQuery : recibe
   BusinessProfileQueryService ..> GetBusinessProfileByIdQuery : recibe

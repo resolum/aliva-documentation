@@ -37,6 +37,10 @@
 '      no hay proceso automático.
 '  H16 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
 '      domain.model, domain.services y domain.exceptions.
+'  H17 changeRole registra EmployeeRoleChangedEvent: IAM cambia el rol de la cuenta corporativa. El rol
+'      inicial lo recibe IAM al crear la cuenta (CreateCorporateAccountCommand); la contraseña temporal
+'      la envía Communication con el evento CorporateAccountCreatedEvent de IAM.
+'  H18 Relaciones con nombre y multiplicidad (5.X.7.1); los enums se enlazan con la clase que los usa.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -119,6 +123,8 @@ package alivia.platform.Hcm {
       terminate: ACTIVE o SUSPENDED a TERMINATED (estado
       final); termina el contrato vigente, cancela las
       vacaciones futuras y registra EmployeeTerminatedEvent.
+      changeRole: registra EmployeeRoleChangedEvent si el rol
+      cambia.
       updateWorkSchedule: cada turno cabe en OperatingHours
       (WorkScheduleOutsideOperatingHours).
       addContract: no empieza antes de today
@@ -216,14 +222,18 @@ package alivia.platform.Hcm {
       + EmployeeTerminatedEvent(Long employeeId, Long businessId, Long userId)
     }
 
+    class EmployeeRoleChangedEvent <<Record>> #CDEFF2 {
+      + EmployeeRoleChangedEvent(Long employeeId, Long businessId, Long userId, EmployeeRole role)
+    }
+
     note bottom of EmployeeHiredEvent
       Se registra en el constructor de Employee, cuando aún
       no hay id: getEmployeeId() lo lee del aggregate al
       publicarse, después del save.
       Los demás se registran sobre empleados ya guardados.
-      Consumidores (ver Contextos externos): IAM habilita o
-      bloquea la cuenta corporativa; Communication avisa al
-      empleado.
+      Consumidores (ver Contextos externos): IAM bloquea,
+      habilita, desactiva o cambia el rol de la cuenta
+      corporativa; Communication avisa al empleado.
     end note
   }
 
@@ -566,25 +576,26 @@ GetEmployeeByUserIdQuery -[hidden]down- GetContractByIdQuery
 GetAllContractsByEmployeeIdQuery -[hidden]down- GetAllVacationsByEmployeeIdQuery
 
 ' ---------- COMPOSICIÓN DEL AGGREGATE ----------
-Employee *-- WorkSchedule
-Employee *-- ContractHistory
-Employee *-- VacationHistory
-ContractHistory "1" *-- "1..*" Contract
-VacationHistory "1" *-- "0..*" Vacation
-Contract *-- ContractPeriod
-Vacation *-- VacationPeriod
+Employee "1" *-- "1" WorkSchedule : workSchedule
+Employee "1" *-- "1" ContractHistory : contractHistory
+Employee "1" *-- "1" VacationHistory : vacationHistory
+ContractHistory "1" *-- "1..*" Contract : contracts
+VacationHistory "1" *-- "0..*" Vacation : vacations
+Contract "1" *-- "1" ContractPeriod : period
+Vacation "1" *-- "1" VacationPeriod : period
 Employee ..> OperatingHours : valida con
-Employee ..> EmployeeRole
-Employee ..> EmployeeStatus
-Contract ..> TypeOfContract
-Contract ..> ContractStatus
-Vacation ..> VacationStatus
+Employee "0..*" --> "1" EmployeeRole : role
+Employee "0..*" --> "1" EmployeeStatus : status
+Contract "0..*" --> "1" TypeOfContract : type
+Contract "0..*" --> "1" ContractStatus : status
+Vacation "0..*" --> "1" VacationStatus : status
 
 ' ---------- EVENTOS ----------
 Employee ..> EmployeeHiredEvent : registra
 Employee ..> EmployeeSuspendedEvent : registra
 Employee ..> EmployeeReinstatedEvent : registra
 Employee ..> EmployeeTerminatedEvent : registra
+Employee ..> EmployeeRoleChangedEvent : registra
 
 ' ---------- SERVICES ----------
 EmployeeCommandService ..> CreateEmployeeCommand : recibe
@@ -646,9 +657,13 @@ note as N_CreateEmployee
   PersonProfile y su cuenta personal.
   Si es una persona asistida no se valida: lo decide el
   administrador.
-  IAM crea su cuenta corporativa con una contraseña
-  temporal; Communication se la envía al correo
-  corporativo. No tiene acceso hasta que la cambia.
+  IAM crea su cuenta corporativa con su rol y una
+  contraseña temporal (CreateCorporateAccountCommand);
+  Communication se la envía al correo corporativo
+  (CorporateAccountCreatedEvent). No tiene acceso hasta
+  que la cambia. IAM también rechaza un correo que ya es
+  una cuenta, aunque no tenga perfil (por ejemplo, la de
+  un cuidador): EmailAddressAlreadyExists.
   Después todo se enlaza por id, nunca por dni ni email.
   application entrega today y el OperatingHours del negocio.
 end note
@@ -727,17 +742,19 @@ note as N_ContextosExternos
   BusinessHours del negocio, que el ACL traduce a
   OperatingHours.
   <b>IAM</b> (ACL y eventos): dueño del usuario. Al contratar
-  crea la cuenta corporativa con una contraseña temporal
-  (el acceso se habilita cuando la cambia). Reacciona a:
-  EmployeeHiredEvent: registra el rol de empleado.
+  crea la cuenta corporativa con el rol del empleado y una
+  contraseña temporal (CreateCorporateAccountCommand; el
+  acceso se habilita cuando la cambia). Reacciona a:
+  EmployeeRoleChangedEvent: cambia el rol de la cuenta.
   EmployeeSuspendedEvent: bloquea la cuenta corporativa.
   EmployeeReinstatedEvent: la vuelve a habilitar.
   EmployeeTerminatedEvent: desactiva la cuenta corporativa.
   La cuenta personal de familiar, si la tiene, no cambia.
   <b>Communication</b> (eventos): avisa al empleado por correo
-  corporativo (bienvenida con la contraseña temporal al
-  contratar;
-  suspensión, reincorporación y cese).
+  corporativo: la contraseña temporal le llega por el
+  evento CorporateAccountCreatedEvent de IAM; la
+  contratación, suspensión, reincorporación y cese, por
+  los eventos de este contexto.
   --
   BusinessId identifica el Business de Company.
   UserId identifica al usuario de IAM.
