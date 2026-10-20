@@ -1,63 +1,143 @@
 @startuml
-' Base de datos: HCM
-' Aggregate: Employee. Entidad: Contract.
-' ContractPeriod se guarda como columnas start_date / end_date.
-' ContractHistory es un value object que agrupa los contratos, no tiene tabla.
-
 hide circle
+skinparam packageStyle rectangle
 skinparam linetype ortho
 skinparam shadowing false
+skinparam roundCorner 8
+skinparam defaultFontName Arial
 skinparam defaultFontSize 12
-skinparam entity {
-  BorderColor #333333
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2E7D32
+  BorderThickness 1.2
+  HeaderBackgroundColor #E8F5E9
   ArrowColor #444444
 }
-
-legend left
-  |= Símbolo |= Significado |
-  | <<PK>> | Llave primaria |
-  | <<FK>> | Llave foránea |
-  | <<LFK>> | Referencia lógica a otro contexto |
-endlegend
-
-entity "employees" as employees #DCEBFA {
-  * id : BIGINT <<PK>>
-  --
-  * person_profile_id : BIGINT <<LFK>>
-  * business_id : BIGINT <<LFK>>
-  * status : VARCHAR(20)
-  * role : VARCHAR(30)
-  ..
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
 }
 
-entity "contracts" as contracts #FDE7EE {
-  * id : BIGINT <<PK>>
-  --
-  * employee_id : BIGINT <<FK>>
-  * start_date : DATE
-  end_date : DATE
-  * status : VARCHAR(20)
-  * type : VARCHAR(20)
-  ..
-  * created_at : TIMESTAMP
-  * updated_at : TIMESTAMP
+package "Bounded Context: HCM" as ctx_hcm #F6FBF6 {
+
+  entity "employees" as employees {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * business_id : BIGINT <<IDX>> <<ref Company>>
+    * user_id : BIGINT <<UK>> <<ref IAM>>
+    * staff_profile_id : BIGINT <<UK>> <<ref Profiles>>
+    * role : VARCHAR(30)
+    * status : VARCHAR(10)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+
+  entity "employee_work_shifts" as work_shifts {
+    * employee_id : BIGINT <<FK>>
+    --
+    * week_days : VARCHAR(70)
+    * start_time : TIME
+    * end_time : TIME
+  }
+
+  entity "contracts" as contracts {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * employee_id : BIGINT <<FK>>
+    * start_date : DATE
+    * end_date : DATE
+    * type : VARCHAR(10)
+    * status : VARCHAR(10)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    CHECK (end_date >= start_date)
+  }
+
+  entity "vacations" as vacations {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * employee_id : BIGINT <<FK>>
+    * start_date : DATE
+    * end_date : DATE
+    * status : VARCHAR(10)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    CHECK (end_date >= start_date)
+  }
 }
 
-employees ||--o{ contracts : "tiene"
+employees ||--|{ work_shifts : "work_schedule\n(1..*)"
+employees ||--|{ contracts : "contract_history\n(1..*)"
+employees ||--o{ vacations : "vacation_history\n(0..*)"
 
-note bottom of employees
-  person_profile_id → user_profiles.id en Profile.
-  business_id → businesses.id en Company (lo usa
-  GetAllEmployeesByBusinessIdQuery; no aparece en el aggregate).
-  status: ACTIVE | VACATION | SUSPENDED | TERMINATED
-  role: TECH | SUBSCRIPTION_MANAGER | CLEANING
+note right of employees
+  <b>employees</b> (aggregate Employee)
+  Personal de un Business (hoy, Alivia).
+  --
+  business_id: el Business de Company (BusinessId). Sin
+  FK; índice para GetAllEmployeesByBusinessIdQuery.
+  user_id: su cuenta corporativa de IAM (UserId). Sin FK.
+  Índice único para GetEmployeeByUserIdQuery.
+  staff_profile_id: su StaffProfile (StaffProfileId). Sin
+  FK. Único: como el dni es único entre el personal, una
+  persona no es empleado dos veces.
+  role: TECH, SUBSCRIPTION_MANAGER o CLEANING.
+  status: ACTIVE, SUSPENDED o TERMINATED (final). No se
+  borra: un empleado cesado queda como historial.
+  "De vacaciones" no es un estado: se calcula con
+  vacations. Puede estar ACTIVE sin contrato vigente
+  hasta que el administrador lo renueve o lo cese.
+end note
+
+note bottom of work_shifts
+  <b>employee_work_shifts</b>
+  Value object WorkSchedule (@ElementCollection): una
+  fila por cada WeeklyPeriod (turno semanal). No tiene id
+  propio: es parte del valor de Employee.
+  week_days: días separados por coma (MONDAY,TUESDAY,...)
+  con un AttributeConverter, igual que en
+  business_profile_opening_periods.
+  start_time anterior a end_time: los turnos no cruzan
+  medianoche y caben en el horario del negocio (lo valida
+  el dominio). Al cambiar el horario, las filas se
+  reemplazan.
 end note
 
 note bottom of contracts
-  status: ACTIVE | TERMINATED | EXPIRED
-  type: FULL_TIME | PART_TIME
+  <b>contracts</b> (entidad Contract)
+  Vive dentro de Employee; no se borra.
+  end_date obligatorio: no hay contratos de plazo
+  indeterminado.
+  type: FULL_TIME o PART_TIME.
+  status: ACTIVE o TERMINATED. "Vencido" se calcula con
+  end_date; no se guarda.
+  Índice (employee_id, status).
+  Opcional: una restricción de exclusión de PostgreSQL
+  (EXCLUDE USING gist con daterange y btree_gist) impide
+  dos contratos ACTIVE que se cruzan; respalda
+  ContractOverlap.
+end note
+
+note bottom of vacations
+  <b>vacations</b> (entidad Vacation)
+  Vive dentro de Employee; no se borra (historial).
+  status: SCHEDULED o CANCELLED.
+  Índice (employee_id, start_date) para
+  GetAllVacationsByEmployeeIdQuery e isOnVacation.
+  Opcional: la misma restricción de exclusión impide dos
+  vacaciones SCHEDULED que se cruzan; respalda
+  VacationOverlap.
 end note
 
 @enduml

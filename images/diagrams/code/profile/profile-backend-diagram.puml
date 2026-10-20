@@ -1,422 +1,593 @@
 @startuml
+' Bounded Context: Profiles. Solo capa domain.
+'
+' Cambios de la revisión de Domain (ver informe):
+'  P1  Profile es la base abstracta (no un aggregate propio); atributos privados.
+'  P2  Comportamiento explícito: constructores y métodos de actualización.
+'  P3  Se agregan ExistsPersonProfileByEmailAddressQuery y ExistsBusinessProfileByEmailAddressQuery:
+'      validan si un email ya está registrado. Los perfiles se buscan solo por id.
+'  P4  GetAll* devuelve List (antes Optional); GetAllBusinessProfilesQuery en plural.
+'  P5  Se elimina PersonNameAlreadyExists: dos personas pueden llamarse igual.
+'  P6  Se agrega EmailAddressAlreadyExists: el email de un perfil no se repite.
+'  P7  Ningún perfil se busca ni se recupera por dni ni por email: solo se valida si existen
+'      (Exists...ByDniQuery, Exists...ByEmailAddressQuery). Dni es dato de identificación.
+'  P8  Los commands reciben BusinessHours (value object), no texto/JSON.
+'  P9  Value objects por composición (*--), igual que en Company y Assistance.
+'  P10 Se define PersonName: PersonProfile lo usaba y no existía en ningún diagrama (tampoco en Shared).
+'  P11 BusinessHours usa WeeklyPeriod de Shared; se elimina OpeningPeriod (misma estructura y comportamiento).
+'  P12 PhoneNumber: cualquier país, solo dígitos, válido según el plan de numeración de su país (Shared).
+'  P13 BusinessHours no acepta rangos que cruzan medianoche: el negocio atiende dentro del día.
+'  P14 El email no se modifica en ningún perfil; es opcional solo en PersonProfile (persona asistida).
+'  P15 businessName y legalName son únicos (LegalName pasa a value object con LegalNameAlreadyExists);
+'      dni único; el teléfono puede repetirse (se elimina PhoneNumberAlreadyExists).
+'  P16 Se agrega StaffProfile: perfil del personal de Alivia (administrador y empleados), separado de
+'      PersonProfile (clientes: familiares y personas asistidas). Una persona puede tener los dos: sus
+'      datos se duplican porque son dos relaciones distintas con Alivia. El dni es único dentro de
+'      cada tipo; el email, entre todos los perfiles de personas (cada uno es una cuenta de IAM).
+'  P17 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
+'      domain.model, domain.services y domain.exceptions.
+
 skinparam shadowing false
 skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
 skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+skinparam roundCorner 8
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 50
+skinparam ArrowThickness 1.2
+skinparam ArrowFontSize 11
+skinparam stereotypeFontSize 10
+skinparam padding 2
+
 skinparam class {
   BorderColor #333333
   ArrowColor #444444
+  BackgroundColor #FFFFFF
+  BorderThickness 1.2
+  AttributeFontSize 11
+  StereotypeFontColor #555555
+  BackgroundColor<<Record>> #E3F2FD
+  BorderColor<<Record>> #1565C0
+  BackgroundColor<<Exception>> #FFEBEE
+  BorderColor<<Exception>> #C62828
+  BackgroundColor<<Command>> #FFF3E0
+  BorderColor<<Command>> #EF6C00
+  BackgroundColor<<Query>> #E8F5E9
+  BorderColor<<Query>> #2E7D32
+  BackgroundColor<<Aggregate>> #F3E5F5
+  BorderColor<<Aggregate>> #6A1B9A
 }
 
-' =====================================================
-' SHARED
-' =====================================================
-
-package "Shared" #ECEFF1 {
-  abstract class AuditableAbstractAggregateRoot {
-    - id: Long
-    - createdAt: Date
-    - updatedAt: Date
-  }
+skinparam interface {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  BorderThickness 1.2
 }
 
-package "Profiles" #E3F2FD {
-package "Domain" #E8F5E9 {
-package "Model" #FFFDE7 {
-
-  ' =================================================
-  ' AGGREGATES
-  ' =================================================
-
-  package "Aggregates" #FFECB3 {
-
-    class UserProfile <<aggregate root>> {
-      - iamUserId: Long
-      - firstName: String
-      - lastName: String
-      - documentNumber: DocumentNumber
-      - phoneNumber: PhoneNumber
-      - profileImage: ProfileImage
-      - status: ProfileStatus
-      - completed: Boolean
-
-      + UserProfile(iamUserId: Long)
-
-      + completeProfile(firstName: String, lastName: String, documentNumber: DocumentNumber, phoneNumber: PhoneNumber): void
-
-      + updatePersonalInformation(firstName: String, lastName: String, documentNumber: DocumentNumber, phoneNumber: PhoneNumber): void
-
-      + updateProfileImage(profileImage: ProfileImage): void
-
-      + removeProfileImage(): void
-      + activate(): void
-      + deactivate(): void
-      + isCompleted(): Boolean
-    }
-
-    class HouseholdProfile <<aggregate root>> {
-      - alias: HouseholdAlias
-      - associatedEmail: EmailAddress
-      - phoneNumber: PhoneNumber
-      - address: Address
-      - geographicLocation: GeographicLocation
-      - addressReference: AddressReference
-      - createdByUserId: Long
-      - locationStatus: LocationStatus
-      - status: HouseholdStatus
-
-      + HouseholdProfile(alias: HouseholdAlias, associatedEmail: EmailAddress, phoneNumber: PhoneNumber, createdByUserId: Long)
-
-      + updateAlias(alias: HouseholdAlias): void
-
-      + updateContactInformation(associatedEmail: EmailAddress, phoneNumber: PhoneNumber): void
-
-      + updateAddressReference(addressReference: AddressReference): void
-
-      + registerLocation(address: Address, geographicLocation: GeographicLocation): void
-
-      + validateLocation(): void
-      + requireLocationRevalidation(): void
-      + activate(): void
-      + deactivate(): void
-      + hasValidatedLocation(): Boolean
-    }
-  }
-
-  ' =================================================
-  ' VALUE OBJECTS
-  ' =================================================
-
-  package "Value Objects" #EDE7F6 {
-
-    class DocumentNumber <<value object>> {
-      - value: String
-      + DocumentNumber(value: String)
-      + value(): String
-    }
-
-    class PhoneNumber <<value object>> {
-      - value: String
-      + PhoneNumber(value: String)
-      + value(): String
-    }
-
-    class EmailAddress <<value object>> {
-      - value: String
-      + EmailAddress(value: String)
-      + value(): String
-    }
-
-    class Photo <<value object>> {
-      - photoUrl: String
-      - photoPublicId: String
-      + Photo(photoUrl: String, photoPublicId: String)
-      + photoUrl(): String
-      + photoPublicId(): String
-    }
-
-    class ProfileImage <<value object>> {
-      - photo: Photo
-      + ProfileImage(photo: Photo)
-      + photoUrl(): String
-      + photoPublicId(): String
-    }
-
-    class HouseholdAlias <<value object>> {
-      - value: String
-      + HouseholdAlias(value: String)
-      + value(): String
-    }
-
-    class Address <<value object>> {
-      - normalizedAddress: String
-      - district: String
-      - province: String
-      - department: String
-      - country: String
-
-      + Address(normalizedAddress: String, district: String, province: String, department: String, country: String)
-
-      + fullAddress(): String
-    }
-
-    class GeographicLocation <<value object>> {
-      - latitude: Double
-      - longitude: Double
-      - placeId: String
-
-      + GeographicLocation(latitude: Double, longitude: Double, placeId: String)
-    }
-
-    class AddressReference <<value object>> {
-      - value: String
-      + AddressReference(value: String)
-      + value(): String
-    }
-
-    enum ProfileStatus {
-      PENDING
-      ACTIVE
-      INACTIVE
-    }
-
-    enum LocationStatus {
-      PENDING_VALIDATION
-      VALIDATED
-      REVALIDATION_REQUIRED
-    }
-
-    enum HouseholdStatus {
-      PENDING
-      ACTIVE
-      INACTIVE
-    }
-  }
-
-  ' =================================================
-  ' COMMANDS
-  ' =================================================
-
-  package "Commands" #E1F5FE {
-
-    class InitializeUserProfileCommand <<record>> {
-      iamUserId: Long
-    }
-
-    class CompleteUserProfileCommand <<record>> {
-      iamUserId: Long
-      firstName: String
-      lastName: String
-      documentNumber: String
-      phoneNumber: String
-    }
-
-    class UpdateUserProfileCommand <<record>> {
-      profileId: Long
-      firstName: String
-      lastName: String
-      documentNumber: String
-      phoneNumber: String
-    }
-
-    class UpdateProfileImageCommand <<record>> {
-      profileId: Long
-      photoUrl: String
-      photoPublicId: String
-    }
-
-    class RemoveProfileImageCommand <<record>> {
-      profileId: Long
-    }
-
-    class ChangeUserProfileStatusCommand <<record>> {
-      profileId: Long
-      status: ProfileStatus
-    }
-
-    class CreateHouseholdProfileCommand <<record>> {
-      createdByUserId: Long
-      alias: String
-      associatedEmail: String
-      phoneNumber: String
-      normalizedAddress: String
-      district: String
-      province: String
-      department: String
-      country: String
-      latitude: Double
-      longitude: Double
-      placeId: String
-      addressReference: String
-    }
-
-    class UpdateHouseholdContactCommand <<record>> {
-      householdId: Long
-      alias: String
-      associatedEmail: String
-      phoneNumber: String
-      addressReference: String
-    }
-
-    class ChangeHouseholdLocationCommand <<record>> {
-      householdId: Long
-      normalizedAddress: String
-      district: String
-      province: String
-      department: String
-      country: String
-      latitude: Double
-      longitude: Double
-      placeId: String
-    }
-
-    class ValidateHouseholdLocationCommand <<record>> {
-      householdId: Long
-    }
-
-    class RequireLocationRevalidationCommand <<record>> {
-      householdId: Long
-    }
-
-    class ChangeHouseholdStatusCommand <<record>> {
-      householdId: Long
-      status: HouseholdStatus
-    }
-  }
-
-  ' =================================================
-  ' QUERIES
-  ' =================================================
-
-  package "Queries" #E0F2F1 {
-
-    class GetUserProfileByIdQuery <<record>> {
-      profileId: Long
-    }
-
-    class GetUserProfileByIamUserIdQuery <<record>> {
-      iamUserId: Long
-    }
-
-    class GetHouseholdProfileByIdQuery <<record>> {
-      householdId: Long
-    }
-
-    class GetHouseholdsCreatedByUserQuery <<record>> {
-      iamUserId: Long
-    }
-  }
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 13
+  BorderThickness 1.2
 }
 
-' ===================================================
-' DOMAIN SERVICES
-' ===================================================
-
-package "Services" #FCE4EC {
-
-  interface UserProfileCommandService {
-    + handle(command: InitializeUserProfileCommand): UserProfile
-
-    + handle(command: CompleteUserProfileCommand): UserProfile
-
-    + handle(command: UpdateUserProfileCommand): UserProfile
-
-    + handle(command: UpdateProfileImageCommand): UserProfile
-
-    + handle(command: RemoveProfileImageCommand): UserProfile
-
-    + handle(command: ChangeUserProfileStatusCommand): void
-  }
-
-  interface UserProfileQueryService {
-    + handle(query: GetUserProfileByIdQuery): Optional<UserProfile>
-
-    + handle(query: GetUserProfileByIamUserIdQuery): Optional<UserProfile>
-  }
-
-  interface HouseholdProfileCommandService {
-    + handle(command: CreateHouseholdProfileCommand): HouseholdProfile
-
-    + handle(command: UpdateHouseholdContactCommand): HouseholdProfile
-
-    + handle(command: ChangeHouseholdLocationCommand): HouseholdProfile
-
-    + handle(command: ValidateHouseholdLocationCommand): void
-
-    + handle(command: RequireLocationRevalidationCommand): void
-
-    + handle(command: ChangeHouseholdStatusCommand): void
-  }
-
-  interface HouseholdProfileQueryService {
-    + handle(query: GetHouseholdProfileByIdQuery): Optional<HouseholdProfile>
-
-    + handle(query: GetHouseholdsCreatedByUserQuery): List<HouseholdProfile>
-  }
-}
-}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
+  BorderThickness 1
 }
 
-' =====================================================
-' INHERITANCE
-' =====================================================
+package alivia.platform.Profiles #F5F5F5 {
 
-UserProfile --|> AuditableAbstractAggregateRoot
-HouseholdProfile --|> AuditableAbstractAggregateRoot
+  package domain.model.aggregates #F3E5F5 {
 
-' =====================================================
-' USER PROFILE COMPOSITION
-' =====================================================
+    abstract class Profile {
+      - EmailAddress emailAddress
+      - Photo photo
+      - PhoneNumber phoneNumber
+      --
+      # Profile(EmailAddress emailAddress, Photo photo, PhoneNumber phoneNumber)
+      # updateContactInformation(PhoneNumber phoneNumber, Photo photo)
+    }
 
-UserProfile *-- DocumentNumber
-UserProfile *-- PhoneNumber
-UserProfile *-- ProfileImage
-UserProfile --> ProfileStatus
+    class PersonProfile <<Aggregate>> {
+      - PersonName personName
+      - Dni dni
+      - BirthDate birthDate
+      --
+      + PersonProfile(EmailAddress emailAddress, Photo photo, PhoneNumber phoneNumber,
+      \t PersonName personName, Dni dni, BirthDate birthDate)
+      + updatePersonalInformation(PersonName personName, PhoneNumber phoneNumber, Photo photo)
+    }
 
-ProfileImage *-- Photo
+    class StaffProfile <<Aggregate>> {
+      - PersonName personName
+      - Dni dni
+      - BirthDate birthDate
+      --
+      + StaffProfile(EmailAddress corporateEmail, Photo photo, PhoneNumber phoneNumber,
+      \t PersonName personName, Dni dni, BirthDate birthDate)
+      + updatePersonalInformation(PersonName personName, PhoneNumber phoneNumber, Photo photo)
+    }
 
-' =====================================================
-' HOUSEHOLD PROFILE COMPOSITION
-' =====================================================
+    class BusinessProfile <<Aggregate>> {
+      - Ruc ruc
+      - BusinessName businessName
+      - LegalName legalName
+      - String description
+      - String mainActivity
+      - PhoneNumber whatsappNum
+      - PhoneNumber emergencyPhone
+      - BusinessHours businessHours
+      - String slogan
+      - EmailAddress supportEmail
+      - Address address
+      --
+      + BusinessProfile(EmailAddress emailAddress, Photo photo, PhoneNumber phoneNumber,
+      \t Ruc ruc, BusinessName businessName, LegalName legalName, String description,
+      \t String mainActivity, PhoneNumber whatsappNum, PhoneNumber emergencyPhone,
+      \t BusinessHours businessHours, String slogan, EmailAddress supportEmail, Address address)
+      + updateInformation(Photo photo, PhoneNumber phoneNumber, BusinessName businessName,
+      \t LegalName legalName, String description, String mainActivity, PhoneNumber whatsappNum,
+      \t PhoneNumber emergencyPhone, BusinessHours businessHours, String slogan,
+      \t EmailAddress supportEmail)
+      + isOpenAt(DayOfWeek day, LocalTime time) : boolean
+    }
+  }
 
-HouseholdProfile *-- HouseholdAlias
-HouseholdProfile *-- EmailAddress
-HouseholdProfile *-- PhoneNumber
-HouseholdProfile *-- Address
-HouseholdProfile *-- GeographicLocation
-HouseholdProfile *-- AddressReference
-HouseholdProfile --> LocationStatus
-HouseholdProfile --> HouseholdStatus
+  package domain.model.valueobjects #E3F2FD {
 
-' =====================================================
-' COMMAND TYPE DEPENDENCIES
-' =====================================================
+    class Ruc <<Record>> {
+      + Ruc(Long ruc)
+    }
 
-ChangeUserProfileStatusCommand --> ProfileStatus
-ChangeHouseholdStatusCommand --> HouseholdStatus
+    class LegalName <<Record>> {
+      + LegalName(String legalName)
+    }
 
-' =====================================================
-' USER PROFILE SERVICES
-' =====================================================
+    class BusinessName <<Record>> {
+      + BusinessName(String businessName)
+    }
 
-UserProfileCommandService ..> UserProfile
-UserProfileCommandService ..> InitializeUserProfileCommand
-UserProfileCommandService ..> CompleteUserProfileCommand
-UserProfileCommandService ..> UpdateUserProfileCommand
-UserProfileCommandService ..> UpdateProfileImageCommand
-UserProfileCommandService ..> RemoveProfileImageCommand
-UserProfileCommandService ..> ChangeUserProfileStatusCommand
+    class BusinessHours <<Record>> {
+      + List<WeeklyPeriod> periods
+      + BusinessHours(List<WeeklyPeriod> periods)
+      + isOpenAt(DayOfWeek day, LocalTime time): boolean
+    }
 
-UserProfileQueryService ..> UserProfile
-UserProfileQueryService ..> GetUserProfileByIdQuery
-UserProfileQueryService ..> GetUserProfileByIamUserIdQuery
+    class PersonName <<Record>> {
+      + String firstName
+      + String lastName
+      + PersonName(String firstName, String lastName)
+    }
 
-' =====================================================
-' HOUSEHOLD PROFILE SERVICES
-' =====================================================
+    class Dni <<Record>> {
+      + Dni(String dni)
+    }
 
-HouseholdProfileCommandService ..> HouseholdProfile
-HouseholdProfileCommandService ..> CreateHouseholdProfileCommand
-HouseholdProfileCommandService ..> UpdateHouseholdContactCommand
-HouseholdProfileCommandService ..> ChangeHouseholdLocationCommand
-HouseholdProfileCommandService ..> ValidateHouseholdLocationCommand
-HouseholdProfileCommandService ..> RequireLocationRevalidationCommand
-HouseholdProfileCommandService ..> ChangeHouseholdStatusCommand
+    class BirthDate <<Record>> {
+      + BirthDate(LocalDate birthDate)
+    }
 
-HouseholdProfileQueryService ..> HouseholdProfile
-HouseholdProfileQueryService ..> GetHouseholdProfileByIdQuery
-HouseholdProfileQueryService ..> GetHouseholdsCreatedByUserQuery
+  }
 
-legend right
-|= Color |= Layer |
-|<#ECEFF1>| Shared |
-|<#E3F2FD>| Profiles Bounded Context |
-|<#E8F5E9>| Domain |
-|<#FFFDE7>| Model |
-|<#FFECB3>| Aggregates |
-|<#EDE7F6>| Value Objects and Enums |
-|<#E1F5FE>| Commands |
-|<#E0F2F1>| Queries |
-|<#FCE4EC>| Domain Services |
-endlegend
+  package domain.exceptions #FFEBEE {
+
+    class BusinessNameAlreadyExists <<Exception>> {
+      + BusinessNameAlreadyExists()
+    }
+
+    class RucAlreadyExists <<Exception>> {
+      + RucAlreadyExists()
+    }
+
+    class DniAlreadyExists <<Exception>> {
+      + DniAlreadyExists()
+    }
+
+    class EmailAddressAlreadyExists <<Exception>> {
+      + EmailAddressAlreadyExists()
+    }
+
+    class PersonProfileNotFound <<Exception>> {
+      + PersonProfileNotFound()
+    }
+
+    class StaffProfileNotFound <<Exception>> {
+      + StaffProfileNotFound()
+    }
+
+    class BusinessProfileNotFound <<Exception>> {
+      + BusinessProfileNotFound()
+    }
+
+    class InvalidBusinessHours <<Exception>> {
+      + InvalidBusinessHours()
+    }
+
+    class LegalNameAlreadyExists <<Exception>> {
+      + LegalNameAlreadyExists()
+    }
+  }
+
+  package domain.model.commands #FFF3E0 {
+
+    class CreatePersonProfileCommand <<Record>> <<Command>> {
+      + CreatePersonProfileCommand(...)
+    }
+
+    class CreateBusinessProfileCommand <<Record>> <<Command>> {
+      + CreateBusinessProfileCommand(...)
+    }
+
+    class UpdateBusinessProfileCommand <<Record>> <<Command>> {
+      + UpdateBusinessProfileCommand(...)
+    }
+
+    class UpdatePersonProfileCommand <<Record>> <<Command>> {
+      + UpdatePersonProfileCommand(...)
+    }
+
+    class CreateStaffProfileCommand <<Record>> <<Command>> {
+      + CreateStaffProfileCommand(...)
+    }
+
+    class UpdateStaffProfileCommand <<Record>> <<Command>> {
+      + UpdateStaffProfileCommand(...)
+    }
+  }
+
+  package domain.model.queries #E8F5E9 {
+
+    class GetPersonProfileByIdQuery <<Record>> <<Query>> {
+      + GetPersonProfileByIdQuery(Long id)
+    }
+
+    class ExistsPersonProfileByEmailAddressQuery <<Record>> <<Query>> {
+      + ExistsPersonProfileByEmailAddressQuery(EmailAddress emailAddress)
+    }
+
+    class ExistsPersonProfileByDniQuery <<Record>> <<Query>> {
+      + ExistsPersonProfileByDniQuery(Dni dni)
+    }
+
+    class GetStaffProfileByIdQuery <<Record>> <<Query>> {
+      + GetStaffProfileByIdQuery(Long id)
+    }
+
+    class ExistsStaffProfileByEmailAddressQuery <<Record>> <<Query>> {
+      + ExistsStaffProfileByEmailAddressQuery(EmailAddress emailAddress)
+    }
+
+    class ExistsStaffProfileByDniQuery <<Record>> <<Query>> {
+      + ExistsStaffProfileByDniQuery(Dni dni)
+    }
+
+    class GetAllStaffProfilesQuery <<Record>> <<Query>> {
+      + GetAllStaffProfilesQuery()
+    }
+
+    class ExistsBusinessProfileByEmailAddressQuery <<Record>> <<Query>> {
+      + ExistsBusinessProfileByEmailAddressQuery(EmailAddress emailAddress)
+    }
+
+    class GetBusinessProfileByIdQuery <<Record>> <<Query>> {
+      + GetBusinessProfileByIdQuery(Long id)
+    }
+
+    class GetAllPersonProfilesQuery <<Record>> <<Query>> {
+      + GetAllPersonProfilesQuery()
+    }
+
+    class GetAllBusinessProfilesQuery <<Record>> <<Query>> {
+      + GetAllBusinessProfilesQuery()
+    }
+  }
+
+  package domain.services #FFFDE7 {
+
+    interface PersonProfileCommandService {
+      Long handle(CreatePersonProfileCommand command)
+      Long handle(UpdatePersonProfileCommand command)
+    }
+
+    interface PersonProfileQueryService {
+      Optional<PersonProfile> handle(GetPersonProfileByIdQuery query)
+      boolean handle(ExistsPersonProfileByEmailAddressQuery query)
+      boolean handle(ExistsPersonProfileByDniQuery query)
+      List<PersonProfile> handle(GetAllPersonProfilesQuery query)
+    }
+
+    interface StaffProfileCommandService {
+      Long handle(CreateStaffProfileCommand command)
+      Long handle(UpdateStaffProfileCommand command)
+    }
+
+    interface StaffProfileQueryService {
+      Optional<StaffProfile> handle(GetStaffProfileByIdQuery query)
+      boolean handle(ExistsStaffProfileByEmailAddressQuery query)
+      boolean handle(ExistsStaffProfileByDniQuery query)
+      List<StaffProfile> handle(GetAllStaffProfilesQuery query)
+    }
+
+    interface BusinessProfileQueryService {
+      Optional<BusinessProfile> handle(GetBusinessProfileByIdQuery query)
+      boolean handle(ExistsBusinessProfileByEmailAddressQuery query)
+      List<BusinessProfile> handle(GetAllBusinessProfilesQuery query)
+    }
+
+    interface BusinessProfileCommandService {
+      Long handle(CreateBusinessProfileCommand command)
+      Long handle(UpdateBusinessProfileCommand command)
+    }
+  }
+
+  Profile <|-- PersonProfile
+  Profile <|-- StaffProfile
+  Profile <|-- BusinessProfile
+
+  PersonProfile *-- PersonName
+  PersonProfile *-- Dni
+  PersonProfile *-- BirthDate
+  StaffProfile *-- PersonName
+  StaffProfile *-- Dni
+  StaffProfile *-- BirthDate
+  BusinessProfile *-- BusinessName
+  BusinessProfile *-- LegalName
+  BusinessProfile *-- Ruc
+  BusinessProfile *-- BusinessHours
+
+  BusinessProfileQueryService ..> GetAllBusinessProfilesQuery : recibe
+  BusinessProfileQueryService ..> GetBusinessProfileByIdQuery : recibe
+
+  PersonProfileQueryService ..> GetAllPersonProfilesQuery : recibe
+  PersonProfileQueryService ..> GetPersonProfileByIdQuery : recibe
+  PersonProfileQueryService ..> ExistsPersonProfileByEmailAddressQuery : recibe
+  PersonProfileQueryService ..> ExistsPersonProfileByDniQuery : recibe
+  StaffProfileQueryService ..> GetStaffProfileByIdQuery : recibe
+  StaffProfileQueryService ..> ExistsStaffProfileByEmailAddressQuery : recibe
+  StaffProfileQueryService ..> ExistsStaffProfileByDniQuery : recibe
+  StaffProfileQueryService ..> GetAllStaffProfilesQuery : recibe
+  StaffProfileCommandService ..> CreateStaffProfileCommand : recibe
+  StaffProfileCommandService ..> UpdateStaffProfileCommand : recibe
+  BusinessProfileQueryService ..> ExistsBusinessProfileByEmailAddressQuery : recibe
+
+  BusinessProfileCommandService ..> CreateBusinessProfileCommand : recibe
+  BusinessProfileCommandService ..> UpdateBusinessProfileCommand : recibe
+
+  PersonProfileCommandService ..> CreatePersonProfileCommand : recibe
+  PersonProfileCommandService ..> UpdatePersonProfileCommand : recibe
+}
+
+' ===== Notas con las variables de los comandos (fuera del package) =====
+
+note as N_CreatePerson
+  <b>CreatePersonProfileCommand</b>
+  --
+  String emailAddress  // opcional
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  String dni
+  LocalDate birthDate
+  --
+  <b>Valida</b>
+  Perfil de cliente: familiar o persona asistida.
+  emailAddress es opcional (la persona asistida puede no
+  tener correo). Si viene, no pertenece a otro PersonProfile
+  ni a un StaffProfile (EmailAddressAlreadyExists).
+  dni no pertenece a otro PersonProfile (DniAlreadyExists).
+  Puede existir un StaffProfile con el mismo dni: la misma
+  persona puede ser cliente y personal de Alivia.
+  Los contextos lo validan antes con
+  ExistsPersonProfileByDniQuery, que solo responde si
+  existe: ningún perfil se recupera por dni.
+end note
+
+note as N_UpdatePerson
+  <b>UpdatePersonProfileCommand</b>
+  --
+  Long id
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  --
+  El perfil existe (PersonProfileNotFound).
+  dni (nunca) y birthDate no se modifican.
+  emailAddress no se modifica.
+end note
+
+note as N_CreateBusiness
+  <b>CreateBusinessProfileCommand</b>
+  --
+  String emailAddress
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  Long ruc
+  String businessName
+  String legalName
+  String description
+  String mainActivity
+  String whatsappNum
+  String emergencyPhone
+  BusinessHours businessHours
+  String slogan
+  String supportEmail
+  String formattedAddress
+  Double latitude
+  Double longitude
+  String placeId
+  --
+  <b>Valida</b>
+  emailAddress no pertenece a otro BusinessProfile
+  (EmailAddressAlreadyExists).
+  ruc, businessName y legalName no pertenecen a otro
+  BusinessProfile (RucAlreadyExists, BusinessNameAlreadyExists,
+  LegalNameAlreadyExists).
+end note
+
+note as N_UpdateBusiness
+  <b>UpdateBusinessProfileCommand</b>
+  --
+  Long id
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String businessName
+  String legalName
+  String description
+  String mainActivity
+  String whatsappNum
+  String emergencyPhone
+  BusinessHours businessHours
+  String slogan
+  String supportEmail
+  --
+  El perfil existe (BusinessProfileNotFound).
+  ruc (nunca), address y emailAddress no se modifican.
+  Solo llega desde Company, donde se valida que quien
+  actualiza (incluido legalName) es el Administrator del
+  Business. Profiles no valida roles.
+  Si businessName o legalName cambian, no pertenecen a
+  otro BusinessProfile (BusinessNameAlreadyExists,
+  LegalNameAlreadyExists).
+end note
+
+note as N_CreateStaff
+  <b>CreateStaffProfileCommand</b>
+  --
+  String corporateEmail
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  String dni
+  LocalDate birthDate
+  --
+  <b>Valida</b>
+  Perfil del personal de Alivia: administrador o empleado.
+  corporateEmail es obligatorio (correo corporativo) y no
+  pertenece a otro StaffProfile ni a un PersonProfile
+  (EmailAddressAlreadyExists).
+  dni no pertenece a otro StaffProfile (DniAlreadyExists):
+  nadie se registra dos veces como personal. Puede existir
+  un PersonProfile con el mismo dni (la persona también es
+  cliente); sus datos se guardan por separado.
+end note
+
+note as N_UpdateStaff
+  <b>UpdateStaffProfileCommand</b>
+  --
+  Long id
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  --
+  El perfil existe (StaffProfileNotFound).
+  dni (nunca), birthDate y corporateEmail no se modifican.
+  No cambia el PersonProfile de la misma persona, si lo
+  tiene: son relaciones distintas.
+end note
+
+CreateStaffProfileCommand .. N_CreateStaff
+UpdateStaffProfileCommand .. N_UpdateStaff
+CreatePersonProfileCommand .. N_CreatePerson
+UpdatePersonProfileCommand .. N_UpdatePerson
+CreateBusinessProfileCommand .. N_CreateBusiness
+UpdateBusinessProfileCommand .. N_UpdateBusiness
+
+note bottom of Profile
+  Base abstracta: no tiene repositorio ni services
+  propios. Los aggregates son PersonProfile, StaffProfile y
+  BusinessProfile.
+  Address (solo BusinessProfile), PhoneNumber, EmailAddress,
+  Photo y WeeklyPeriod son value objects del contexto Shared.
+  El id de PersonProfile es el que otros contextos guardan
+  como PersonProfileId; el de StaffProfile, como
+  StaffProfileId; el de BusinessProfile, como
+  BusinessProfileId.
+end note
+
+note as N_ValueObjects
+  <b>Invariantes de los value objects</b>
+  --
+  Dni: 8 dígitos (String, admite ceros a la izquierda).
+  Es un dato de identificación personal: no identifica
+  al aggregate ni se usa para enlazar perfiles.
+  Ruc: 11 dígitos.
+  BirthDate: no posterior a hoy.
+  BusinessName y LegalName: no vacíos.
+  PersonName: firstName y lastName no vacíos.
+  BusinessHours: al menos un WeeklyPeriod; ningún rango
+  cruza medianoche (range.crossesMidnight() es falso) y
+  ningún par de periodos se cruza el mismo día
+  (InvalidBusinessHours).
+  --
+  <b>Email</b>: obligatorio en BusinessProfile y en
+  StaffProfile (correo corporativo); opcional en PersonProfile
+  (persona asistida; el familiar lo exige en su contexto).
+  Único entre PersonProfile y StaffProfile: cada email es
+  una cuenta de IAM. No se modifica.
+  <b>Dni</b>: único dentro de cada tipo de perfil.
+  <b>Teléfono</b>: puede repetirse entre perfiles.
+end note
+
+note as N_BusinessHours
+  <b>BusinessHours</b>
+  Horario de atención de un negocio. Agrupa una
+  lista de WeeklyPeriod (Shared), uno por cada bloque
+  de días con el mismo horario.
+  Ejemplo: Lun-Vie 09:00-18:00 y Sáb 09:00-13:00
+  son dos WeeklyPeriod.
+  Los commands ya lo reciben como value object:
+  la conversión desde texto/JSON se hace en el
+  borde del contexto (Interfaces o fachada del ACL).
+  --
+  <b>isOpenAt(day, time)</b>
+  Indica si el negocio está abierto en ese día
+  y a esa hora, revisando todos sus periodos.
+end note
+
+BusinessHours .. N_BusinessHours
+
+note as N_Clases
+  <b>Qué representa cada clase</b>
+  --
+  <b>PersonProfile</b>: los datos personales de un cliente de
+  Alivia: familiar o persona asistida. Assistance lo
+  referencia por PersonProfileId.
+  <b>StaffProfile</b>: los datos personales del personal de
+  Alivia: administrador o empleado, con su correo
+  corporativo. Company y HCM lo referencian por
+  StaffProfileId.
+  <b>BusinessProfile</b>: los datos públicos y legales del
+  negocio (ruc, razón social, nombre comercial, horario,
+  ubicación y contacto). Company lo referencia por
+  BusinessProfileId.
+  <b>Profile</b>: base común con email, foto y teléfono.
+  --
+  <b>Dni / Ruc</b>: documentos de identificación, únicos y
+  no modificables. <b>LegalName</b>: razón social, única.
+  <b>BusinessName</b>: nombre comercial, único.
+  <b>PersonName</b>: nombres y apellidos. <b>BirthDate</b>:
+  fecha de nacimiento. <b>BusinessHours</b>: horario de
+  atención del negocio, dentro del día.
+  --
+  <b>Exists...Query</b>: solo responden si un email o dni ya
+  está registrado; los perfiles se recuperan solo por id.
+  Una persona que es cliente y personal tiene un
+  PersonProfile y un StaffProfile, con datos separados.
+end note
 
 @enduml
