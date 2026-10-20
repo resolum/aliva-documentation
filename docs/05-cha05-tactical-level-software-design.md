@@ -166,6 +166,19 @@ Representan la identidad de un aggregate de otro contexto. Son la única forma e
 </table>
 
 <table>
+<tr><th colspan="4" align="left"><code>InstallationId</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record), identidad</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Identidad de Instalación de Soporte Técnico en otro bounded context.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>installationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la instalación de Soporte Técnico.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InstallationId(Long installationId)</code></td><td>(constructor)</td><td>public</td><td>Crea la instancia y valida sus invariantes.</td></tr>
+<tr><td><b>Invariantes</b></td><td colspan="3">No nulo y mayor que 0.</td></tr>
+</table>
+
+<table>
 <tr><th colspan="4" align="left"><code>EmailAddress</code></th></tr>
 <tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
 <tr><td><b>Propósito</b></td><td colspan="3">Correo electrónico válido y normalizado. Permite que la validación de correo ya registrado trate <code>Ana@x.com</code> y <code>ana@x.com</code> como el mismo correo.</td></tr>
@@ -3998,37 +4011,976 @@ Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded contex
 
 ## 5.11. Bounded Context: Bienes
 
-En el código, este bounded context es el paquete `assets`. Gestiona los dispositivos físicos del hogar y las acciones sobre ellos.
+En el código, este bounded context es el paquete `assets`. Assets gestiona los equipos físicos del hogar y la red que forman en cada instalación. Lleva el inventario de edges y dispositivos de cada negocio (sin límite de registros) y, cuando Soporte Técnico termina una instalación, enlaza los equipos asignados en una red: un edge de micrófono, un edge de actuadores, un micrófono y los actuadores que Soporte Técnico decidió instalar. A partir de esa red calcula la tabla de accesos de cada edge (quién le puede enviar y a quién puede enviar) y se la envía por eventos cada vez que la red cambia. IAM solo autentica al edge cuando llama a la API, y Telemetría guarda las acciones y estados que reportan los edges; Assets no los guarda. Con otros contextos se relaciona solo por `BusinessId` e `InstallationId`.
 
 ### 5.11.1. Domain Layer
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+Este bounded context no declara Entities propios.
+
+#### Aggregates
+
+<table>
+<tr><th colspan="4" align="left"><code>Asset</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Clase abstracta base (extiende <code>AuditableAbstractAggregateRoot</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Lo común a todo equipo: MAC, negocio y estado con sus transiciones. No es un aggregate propio: no tiene repositorio ni services.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>BusinessId</code></td><td>private</td><td>Negocio dueño del equipo.</td></tr>
+<tr><td><code>macAddress</code></td><td><code>MacAddress</code></td><td>private</td><td>MAC del equipo. No se repite entre edges y devices.</td></tr>
+<tr><td><code>status</code></td><td><code>AssetStatus</code></td><td>private</td><td><code>AVAILABLE</code>, <code>IN_USE</code>, <code>MAINTENANCE</code> o <code>BROKEN</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Asset(BusinessId businessId, MacAddress macAddress)</code></td><td>(constructor)</td><td>protected</td><td>Inicializa el equipo en estado <code>AVAILABLE</code> (en almacén).</td></tr>
+<tr><td><code>belongsTo(BusinessId businessId)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si es del negocio indicado.</td></tr>
+<tr><td><code>isAvailable()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si está <code>AVAILABLE</code>.</td></tr>
+<tr><td><code>markInUse()</code></td><td><code>void</code></td><td>public</td><td>De <code>AVAILABLE</code> a <code>IN_USE</code>: se asignó a una red.</td></tr>
+<tr><td><code>release()</code></td><td><code>void</code></td><td>public</td><td>De <code>IN_USE</code> a <code>AVAILABLE</code>: salió de una red.</td></tr>
+<tr><td><code>sendToMaintenance()</code></td><td><code>void</code></td><td>public</td><td>De <code>AVAILABLE</code> o <code>IN_USE</code> a <code>MAINTENANCE</code>. Si estaba <code>IN_USE</code>, registra <code>AssetStatusChangedEvent</code>.</td></tr>
+<tr><td><code>markBroken()</code></td><td><code>void</code></td><td>public</td><td>De <code>AVAILABLE</code>, <code>IN_USE</code> o <code>MAINTENANCE</code> a <code>BROKEN</code>. Si estaba <code>IN_USE</code>, registra <code>AssetStatusChangedEvent</code>.</td></tr>
+<tr><td><code>markRepaired()</code></td><td><code>void</code></td><td>public</td><td>De <code>MAINTENANCE</code> o <code>BROKEN</code> a <code>AVAILABLE</code>.</td></tr>
+<tr><td><code>correctMacAddress(MacAddress macAddress)</code></td><td><code>void</code></td><td>protected</td><td>Corrige la MAC; solo si está <code>AVAILABLE</code> (<code>AssetNotEditable</code>).</td></tr>
+<tr><td><code>nodeType()</code></td><td><code>NodeType</code></td><td>protected</td><td>Tipo de nodo del equipo en la tabla de accesos; lo define cada subclase.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Una transición no permitida lanza <code>InvalidAssetStatusTransition</code>. <code>IN_USE</code> y la vuelta a <code>AVAILABLE</code> por salir de una red solo las pone la red, mediante sus eventos. Un equipo instalado que falla solo cambia cuando Soporte Técnico lo revisa y lo pasa a <code>MAINTENANCE</code> o <code>BROKEN</code>; recién ahí la red lo retira.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Generalización</td><td><code>Edge</code>, <code>Device</code></td><td>1 base, 2 subclases</td><td>Cada equipo concreto extiende <code>Asset</code>.</td></tr>
+<tr><td>Composición (<code>macAddress</code>)</td><td><code>MacAddress</code></td><td>1 a 1</td><td>MAC del equipo.</td></tr>
+<tr><td>Asociación (<code>status</code>)</td><td><code>AssetStatus</code></td><td>0..* a 1</td><td>Estado del equipo.</td></tr>
+<tr><td>Dependencia "registra"</td><td><code>AssetStatusChangedEvent</code></td><td>No aplica</td><td>Salida de <code>IN_USE</code> por mantenimiento o falla.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>Edge</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>Asset</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Una aplicación edge del hogar. <code>MICROPHONE_EDGE</code> transcribe el audio del micrófono; <code>ACTUATOR_EDGE</code> ejecuta las acciones en los actuadores.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>type</code></td><td><code>EdgeType</code></td><td>private</td><td><code>MICROPHONE_EDGE</code> o <code>ACTUATOR_EDGE</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Edge(BusinessId businessId, MacAddress macAddress, EdgeType type)</code></td><td>(constructor)</td><td>public</td><td>Registra el edge en el inventario, en estado <code>AVAILABLE</code>.</td></tr>
+<tr><td><code>isMicrophoneEdge()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si es el edge del micrófono.</td></tr>
+<tr><td><code>isActuatorEdge()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si es el edge de los actuadores.</td></tr>
+<tr><td><code>update(MacAddress macAddress, EdgeType type)</code></td><td><code>void</code></td><td>public</td><td>Corrige la MAC o el tipo mal registrados desde el frontend; solo si está <code>AVAILABLE</code> (<code>AssetNotEditable</code>).</td></tr>
+<tr><td><code>nodeType()</code></td><td><code>NodeType</code></td><td>protected</td><td><code>MICROPHONE_EDGE</code> o <code>ACTUATOR_EDGE</code>, según su tipo.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El inventario no tiene límite; un negocio registra todos los edges de ambos tipos que necesite.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Generalización</td><td><code>Asset</code></td><td>1 a 1</td><td>Hereda MAC, negocio y estado.</td></tr>
+<tr><td>Asociación (<code>type</code>)</td><td><code>EdgeType</code></td><td>0..* a 1</td><td>Tipo de edge.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>Device</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>Asset</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Un dispositivo embebido: el micrófono, que recibe las órdenes por voz y el pedido de auxilio, o un actuador (puerta, ventana, cortina o luz).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>type</code></td><td><code>DeviceType</code></td><td>private</td><td><code>MICROPHONE</code>, <code>DOOR</code>, <code>WINDOW</code>, <code>CURTAIN</code> o <code>LIGHT</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>Device(BusinessId businessId, MacAddress macAddress, DeviceType type)</code></td><td>(constructor)</td><td>public</td><td>Registra el dispositivo en el inventario, en estado <code>AVAILABLE</code>.</td></tr>
+<tr><td><code>isMicrophone()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si es un micrófono.</td></tr>
+<tr><td><code>isActuator()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si es un actuador (cualquier tipo distinto de <code>MICROPHONE</code>).</td></tr>
+<tr><td><code>update(MacAddress macAddress, DeviceType type)</code></td><td><code>void</code></td><td>public</td><td>Corrige la MAC o el tipo mal registrados desde el frontend; solo si está <code>AVAILABLE</code> (<code>AssetNotEditable</code>).</td></tr>
+<tr><td><code>nodeType()</code></td><td><code>NodeType</code></td><td>protected</td><td><code>MICROPHONE</code> o <code>ACTUATOR</code>, según su tipo.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">El inventario no tiene límite; puede haber varios micrófonos y actuadores registrados aunque cada red use un solo micrófono.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Generalización</td><td><code>Asset</code></td><td>1 a 1</td><td>Hereda MAC, negocio y estado.</td></tr>
+<tr><td>Asociación (<code>type</code>)</td><td><code>DeviceType</code></td><td>0..* a 1</td><td>Tipo de dispositivo.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceNetwork</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Aggregate Root (extiende <code>AuditableAbstractAggregateRoot</code>)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">La red de dispositivos de una instalación. Enlaza los equipos asignados por Soporte Técnico y calcula la tabla de accesos de cada edge. Solo lee a <code>Edge</code> y <code>Device</code>; nunca los modifica.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>installationId</code></td><td><code>InstallationId</code></td><td>private</td><td>Instalación de Soporte Técnico donde se monta la red.</td></tr>
+<tr><td><code>businessId</code></td><td><code>BusinessId</code></td><td>private</td><td>Negocio dueño de los equipos.</td></tr>
+<tr><td><code>status</code></td><td><code>NetworkStatus</code></td><td>private</td><td><code>ACTIVE</code> o <code>DEACTIVATED</code>.</td></tr>
+<tr><td><code>microphoneEdge</code></td><td><code>Edge</code></td><td>private</td><td>Edge del micrófono. Vacío mientras uno retirado no se reemplaza.</td></tr>
+<tr><td><code>actuatorEdge</code></td><td><code>Edge</code></td><td>private</td><td>Edge de los actuadores. Vacío mientras uno retirado no se reemplaza.</td></tr>
+<tr><td><code>microphone</code></td><td><code>Device</code></td><td>private</td><td>Micrófono asignado. Vacío mientras uno retirado no se reemplaza.</td></tr>
+<tr><td><code>actuators</code></td><td><code>List&lt;Device&gt;</code></td><td>private</td><td>Actuadores asignados al edge de actuadores.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeviceNetwork(InstallationId installationId, BusinessId businessId, Edge microphoneEdge, Edge actuatorEdge, Device microphone, List&lt;Device&gt; actuators)</code></td><td>(constructor)</td><td>public</td><td>Crea la red <code>ACTIVE</code> con los equipos de la instalación. Cada equipo es del tipo de su campo (<code>InvalidNetworkMember</code>), del mismo negocio (<code>AssetNotInBusiness</code>) y está <code>AVAILABLE</code> (<code>AssetNotAvailable</code>). Registra <code>AssetAssignedToNetworkEvent</code> por equipo y <code>AccessTableUpdatedEvent</code>.</td></tr>
+<tr><td><code>addEdge(Edge edge)</code></td><td><code>void</code></td><td>public</td><td>Asigna un edge al campo de su tipo si está vacío (<code>NodeTypeAlreadyInNetwork</code>).</td></tr>
+<tr><td><code>addDevice(Device device)</code></td><td><code>void</code></td><td>public</td><td>Asigna el micrófono si su campo está vacío (<code>NodeTypeAlreadyInNetwork</code>) o suma un actuador que no esté ya (<code>AssetAlreadyInNetwork</code>).</td></tr>
+<tr><td><code>removeEdge(Long edgeId)</code></td><td><code>void</code></td><td>public</td><td>Retira un edge de la red (<code>AssetNotInNetwork</code>); su campo queda vacío.</td></tr>
+<tr><td><code>removeDevice(Long deviceId)</code></td><td><code>void</code></td><td>public</td><td>Retira el micrófono o un actuador de la red (<code>AssetNotInNetwork</code>).</td></tr>
+<tr><td><code>deactivate()</code></td><td><code>void</code></td><td>public</td><td>De <code>ACTIVE</code> a <code>DEACTIVATED</code> (desinstalación): retira todos los equipos.</td></tr>
+<tr><td><code>containsEdge(Long edgeId)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el edge está asignado a la red.</td></tr>
+<tr><td><code>containsDevice(Long deviceId)</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el dispositivo está asignado a la red.</td></tr>
+<tr><td><code>edgeIds()</code></td><td><code>List&lt;Long&gt;</code></td><td>public</td><td>Edges asignados; a ellos se les envía la tabla.</td></tr>
+<tr><td><code>tableFor(Long edgeId)</code></td><td><code>EdgeAccessTable</code></td><td>public</td><td>Calcula la tabla de accesos del edge con los equipos asignados en ese momento.</td></tr>
+<tr><td><code>isActive()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si la red está <code>ACTIVE</code>.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">La asignación es 1 edge de micrófono, 1 edge de actuadores, 1 micrófono y N actuadores; el número de actuadores lo decide Soporte Técnico. Todo equipo nuevo es del mismo negocio y está <code>AVAILABLE</code>. Ningún método modifica una red <code>DEACTIVATED</code> (<code>DeviceNetworkDeactivated</code>). Cada alta registra <code>AssetAssignedToNetworkEvent</code>, cada baja <code>AssetRemovedFromNetworkEvent</code>, y toda alta o baja registra <code>AccessTableUpdatedEvent</code>. La tabla de accesos se calcula así: micrófono a <code>MICROPHONE_EDGE</code>, <code>MICROPHONE_EDGE</code> a <code>ACTUATOR_EDGE</code> (por el broker), <code>ACTUATOR_EDGE</code> a cada actuador y cada edge a <code>CLOUD</code>; un equipo retirado ya no aparece.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación dirigida (<code>microphoneEdge</code>)</td><td><code>Edge</code></td><td>0..1 a 0..1</td><td>Edge del micrófono asignado.</td></tr>
+<tr><td>Asociación dirigida (<code>actuatorEdge</code>)</td><td><code>Edge</code></td><td>0..1 a 0..1</td><td>Edge de actuadores asignado.</td></tr>
+<tr><td>Asociación dirigida (<code>microphone</code>)</td><td><code>Device</code></td><td>0..1 a 0..1</td><td>Micrófono asignado.</td></tr>
+<tr><td>Asociación dirigida (<code>actuators</code>)</td><td><code>Device</code></td><td>0..1 a 0..*</td><td>Actuadores asignados.</td></tr>
+<tr><td>Asociación (<code>status</code>)</td><td><code>NetworkStatus</code></td><td>0..* a 1</td><td>Estado de la red.</td></tr>
+<tr><td>Dependencia "tableFor"</td><td><code>EdgeAccessTable</code></td><td>No aplica</td><td>Tabla calculada para un edge.</td></tr>
+<tr><td>Dependencia "registra"</td><td>Eventos de la red</td><td>No aplica</td><td>Asignación, retiro y tabla actualizada.</td></tr>
+</table>
+
+#### Value Objects
+
+<table>
+<tr><th colspan="4" align="left"><code>MacAddress</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Dirección MAC válida y normalizada de un equipo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>macAddress</code></td><td><code>String</code></td><td>private final</td><td>Seis pares hexadecimales en mayúsculas separados por ":" (<code>AA:BB:CC:DD:EE:FF</code>).</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>MacAddress(String macAddress)</code></td><td>(constructor)</td><td>public</td><td>Acepta ":" o "-" como separador (<code>InvalidMacAddress</code>) y normaliza el valor, para comparar sin importar cómo se escribió.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>NodeRef</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Un nodo de la tabla de un edge: el equipo con su MAC, que es con lo que el edge identifica a quien le envía.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>type</code></td><td><code>NodeType</code></td><td>private final</td><td>Tipo de nodo.</td></tr>
+<tr><td><code>assetId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge o dispositivo. Nulo para <code>CLOUD</code>.</td></tr>
+<tr><td><code>macAddress</code></td><td><code>MacAddress</code></td><td>private final</td><td>MAC del equipo. Nula para <code>CLOUD</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>NodeRef(NodeType type, Long assetId, MacAddress macAddress)</code></td><td>(constructor)</td><td>public</td><td>Crea el nodo; para tipos distintos de <code>CLOUD</code>, id y MAC son obligatorios.</td></tr>
+<tr><td><code>of(Asset asset)</code></td><td><code>NodeRef</code></td><td>public static</td><td>Crea el nodo de un edge o dispositivo.</td></tr>
+<tr><td><code>cloud()</code></td><td><code>NodeRef</code></td><td>public static</td><td>Crea el nodo de la nube.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Asociación (<code>type</code>)</td><td><code>NodeType</code></td><td>0..* a 1</td><td>Tipo de nodo.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EdgeAccessTable</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Value Object (record), modelo de lectura</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">La tabla que se envía a un edge. No se guarda: la calcula <code>DeviceNetwork.tableFor</code>. El edge reemplaza su copia local (SQLite) completa cada vez que recibe una.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Edge al que pertenece la tabla.</td></tr>
+<tr><td><code>allowedSources</code></td><td><code>List&lt;NodeRef&gt;</code></td><td>private final</td><td>Quién le puede enviar: el micrófono o el otro edge.</td></tr>
+<tr><td><code>allowedTargets</code></td><td><code>List&lt;NodeRef&gt;</code></td><td>private final</td><td>A quién puede enviar: el otro edge, los actuadores o <code>CLOUD</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EdgeAccessTable(Long edgeId, List&lt;NodeRef&gt; allowedSources, List&lt;NodeRef&gt; allowedTargets)</code></td><td>(constructor)</td><td>public</td><td>Crea la tabla del edge.</td></tr>
+<tr><td><code>canSendToCloud()</code></td><td><code>boolean</code></td><td>public</td><td>Indica si el edge puede enviar a la nube.</td></tr>
+<tr><th colspan="4" align="left">Relaciones</th></tr>
+<tr><th>Relación</th><th>Clase relacionada</th><th>Multiplicidad</th><th>Descripción</th></tr>
+<tr><td>Composición (<code>allowedSources</code>, <code>allowedTargets</code>)</td><td><code>NodeRef</code></td><td>1 a 0..*</td><td>Nodos permitidos.</td></tr>
+</table>
+
+#### Enumerations
+
+<table>
+<tr><th colspan="4" align="left"><code>EdgeType</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Tipo de edge.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>MICROPHONE_EDGE</code>, <code>ACTUATOR_EDGE</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceType</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Tipo de dispositivo: el micrófono o un actuador.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>MICROPHONE</code>, <code>DOOR</code>, <code>WINDOW</code>, <code>CURTAIN</code>, <code>LIGHT</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssetStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Estado de un equipo. <code>IN_USE</code> significa asignado a una red.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>AVAILABLE</code>, <code>IN_USE</code>, <code>MAINTENANCE</code>, <code>BROKEN</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>NetworkStatus</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Estado de una red.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>ACTIVE</code>, <code>DEACTIVATED</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>NodeType</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Enumeration</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Tipo de nodo en la tabla de accesos y en los eventos.</td></tr>
+<tr><th colspan="4" align="left">Valores</th></tr>
+<tr><td colspan="4"><code>MICROPHONE</code>, <code>ACTUATOR</code>, <code>MICROPHONE_EDGE</code>, <code>ACTUATOR_EDGE</code>, <code>CLOUD</code></td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><td colspan="4">No declara métodos propios.</td></tr>
+</table>
+
+#### Domain Events
+
+<table>
+<tr><th colspan="4" align="left"><code>AssetAssignedToNetworkEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que un equipo se asignó a una red.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>type</code></td><td><code>NodeType</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><td><code>assetId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge o dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssetAssignedToNetworkEvent(NodeType type, Long assetId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>DeviceNetwork</code> al asignar un equipo</td></tr>
+<tr><td><b>Activa</b></td><td colspan="3"><code>MarkEdgeInUseCommand</code> o <code>MarkDeviceInUseCommand</code>.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssetRemovedFromNetworkEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que un equipo salió de una red.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>type</code></td><td><code>NodeType</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><td><code>assetId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge o dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssetRemovedFromNetworkEvent(NodeType type, Long assetId)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>DeviceNetwork</code> al retirar un equipo</td></tr>
+<tr><td><b>Activa</b></td><td colspan="3"><code>ReleaseEdgeCommand</code> o <code>ReleaseDeviceCommand</code>, si el equipo sigue <code>IN_USE</code>.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AccessTableUpdatedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que cambiaron los equipos de una red y que sus edges deben recibir su tabla de accesos actualizada.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>network</code></td><td><code>DeviceNetwork</code></td><td>private</td><td>Red que originó el evento; su id se lee al publicarse.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AccessTableUpdatedEvent(DeviceNetwork network)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><code>getNetworkId()</code></td><td><code>Long</code></td><td>public</td><td>Devuelve <code>networkId</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><code>getEdgeIds()</code></td><td><code>List&lt;Long&gt;</code></td><td>public</td><td>Devuelve <code>edgeIds</code> del aggregate de origen; se lee al publicarse el evento, cuando ya tiene id.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>DeviceNetwork</code> en cada alta o baja</td></tr>
+<tr><td><b>Activa</b></td><td colspan="3">Infrastructure calcula <code>tableFor</code> de cada edge de la red y se la envía. Lee el id al publicarse, porque una red nueva aún no lo tiene.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssetStatusChangedEvent</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Event</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica que un equipo instalado salió de <code>IN_USE</code> por mantenimiento o falla.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>type</code></td><td><code>NodeType</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><td><code>assetId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge o dispositivo.</td></tr>
+<tr><td><code>status</code></td><td><code>AssetStatus</code></td><td>private final</td><td>Estado de la invitación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssetStatusChangedEvent(NodeType type, Long assetId, AssetStatus status)</code></td><td>(constructor)</td><td>public</td><td>Crea el evento con los datos del aggregate que lo registra.</td></tr>
+<tr><td><b>Lo registra</b></td><td colspan="3"><code>Asset</code> al salir de <code>IN_USE</code> por mantenimiento o falla</td></tr>
+<tr><td><b>Activa</b></td><td colspan="3"><code>RemoveEdgeFromNetworkCommand</code> o <code>RemoveDeviceFromNetworkCommand</code>, si el equipo está en una red.</td></tr>
+</table>
+
+#### Commands
+
+<table>
+<tr><th colspan="4" align="left"><code>CreateDeviceNetworkCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Crea la red de una instalación con los equipos que asignó Soporte Técnico.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>installationId</code></td><td><code>Long</code></td><td>private final</td><td>Instalación de Soporte Técnico.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Negocio dueño de los equipos.</td></tr>
+<tr><td><code>microphoneEdgeId</code></td><td><code>Long</code></td><td>private final</td><td>Edge del micrófono.</td></tr>
+<tr><td><code>actuatorEdgeId</code></td><td><code>Long</code></td><td>private final</td><td>Edge de los actuadores.</td></tr>
+<tr><td><code>microphoneId</code></td><td><code>Long</code></td><td>private final</td><td>Micrófono asignado.</td></tr>
+<tr><td><code>actuatorIds</code></td><td><code>List&lt;Long&gt;</code></td><td>private final</td><td>Actuadores que Soporte Técnico asignó al edge de actuadores.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>CreateDeviceNetworkCommand(Long installationId, Long businessId, Long microphoneEdgeId, Long actuatorEdgeId, Long microphoneId, List&lt;Long&gt; actuatorIds)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Reglas</b></td><td colspan="3">Lo envía Soporte Técnico al terminar la instalación. La instalación no tiene otra red <code>ACTIVE</code> (<code>DeviceNetworkAlreadyExists</code>). Los edges y dispositivos existen (<code>EdgeNotFound</code>, <code>DeviceNotFound</code>); el constructor de <code>DeviceNetwork</code> valida tipos, negocio y disponibilidad. Assets no limita el número de actuadores.</td></tr>
+</table>
+
+**Commands de inventario**
+
+<table>
+<tr><th colspan="4" align="left"><code>RegisterEdgeCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Registra un edge. La MAC es válida (<code>InvalidMacAddress</code>) y no existe en ningún edge ni dispositivo (<code>ExistsEdgeByMacAddressQuery</code>, <code>ExistsDeviceByMacAddressQuery</code>; <code>MacAddressAlreadyExists</code>). El negocio existe en Company (<code>BusinessNotFound</code>, vía ACL).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>macAddress</code></td><td><code>String</code></td><td>private final</td><td>MAC del equipo; se valida y normaliza con <code>MacAddress</code>.</td></tr>
+<tr><td><code>type</code></td><td><code>EdgeType</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RegisterEdgeCommand(Long businessId, String macAddress, EdgeType type)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RegisterDeviceCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Registra un dispositivo, con las mismas reglas de MAC y negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>macAddress</code></td><td><code>String</code></td><td>private final</td><td>MAC del equipo; se valida y normaliza con <code>MacAddress</code>.</td></tr>
+<tr><td><code>type</code></td><td><code>DeviceType</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RegisterDeviceCommand(Long businessId, String macAddress, DeviceType type)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UpdateEdgeCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Corrige la MAC o el tipo de un edge. Existe (<code>EdgeNotFound</code>), es del negocio (<code>AssetNotInBusiness</code>), está <code>AVAILABLE</code> (<code>AssetNotEditable</code>) y la MAC nueva no la usa otro equipo (<code>MacAddressAlreadyExists</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>macAddress</code></td><td><code>String</code></td><td>private final</td><td>MAC del equipo; se valida y normaliza con <code>MacAddress</code>.</td></tr>
+<tr><td><code>type</code></td><td><code>EdgeType</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdateEdgeCommand(Long edgeId, Long businessId, String macAddress, EdgeType type)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>UpdateDeviceCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Corrige la MAC o el tipo de un dispositivo, con las mismas reglas.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>deviceId</code></td><td><code>Long</code></td><td>private final</td><td>Id del dispositivo.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>macAddress</code></td><td><code>String</code></td><td>private final</td><td>MAC del equipo; se valida y normaliza con <code>MacAddress</code>.</td></tr>
+<tr><td><code>type</code></td><td><code>DeviceType</code></td><td>private final</td><td>Tipo de actividad.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>UpdateDeviceCommand(Long deviceId, Long businessId, String macAddress, DeviceType type)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ChangeEdgeStatusCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Lo usa Soporte Técnico al revisar una falla. Solo acepta <code>MAINTENANCE</code>, <code>BROKEN</code> o <code>AVAILABLE</code> (reparado); <code>IN_USE</code> lo pone la red (<code>InvalidAssetStatusTransition</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>status</code></td><td><code>AssetStatus</code></td><td>private final</td><td>Estado de la invitación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ChangeEdgeStatusCommand(Long edgeId, Long businessId, AssetStatus status)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ChangeDeviceStatusCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Igual que el anterior, para un dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>deviceId</code></td><td><code>Long</code></td><td>private final</td><td>Id del dispositivo.</td></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>status</code></td><td><code>AssetStatus</code></td><td>private final</td><td>Estado de la invitación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ChangeDeviceStatusCommand(Long deviceId, Long businessId, AssetStatus status)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>MarkEdgeInUseCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Pasa el edge a <code>IN_USE</code>. Solo lo activa <code>AssetAssignedToNetworkEvent</code>; no se expone en la API.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>MarkEdgeInUseCommand(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ReleaseEdgeCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Devuelve el edge a <code>AVAILABLE</code>. Solo lo activa <code>AssetRemovedFromNetworkEvent</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ReleaseEdgeCommand(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>MarkDeviceInUseCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Pasa el dispositivo a <code>IN_USE</code>. Solo lo activa <code>AssetAssignedToNetworkEvent</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>deviceId</code></td><td><code>Long</code></td><td>private final</td><td>Id del dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>MarkDeviceInUseCommand(Long deviceId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ReleaseDeviceCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Devuelve el dispositivo a <code>AVAILABLE</code>. Solo lo activa <code>AssetRemovedFromNetworkEvent</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>deviceId</code></td><td><code>Long</code></td><td>private final</td><td>Id del dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ReleaseDeviceCommand(Long deviceId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+**Commands de la red**
+
+<table>
+<tr><th colspan="4" align="left"><code>AddEdgeToNetworkCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Asigna un edge a la red, por ejemplo para reemplazar uno retirado. La red existe (<code>DeviceNetworkNotFound</code>); las demás reglas las valida <code>DeviceNetwork.addEdge</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>networkId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la red.</td></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AddEdgeToNetworkCommand(Long networkId, Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AddDeviceToNetworkCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Asigna el micrófono o un actuador a la red (<code>DeviceNetwork.addDevice</code>).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>networkId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la red.</td></tr>
+<tr><td><code>deviceId</code></td><td><code>Long</code></td><td>private final</td><td>Id del dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AddDeviceToNetworkCommand(Long networkId, Long deviceId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RemoveEdgeFromNetworkCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Retira un edge de la red. También llega por <code>AssetStatusChangedEvent</code>: application busca la red con <code>GetDeviceNetworkByEdgeIdQuery</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>networkId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la red.</td></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RemoveEdgeFromNetworkCommand(Long networkId, Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>RemoveDeviceFromNetworkCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Retira el micrófono o un actuador. También llega por <code>AssetStatusChangedEvent</code>, con <code>GetDeviceNetworkByDeviceIdQuery</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>networkId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la red.</td></tr>
+<tr><td><code>deviceId</code></td><td><code>Long</code></td><td>private final</td><td>Id del dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>RemoveDeviceFromNetworkCommand(Long networkId, Long deviceId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeactivateDeviceNetworkCommand</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Command (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Desinstala la red: pasa a <code>DEACTIVATED</code> y sus equipos vuelven a <code>AVAILABLE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>networkId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la red.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeactivateDeviceNetworkCommand(Long networkId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+</table>
+
+#### Queries
+
+<table>
+<tr><th colspan="4" align="left"><code>GetEdgeByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Edge por id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetEdgeByIdQuery(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Edge&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllEdgesByBusinessIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Edges del inventario de un negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllEdgesByBusinessIdQuery(Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Edge&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ExistsEdgeByMacAddressQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica si algún edge ya usa la MAC.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>macAddress</code></td><td><code>String</code></td><td>private final</td><td>MAC del equipo; se valida y normaliza con <code>MacAddress</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ExistsEdgeByMacAddressQuery(String macAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>boolean</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetDeviceByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Dispositivo por id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>deviceId</code></td><td><code>Long</code></td><td>private final</td><td>Id del dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetDeviceByIdQuery(Long deviceId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;Device&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllDevicesByBusinessIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Dispositivos del inventario de un negocio.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllDevicesByBusinessIdQuery(Long businessId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Device&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetAllDevicesByBusinessIdAndStatusQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Dispositivos de un negocio filtrados por estado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>businessId</code></td><td><code>Long</code></td><td>private final</td><td>Id del negocio.</td></tr>
+<tr><td><code>status</code></td><td><code>AssetStatus</code></td><td>private final</td><td>Estado de la invitación.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetAllDevicesByBusinessIdAndStatusQuery(Long businessId, AssetStatus status)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>List&lt;Device&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>ExistsDeviceByMacAddressQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Indica si algún dispositivo ya usa la MAC.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>macAddress</code></td><td><code>String</code></td><td>private final</td><td>MAC del equipo; se valida y normaliza con <code>MacAddress</code>.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>ExistsDeviceByMacAddressQuery(String macAddress)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>boolean</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetDeviceNetworkByIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Red por id.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>networkId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la red.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetDeviceNetworkByIdQuery(Long networkId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;DeviceNetwork&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetDeviceNetworkByInstallationIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Red activa de una instalación.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>installationId</code></td><td><code>Long</code></td><td>private final</td><td>Id de la instalación de Soporte Técnico.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetDeviceNetworkByInstallationIdQuery(Long installationId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;DeviceNetwork&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetDeviceNetworkByEdgeIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Red que tiene asignado el edge.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetDeviceNetworkByEdgeIdQuery(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;DeviceNetwork&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetDeviceNetworkByDeviceIdQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Red que tiene asignado el dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>deviceId</code></td><td><code>Long</code></td><td>private final</td><td>Id del dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetDeviceNetworkByDeviceIdQuery(Long deviceId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;DeviceNetwork&gt;</code></td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>GetEdgeAccessTableQuery</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Query (record)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Tabla de accesos de un edge. La pide el edge al reconectarse si estuvo desconectado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><th>Nombre</th><th>Tipo de dato</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>edgeId</code></td><td><code>Long</code></td><td>private final</td><td>Id del edge.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>GetEdgeAccessTableQuery(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Constructor canónico del record: recibe todos sus componentes.</td></tr>
+<tr><td><b>Resultado</b></td><td colspan="3"><code>Optional&lt;EdgeAccessTable&gt;</code></td></tr>
+</table>
+
+#### Domain Services
+
+<table>
+<tr><th colspan="4" align="left"><code>EdgeCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>Edge</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(RegisterEdgeCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>RegisterEdgeCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(UpdateEdgeCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>UpdateEdgeCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ChangeEdgeStatusCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>ChangeEdgeStatusCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(MarkEdgeInUseCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>MarkEdgeInUseCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ReleaseEdgeCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>ReleaseEdgeCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>EdgeQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>Edge</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetEdgeByIdQuery query)</code></td><td><code>Optional&lt;Edge&gt;</code></td><td>public</td><td>Resuelve <code>GetEdgeByIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetAllEdgesByBusinessIdQuery query)</code></td><td><code>List&lt;Edge&gt;</code></td><td>public</td><td>Resuelve <code>GetAllEdgesByBusinessIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(ExistsEdgeByMacAddressQuery query)</code></td><td><code>boolean</code></td><td>public</td><td>Resuelve <code>ExistsEdgeByMacAddressQuery</code>.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>Device</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(RegisterDeviceCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>RegisterDeviceCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(UpdateDeviceCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>UpdateDeviceCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ChangeDeviceStatusCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>ChangeDeviceStatusCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(MarkDeviceInUseCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>MarkDeviceInUseCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(ReleaseDeviceCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>ReleaseDeviceCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>Device</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetDeviceByIdQuery query)</code></td><td><code>Optional&lt;Device&gt;</code></td><td>public</td><td>Resuelve <code>GetDeviceByIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetAllDevicesByBusinessIdQuery query)</code></td><td><code>List&lt;Device&gt;</code></td><td>public</td><td>Resuelve <code>GetAllDevicesByBusinessIdQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(GetAllDevicesByBusinessIdAndStatusQuery query)</code></td><td><code>List&lt;Device&gt;</code></td><td>public</td><td>Resuelve <code>GetAllDevicesByBusinessIdAndStatusQuery</code>; devuelve una lista, vacía si no hay resultados.</td></tr>
+<tr><td><code>handle(ExistsDeviceByMacAddressQuery query)</code></td><td><code>boolean</code></td><td>public</td><td>Resuelve <code>ExistsDeviceByMacAddressQuery</code>.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceNetworkCommandService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las operaciones de escritura (commands) sobre <code>DeviceNetwork</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(CreateDeviceNetworkCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>CreateDeviceNetworkCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(AddEdgeToNetworkCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>AddEdgeToNetworkCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(AddDeviceToNetworkCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>AddDeviceToNetworkCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(RemoveEdgeFromNetworkCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>RemoveEdgeFromNetworkCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(RemoveDeviceFromNetworkCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>RemoveDeviceFromNetworkCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+<tr><td><code>handle(DeactivateDeviceNetworkCommand command)</code></td><td><code>Long</code></td><td>public</td><td>Ejecuta <code>DeactivateDeviceNetworkCommand</code> y devuelve el id del registro creado o modificado.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceNetworkQueryService</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Domain Service (interface)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Define las consultas (queries) sobre <code>DeviceNetwork</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>handle(GetDeviceNetworkByIdQuery query)</code></td><td><code>Optional&lt;DeviceNetwork&gt;</code></td><td>public</td><td>Resuelve <code>GetDeviceNetworkByIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetDeviceNetworkByInstallationIdQuery query)</code></td><td><code>Optional&lt;DeviceNetwork&gt;</code></td><td>public</td><td>Resuelve <code>GetDeviceNetworkByInstallationIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetDeviceNetworkByEdgeIdQuery query)</code></td><td><code>Optional&lt;DeviceNetwork&gt;</code></td><td>public</td><td>Resuelve <code>GetDeviceNetworkByEdgeIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetDeviceNetworkByDeviceIdQuery query)</code></td><td><code>Optional&lt;DeviceNetwork&gt;</code></td><td>public</td><td>Resuelve <code>GetDeviceNetworkByDeviceIdQuery</code>; devuelve vacío si no existe.</td></tr>
+<tr><td><code>handle(GetEdgeAccessTableQuery query)</code></td><td><code>Optional&lt;EdgeAccessTable&gt;</code></td><td>public</td><td>Resuelve <code>GetEdgeAccessTableQuery</code>; devuelve vacío si no existe.</td></tr>
+</table>
+
+#### Exceptions
+
+<table>
+<tr><th colspan="4" align="left"><code>EdgeNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe el edge indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>EdgeNotFound(Long edgeId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe el dispositivo indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeviceNotFound(Long deviceId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceNetworkNotFound</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando no existe la red indicada.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeviceNetworkNotFound(Long networkId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidMacAddress</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la MAC no tiene seis pares hexadecimales separados por ":" o "-".</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidMacAddress(String macAddress)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>MacAddressAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la MAC ya la usa otro edge o dispositivo.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>MacAddressAlreadyExists(String macAddress)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssetNotInBusiness</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el equipo no pertenece al negocio indicado.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssetNotInBusiness(Long assetId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidAssetStatusTransition</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el cambio de estado no está permitido (ej. poner <code>IN_USE</code> a mano).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidAssetStatusTransition(AssetStatus from, AssetStatus to)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssetNotAvailable</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se asigna a una red un equipo que no está <code>AVAILABLE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssetNotAvailable(Long assetId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssetNotEditable</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se corrige la MAC o el tipo de un equipo que no está <code>AVAILABLE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssetNotEditable(Long assetId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>InvalidNetworkMember</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el equipo no es del tipo que pide su lugar en la red (ej. un actuador como micrófono).</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>InvalidNetworkMember(Long assetId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>NodeTypeAlreadyInNetwork</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la red ya tiene un micrófono, un edge de micrófono o un edge de actuadores.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>NodeTypeAlreadyInNetwork(NodeType type)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssetAlreadyInNetwork</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando el actuador ya está en la red.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssetAlreadyInNetwork(Long assetId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>AssetNotInNetwork</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se retira de la red un equipo que no está asignado a ella.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>AssetNotInNetwork(Long assetId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceNetworkAlreadyExists</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando la instalación ya tiene una red <code>ACTIVE</code>.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeviceNetworkAlreadyExists(Long installationId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
+
+<table>
+<tr><th colspan="4" align="left"><code>DeviceNetworkDeactivated</code></th></tr>
+<tr><td><b>Categoría</b></td><td colspan="3">Exception (domain.exceptions)</td></tr>
+<tr><td><b>Propósito</b></td><td colspan="3">Se lanza cuando se intenta modificar una red desactivada.</td></tr>
+<tr><th colspan="4" align="left">Atributos</th></tr>
+<tr><td colspan="4">No tiene atributos.</td></tr>
+<tr><th colspan="4" align="left">Métodos</th></tr>
+<tr><th>Firma</th><th>Tipo de retorno</th><th>Visibilidad</th><th>Descripción</th></tr>
+<tr><td><code>DeviceNetworkDeactivated(Long networkId)</code></td><td>(constructor)</td><td>public</td><td>Crea la excepción con su mensaje.</td></tr>
+</table>
 
 ### 5.11.2. Interface Layer
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.11.1.
 
 ### 5.11.3. Application Layer
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.11.1.
 
 ### 5.11.4. Infrastructure Layer
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.11.1.
 
 ### 5.11.6. Bounded Context Software Architecture Component Level Diagrams
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer de la sección 5.11.1.
 
 ### 5.11.7. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.11.7.1. Bounded Context Domain Layer Class Diagrams
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+El diagrama muestra la base abstracta `Asset` con sus dos aggregates (`Edge` y `Device`), relacionados por generalización, y el aggregate `DeviceNetwork`, que referencia directamente a sus edges, a su micrófono (0..1 cada uno) y a sus actuadores (0..*). `DeviceNetwork` calcula `EdgeAccessTable`, formada por `NodeRef`. Las flechas de eventos muestran qué aggregate registra cada evento y qué command activa. Los services reciben sus commands y queries, y las notas detallan las reglas de cada service y los value objects de Shared que usa el contexto (`BusinessId` e `InstallationId`).
+
+![Diagrama de clases de la capa de dominio - Bienes](../images/diagrams/img/chapter-5/devices-backend-diagram.svg)
 
 #### 5.11.7.2. Bounded Context Database Design Diagram
 
-Pendiente. Se documenta cuando se diseñe el Domain Layer de este bounded context.
+La base de datos es PostgreSQL. Las acciones y estados que envían los edges los guarda Telemetría en MongoDB, no Assets.
+
+| Tabla | Aggregate o value object | Llaves y restricciones |
+|---|---|---|
+| `edges` | `Edge` | PK `id`. UK `mac_address`. Índice `business_id` (referencia a Company, sin FK). |
+| `devices` | `Device` | PK `id`. UK `mac_address`. Índice `business_id`. |
+| `device_networks` | `DeviceNetwork` | PK `id`. FK `microphone_edge_id` y `actuator_edge_id` hacia `edges`, y `microphone_id` hacia `devices`, cada una única y nula mientras el equipo no se reemplaza. UK parcial `installation_id` donde `status = 'ACTIVE'` (referencia a Soporte Técnico, sin FK). |
+| `network_actuators` | Lista `actuators` de `DeviceNetwork` | FK `network_id` hacia `device_networks` y FK `device_id` hacia `devices`. UK `device_id`. Sin id propio. |
+
+Relaciones: una red apunta a cero o un edge de cada tipo y a cero o un micrófono, y tiene cero o más actuadores. `edges` y `devices` no apuntan a ninguna tabla, así que no hay referencias circulares. La tabla de accesos no tiene tabla propia: `DeviceNetwork.tableFor` la calcula con estas columnas. Que la MAC no se repita entre `edges` y `devices` lo valida el dominio con las queries `Exists...ByMacAddressQuery`.
+
+![Diagrama de base de datos - Bienes](../images/diagrams/img/chapter-5/devices-database-diagram.svg)
 
 <div style="page-break-after: always;"></div>
-
