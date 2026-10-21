@@ -77,9 +77,11 @@ package alivia.platform.Iam {
       signUp: cuenta PENDING con la contraseña del usuario
       (administrador o familiar) y un código de verificación;
       registra EmailVerificationRequestedEvent.
-      invited y corporate nacen con emailVerified = true
-      al activarse: el enlace o la contraseña temporal
-      llegaron a su correo.
+      invited y corporate nacen con emailVerified = true:
+      no reciben código, porque el enlace o la contraseña
+      temporal llega a su correo y eso ya prueba que es
+      suyo. Así SignIn con la contraseña temporal responde
+      PasswordChangeRequired y no EmailNotVerified.
       invited: cuenta PERSONAL PENDING, sin contraseña, con
       ROLE_CAREGIVER y un token SETUP.
       corporate: cuenta CORPORATE PENDING con contraseña

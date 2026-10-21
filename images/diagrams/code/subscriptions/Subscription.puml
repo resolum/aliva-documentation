@@ -517,11 +517,13 @@ InvalidSubscriptionStatusTransition -[hidden]down- PaymentAmountMismatch
 PaymentAmountMismatch -[hidden]down- PaymentNotRefundable
 PaymentNotRefundable -[hidden]down- PaymentGatewayError
 
+Money -[hidden]right- BillingPeriod
+
 ' ---------- COMPOSICIÓN Y REFERENCIAS ----------
 Subscription "0..*" -[#6A1B9A]-> "1" Plan : plan >
 Payment "0..*" -[#6A1B9A]-> "1" Subscription : subscription >
-Plan "0..*" --> "1" PlanCode : code
 Plan "1" *-- "2" Money : basePrice / pricePerActuator
+Plan "0..*" --> "1" PlanCode : code
 Plan ..> ActuatorSelection : allows / monthlyPriceFor >
 Subscription "1" *-- "1" ActuatorSelection : actuators
 Subscription "1" *-- "1" Money : monthlyAmount
@@ -611,7 +613,9 @@ note as N_RulesSubscription
   REFUNDED y llama a refund.
   <b>CancelSubscriptionCommand</b>: lo activa el webhook
   customer.subscription.deleted de Stripe.
-  La suscripción existe (SubscriptionNotFound).
+  La suscripción existe (SubscriptionNotFound). Si ya
+  está CANCELED (la canceló RefundSubscriptionCommand, o
+  Stripe reenvió el webhook), devuelve su id sin cambiarla.
 end note
 
 note as N_RulesPayment

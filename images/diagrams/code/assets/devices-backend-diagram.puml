@@ -201,10 +201,11 @@ package alivia.platform.Assets {
       (NodeTypeAlreadyInNetwork); un actuador se suma a la
       lista si no está ya (AssetAlreadyInNetwork).
       removeEdge / removeDevice: el equipo está en la red
-      (AssetNotInNetwork); su campo queda vacío hasta que
-      Soporte Técnico asigne otro.
+      (containsEdge / containsDevice; AssetNotInNetwork); su
+      campo queda vacío hasta que Soporte Técnico asigne otro.
+      addDevice usa containsDevice (AssetAlreadyInNetwork).
       Ningún método modifica una red DEACTIVATED
-      (DeviceNetworkDeactivated).
+      (isActive; DeviceNetworkDeactivated).
       deactivate: ACTIVE a DEACTIVATED (desinstalación);
       retira todos los equipos.
       Cada alta o baja registra AssetAssignedToNetworkEvent
@@ -263,7 +264,6 @@ package alivia.platform.Assets {
       + List<NodeRef> allowedTargets
       + EdgeAccessTable(Long edgeId, Long networkId, Long installationId,
       	 List<NodeRef> allowedSources, List<NodeRef> allowedTargets)
-      + canSendToCloud() : boolean
     }
 
     note bottom of EdgeAccessTable

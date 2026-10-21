@@ -331,6 +331,9 @@ package alivia.platform.Assistance {
 
     note bottom of ActivityAssignment
       caregiver null = la actividad la hace el familiar.
+      isAssignedTo / isAssignedToRelative: los usa
+      ActivityLog.completed (NotResponsibleForActivity);
+      isAssignedTo, también reassignToRelative.
       Vive dentro de CareActivity: solo se accede por su root.
       careActivity = referencia de vuelta a su root: lado dueño
       de la relación.
@@ -390,7 +393,6 @@ package alivia.platform.Assistance {
       + deactivateAssignment(Long assignmentId)
       + reassignToRelative(Caregiver revokedCaregiver)
       + occurrencesOn(LocalDate date) : List<ActivityAssignment>
-      + isEmpty() : boolean
     }
 
     note bottom of ActivityAssignments
@@ -410,6 +412,9 @@ package alivia.platform.Assistance {
       CareActivity recién creada.
       getAssignmentWithId usa getFirstAssignmentWhere y lanza
       ActivityAssignmentNotFound si no existe (nunca devuelve null).
+      occurrencesOn(date): las asignaciones ACTIVE que ocurren
+      esa fecha; lo usan la agenda (AgendaItem) y
+      MarkMissedActivitiesCommand.
     end note
 
     class Schedule <<Record>> #EADCF8 {

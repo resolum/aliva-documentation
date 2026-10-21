@@ -39,7 +39,7 @@ package "Bounded Context: Support" as ctx_support #F6FBF6 {
     * latitude : DOUBLE PRECISION
     * longitude : DOUBLE PRECISION
     place_id : VARCHAR(255)
-    * plan : VARCHAR(10) (MINIMUM, CUSTOM)
+    * plan : VARCHAR(10) (MINIMUM, CUSTOM) <<copia de Subscriptions>>
     * status : VARCHAR(25)
     microphone_edge_id : BIGINT <<ref Assets>>
     actuator_edge_id : BIGINT <<ref Assets>>
@@ -156,8 +156,8 @@ note bottom of ctx_support
   actuador (lo valida el dominio).
   assignments: una sola tabla para InstallationAssignment y
   RepairAssignment (herencia SINGLE_TABLE, columna assignment_type).
-  installation_requested_actuators: lo que eligió el familiar (plan
-  MINIMUM: 1 en total; CUSTOM: de 1 a 4); installation_actuators: lo
+  plan e installation_requested_actuators: copia de lo que el familiar eligió
+  al suscribirse (Subscriptions; MINIMUM 1, CUSTOM de 1 a 4); installation_actuators: lo
   instalado, con su tipo. Nunca hay más instalados que elegidos.
   appointments: la cita del familiar (día y rango libre); una sola activa
   por instalación. La dirección de la cita solo se compara, no se guarda.

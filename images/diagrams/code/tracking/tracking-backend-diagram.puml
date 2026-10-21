@@ -169,19 +169,17 @@ package alivia.platform.Tracking {
 
     class BatteryLevel <<Record>> #EADCF8 {
       + {static} Integer LOW_THRESHOLD = 10
-      + {static} Integer CRITICAL_THRESHOLD = 5
       + Integer percentage
       + BatteryLevel(Integer percentage)
       + isLow() : boolean
-      + isCritical() : boolean
     }
 
     note bottom of BatteryLevel
       Porcentaje de batería entre 0 y 100
       (InvalidBatteryLevel).
-      isLow: percentage <= LOW_THRESHOLD (10 %).
-      isCritical: percentage <= CRITICAL_THRESHOLD (5 %):
-      es el segundo y último aviso del edge.
+      isLow: percentage <= LOW_THRESHOLD (10 %); lo usa
+      el constructor de LowBatteryAlert (BatteryNotLow).
+      El edge avisa a 10 % y a 5 %: los dos son bajos.
     end note
 
     class ActuatorActionSummary <<Record>> #EADCF8 {
@@ -208,15 +206,13 @@ package alivia.platform.Tracking {
       WINDOW
       CURTAIN
       LIGHT
-      --
-      + isActuator() : boolean
     }
 
     note bottom of DeviceType
       Copia propia de Tracking, con los mismos valores que
       DeviceType de Assets. El edge lo conoce por la tabla
       de su red (EdgeAccessTable) y lo envía en el reporte.
-      isActuator: todos menos MICROPHONE.
+      MICROPHONE es el sensor; los demás son actuadores.
     end note
 
     enum ActionType #EADCF8 {
@@ -297,14 +293,24 @@ package alivia.platform.Tracking {
       1. installationId: Support (GetInstallationByIdQuery)
       da la persona asistida.
       2. Assistance: GetAssistedPersonByIdQuery da el
-      familiar; GetAgendaByAssistedPersonIdQuery, la
-      actividad IN_PROGRESS en occurredAt y quién la tiene
-      asignada; GetCaregiversByAssistedPersonIdQuery
-      confirma que ese cuidador sigue ACTIVE
+      familiar. GetAgendaByAssistedPersonIdQuery con from =
+      el día anterior a occurredAt y to = el día de
+      occurredAt (una ocurrencia que cruza medianoche
+      pertenece al día en que empieza). De esos AgendaItem
+      se toman los que no están CANCELLED y cuyo horario
+      (occurrenceStart a occurrenceEnd) contiene occurredAt.
+      Se compara con occurredAt y no con el status, porque
+      el status se calcula con la hora de la consulta y un
+      reporte reintentado llega tarde.
+      3. Solo se avisa a los cuidadores de esos items (puede
+      haber más de uno si coinciden dos actividades), no a
+      todos los cuidadores de la persona asistida.
+      GetCaregiversByAssistedPersonIdQuery solo sirve para
+      obtener su userId y confirmar que siguen ACTIVE
       (Caregiver.isActive).
-      Si nadie tiene una actividad en curso, solo se avisa
-      al familiar. Si la actividad en curso es del propio
-      familiar, recibe un solo aviso.
+      Si ningún cuidador tiene una ocurrencia en ese
+      momento, solo se avisa al familiar. Un item con
+      caregiverId nulo es del familiar: recibe un solo aviso.
     end note
   }
 

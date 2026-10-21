@@ -25,7 +25,9 @@
 '      otra cita (re-evaluación) y solo se agregan los actuadores que faltan.
 '  ST8 InstalledEquipment siempre está completo (los dos edges, el micrófono y al menos un actuador) y
 '      se guarda una sola vez, en Installation. Nunca supera lo elegido por el familiar.
-'  ST9 El técnico identifica los equipos por MAC; application los convierte en ids y tipos con Assets.
+'  ST9 El técnico identifica los equipos por MAC; application los convierte en ids y tipos con Assets y
+'      valida antes que estén AVAILABLE y sean del tipo que corresponde (EquipmentNotAvailable,
+'      EquipmentTypeMismatch): Support no guarda equipos que Assets rechazaría al armar la red.
 '  ST10 Ningún aggregate modifica a otro: los cambios entre ellos pasan por eventos que activan
 '      commands.
 '  ST11 Se agregan a Shared EmployeeId (técnico de HCM) y AssistedPersonId (persona asistida).
@@ -122,15 +124,17 @@ package alivia.platform.Support {
       del pago). Con equipment, vuelve a PARTIALLY_INSTALLED.
       requestReevaluation: PARTIALLY_INSTALLED a
       PENDING_EVALUATION (el familiar agendó otra cita).
-      replaceEquipment: solo INSTALLED o PARTIALLY_INSTALLED;
-      el viejo está instalado (EquipmentNotInstalled) y el
-      nuevo no (EquipmentAlreadyInstalled); registra
+      replaceEquipment: la instalación tiene equipment
+      (InstallationWithoutEquipment), en cualquier estado:
+      una reparación puede terminar mientras hay una
+      re-evaluación en curso (PENDING_EVALUATION). El viejo
+      está instalado (EquipmentNotInstalled) y el nuevo no
+      (EquipmentAlreadyInstalled); registra
       EquipmentReplacedEvent.
       --
       <b>Consultas</b>: isPendingEvaluation,
       isPartiallyInstalled, hasAddress e isRequestedBy las
-      usa Appointment; hasEquipment, Ticket e
-      InstallationAssignment.
+      usa Appointment; isRequestedBy y hasEquipment, Ticket.
     end note
 
     class Appointment #DCEBFA {
@@ -186,7 +190,6 @@ package alivia.platform.Support {
       \t TimeRange timeRange, LocalDate today)
       + isAssignedTo(EmployeeId technicianId) : boolean
       + overlapsWith(LocalDate date, TimeRange timeRange) : boolean
-      + isAttended() : boolean
       + reassign(EmployeeId technicianId, LocalDate scheduledDate,
       \t TimeRange timeRange, LocalDate today)
       # markAttended(List<Photo> photos, LocalDateTime now)
@@ -205,8 +208,7 @@ package alivia.platform.Support {
       cambia técnico, fecha y horas con las mismas reglas.
       overlapsWith: misma fecha y rangos que se cruzan.
       isAssignedTo: el técnico que la atiende es el asignado
-      (AssignmentNotForTechnician). isAttended: si ya se
-      atendió (para la lista del técnico).
+      (AssignmentNotForTechnician).
     end note
 
     class InstallationAssignment #DCEBFA {
@@ -371,8 +373,9 @@ package alivia.platform.Support {
       Un equipo malogrado que el técnico cambió por otro en
       una reparación. oldAssetId y newAssetId son distintos
       (InvalidReplacement). El técnico los indica por MAC.
-      Assets valida que el nuevo sea del mismo tipo y esté
-      AVAILABLE.
+      Application valida con Assets que el nuevo sea del
+      mismo tipo y esté AVAILABLE antes de atender la
+      visita (EquipmentTypeMismatch, EquipmentNotAvailable).
     end note
 
     enum PlanCode #EADCF8 {
@@ -730,6 +733,12 @@ package alivia.platform.Support {
     class EquipmentNotFound <<Exception>> {
       + EquipmentNotFound(String macAddress)
     }
+    class EquipmentNotAvailable <<Exception>> {
+      + EquipmentNotAvailable(String macAddress)
+    }
+    class EquipmentTypeMismatch <<Exception>> {
+      + EquipmentTypeMismatch(String macAddress)
+    }
     class EquipmentAlreadyInstalled <<Exception>> {
       + EquipmentAlreadyInstalled(Long assetId)
     }
@@ -929,7 +938,9 @@ IncompleteInstalledEquipment -[hidden]down- ExceedsRequestedActuators
 ExceedsRequestedActuators -[hidden]down- EvaluationResultMismatch
 EvaluationResultMismatch -[hidden]down- EquipmentRequired
 EquipmentRequired -[hidden]down- EquipmentNotFound
-EquipmentNotFound -[hidden]down- EquipmentAlreadyInstalled
+EquipmentNotFound -[hidden]down- EquipmentNotAvailable
+EquipmentNotAvailable -[hidden]down- EquipmentTypeMismatch
+EquipmentTypeMismatch -[hidden]down- EquipmentAlreadyInstalled
 EquipmentAlreadyInstalled -[hidden]down- EquipmentNotInstalled
 EquipmentNotInstalled -[hidden]down- InvalidReplacement
 AppointmentNotFound -[hidden]down- AppointmentAlreadyExists
@@ -1115,6 +1126,14 @@ note as N_RulesAssignment
   (GetEdgeByMacAddressQuery, GetDeviceByMacAddressQuery;
   EquipmentNotFound): pasa ids y, de cada actuador, su
   ActuatorType (del DeviceType de Assets).
+  Antes de llamar al aggregate valida con lo que devuelve
+  Assets: cada equipo nuevo está AVAILABLE
+  (EquipmentNotAvailable) y es del tipo que corresponde
+  a su lugar: edge de micrófono, edge de actuadores,
+  MICROPHONE o un actuador; en un reemplazo, del mismo
+  tipo que el viejo (EquipmentTypeMismatch). Así Support
+  no guarda equipos que Assets luego rechazaría al armar
+  o cambiar la red.
   Primera visita: las cuatro MAC; re-evaluación: solo
   los actuadores nuevos; no cumple: solo fotos.
   En replacedMacAddresses (MAC vieja a MAC nueva), el
