@@ -1,0 +1,636 @@
+@startuml
+' Bounded Context: Subscriptions (Pagos y Suscripciones). Solo capa domain. Persistencia: PostgreSQL.
+' Pasarela de pagos: Stripe (Stripe Subscriptions, cobro mensual).
+'
+' Decisiones de diseño (base: módulo payments de veyra-backend, mejorado):
+'  SB1 Tres aggregates: Plan (catálogo de planes con sus precios y sus Price de Stripe), Subscription
+'      (la suscripción mensual de una persona asistida) y Payment (cada cobro mensual que hace Stripe).
+'  SB2 Plan reemplaza al enum PlanType con precios escritos en el código: el precio vive en un solo lugar
+'      del backend, lo usa Stripe (Price ids) y debe coincidir con lo que muestra la landing page (los
+'      precios de la landing son estáticos). Se carga con SeedPlansCommand, como SeedRolesCommand en IAM.
+'  SB3 Precio mensual = basePrice + pricePerActuator x actuadores. basePrice cubre lo que toda
+'      instalación lleva (los dos edges y el micrófono) y no incluye ningún actuador: cada actuador,
+'      también el primero, se cobra con pricePerActuator, así ninguno se cobra dos veces. Cada plan
+'      tiene sus propios precios. MINIMUM: siempre 1 actuador, por eso su precio es fijo. CUSTOM: de 1
+'      a 4. En Stripe es una suscripción con dos items: el precio base (cantidad 1) y el precio por
+'      actuador (cantidad = actuadores elegidos).
+'  SB4 La suscripción es por persona asistida y la paga su familiar (UserId). El familiar elige el plan y
+'      los actuadores al suscribirse (ActuatorSelection); Support los copia al registrar la instalación.
+'  SB5 Flujo: landing page, clic en un plan, el familiar se registra (Assistance e IAM), registra a la
+'      persona asistida (Assistance) y se suscribe. Subscriptions valida en Assistance que la persona
+'      asistida exista y la gestione ese familiar.
+'  SB6 Stripe cobra cada mes y avisa por webhook. Cada factura pagada o fallida es un Payment (no se crea
+'      un PaymentIntent aparte como en veyra: así no se cobra dos veces). El webhook actualiza el dominio
+'      (en veyra solo se registraba en el log). stripeInvoiceId es único: un webhook repetido no duplica.
+'  SB7 Primer pago correcto: la suscripción pasa a ACTIVE y Communication envía el correo de
+'      bienvenida. Pago fallido: PAST_DUE. Si la primera evaluación de Support no cumple
+'      (InstallationRejectedEvent), se devuelve el pago y se cancela la suscripción.
+'  SB8 Las transiciones de estado son métodos con reglas (en veyra, updateStatus aceptaba cualquier
+'      estado).
+
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+  BackgroundColor<<Exception>> #FFEBEE
+  BorderColor<<Exception>> #C62828
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #B8A800
+}
+skinparam package {
+  BorderColor #888888
+  FontStyle bold
+}
+
+legend left
+  |= Color |= Significado |
+  |<#DCEBFA>   | Aggregate |
+  |<#EADCF8>   | Value Object / Enum |
+  |<#FFE4C4>   | Command (escritura) |
+  |<#D5F0D8>   | Query (lectura) |
+  |<#FFF3B0>   | Service (interface) |
+  |<#CDEFF2>   | Event |
+  |<#FFEBEE>   | Exception (dominio) |
+  |<#6A1B9A>   | Referencia directa (mismo contexto) |
+  |<#2E8B57>   | Flecha de lectura (QueryService) |
+endlegend
+
+package alivia.platform.Subscriptions {
+
+  package "domain.model.aggregates" #F4F9FE {
+
+    class Plan #DCEBFA {
+      - PlanCode code
+      - Money basePrice
+      - Money pricePerActuator
+      - Integer minActuators
+      - Integer maxActuators
+      - String stripeBasePriceId
+      - String stripeActuatorPriceId
+      --
+      + Plan(PlanCode code, Money basePrice, Money pricePerActuator,
+      \t Integer minActuators, Integer maxActuators,
+      \t String stripeBasePriceId, String stripeActuatorPriceId)
+      + allows(ActuatorSelection selection) : boolean
+      + monthlyPriceFor(ActuatorSelection selection) : Money
+    }
+
+    note bottom of Plan
+      <b>Plan de suscripción</b> (catálogo)
+      MINIMUM: 1 actuador del tipo que elija el familiar.
+      CUSTOM: de 1 a 4 actuadores, la cantidad que quiera
+      de cada tipo.
+      Constructor: basePrice y pricePerActuator en la
+      misma moneda; 1 <= minActuators
+      <= maxActuators; los dos Price id de Stripe no vacíos
+      (InvalidPlan).
+      allows: selection.total() entre minActuators y
+      maxActuators.
+      basePrice: los dos edges y el micrófono, sin
+      actuadores. pricePerActuator: cada actuador, también
+      el primero (ninguno se cobra dos veces).
+      monthlyPriceFor: basePrice.plus(pricePerActuator
+      .times(selection.total())). Es lo que cobra Stripe
+      cada mes
+      (item base con cantidad 1 e item por actuador con
+      cantidad total()).
+      Los precios deben coincidir con los de la landing
+      page; cambian volviendo a cargar el catálogo.
+    end note
+
+    class Subscription #DCEBFA {
+      - UserId userId
+      - AssistedPersonId assistedPersonId
+      - Plan plan
+      - ActuatorSelection actuators
+      - Money monthlyAmount
+      - SubscriptionStatus status
+      - String stripeCustomerId
+      - String stripeSubscriptionId
+      - BillingPeriod currentPeriod
+      --
+      + Subscription(UserId userId, AssistedPersonId assistedPersonId, Plan plan,
+      \t ActuatorSelection actuators, String stripeCustomerId,
+      \t String stripeSubscriptionId)
+      + activate(BillingPeriod period)
+      + markPastDue()
+      + cancel()
+      + refund()
+      + isActive() : boolean
+      + isCurrent() : boolean
+    }
+
+    note bottom of Subscription
+      <b>Suscripción mensual de una persona asistida</b>
+      La paga su familiar (userId).
+      Constructor: el plan permite la selección
+      (InvalidActuatorSelection); monthlyAmount =
+      plan.monthlyPriceFor(actuators) (copia: no cambia si
+      luego cambia el plan); estado PENDING_PAYMENT; sin
+      currentPeriod hasta el primer pago.
+      --
+      <b>Transiciones</b> (InvalidSubscriptionStatusTransition)
+      activate: PENDING_PAYMENT o PAST_DUE a ACTIVE, o
+      renueva una ACTIVE; guarda el periodo pagado. La
+      primera vez registra SubscriptionActivatedEvent.
+      markPastDue: ACTIVE o PENDING_PAYMENT a PAST_DUE (un
+      cobro falló).
+      cancel: cualquier estado salvo CANCELED a CANCELED
+      (Stripe la eliminó).
+      refund: ACTIVE a CANCELED con devolución; registra
+      SubscriptionRefundedEvent.
+      isActive: ACTIVE (la consulta Support).
+      isCurrent: PENDING_PAYMENT, ACTIVE o PAST_DUE; la usa
+      CreateSubscriptionCommand (SubscriptionAlreadyExists).
+    end note
+
+    class Payment #DCEBFA {
+      - Subscription subscription
+      - String stripeInvoiceId
+      - String stripePaymentIntentId
+      - Money amount
+      - PaymentStatus status
+      - BillingPeriod period
+      - String receiptUrl
+      - String failureMessage
+      --
+      + Payment(Subscription subscription, String stripeInvoiceId,
+      \t String stripePaymentIntentId, Money amount, BillingPeriod period,
+      \t PaymentResult result)
+      + markRefunded()
+      + isSucceeded() : boolean
+    }
+
+    note bottom of Payment
+      <b>Un cobro mensual de Stripe</b> (una factura).
+      Lo crea el webhook de Stripe: invoice.paid o
+      invoice.payment_failed. No se modifica después,
+      salvo para marcarlo REFUNDED.
+      Constructor: amount igual a
+      subscription.monthlyAmount (PaymentAmountMismatch).
+      result SUCCEEDED: guarda receiptUrl y registra
+      PaymentSucceededEvent. result FAILED: guarda
+      failureMessage y registra PaymentFailedEvent.
+      markRefunded: solo SUCCEEDED (PaymentNotRefundable).
+      isSucceeded: estado SUCCEEDED.
+    end note
+  }
+
+  package "domain.model.valueobjects" #F9F4FD {
+
+    class Money <<Record>> #EADCF8 {
+      + BigDecimal amount
+      + String currency
+      + Money(BigDecimal amount, String currency)
+      + plus(Money other) : Money
+      + times(Integer quantity) : Money
+    }
+
+    note bottom of Money
+      amount mayor o igual a 0 con dos decimales; currency
+      es un código ISO 4217 de 3 letras (InvalidMoney).
+      plus: suma, solo con la misma moneda (InvalidMoney).
+      times: multiplica por una cantidad.
+      Los dos los usa Plan.monthlyPriceFor.
+    end note
+
+    class BillingPeriod <<Record>> #EADCF8 {
+      + LocalDateTime start
+      + LocalDateTime end
+      + BillingPeriod(LocalDateTime start, LocalDateTime end)
+    }
+
+    note bottom of BillingPeriod
+      Periodo mensual que cubre un cobro. start es anterior
+      a end (InvalidBillingPeriod). Lo informa Stripe en la
+      factura.
+    end note
+
+    class PaymentResult <<Record>> #EADCF8 {
+      + PaymentStatus status
+      + String receiptUrl
+      + String failureMessage
+      + PaymentResult(PaymentStatus status, String receiptUrl, String failureMessage)
+      + {static} succeeded(String receiptUrl) : PaymentResult
+      + {static} failed(String failureMessage) : PaymentResult
+    }
+
+    note bottom of PaymentResult
+      Resultado de la factura. Solo se crea con succeeded
+      (status SUCCEEDED, receiptUrl) o failed (status
+      FAILED, failureMessage).
+    end note
+
+    class ActuatorSelection <<Record>> #EADCF8 {
+      + List<ActuatorQuantity> items
+      + ActuatorSelection(List<ActuatorQuantity> items)
+      + total() : Integer
+      + quantityOf(ActuatorType type) : Integer
+    }
+
+    class ActuatorQuantity <<Record>> #EADCF8 {
+      + ActuatorType type
+      + Integer quantity
+      + ActuatorQuantity(ActuatorType type, Integer quantity)
+    }
+
+    note bottom of ActuatorSelection
+      Actuadores que eligió el familiar al suscribirse:
+      cuántos de cada tipo (ej. 2 DOOR, 1 LIGHT).
+      Cada tipo aparece una vez y quantity es mayor que 0
+      (InvalidActuatorSelection).
+      total: suma de quantity. quantityOf: cuántos de un
+      tipo (0 si ninguno).
+      Support copia esta selección en la instalación.
+    end note
+
+    enum PlanCode #EADCF8 {
+      MINIMUM
+      CUSTOM
+    }
+
+    enum ActuatorType #EADCF8 {
+      DOOR
+      WINDOW
+      CURTAIN
+      LIGHT
+    }
+
+    enum SubscriptionStatus #EADCF8 {
+      PENDING_PAYMENT
+      ACTIVE
+      PAST_DUE
+      CANCELED
+    }
+
+    enum PaymentStatus #EADCF8 {
+      SUCCEEDED
+      FAILED
+      REFUNDED
+    }
+  }
+
+  package "domain.model.events" #DDF3F5 {
+
+    class PaymentSucceededEvent <<Record>> #CDEFF2 {
+      + PaymentSucceededEvent(Long paymentId, Long subscriptionId,
+      \t LocalDateTime periodStart, LocalDateTime periodEnd)
+    }
+
+    class PaymentFailedEvent <<Record>> #CDEFF2 {
+      + PaymentFailedEvent(Long paymentId, Long subscriptionId, Long userId,
+      \t String failureMessage)
+    }
+
+    class SubscriptionActivatedEvent <<Record>> #CDEFF2 {
+      + SubscriptionActivatedEvent(Long subscriptionId, Long userId,
+      \t Long assistedPersonId, PlanCode plan)
+    }
+
+    class SubscriptionRefundedEvent <<Record>> #CDEFF2 {
+      + SubscriptionRefundedEvent(Long subscriptionId, Long userId, Long assistedPersonId,
+      \t Money amount)
+    }
+
+    note bottom of SubscriptionActivatedEvent
+      <b>Dentro de Subscriptions</b>
+      PaymentSucceededEvent: activa
+      ActivateSubscriptionCommand (primer pago o
+      renovación).
+      PaymentFailedEvent: activa
+      MarkSubscriptionPastDueCommand.
+      --
+      <b>Hacia otros contextos</b>
+      SubscriptionActivatedEvent: Communication envía el
+      correo de bienvenida al familiar (solo la primera
+      activación).
+      PaymentFailedEvent: Communication avisa al familiar
+      que el cobro falló.
+      SubscriptionRefundedEvent: Communication avisa al
+      familiar de la devolución.
+      La baja y el vencimiento aún no se definen: cuando se
+      definan se agregará el evento de cancelación con sus
+      consumidores.
+    end note
+  }
+
+  package "domain.model.commands" #FFF6EC {
+
+    class SeedPlansCommand <<Record>> #FFE4C4 {
+      + SeedPlansCommand()
+    }
+
+    class CreateSubscriptionCommand <<Record>> #FFE4C4 {
+      + CreateSubscriptionCommand(Long userId, Long assistedPersonId, String planCode,
+      \t Map<String, Integer> actuators, String paymentMethodId)
+    }
+
+    class RecordPaymentCommand <<Record>> #FFE4C4 {
+      - String stripeInvoiceId
+      - String stripeSubscriptionId
+      - String stripePaymentIntentId
+      - BigDecimal amount
+      - String currency
+      - LocalDateTime periodStart
+      - LocalDateTime periodEnd
+      - boolean succeeded
+      - String receiptUrl
+      - String failureMessage
+      + RecordPaymentCommand(...)
+    }
+
+    class ActivateSubscriptionCommand <<Record>> #FFE4C4 {
+      + ActivateSubscriptionCommand(Long subscriptionId, LocalDateTime periodStart,
+      \t LocalDateTime periodEnd)
+    }
+
+    class MarkSubscriptionPastDueCommand <<Record>> #FFE4C4 {
+      + MarkSubscriptionPastDueCommand(Long subscriptionId)
+    }
+
+    class RefundSubscriptionCommand <<Record>> #FFE4C4 {
+      + RefundSubscriptionCommand(Long assistedPersonId)
+    }
+
+    class CancelSubscriptionCommand <<Record>> #FFE4C4 {
+      + CancelSubscriptionCommand(String stripeSubscriptionId)
+    }
+  }
+
+  package "domain.model.queries" #EEF8EF {
+
+    class GetAllPlansQuery <<Record>> #D5F0D8 {
+      + GetAllPlansQuery()
+    }
+
+    class GetPlanByCodeQuery <<Record>> #D5F0D8 {
+      + GetPlanByCodeQuery(PlanCode code)
+    }
+
+    class GetSubscriptionByIdQuery <<Record>> #D5F0D8 {
+      + GetSubscriptionByIdQuery(Long subscriptionId)
+    }
+
+    class GetActiveSubscriptionByAssistedPersonIdQuery <<Record>> #D5F0D8 {
+      + GetActiveSubscriptionByAssistedPersonIdQuery(Long assistedPersonId)
+    }
+
+    class GetAllSubscriptionsByUserIdQuery <<Record>> #D5F0D8 {
+      + GetAllSubscriptionsByUserIdQuery(Long userId)
+    }
+
+    class GetSubscriptionByStripeSubscriptionIdQuery <<Record>> #D5F0D8 {
+      + GetSubscriptionByStripeSubscriptionIdQuery(String stripeSubscriptionId)
+    }
+
+    class GetAllPaymentsBySubscriptionIdQuery <<Record>> #D5F0D8 {
+      + GetAllPaymentsBySubscriptionIdQuery(Long subscriptionId)
+    }
+
+    class ExistsPaymentByStripeInvoiceIdQuery <<Record>> #D5F0D8 {
+      + ExistsPaymentByStripeInvoiceIdQuery(String stripeInvoiceId)
+    }
+  }
+
+  package "domain.exceptions" #FFF5F6 {
+    class InvalidPlan <<Exception>> {
+      + InvalidPlan(PlanCode code)
+    }
+    class PlanNotFound <<Exception>> {
+      + PlanNotFound(String planCode)
+    }
+    class InvalidMoney <<Exception>> {
+      + InvalidMoney()
+    }
+    class InvalidBillingPeriod <<Exception>> {
+      + InvalidBillingPeriod()
+    }
+    class InvalidActuatorSelection <<Exception>> {
+      + InvalidActuatorSelection()
+    }
+    class AssistedPersonNotFound <<Exception>> {
+      + AssistedPersonNotFound(Long assistedPersonId)
+    }
+    class NotRelativeOfAssistedPerson <<Exception>> {
+      + NotRelativeOfAssistedPerson(Long userId, Long assistedPersonId)
+    }
+    class SubscriptionAlreadyExists <<Exception>> {
+      + SubscriptionAlreadyExists(Long assistedPersonId)
+    }
+    class SubscriptionNotFound <<Exception>> {
+      + SubscriptionNotFound(String reference)
+    }
+    class InvalidSubscriptionStatusTransition <<Exception>> {
+      + InvalidSubscriptionStatusTransition(SubscriptionStatus from, SubscriptionStatus to)
+    }
+    class PaymentAmountMismatch <<Exception>> {
+      + PaymentAmountMismatch(String stripeInvoiceId)
+    }
+    class PaymentNotRefundable <<Exception>> {
+      + PaymentNotRefundable(Long paymentId)
+    }
+    class PaymentGatewayError <<Exception>> {
+      + PaymentGatewayError(String message)
+    }
+  }
+
+  package "domain.services" #FFFCEA {
+
+    interface PlanCommandService #FFF3B0 {
+      void handle(SeedPlansCommand command)
+    }
+
+    interface PlanQueryService #FFF3B0 {
+      List<Plan> handle(GetAllPlansQuery query)
+      Optional<Plan> handle(GetPlanByCodeQuery query)
+    }
+
+    interface SubscriptionCommandService #FFF3B0 {
+      Long handle(CreateSubscriptionCommand command)
+      Long handle(ActivateSubscriptionCommand command)
+      Long handle(MarkSubscriptionPastDueCommand command)
+      Long handle(RefundSubscriptionCommand command)
+      Long handle(CancelSubscriptionCommand command)
+    }
+
+    interface SubscriptionQueryService #FFF3B0 {
+      Optional<Subscription> handle(GetSubscriptionByIdQuery query)
+      Optional<Subscription> handle(GetActiveSubscriptionByAssistedPersonIdQuery query)
+      List<Subscription> handle(GetAllSubscriptionsByUserIdQuery query)
+      Optional<Subscription> handle(GetSubscriptionByStripeSubscriptionIdQuery query)
+    }
+
+    interface PaymentCommandService #FFF3B0 {
+      Long handle(RecordPaymentCommand command)
+    }
+
+    interface PaymentQueryService #FFF3B0 {
+      List<Payment> handle(GetAllPaymentsBySubscriptionIdQuery query)
+      boolean handle(ExistsPaymentByStripeInvoiceIdQuery query)
+    }
+  }
+}
+
+note as N_Shared
+  <b>Value objects de Shared que usa Subscriptions</b>
+  --
+  <b>UserId</b>: cuenta del familiar que paga (IAM).
+  <b>AssistedPersonId</b>: persona asistida cubierta
+  (Assistance).
+  Subscriptions solo guarda ids: nunca accede a esos
+  contextos directamente.
+  --
+  <b>Stripe</b> (fuera de Alivia): customer, subscription,
+  invoice y Price. Sus ids se guardan como texto.
+end note
+
+' ---------- DISPOSICIÓN ----------
+SeedPlansCommand -[hidden]down- CreateSubscriptionCommand
+CreateSubscriptionCommand -[hidden]down- RecordPaymentCommand
+ActivateSubscriptionCommand -[hidden]down- MarkSubscriptionPastDueCommand
+MarkSubscriptionPastDueCommand -[hidden]down- RefundSubscriptionCommand
+RefundSubscriptionCommand -[hidden]down- CancelSubscriptionCommand
+GetAllPlansQuery -[hidden]down- GetPlanByCodeQuery
+GetSubscriptionByIdQuery -[hidden]down- GetActiveSubscriptionByAssistedPersonIdQuery
+GetActiveSubscriptionByAssistedPersonIdQuery -[hidden]down- GetAllSubscriptionsByUserIdQuery
+GetAllSubscriptionsByUserIdQuery -[hidden]down- GetSubscriptionByStripeSubscriptionIdQuery
+GetAllPaymentsBySubscriptionIdQuery -[hidden]down- ExistsPaymentByStripeInvoiceIdQuery
+InvalidPlan -[hidden]down- PlanNotFound
+PlanNotFound -[hidden]down- InvalidMoney
+InvalidMoney -[hidden]down- InvalidBillingPeriod
+InvalidBillingPeriod -[hidden]down- InvalidActuatorSelection
+InvalidActuatorSelection -[hidden]down- AssistedPersonNotFound
+AssistedPersonNotFound -[hidden]down- NotRelativeOfAssistedPerson
+NotRelativeOfAssistedPerson -[hidden]down- SubscriptionAlreadyExists
+SubscriptionAlreadyExists -[hidden]down- SubscriptionNotFound
+SubscriptionNotFound -[hidden]down- InvalidSubscriptionStatusTransition
+InvalidSubscriptionStatusTransition -[hidden]down- PaymentAmountMismatch
+PaymentAmountMismatch -[hidden]down- PaymentNotRefundable
+PaymentNotRefundable -[hidden]down- PaymentGatewayError
+
+' ---------- COMPOSICIÓN Y REFERENCIAS ----------
+Subscription "0..*" -[#6A1B9A]-> "1" Plan : plan >
+Payment "0..*" -[#6A1B9A]-> "1" Subscription : subscription >
+Plan "0..*" --> "1" PlanCode : code
+Plan "1" *-- "2" Money : basePrice / pricePerActuator
+Plan ..> ActuatorSelection : allows / monthlyPriceFor >
+Subscription "1" *-- "1" ActuatorSelection : actuators
+Subscription "1" *-- "1" Money : monthlyAmount
+Subscription "1" *-- "0..1" BillingPeriod : currentPeriod
+Subscription "0..*" --> "1" SubscriptionStatus : status
+ActuatorSelection "1" *-- "1..4" ActuatorQuantity : items
+ActuatorQuantity "0..*" --> "1" ActuatorType : type
+Payment "1" *-- "1" Money : amount
+Payment "1" *-- "1" BillingPeriod : period
+Payment "0..*" --> "1" PaymentStatus : status
+Payment ..> PaymentResult : se crea con >
+PaymentResult "0..*" --> "1" PaymentStatus : status
+
+' ---------- EVENTOS ----------
+Payment ..> PaymentSucceededEvent : registra >
+Payment ..> PaymentFailedEvent : registra >
+Subscription ..> SubscriptionActivatedEvent : registra >
+Subscription ..> SubscriptionRefundedEvent : registra >
+PaymentSucceededEvent ..> ActivateSubscriptionCommand : activa >
+PaymentFailedEvent ..> MarkSubscriptionPastDueCommand : activa >
+
+' ---------- SERVICES ----------
+PlanCommandService ..> SeedPlansCommand : recibe >
+PlanCommandService ..> Plan : crea >
+PlanQueryService -[#2E8B57]-> GetAllPlansQuery : recibe >
+PlanQueryService -[#2E8B57]-> GetPlanByCodeQuery : recibe >
+PlanQueryService -[#2E8B57]-> Plan : devuelve >
+
+SubscriptionCommandService ..> CreateSubscriptionCommand : recibe >
+SubscriptionCommandService ..> ActivateSubscriptionCommand : recibe >
+SubscriptionCommandService ..> MarkSubscriptionPastDueCommand : recibe >
+SubscriptionCommandService ..> RefundSubscriptionCommand : recibe >
+SubscriptionCommandService ..> CancelSubscriptionCommand : recibe >
+SubscriptionCommandService ..> Subscription : crea / modifica >
+SubscriptionQueryService -[#2E8B57]-> GetSubscriptionByIdQuery : recibe >
+SubscriptionQueryService -[#2E8B57]-> GetActiveSubscriptionByAssistedPersonIdQuery : recibe >
+SubscriptionQueryService -[#2E8B57]-> GetAllSubscriptionsByUserIdQuery : recibe >
+SubscriptionQueryService -[#2E8B57]-> GetSubscriptionByStripeSubscriptionIdQuery : recibe >
+SubscriptionQueryService -[#2E8B57]-> Subscription : devuelve >
+
+PaymentCommandService ..> RecordPaymentCommand : recibe >
+PaymentCommandService ..> Payment : crea / modifica >
+PaymentQueryService -[#2E8B57]-> GetAllPaymentsBySubscriptionIdQuery : recibe >
+PaymentQueryService -[#2E8B57]-> ExistsPaymentByStripeInvoiceIdQuery : recibe >
+PaymentQueryService -[#2E8B57]-> Payment : devuelve >
+
+' ---------- REGLAS DE LOS SERVICES ----------
+note as N_RulesPlan
+  <b>Reglas de PlanCommandService</b>
+  --
+  SeedPlansCommand: al iniciar la aplicación carga
+  MINIMUM y CUSTOM desde la configuración (precios y
+  Price ids de Stripe), si no existen. No se expone en
+  la API.
+  GetAllPlansQuery: lo usa el checkout para mostrar el
+  precio según los actuadores elegidos.
+end note
+
+note as N_RulesSubscription
+  <b>Reglas de SubscriptionCommandService</b>
+  --
+  <b>CreateSubscriptionCommand</b>: lo envía el familiar
+  desde el checkout, con sesión iniciada: su cuenta ya
+  está ACTIVE porque verificó su correo con el código
+  (IAM; sin eso no puede iniciar sesión). El plan existe
+  (PlanNotFound). La persona asistida existe en
+  Assistance (ACL, GetAssistedPersonByIdQuery;
+  AssistedPersonNotFound) y la gestiona ese familiar
+  (NotRelativeOfAssistedPerson). No tiene otra
+  suscripción vigente: PENDING_PAYMENT, ACTIVE o PAST_DUE
+  (SubscriptionAlreadyExists). actuators pasa a
+  ActuatorSelection.
+  Application crea u obtiene el customer de Stripe del
+  familiar, crea la suscripción de Stripe con los dos
+  Price del plan y paymentMethodId, y crea la
+  Subscription en PENDING_PAYMENT. Si Stripe falla,
+  PaymentGatewayError y no se guarda nada.
+  <b>ActivateSubscriptionCommand</b> y
+  <b>MarkSubscriptionPastDueCommand</b>: solo los activan
+  los eventos de Payment.
+  <b>RefundSubscriptionCommand</b>: lo activa
+  InstallationRejectedEvent de Support (la primera
+  evaluación no cumple). Busca la suscripción ACTIVE de la
+  persona asistida (SubscriptionNotFound), pide a Stripe
+  la devolución del último pago SUCCEEDED y cancelar la
+  suscripción (PaymentGatewayError), marca ese pago
+  REFUNDED y llama a refund.
+  <b>CancelSubscriptionCommand</b>: lo activa el webhook
+  customer.subscription.deleted de Stripe.
+  La suscripción existe (SubscriptionNotFound).
+end note
+
+note as N_RulesPayment
+  <b>Reglas de PaymentCommandService</b>
+  --
+  RecordPaymentCommand: lo envía infrastructure al
+  recibir el webhook de Stripe invoice.paid
+  (succeeded = true) o invoice.payment_failed
+  (succeeded = false), después de verificar la firma.
+  Si ya existe un pago con ese stripeInvoiceId
+  (ExistsPaymentByStripeInvoiceIdQuery), devuelve su id
+  sin crear otro: Stripe puede reenviar el mismo webhook.
+  La suscripción se busca por stripeSubscriptionId
+  (GetSubscriptionByStripeSubscriptionIdQuery;
+  SubscriptionNotFound).
+end note
+
+PlanCommandService .. N_RulesPlan
+SubscriptionCommandService .. N_RulesSubscription
+PaymentCommandService .. N_RulesPayment
+
+@enduml

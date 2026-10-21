@@ -1,0 +1,119 @@
+@startuml
+hide circle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2E7D32
+  BorderThickness 1.2
+  HeaderBackgroundColor #E8F5E9
+  ArrowColor #444444
+}
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
+}
+
+package "Bounded Context: Subscriptions" as ctx_subs #F6FBF6 {
+
+  entity "plans" as plans {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * code : VARCHAR(10) <<UK>> (MINIMUM, CUSTOM)
+    * base_price_amount : NUMERIC(10,2)
+    * price_per_actuator_amount : NUMERIC(10,2)
+    * currency : CHAR(3)
+    * min_actuators : INT
+    * max_actuators : INT
+    * stripe_base_price_id : VARCHAR(100)
+    * stripe_actuator_price_id : VARCHAR(100)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    CHECK 1 <= min_actuators <= max_actuators
+  }
+
+  entity "subscriptions" as subs {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * user_id : BIGINT <<IDX>> <<ref IAM>>
+    * assisted_person_id : BIGINT <<ref Assistance>>
+    * plan_id : BIGINT <<FK>>
+    * monthly_amount : NUMERIC(10,2)
+    * currency : CHAR(3)
+    * status : VARCHAR(20)
+    * stripe_customer_id : VARCHAR(100)
+    * stripe_subscription_id : VARCHAR(100) <<UK>>
+    current_period_start : TIMESTAMP
+    current_period_end : TIMESTAMP
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    UK parcial (assisted_person_id) WHERE status <> 'CANCELED'
+    CHECK: current_period_start y current_period_end nulos
+    los dos (sin primer pago) o no nulos los dos
+  }
+
+  entity "subscription_actuators" as actuators {
+    * subscription_id : BIGINT <<FK>>
+    * actuator_type : VARCHAR(10)
+    * quantity : INT
+    --
+    PK (subscription_id, actuator_type)
+    CHECK quantity > 0
+  }
+
+  entity "payments" as payments {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * subscription_id : BIGINT <<FK>> <<IDX>>
+    * stripe_invoice_id : VARCHAR(100) <<UK>>
+    * stripe_payment_intent_id : VARCHAR(100)
+    * amount : NUMERIC(10,2)
+    * currency : CHAR(3)
+    * status : VARCHAR(10)
+    * period_start : TIMESTAMP
+    * period_end : TIMESTAMP
+    receipt_url : VARCHAR(1000)
+    failure_message : VARCHAR(500)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+}
+
+plans ||--o{ subs : "plan\n(0..*)"
+subs ||--|{ actuators : "actuadores elegidos\n(1..4)"
+subs ||--o{ payments : "cobros mensuales\n(0..*)"
+
+note bottom of ctx_subs
+  <b>PostgreSQL</b>
+  --
+  plans: catálogo cargado al iniciar (SeedPlansCommand). Precio mensual =
+  base_price_amount (dos edges y micrófono, sin actuadores) +
+  price_per_actuator_amount x actuadores (también el primero). Los dos Price
+  id son los de Stripe.
+  subscriptions: una vigente por persona asistida (UK parcial). monthly_amount
+  es la copia del precio al suscribirse. stripe_subscription_id es único: con
+  él se encuentra la suscripción al llegar un webhook.
+  payments: un registro por factura de Stripe; stripe_invoice_id es único,
+  así un webhook repetido no crea otro pago.
+  --
+  user_id y assisted_person_id son ids de IAM y Assistance, sin FK.
+  Las FK van de subscriptions a plans y de subscription_actuators y payments a
+  subscriptions: no hay referencias circulares.
+end note
+
+@enduml
