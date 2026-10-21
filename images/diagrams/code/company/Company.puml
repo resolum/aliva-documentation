@@ -351,6 +351,9 @@ note bottom of Administrator
   y password al contexto de IAM.
   GetAdministratorByUserIdQuery resuelve el
   Administrator desde el usuario logueado (UserId de IAM).
+  GetBusinessByIdQuery: Analytics toma de ahí el día en
+  que se creó el negocio (createdAt): sus métricas
+  empiezan ese día.
 end note
 
 note bottom of Business

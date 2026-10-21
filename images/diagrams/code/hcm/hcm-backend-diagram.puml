@@ -44,6 +44,10 @@
 '  H19 WorkSchedule.covers(day, range) reemplaza a isWorkingAt(day, time): Support valida que una visita
 '      del técnico caiga dentro de un solo turno de ese día; isWorkingAt solo revisaba una hora y nada
 '      más la usaba.
+'  H20 Al contratar, Communication solo envía el correo con la contraseña temporal
+'      (CorporateAccountCreatedEvent de IAM): es la bienvenida. EmployeeHiredEvent ya no envía otro correo.
+'  H21 Al cesar, el administrador indica el motivo (TerminationReason): DISMISSED (despedido) o RESIGNED
+'      (renunció). Viaja en EmployeeTerminatedEvent: Analytics cuenta los dos por separado.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -93,6 +97,7 @@ package alivia.platform.Hcm {
       - WorkSchedule workSchedule
       - ContractHistory contractHistory
       - VacationHistory vacationHistory
+      - TerminationReason terminationReason
       --
       + Employee(BusinessId businessId, UserId userId, StaffProfileId staffProfileId, EmployeeRole role,
       \t WorkSchedule workSchedule, OperatingHours operatingHours,
@@ -106,7 +111,7 @@ package alivia.platform.Hcm {
       + cancelVacation(Long vacationId, LocalDate today)
       + suspend()
       + reinstate()
-      + terminate(LocalDate today)
+      + terminate(TerminationReason reason, LocalDate today)
       + currentContract(LocalDate today) : Optional<Contract>
       + isOnVacation(LocalDate today) : boolean
       + isTerminated() : boolean
@@ -124,8 +129,9 @@ package alivia.platform.Hcm {
       reinstate: SUSPENDED a ACTIVE; registra
       EmployeeReinstatedEvent.
       terminate: ACTIVE o SUSPENDED a TERMINATED (estado
-      final); termina el contrato vigente, cancela las
-      vacaciones futuras y registra EmployeeTerminatedEvent.
+      final); guarda el motivo (DISMISSED o RESIGNED);
+      termina el contrato vigente, cancela las vacaciones
+      futuras y registra EmployeeTerminatedEvent.
       changeRole: registra EmployeeRoleChangedEvent si el rol
       cambia.
       updateWorkSchedule: cada turno cabe en OperatingHours
@@ -222,7 +228,8 @@ package alivia.platform.Hcm {
     }
 
     class EmployeeTerminatedEvent <<Record>> #CDEFF2 {
-      + EmployeeTerminatedEvent(Long employeeId, Long businessId, Long userId)
+      + EmployeeTerminatedEvent(Long employeeId, Long businessId, Long userId,
+      \t TerminationReason reason)
     }
 
     class EmployeeRoleChangedEvent <<Record>> #CDEFF2 {
@@ -236,7 +243,10 @@ package alivia.platform.Hcm {
       Los demás se registran sobre empleados ya guardados.
       Consumidores (ver Contextos externos): IAM bloquea,
       habilita, desactiva o cambia el rol de la cuenta
-      corporativa; Communication avisa al empleado.
+      corporativa; Communication avisa al empleado por
+      correo de la suspensión, la reincorporación y el cese.
+      Analytics cuenta contrataciones, suspensiones y
+      ceses por negocio y día.
     end note
   }
 
@@ -348,6 +358,11 @@ package alivia.platform.Hcm {
       ACTIVE
       SUSPENDED
       TERMINATED
+    }
+
+    enum TerminationReason #EADCF8 {
+      DISMISSED
+      RESIGNED
     }
 
     enum EmployeeRole #EADCF8 {
@@ -480,7 +495,7 @@ package alivia.platform.Hcm {
     }
 
     class TerminateEmployeeCommand <<Record>> #FFE4C4 {
-      + TerminateEmployeeCommand(Long employeeId, Long businessId)
+      + TerminateEmployeeCommand(Long employeeId, Long businessId, TerminationReason reason)
     }
 
     class CreateContractCommand <<Record>> #FFE4C4 {
@@ -593,6 +608,7 @@ Vacation "1" *-- "1" VacationPeriod : period
 Employee ..> OperatingHours : valida con
 Employee "0..*" --> "1" EmployeeRole : role
 Employee "0..*" --> "1" EmployeeStatus : status
+Employee "0..*" --> "0..1" TerminationReason : terminationReason
 Contract "0..*" --> "1" TypeOfContract : type
 Contract "0..*" --> "1" ContractStatus : status
 Vacation "0..*" --> "1" VacationStatus : status
@@ -760,8 +776,9 @@ note as N_ContextosExternos
   <b>Communication</b> (eventos): avisa al empleado por correo
   corporativo: la contraseña temporal le llega por el
   evento CorporateAccountCreatedEvent de IAM; la
-  contratación, suspensión, reincorporación y cese, por
-  los eventos de este contexto.
+  suspensión, reincorporación y cese, por los eventos de
+  este contexto. Al contratar no hay otro correo: la
+  contraseña temporal es la bienvenida.
   --
   BusinessId identifica el Business de Company.
   UserId identifica al usuario de IAM.
@@ -800,8 +817,12 @@ note as N_Clases
   que limita los turnos.
   <b>EmployeeStatus</b>: ACTIVE, SUSPENDED o TERMINATED
   (final). Estar de vacaciones se calcula con las fechas.
-  <b>Events</b>: contratación, suspensión, reincorporación y
-  cese; los usan IAM y Communication.
+  <b>Events</b>: suspensión, reincorporación y cese los
+  usan IAM y Communication; el cambio de rol, IAM.
+  Analytics cuenta contrataciones (EmployeeHiredEvent),
+  suspensiones y ceses (con su motivo).
+  <b>TerminationReason</b>: DISMISSED (despedido) o
+  RESIGNED (renunció); solo en un empleado TERMINATED.
 end note
 
 @enduml

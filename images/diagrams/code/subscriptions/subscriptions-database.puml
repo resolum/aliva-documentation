@@ -35,7 +35,7 @@ package "Bounded Context: Subscriptions" as ctx_subs #F6FBF6 {
     * code : VARCHAR(10) <<UK>> (MINIMUM, CUSTOM)
     * base_price_amount : NUMERIC(10,2)
     * price_per_actuator_amount : NUMERIC(10,2)
-    * currency : CHAR(3)
+    * currency : CHAR(3) (PEN)
     * min_actuators : INT
     * max_actuators : INT
     * stripe_base_price_id : VARCHAR(100)
@@ -51,9 +51,10 @@ package "Bounded Context: Subscriptions" as ctx_subs #F6FBF6 {
     --
     * user_id : BIGINT <<IDX>> <<ref IAM>>
     * assisted_person_id : BIGINT <<ref Assistance>>
+    * business_id : BIGINT <<IDX>> <<ref Company>>
     * plan_id : BIGINT <<FK>>
     * monthly_amount : NUMERIC(10,2)
-    * currency : CHAR(3)
+    * currency : CHAR(3) (PEN)
     * status : VARCHAR(20)
     * stripe_customer_id : VARCHAR(100)
     * stripe_subscription_id : VARCHAR(100) <<UK>>
@@ -83,7 +84,7 @@ package "Bounded Context: Subscriptions" as ctx_subs #F6FBF6 {
     * stripe_invoice_id : VARCHAR(100) <<UK>>
     * stripe_payment_intent_id : VARCHAR(100)
     * amount : NUMERIC(10,2)
-    * currency : CHAR(3)
+    * currency : CHAR(3) (PEN)
     * status : VARCHAR(10)
     * period_start : TIMESTAMP
     * period_end : TIMESTAMP
@@ -101,6 +102,7 @@ subs ||--o{ payments : "cobros mensuales\n(0..*)"
 note bottom of ctx_subs
   <b>PostgreSQL</b>
   --
+  Todos los montos están en soles: currency siempre es 'PEN' (CHECK).
   plans: catálogo cargado al iniciar (SeedPlansCommand). Precio mensual =
   base_price_amount (dos edges y micrófono, sin actuadores) +
   price_per_actuator_amount x actuadores (también el primero). Los dos Price
@@ -111,7 +113,8 @@ note bottom of ctx_subs
   payments: un registro por factura de Stripe; stripe_invoice_id es único,
   así un webhook repetido no crea otro pago.
   --
-  user_id y assisted_person_id son ids de IAM y Assistance, sin FK.
+  user_id, assisted_person_id y business_id son ids de IAM, Assistance y
+  Company, sin FK. IDX (business_id): suscripciones de un negocio por estado.
   Las FK van de subscriptions a plans y de subscription_actuators y payments a
   subscriptions: no hay referencias circulares.
 end note

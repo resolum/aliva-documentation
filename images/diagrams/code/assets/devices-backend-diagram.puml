@@ -43,6 +43,7 @@
 '      el edge los agrega a sus reportes a Tracking, que así no consulta a Assets por cada reporte.
 '  B18 GetEdgeByMacAddressQuery y GetDeviceByMacAddressQuery: Support identifica por MAC los equipos que
 '      el técnico instala o reemplaza (la MAC se normaliza igual que al registrar).
+'  B19 AssetStatusChangedEvent lleva el businessId: Analytics cuenta los equipos malogrados por negocio.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -333,7 +334,8 @@ package alivia.platform.Assets {
     }
 
     class AssetStatusChangedEvent <<Record>> #CDEFF2 {
-      + AssetStatusChangedEvent(NodeType type, Long assetId, AssetStatus status)
+      + AssetStatusChangedEvent(NodeType type, Long assetId, Long businessId,
+      \t AssetStatus status)
     }
 
     note bottom of AccessTableUpdatedEvent
@@ -346,7 +348,8 @@ package alivia.platform.Assets {
       o ReleaseDeviceCommand si el equipo sigue IN_USE.
       AssetStatusChangedEvent: si el equipo está en una red,
       activa RemoveEdgeFromNetworkCommand o
-      RemoveDeviceFromNetworkCommand.
+      RemoveDeviceFromNetworkCommand. Con BROKEN, Analytics
+      cuenta un equipo malogrado de ese negocio.
     end note
   }
 

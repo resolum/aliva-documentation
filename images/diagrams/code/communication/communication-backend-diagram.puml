@@ -1,0 +1,628 @@
+@startuml
+' Bounded Context: Communication (Comunicaciones). Solo capa domain. Persistencia: PostgreSQL.
+' Proveedores: Firebase Cloud Messaging (FCM, push a celulares) y SendGrid (correos).
+'
+' Decisiones de diseño (base: communications de restock-web-services y communication de veyra-backend):
+'  CM1 Tres canales, un aggregate por canal: Alert (alarma del pedido de auxilio, solo al celular),
+'      Notification (aviso en la app) y Email (correo por SendGrid). PushDevice es el registro de los
+'      celulares de cada usuario: no es un canal, pero Alert y Notification lo necesitan para enviar por
+'      FCM y no puede vivir dentro de ninguno de los dos.
+'  CM2 Alert: solo el pedido de auxilio. Va solo a celulares (Android e iOS), con prioridad alta y un
+'      sonido parecido al de la alerta sísmica. Suena una vez: nadie la marca como atendida. Guarda si
+'      llegó a algún celular del destinatario (SENT) o a ninguno (UNDELIVERED).
+'  CM3 Notification: batería baja, falla de actuador, invitación a un cuidador con cuenta, cobro
+'      fallido, devolución e instalación rechazada. En el celular llega por push (app abierta o cerrada);
+'      en la web no hay push: aparece en la lista de avisos al abrir la plataforma.
+'  CM4 Email: cada correo se guarda con su plantilla y su resultado (SENT o FAILED), sin sus variables:
+'      algunas son secretas (código de verificación, contraseña temporal, enlace de recuperación).
+'  CM5 EmailTemplate pasa de Shared a Communication: solo este contexto envía correos. Cada plantilla
+'      declara sus variables obligatorias. Se quita el aviso de contratación: al contratar, el correo con
+'      la contraseña temporal (IAM) es la bienvenida.
+'  CM6 Communication no decide cuándo avisar: reacciona a los eventos de IAM, HCM, Subscriptions,
+'      Support y Tracking, y a lo que Assistance le pide por ACL (invitaciones). Sí decide a quién
+'      (destinatarios) y por qué canal.
+'  CM7 Alert y Notification se envían después de guardarse (AlertCreatedEvent, NotificationCreatedEvent),
+'      como el handler AFTER_COMMIT de restock: si FCM falla, el registro igual queda.
+'  CM8 Mejoras sobre las referencias: markAsRead valida que lo marque su destinatario; un token de FCM
+'      que ya existe se reasigna al nuevo usuario; un token que FCM da por inválido se borra; las
+'      variables de la plantilla se validan; los estados cambian solo por métodos.
+
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+  BackgroundColor<<Exception>> #FFEBEE
+  BorderColor<<Exception>> #C62828
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #B8A800
+}
+skinparam package {
+  BorderColor #888888
+  FontStyle bold
+}
+
+legend left
+  |= Color |= Significado |
+  |<#DCEBFA>   | Aggregate |
+  |<#EADCF8>   | Value Object / Enum |
+  |<#FFE4C4>   | Command (escritura) |
+  |<#D5F0D8>   | Query (lectura) |
+  |<#FFF3B0>   | Service (interface) |
+  |<#CDEFF2>   | Event |
+  |<#FFEBEE>   | Exception (dominio) |
+  |<#2E8B57>   | Flecha de lectura (QueryService) |
+endlegend
+
+package alivia.platform.Communication {
+
+  package "domain.model.aggregates" #F4F9FE {
+
+    class Alert #DCEBFA {
+      - UserId recipientId
+      - String helpRequestId
+      - String title
+      - String body
+      - AlertStatus status
+      - LocalDateTime sentAt
+      --
+      + Alert(UserId recipientId, String helpRequestId, String title, String body)
+      + markSent(LocalDateTime now)
+      + markUndelivered()
+    }
+
+    note bottom of Alert
+      <b>Alarma del pedido de auxilio</b>
+      Una por destinatario: el familiar y cada cuidador de
+      turno. Solo va a celulares (Android e iOS).
+      Constructor: estado PENDING; title y body no vacíos
+      (InvalidMessageContent); registra AlertCreatedEvent.
+      helpRequestId: el HelpRequest de Tracking (id de
+      MongoDB), para que la app muestre el detalle.
+      Suena una sola vez: no se marca como atendida.
+      --
+      <b>Transiciones</b> (InvalidAlertStatusTransition)
+      markSent: PENDING a SENT; guarda sentAt. FCM aceptó
+      el envío a al menos un celular del destinatario.
+      markUndelivered: PENDING a UNDELIVERED. El
+      destinatario no tiene celular registrado o FCM
+      rechazó todos sus envíos.
+    end note
+
+    class Notification #DCEBFA {
+      - UserId recipientId
+      - NotificationType type
+      - String sourceId
+      - String title
+      - String body
+      - NotificationStatus status
+      - LocalDateTime readAt
+      --
+      + Notification(UserId recipientId, NotificationType type, String sourceId,
+      \t String title, String body)
+      + markAsRead(UserId userId, LocalDateTime now)
+    }
+
+    note bottom of Notification
+      <b>Aviso en la app para un usuario</b>
+      Uno por destinatario. En el celular llega por push
+      (app abierta o cerrada); en la web aparece en la
+      lista de avisos al abrir la plataforma.
+      Constructor: estado UNREAD; title y body no vacíos
+      (InvalidMessageContent); registra
+      NotificationCreatedEvent.
+      sourceId: id de lo que originó el aviso (reporte de
+      Tracking, invitación, pago, suscripción o
+      instalación), para que la app abra su detalle. Es
+      texto porque Tracking usa ids de MongoDB.
+      markAsRead: solo su destinatario
+      (NotificationNotForUser); pasa a READ y guarda
+      readAt. Si ya estaba READ no cambia nada.
+    end note
+
+    class Email #DCEBFA {
+      - EmailAddress emailAddress
+      - EmailTemplate template
+      - EmailStatus status
+      - LocalDateTime sentAt
+      - String failureReason
+      --
+      + Email(EmailAddress emailAddress, EmailTemplate template,
+      \t Map<String, String> variables)
+      + markSent(LocalDateTime now)
+      + markFailed(String failureReason)
+    }
+
+    note bottom of Email
+      <b>Correo enviado por SendGrid</b>
+      Constructor: estado PENDING; variables trae todas las
+      de template.requiredVariables()
+      (MissingTemplateVariable). Las variables no se
+      guardan: algunas son secretas (código, contraseña
+      temporal, enlaces). Solo viajan al envío.
+      --
+      <b>Transiciones</b> (InvalidEmailStatusTransition)
+      markSent: PENDING a SENT; guarda sentAt.
+      markFailed: PENDING a FAILED; guarda el motivo que
+      devolvió SendGrid (no vacío).
+    end note
+
+    class PushDevice #DCEBFA {
+      - UserId userId
+      - String token
+      - PushPlatform platform
+      --
+      + PushDevice(UserId userId, String token, PushPlatform platform)
+      + reassignTo(UserId userId, PushPlatform platform)
+      + belongsTo(UserId userId) : boolean
+    }
+
+    note bottom of PushDevice
+      <b>Celular que recibe push</b>
+      Donde el usuario inició sesión en la app móvil.
+      token es el registration token que FCM le da a la
+      app; es único. La web no registra dispositivos.
+      Constructor: token no vacío (InvalidPushToken).
+      reassignTo: el token ya estaba registrado con otra
+      cuenta (en ese celular entró otro usuario): pasa al
+      nuevo usuario, así no recibe avisos de la anterior.
+      belongsTo: lo usa UnregisterPushDeviceCommand
+      (PushDeviceNotForUser).
+    end note
+  }
+
+  package "domain.model.valueobjects" #F9F4FD {
+
+    enum NotificationType #EADCF8 {
+      LOW_BATTERY
+      ACTUATOR_FAILURE
+      CAREGIVER_INVITATION
+      PAYMENT_FAILED
+      SUBSCRIPTION_REFUNDED
+      INSTALLATION_REJECTED
+    }
+
+    note bottom of NotificationType
+      LOW_BATTERY: un dispositivo llegó a 10 % o a 5 %.
+      ACTUATOR_FAILURE: un actuador no pudo abrir, cerrar,
+      prender o apagar.
+      CAREGIVER_INVITATION: invitación a un cuidador que
+      ya tiene cuenta; la acepta desde la app.
+      PAYMENT_FAILED, SUBSCRIPTION_REFUNDED e
+      INSTALLATION_REJECTED: también van por correo.
+    end note
+
+    enum AlertStatus #EADCF8 {
+      PENDING
+      SENT
+      UNDELIVERED
+    }
+
+    enum NotificationStatus #EADCF8 {
+      UNREAD
+      READ
+    }
+
+    enum EmailStatus #EADCF8 {
+      PENDING
+      SENT
+      FAILED
+    }
+
+    enum PushPlatform #EADCF8 {
+      ANDROID
+      IOS
+    }
+
+    enum EmailTemplate #EADCF8 {
+      VERIFICATION_CODE
+      CORPORATE_ACCOUNT
+      RESET_PASSWORD
+      CAREGIVER_INVITATION
+      SUBSCRIPTION_WELCOME
+      PAYMENT_FAILED
+      SUBSCRIPTION_REFUNDED
+      INSTALLATION_REJECTED
+      EMPLOYEE_SUSPENDED
+      EMPLOYEE_REINSTATED
+      EMPLOYEE_TERMINATED
+      --
+      + requiredVariables() : Set<String>
+    }
+
+    note bottom of EmailTemplate
+      <b>Plantillas de correo</b> (antes en Shared)
+      Variables obligatorias de cada una:
+      VERIFICATION_CODE: code.
+      CORPORATE_ACCOUNT: temporaryPassword.
+      RESET_PASSWORD: resetUrl.
+      CAREGIVER_INVITATION: passwordSetupUrl.
+      SUBSCRIPTION_WELCOME: plan.
+      PAYMENT_FAILED: failureMessage.
+      SUBSCRIPTION_REFUNDED: amount (en soles).
+      INSTALLATION_REJECTED y EMPLOYEE_*: ninguna.
+      requiredVariables: la usa el constructor de Email.
+      El asunto y el HTML viven en SendGrid (dynamic
+      template); el dominio solo nombra la plantilla.
+    end note
+  }
+
+  package "domain.model.events" #DDF3F5 {
+
+    class AlertCreatedEvent #CDEFF2 {
+      - Alert alert
+      --
+      + AlertCreatedEvent(Alert alert)
+      + getAlertId() : Long
+    }
+
+    class NotificationCreatedEvent #CDEFF2 {
+      - Notification notification
+      --
+      + NotificationCreatedEvent(Notification notification)
+      + getNotificationId() : Long
+    }
+
+    note bottom of AlertCreatedEvent
+      Se registran en el constructor, cuando aún no hay
+      id: getAlertId() y getNotificationId() lo leen al
+      publicarse, después del save (como
+      InvitationCreatedEvent en Assistance).
+      AlertCreatedEvent activa SendAlertCommand;
+      NotificationCreatedEvent, SendPushNotificationCommand.
+      Son internos: ningún otro contexto los consume.
+    end note
+  }
+
+  package "domain.model.commands" #FFF6EC {
+
+    class CreateAlertCommand <<Record>> #FFE4C4 {
+      + CreateAlertCommand(Long recipientUserId, String helpRequestId,
+      \t String title, String body)
+    }
+
+    class SendAlertCommand <<Record>> #FFE4C4 {
+      + SendAlertCommand(Long alertId)
+    }
+
+    class CreateNotificationCommand <<Record>> #FFE4C4 {
+      + CreateNotificationCommand(Long recipientUserId, NotificationType type,
+      \t String sourceId, String title, String body)
+    }
+
+    class SendPushNotificationCommand <<Record>> #FFE4C4 {
+      + SendPushNotificationCommand(Long notificationId)
+    }
+
+    class MarkNotificationAsReadCommand <<Record>> #FFE4C4 {
+      + MarkNotificationAsReadCommand(Long notificationId, Long userId)
+    }
+
+    class SendEmailCommand <<Record>> #FFE4C4 {
+      + SendEmailCommand(String emailAddress, EmailTemplate template,
+      \t Map<String, String> variables)
+    }
+
+    class RegisterPushDeviceCommand <<Record>> #FFE4C4 {
+      + RegisterPushDeviceCommand(Long userId, String token, PushPlatform platform)
+    }
+
+    class UnregisterPushDeviceCommand <<Record>> #FFE4C4 {
+      + UnregisterPushDeviceCommand(Long userId, String token)
+    }
+  }
+
+  package "domain.model.queries" #EEF8EF {
+
+    class GetAllAlertsByUserIdQuery <<Record>> #D5F0D8 {
+      + GetAllAlertsByUserIdQuery(Long userId)
+    }
+
+    class GetNotificationByIdQuery <<Record>> #D5F0D8 {
+      + GetNotificationByIdQuery(Long notificationId)
+    }
+
+    class GetAllNotificationsByUserIdQuery <<Record>> #D5F0D8 {
+      + GetAllNotificationsByUserIdQuery(Long userId, NotificationStatus status)
+    }
+
+    class GetAllEmailsByStatusQuery <<Record>> #D5F0D8 {
+      + GetAllEmailsByStatusQuery(EmailStatus status)
+    }
+  }
+
+  package "domain.exceptions" #FFF5F6 {
+    class AlertNotFound <<Exception>> {
+      + AlertNotFound(Long alertId)
+    }
+    class InvalidAlertStatusTransition <<Exception>> {
+      + InvalidAlertStatusTransition(AlertStatus from, AlertStatus to)
+    }
+    class NotificationNotFound <<Exception>> {
+      + NotificationNotFound(Long notificationId)
+    }
+    class NotificationNotForUser <<Exception>> {
+      + NotificationNotForUser(Long notificationId)
+    }
+    class InvalidMessageContent <<Exception>> {
+      + InvalidMessageContent()
+    }
+    class MissingTemplateVariable <<Exception>> {
+      + MissingTemplateVariable(EmailTemplate template, String variable)
+    }
+    class InvalidEmailStatusTransition <<Exception>> {
+      + InvalidEmailStatusTransition(EmailStatus from, EmailStatus to)
+    }
+    class InvalidPushToken <<Exception>> {
+      + InvalidPushToken()
+    }
+    class PushDeviceNotFound <<Exception>> {
+      + PushDeviceNotFound(String token)
+    }
+    class PushDeviceNotForUser <<Exception>> {
+      + PushDeviceNotForUser(String token)
+    }
+  }
+
+  package "domain.services" #FFFCEA {
+
+    interface AlertCommandService #FFF3B0 {
+      Long handle(CreateAlertCommand command)
+      void handle(SendAlertCommand command)
+    }
+
+    interface AlertQueryService #FFF3B0 {
+      List<Alert> handle(GetAllAlertsByUserIdQuery query)
+    }
+
+    interface NotificationCommandService #FFF3B0 {
+      Long handle(CreateNotificationCommand command)
+      void handle(SendPushNotificationCommand command)
+      Long handle(MarkNotificationAsReadCommand command)
+    }
+
+    interface NotificationQueryService #FFF3B0 {
+      Optional<Notification> handle(GetNotificationByIdQuery query)
+      List<Notification> handle(GetAllNotificationsByUserIdQuery query)
+    }
+
+    interface EmailCommandService #FFF3B0 {
+      Long handle(SendEmailCommand command)
+    }
+
+    interface EmailQueryService #FFF3B0 {
+      List<Email> handle(GetAllEmailsByStatusQuery query)
+    }
+
+    interface PushDeviceCommandService #FFF3B0 {
+      Long handle(RegisterPushDeviceCommand command)
+      void handle(UnregisterPushDeviceCommand command)
+    }
+  }
+}
+
+note as N_Shared
+  <b>Value objects de Shared que usa Communication</b>
+  --
+  <b>UserId</b>: cuenta de IAM que recibe la alerta o el
+  aviso, o dueña del celular.
+  <b>EmailAddress</b>: correo destino (valida el formato).
+  Los cuatro aggregates extienden
+  AuditableAbstractAggregateRoot.
+  Communication solo guarda ids: nunca accede a otros
+  contextos directamente.
+  --
+  <b>Fuera de Alivia</b>: FCM (Firebase) y SendGrid. Los
+  gateways viven en application y en infrastructure.
+end note
+
+' ---------- DISPOSICIÓN ----------
+CreateAlertCommand -[hidden]down- SendAlertCommand
+CreateNotificationCommand -[hidden]down- SendPushNotificationCommand
+SendPushNotificationCommand -[hidden]down- MarkNotificationAsReadCommand
+SendEmailCommand -[hidden]down- RegisterPushDeviceCommand
+RegisterPushDeviceCommand -[hidden]down- UnregisterPushDeviceCommand
+GetAllAlertsByUserIdQuery -[hidden]down- GetNotificationByIdQuery
+GetNotificationByIdQuery -[hidden]down- GetAllNotificationsByUserIdQuery
+GetAllNotificationsByUserIdQuery -[hidden]down- GetAllEmailsByStatusQuery
+AlertNotFound -[hidden]down- InvalidAlertStatusTransition
+InvalidAlertStatusTransition -[hidden]down- NotificationNotFound
+NotificationNotFound -[hidden]down- NotificationNotForUser
+NotificationNotForUser -[hidden]down- InvalidMessageContent
+InvalidMessageContent -[hidden]down- MissingTemplateVariable
+MissingTemplateVariable -[hidden]down- InvalidEmailStatusTransition
+InvalidEmailStatusTransition -[hidden]down- InvalidPushToken
+InvalidPushToken -[hidden]down- PushDeviceNotFound
+PushDeviceNotFound -[hidden]down- PushDeviceNotForUser
+
+' ---------- REFERENCIAS ----------
+Alert "0..*" --> "1" AlertStatus : status
+Notification "0..*" --> "1" NotificationType : type
+Notification "0..*" --> "1" NotificationStatus : status
+Email "0..*" --> "1" EmailTemplate : template
+Email "0..*" --> "1" EmailStatus : status
+PushDevice "0..*" --> "1" PushPlatform : platform
+
+' ---------- EVENTOS ----------
+Alert ..> AlertCreatedEvent : registra >
+Notification ..> NotificationCreatedEvent : registra >
+AlertCreatedEvent ..> SendAlertCommand : activa >
+NotificationCreatedEvent ..> SendPushNotificationCommand : activa >
+
+' ---------- SERVICES ----------
+AlertCommandService ..> CreateAlertCommand : recibe >
+AlertCommandService ..> SendAlertCommand : recibe >
+AlertCommandService ..> Alert : crea / modifica >
+AlertCommandService ..> PushDevice : lee los del destinatario >
+AlertQueryService -[#2E8B57]-> GetAllAlertsByUserIdQuery : recibe >
+AlertQueryService -[#2E8B57]-> Alert : devuelve >
+
+NotificationCommandService ..> CreateNotificationCommand : recibe >
+NotificationCommandService ..> SendPushNotificationCommand : recibe >
+NotificationCommandService ..> MarkNotificationAsReadCommand : recibe >
+NotificationCommandService ..> Notification : crea / modifica >
+NotificationCommandService ..> PushDevice : lee los del destinatario >
+NotificationQueryService -[#2E8B57]-> GetNotificationByIdQuery : recibe >
+NotificationQueryService -[#2E8B57]-> GetAllNotificationsByUserIdQuery : recibe >
+NotificationQueryService -[#2E8B57]-> Notification : devuelve >
+
+EmailCommandService ..> SendEmailCommand : recibe >
+EmailCommandService ..> Email : crea / modifica >
+EmailQueryService -[#2E8B57]-> GetAllEmailsByStatusQuery : recibe >
+EmailQueryService -[#2E8B57]-> Email : devuelve >
+
+PushDeviceCommandService ..> RegisterPushDeviceCommand : recibe >
+PushDeviceCommandService ..> UnregisterPushDeviceCommand : recibe >
+PushDeviceCommandService ..> PushDevice : crea / modifica / borra >
+
+' ---------- REGLAS DE LOS SERVICES ----------
+note as N_RulesAlert
+  <b>Reglas de AlertCommandService</b>
+  --
+  <b>CreateAlertCommand</b>: solo lo usa application al
+  recibir HelpRequestedEvent; no se expone en la API.
+  Uno por destinatario.
+  <b>SendAlertCommand</b>: lo activa AlertCreatedEvent
+  después de guardar. La alerta existe (AlertNotFound).
+  Envía a cada PushDevice del destinatario por FCM, con
+  prioridad alta y como alarma: en Android, el canal de
+  alarma de la app (sonido tipo alerta sísmica,
+  importancia máxima); en iOS, Critical Alert con sonido
+  propio (necesita el permiso de Apple; sin él,
+  interruption level time-sensitive). Si FCM aceptó al
+  menos un envío, markSent; si no tiene celular o todos
+  fallaron, markUndelivered. Un token que FCM da por
+  inválido (UNREGISTERED): UnregisterPushDeviceCommand.
+  <b>GetAllAlertsByUserIdQuery</b>: las alertas que
+  recibió el usuario, de la más reciente a la más
+  antigua (historial en la app móvil).
+end note
+
+note as N_RulesNotification
+  <b>Reglas de NotificationCommandService</b>
+  --
+  <b>CreateNotificationCommand</b>: solo lo usa
+  application al reaccionar a un evento o a un pedido
+  de Assistance por ACL; no se expone en la API. Uno por
+  destinatario.
+  <b>SendPushNotificationCommand</b>: lo activa
+  NotificationCreatedEvent después de guardar. La
+  notificación existe (NotificationNotFound). Envía un
+  push normal a cada PushDevice del destinatario. Si un
+  envío falla no detiene los demás: el aviso ya está en
+  la app. Token inválido: UnregisterPushDeviceCommand.
+  Sin celular registrado, el aviso queda solo en la app
+  (y en la web al abrirla).
+  <b>MarkNotificationAsReadCommand</b>: lo envía el
+  destinatario; userId sale de la sesión. La
+  notificación existe (NotificationNotFound).
+  <b>GetAllNotificationsByUserIdQuery</b>: los avisos del
+  usuario logueado, del más reciente al más antiguo;
+  status es opcional (null = todos).
+end note
+
+note as N_RulesEmail
+  <b>Reglas de EmailCommandService</b>
+  --
+  <b>SendEmailCommand</b>: solo lo usa application (eventos
+  y ACL); no se expone en la API. emailAddress es válido
+  (EmailAddress de Shared). Crea el Email PENDING y lo
+  guarda; envía la plantilla con sus variables por
+  SendGrid; según la respuesta, markSent o markFailed.
+  Un fallo no lanza error: queda FAILED con su motivo.
+  El correo destino lo trae el evento (IAM, invitación) o
+  application lo busca en IAM con el userId
+  (GetUserByIdQuery).
+  <b>GetAllEmailsByStatusQuery</b>: el administrador ve
+  los correos FAILED para revisar el problema.
+end note
+
+note as N_RulesPushDevice
+  <b>Reglas de PushDeviceCommandService</b>
+  --
+  <b>RegisterPushDeviceCommand</b>: la app móvil lo envía
+  al iniciar sesión y cada vez que FCM le renueva el
+  token; userId sale de la sesión. Si el token ya existe
+  llama a reassignTo; si no, crea el PushDevice.
+  <b>UnregisterPushDeviceCommand</b>: al cerrar sesión, o
+  cuando FCM da el token por inválido. El dispositivo
+  existe (PushDeviceNotFound) y es de ese usuario
+  (PushDeviceNotForUser). Se borra: no se guarda
+  historial de dispositivos.
+end note
+
+note as N_Consumers
+  <b>Qué envía Communication y a quién</b>
+  --
+  <b>Alert</b> (CreateAlertCommand)
+  HelpRequestedEvent (Tracking): al familiar y a los
+  cuidadores de turno (nota de destinatarios).
+  --
+  <b>Notification</b> (CreateNotificationCommand)
+  LowBatteryDetectedEvent (Tracking): LOW_BATTERY, con el
+  tipo de dispositivo y el nivel (a 5 %: batería crítica).
+  ActuatorActionFailedEvent (Tracking): ACTUATOR_FAILURE,
+  con el actuador y la acción que no se completó.
+  Los dos: al familiar y a los cuidadores de turno.
+  Assistance, SendInvitationNotificationCommand (ACL):
+  CAREGIVER_INVITATION al cuidador que ya tiene cuenta
+  (lo invitan a cuidar a otra persona); sourceId =
+  invitationId.
+  PaymentFailedEvent, SubscriptionRefundedEvent
+  (Subscriptions) e InstallationRejectedEvent (Support):
+  al familiar, además del correo.
+  --
+  <b>Email</b> (SendEmailCommand)
+  IAM: EmailVerificationRequestedEvent (VERIFICATION_CODE),
+  CorporateAccountCreatedEvent (CORPORATE_ACCOUNT; es la
+  bienvenida del empleado), PasswordResetRequestedEvent
+  (RESET_PASSWORD); el correo viene en el evento.
+  Assistance, SendInvitationEmailCommand (ACL):
+  CAREGIVER_INVITATION al cuidador sin cuenta (primera
+  invitación: define su contraseña con el enlace).
+  Subscriptions: SubscriptionActivatedEvent
+  (SUBSCRIPTION_WELCOME), PaymentFailedEvent
+  (PAYMENT_FAILED), SubscriptionRefundedEvent
+  (SUBSCRIPTION_REFUNDED); al familiar (userId).
+  Support: InstallationRejectedEvent
+  (INSTALLATION_REJECTED); al familiar (requestedBy).
+  HCM: EmployeeSuspendedEvent, EmployeeReinstatedEvent y
+  EmployeeTerminatedEvent (EMPLOYEE_*); al correo
+  corporativo (userId).
+end note
+
+note as N_Recipients
+  <b>Destinatarios de los avisos de Tracking</b>
+  --
+  1. Support (ACL, GetInstallationByIdQuery): con el
+  installationId del evento, la persona asistida.
+  2. Assistance (ACL): GetAssistedPersonByIdQuery da el
+  familiar (userId de su Relative).
+  GetAgendaByAssistedPersonIdQuery con from = el día
+  anterior a occurredAt y to = el día de occurredAt: los
+  AgendaItem que no están CANCELLED y cuyo horario
+  contiene occurredAt.
+  3. Solo los cuidadores de esos items (más de uno si
+  coinciden dos actividades), no todos los de la persona.
+  GetCaregiversByAssistedPersonIdQuery da su userId y
+  confirma que siguen ACTIVE (Caregiver.isActive).
+  Sin cuidadores de turno, solo el familiar. Un item con
+  caregiverId nulo es del familiar: un solo aviso.
+end note
+
+AlertCommandService .. N_RulesAlert
+NotificationCommandService .. N_RulesNotification
+EmailCommandService .. N_RulesEmail
+PushDeviceCommandService .. N_RulesPushDevice
+NotificationCommandService .. N_Consumers
+N_Consumers .. N_Recipients
+
+@enduml

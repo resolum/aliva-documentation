@@ -21,6 +21,7 @@
 '      Tracking para referenciar al equipo que envía cada reporte.
 '  S12 Se agregan EmployeeId (técnico de HCM) y AssistedPersonId (persona asistida de Assistance);
 '      los usa Support.
+'  S13 EmailTemplate pasa a Communication: solo ese contexto envía correos.
 
 ' ==============================
 ' CONFIGURACIÓN GENERAL
@@ -112,11 +113,6 @@ package alivia.platform.shared {
 
     class EmailAddress <<ValueObject, record>> {
       + EmailAddress(String emailAddress)
-    }
-
-    enum EmailTemplate <<Enumeration>> {
-      WELCOME
-      RESET_PASSWORD
     }
 
     class Photo <<ValueObject, record>> {
@@ -263,10 +259,6 @@ note as N_Invariantes
   indica su código (ej. Perú: 51 + móvil de 9 dígitos que
   empieza en 9). Si no cumple, el constructor lo rechaza,
   igual que los demás value objects.
-  --
-  <b>EmailTemplate</b>: se moverá a Communication cuando se
-  revise ese contexto (allí se agregan las plantillas de
-  invitación del cuidador).
 end note
 
 TimeRange .. N_TimeRange

@@ -27,6 +27,9 @@
 '      (InstallationRejectedEvent), se devuelve el pago y se cancela la suscripción.
 '  SB8 Las transiciones de estado son métodos con reglas (en veyra, updateStatus aceptaba cualquier
 '      estado).
+'  SB9 Subscription guarda el BusinessId del familiar (como Installation en Support) y los eventos de
+'      pago, devolución y cancelación lo llevan: Analytics separa ganancias y suscripciones por negocio.
+'  SB10 Todo se cobra en soles (PEN): Money solo acepta PEN y los Price de Stripe están en PEN.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -89,8 +92,8 @@ package alivia.platform.Subscriptions {
       MINIMUM: 1 actuador del tipo que elija el familiar.
       CUSTOM: de 1 a 4 actuadores, la cantidad que quiera
       de cada tipo.
-      Constructor: basePrice y pricePerActuator en la
-      misma moneda; 1 <= minActuators
+      Constructor: basePrice y pricePerActuator en soles
+      (PEN); 1 <= minActuators
       <= maxActuators; los dos Price id de Stripe no vacíos
       (InvalidPlan).
       allows: selection.total() entre minActuators y
@@ -110,6 +113,7 @@ package alivia.platform.Subscriptions {
     class Subscription #DCEBFA {
       - UserId userId
       - AssistedPersonId assistedPersonId
+      - BusinessId businessId
       - Plan plan
       - ActuatorSelection actuators
       - Money monthlyAmount
@@ -118,7 +122,8 @@ package alivia.platform.Subscriptions {
       - String stripeSubscriptionId
       - BillingPeriod currentPeriod
       --
-      + Subscription(UserId userId, AssistedPersonId assistedPersonId, Plan plan,
+      + Subscription(UserId userId, AssistedPersonId assistedPersonId,
+      \t BusinessId businessId, Plan plan,
       \t ActuatorSelection actuators, String stripeCustomerId,
       \t String stripeSubscriptionId)
       + activate(BillingPeriod period)
@@ -145,7 +150,7 @@ package alivia.platform.Subscriptions {
       markPastDue: ACTIVE o PENDING_PAYMENT a PAST_DUE (un
       cobro falló).
       cancel: cualquier estado salvo CANCELED a CANCELED
-      (Stripe la eliminó).
+      (Stripe la eliminó); registra SubscriptionCanceledEvent.
       refund: ACTIVE a CANCELED con devolución; registra
       SubscriptionRefundedEvent.
       isActive: ACTIVE (la consulta Support).
@@ -197,8 +202,9 @@ package alivia.platform.Subscriptions {
 
     note bottom of Money
       amount mayor o igual a 0 con dos decimales; currency
-      es un código ISO 4217 de 3 letras (InvalidMoney).
-      plus: suma, solo con la misma moneda (InvalidMoney).
+      siempre es PEN: todo se cobra en soles (InvalidMoney).
+      Stripe también cobra en PEN.
+      plus: suma dos montos.
       times: multiplica por una cantidad.
       Los dos los usa Plan.monthlyPriceFor.
     end note
@@ -282,8 +288,8 @@ package alivia.platform.Subscriptions {
   package "domain.model.events" #DDF3F5 {
 
     class PaymentSucceededEvent <<Record>> #CDEFF2 {
-      + PaymentSucceededEvent(Long paymentId, Long subscriptionId,
-      \t LocalDateTime periodStart, LocalDateTime periodEnd)
+      + PaymentSucceededEvent(Long paymentId, Long subscriptionId, Long businessId,
+      \t BigDecimal amount, LocalDateTime periodStart, LocalDateTime periodEnd)
     }
 
     class PaymentFailedEvent <<Record>> #CDEFF2 {
@@ -293,12 +299,16 @@ package alivia.platform.Subscriptions {
 
     class SubscriptionActivatedEvent <<Record>> #CDEFF2 {
       + SubscriptionActivatedEvent(Long subscriptionId, Long userId,
-      \t Long assistedPersonId, PlanCode plan)
+      \t Long assistedPersonId, Long businessId, PlanCode plan)
     }
 
     class SubscriptionRefundedEvent <<Record>> #CDEFF2 {
       + SubscriptionRefundedEvent(Long subscriptionId, Long userId, Long assistedPersonId,
-      \t Money amount)
+      \t Long businessId, Money amount)
+    }
+
+    class SubscriptionCanceledEvent <<Record>> #CDEFF2 {
+      + SubscriptionCanceledEvent(Long subscriptionId, Long businessId)
     }
 
     note bottom of SubscriptionActivatedEvent
@@ -317,9 +327,15 @@ package alivia.platform.Subscriptions {
       que el cobro falló.
       SubscriptionRefundedEvent: Communication avisa al
       familiar de la devolución.
-      La baja y el vencimiento aún no se definen: cuando se
-      definan se agregará el evento de cancelación con sus
-      consumidores.
+      SubscriptionActivatedEvent: Analytics cuenta un nuevo
+      suscripto.
+      SubscriptionCanceledEvent: Analytics cuenta una
+      suscripción cancelada (Stripe la eliminó).
+      PaymentSucceededEvent y SubscriptionRefundedEvent:
+      Analytics suma lo cobrado y lo devuelto; la devolución
+      también cuenta como cancelada.
+      Cuando se definan la baja y el vencimiento, se suman
+      a SubscriptionCanceledEvent.
     end note
   }
 
@@ -386,6 +402,10 @@ package alivia.platform.Subscriptions {
 
     class GetAllSubscriptionsByUserIdQuery <<Record>> #D5F0D8 {
       + GetAllSubscriptionsByUserIdQuery(Long userId)
+    }
+
+    class GetAllSubscriptionsByBusinessIdAndStatusQuery <<Record>> #D5F0D8 {
+      + GetAllSubscriptionsByBusinessIdAndStatusQuery(Long businessId, SubscriptionStatus status)
     }
 
     class GetSubscriptionByStripeSubscriptionIdQuery <<Record>> #D5F0D8 {
@@ -466,6 +486,7 @@ package alivia.platform.Subscriptions {
       Optional<Subscription> handle(GetSubscriptionByIdQuery query)
       Optional<Subscription> handle(GetActiveSubscriptionByAssistedPersonIdQuery query)
       List<Subscription> handle(GetAllSubscriptionsByUserIdQuery query)
+      List<Subscription> handle(GetAllSubscriptionsByBusinessIdAndStatusQuery query)
       Optional<Subscription> handle(GetSubscriptionByStripeSubscriptionIdQuery query)
     }
 
@@ -486,6 +507,8 @@ note as N_Shared
   <b>UserId</b>: cuenta del familiar que paga (IAM).
   <b>AssistedPersonId</b>: persona asistida cubierta
   (Assistance).
+  <b>BusinessId</b>: negocio del familiar (Company); lo
+  usa Analytics para separar las métricas por negocio.
   Subscriptions solo guarda ids: nunca accede a esos
   contextos directamente.
   --
@@ -502,7 +525,8 @@ RefundSubscriptionCommand -[hidden]down- CancelSubscriptionCommand
 GetAllPlansQuery -[hidden]down- GetPlanByCodeQuery
 GetSubscriptionByIdQuery -[hidden]down- GetActiveSubscriptionByAssistedPersonIdQuery
 GetActiveSubscriptionByAssistedPersonIdQuery -[hidden]down- GetAllSubscriptionsByUserIdQuery
-GetAllSubscriptionsByUserIdQuery -[hidden]down- GetSubscriptionByStripeSubscriptionIdQuery
+GetAllSubscriptionsByUserIdQuery -[hidden]down- GetAllSubscriptionsByBusinessIdAndStatusQuery
+GetAllSubscriptionsByBusinessIdAndStatusQuery -[hidden]down- GetSubscriptionByStripeSubscriptionIdQuery
 GetAllPaymentsBySubscriptionIdQuery -[hidden]down- ExistsPaymentByStripeInvoiceIdQuery
 InvalidPlan -[hidden]down- PlanNotFound
 PlanNotFound -[hidden]down- InvalidMoney
@@ -542,6 +566,7 @@ Payment ..> PaymentSucceededEvent : registra >
 Payment ..> PaymentFailedEvent : registra >
 Subscription ..> SubscriptionActivatedEvent : registra >
 Subscription ..> SubscriptionRefundedEvent : registra >
+Subscription ..> SubscriptionCanceledEvent : registra >
 PaymentSucceededEvent ..> ActivateSubscriptionCommand : activa >
 PaymentFailedEvent ..> MarkSubscriptionPastDueCommand : activa >
 
@@ -561,6 +586,7 @@ SubscriptionCommandService ..> Subscription : crea / modifica >
 SubscriptionQueryService -[#2E8B57]-> GetSubscriptionByIdQuery : recibe >
 SubscriptionQueryService -[#2E8B57]-> GetActiveSubscriptionByAssistedPersonIdQuery : recibe >
 SubscriptionQueryService -[#2E8B57]-> GetAllSubscriptionsByUserIdQuery : recibe >
+SubscriptionQueryService -[#2E8B57]-> GetAllSubscriptionsByBusinessIdAndStatusQuery : recibe >
 SubscriptionQueryService -[#2E8B57]-> GetSubscriptionByStripeSubscriptionIdQuery : recibe >
 SubscriptionQueryService -[#2E8B57]-> Subscription : devuelve >
 
@@ -592,7 +618,8 @@ note as N_RulesSubscription
   (PlanNotFound). La persona asistida existe en
   Assistance (ACL, GetAssistedPersonByIdQuery;
   AssistedPersonNotFound) y la gestiona ese familiar
-  (NotRelativeOfAssistedPerson). No tiene otra
+  (NotRelativeOfAssistedPerson); businessId sale del
+  familiar en Assistance. No tiene otra
   suscripción vigente: PENDING_PAYMENT, ACTIVE o PAST_DUE
   (SubscriptionAlreadyExists). actuators pasa a
   ActuatorSelection.

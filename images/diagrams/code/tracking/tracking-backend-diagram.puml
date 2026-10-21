@@ -16,8 +16,8 @@
 '      avisa al cuidador asignado en ese momento y al familiar.
 '  T4  Acciones de actuadores: el edge de actuadores envía cada acción con su resultado. Solo una acción
 '      FAILED registra ActuatorActionFailedEvent: Communication avisa al familiar y al cuidador asignado
-'      en ese momento. Las SUCCEEDED solo se guardan.
-'      Analytics consulta el resumen (total, correctas y fallidas) con las queries de resumen.
+'      en ese momento. Una SUCCEEDED registra ActuatorActionSucceededEvent. Analytics escucha los dos
+'      para contar, por instalación y día, las acciones correctas y fallidas que ve el familiar.
 '  T5  El edge ya tiene los datos de su red: Assets se los envía en EdgeAccessTable (networkId,
 '      installationId y el tipo de cada dispositivo) cada vez que la red cambia. Por eso cada reporte
 '      llega completo (edgeId, deviceId, installationId y tipo de dispositivo) y Tracking no consulta a
@@ -146,9 +146,10 @@ package alivia.platform.Tracking {
       Constructor: la acción corresponde al tipo de
       actuador; un MICROPHONE no ejecuta acciones
       (InvalidActionForDevice). Si el resultado es FAILED,
-      registra ActuatorActionFailedEvent.
-      Una acción SUCCEEDED no avisa a nadie: solo se guarda
-      para el resumen de Analytics.
+      registra ActuatorActionFailedEvent; si es SUCCEEDED,
+      ActuatorActionSucceededEvent.
+      Una acción SUCCEEDED no avisa a nadie: solo la cuenta
+      Analytics.
       Es un registro: no tiene estado ni métodos de cambio.
     end note
   }
@@ -182,23 +183,6 @@ package alivia.platform.Tracking {
       El edge avisa a 10 % y a 5 %: los dos son bajos.
     end note
 
-    class ActuatorActionSummary <<Record>> #EADCF8 {
-      + DeviceType actuatorType
-      + ActionType action
-      + Long total
-      + Long succeeded
-      + Long failed
-      + ActuatorActionSummary(DeviceType actuatorType, ActionType action,
-      \t Long total, Long succeeded, Long failed)
-    }
-
-    note bottom of ActuatorActionSummary
-      Resumen que consulta Analytics: cuántas acciones de
-      un tipo se ejecutaron en un periodo, cuántas fueron
-      correctas y cuántas fallaron. No se guarda: se
-      calcula desde ActuatorAction.
-      total = succeeded + failed.
-    end note
 
     enum DeviceType #EADCF8 {
       MICROPHONE
@@ -274,8 +258,20 @@ package alivia.platform.Tracking {
       + getAction() : ActionType
     }
 
+    class ActuatorActionSucceededEvent #CDEFF2 {
+      - ActuatorAction action
+      --
+      + ActuatorActionSucceededEvent(ActuatorAction action)
+      + getActionId() : String
+      + getInstallationId() : Long
+      + getOccurredAt() : LocalDateTime
+    }
+
     note bottom of HelpRequestedEvent
-      Los tres eventos los consume Communication.
+      HelpRequested, LowBatteryDetected y ActuatorActionFailed
+      los consume Communication. ActuatorActionFailed y
+      ActuatorActionSucceeded, Analytics (acciones de la
+      instalación por día).
       Leen el id al publicarse, porque MongoDB lo asigna
       al guardar (como AccessTableUpdatedEvent en Assets).
       <b>A quién avisa Communication</b>
@@ -346,15 +342,6 @@ package alivia.platform.Tracking {
     class GetAllActuatorActionsByInstallationIdQuery <<Record>> #D5F0D8 {
       + GetAllActuatorActionsByInstallationIdQuery(Long installationId)
     }
-
-    class GetActuatorActionSummaryByPeriodQuery <<Record>> #D5F0D8 {
-      + GetActuatorActionSummaryByPeriodQuery(LocalDateTime from, LocalDateTime to)
-    }
-
-    class GetActuatorActionSummaryByInstallationIdQuery <<Record>> #D5F0D8 {
-      + GetActuatorActionSummaryByInstallationIdQuery(Long installationId,
-      \t LocalDateTime from, LocalDateTime to)
-    }
   }
 
   package "domain.exceptions" #FFF5F6 {
@@ -369,9 +356,6 @@ package alivia.platform.Tracking {
     }
     class InvalidActionForDevice <<Exception>> {
       + InvalidActionForDevice(ActionType action, DeviceType type)
-    }
-    class InvalidPeriod <<Exception>> {
-      + InvalidPeriod(LocalDateTime from, LocalDateTime to)
     }
   }
 
@@ -399,8 +383,6 @@ package alivia.platform.Tracking {
 
     interface ActuatorActionQueryService #FFF3B0 {
       List<ActuatorAction> handle(GetAllActuatorActionsByInstallationIdQuery query)
-      List<ActuatorActionSummary> handle(GetActuatorActionSummaryByPeriodQuery query)
-      List<ActuatorActionSummary> handle(GetActuatorActionSummaryByInstallationIdQuery query)
     }
   }
 }
@@ -424,12 +406,9 @@ RecordHelpRequestCommand -[hidden]down- RecordLowBatteryCommand
 RecordLowBatteryCommand -[hidden]down- RecordActuatorActionCommand
 GetAllHelpRequestsByInstallationIdQuery -[hidden]down- GetAllLowBatteryAlertsByInstallationIdQuery
 GetAllLowBatteryAlertsByInstallationIdQuery -[hidden]down- GetAllActuatorActionsByInstallationIdQuery
-GetAllActuatorActionsByInstallationIdQuery -[hidden]down- GetActuatorActionSummaryByPeriodQuery
-GetActuatorActionSummaryByPeriodQuery -[hidden]down- GetActuatorActionSummaryByInstallationIdQuery
 InvalidReportId -[hidden]down- InvalidBatteryLevel
 InvalidBatteryLevel -[hidden]down- BatteryNotLow
 BatteryNotLow -[hidden]down- InvalidActionForDevice
-InvalidActionForDevice -[hidden]down- InvalidPeriod
 
 ' ---------- COMPOSICIÓN Y REFERENCIAS ----------
 HelpRequest "1" *-- "1" ReportId : reportId
@@ -441,14 +420,12 @@ ActuatorAction "0..*" --> "1" DeviceType : actuatorType
 ActuatorAction "0..*" --> "1" ActionType : action
 ActuatorAction "0..*" --> "1" ActionResult : result
 ActionType ..> DeviceType : isValidFor >
-ActuatorActionSummary "0..*" --> "1" DeviceType : actuatorType
-ActuatorActionSummary "0..*" --> "1" ActionType : action
-ActuatorActionSummary ..> ActuatorAction : resume >
 
 ' ---------- EVENTOS ----------
 HelpRequest ..> HelpRequestedEvent : registra >
 LowBatteryAlert ..> LowBatteryDetectedEvent : registra >
 ActuatorAction ..> ActuatorActionFailedEvent : registra >
+ActuatorAction ..> ActuatorActionSucceededEvent : registra >
 
 ' ---------- SERVICES ----------
 HelpRequestCommandService ..> RecordHelpRequestCommand : recibe >
@@ -464,10 +441,7 @@ LowBatteryAlertQueryService -[#2E8B57]-> LowBatteryAlert : devuelve >
 ActuatorActionCommandService ..> RecordActuatorActionCommand : recibe >
 ActuatorActionCommandService ..> ActuatorAction : crea >
 ActuatorActionQueryService -[#2E8B57]-> GetAllActuatorActionsByInstallationIdQuery : recibe >
-ActuatorActionQueryService -[#2E8B57]-> GetActuatorActionSummaryByPeriodQuery : recibe >
-ActuatorActionQueryService -[#2E8B57]-> GetActuatorActionSummaryByInstallationIdQuery : recibe >
 ActuatorActionQueryService -[#2E8B57]-> ActuatorAction : devuelve >
-ActuatorActionQueryService -[#2E8B57]-> ActuatorActionSummary : devuelve >
 
 ' ---------- REGLAS DE LOS SERVICES ----------
 note as N_RulesReport
@@ -509,10 +483,6 @@ note as N_RulesEach
   <b>RecordActuatorActionCommand</b>: lo envía el edge de
   actuadores. La acción corresponde al tipo de actuador
   (InvalidActionForDevice).
-  --
-  <b>Queries de resumen</b> (Analytics, por ACL): from es
-  anterior a to (InvalidPeriod). Agrupan por tipo de
-  actuador y ActionType.
 end note
 
 HelpRequestCommandService .. N_RulesReport

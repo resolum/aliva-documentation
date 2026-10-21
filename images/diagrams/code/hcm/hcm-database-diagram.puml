@@ -37,6 +37,7 @@ package "Bounded Context: HCM" as ctx_hcm #F6FBF6 {
     * staff_profile_id : BIGINT <<UK>> <<ref Profiles>>
     * role : VARCHAR(30)
     * status : VARCHAR(10)
+    termination_reason : VARCHAR(10) (DISMISSED, RESIGNED)
     * created_at : TIMESTAMP
     * updated_at : TIMESTAMP
   }
@@ -95,6 +96,8 @@ note right of employees
   role: TECH, SUBSCRIPTION_MANAGER o CLEANING.
   status: ACTIVE, SUSPENDED o TERMINATED (final). No se
   borra: un empleado cesado queda como historial.
+  termination_reason: solo cuando está TERMINATED
+  (DISMISSED o RESIGNED).
   "De vacaciones" no es un estado: se calcula con
   vacations. Puede estar ACTIVE sin contrato vigente
   hasta que el administrador lo renueve o lo cese.
