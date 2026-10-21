@@ -1,0 +1,106 @@
+@startuml
+hide circle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2E7D32
+  BorderThickness 1.2
+  HeaderBackgroundColor #E8F5E9
+  ArrowColor #444444
+}
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
+}
+
+package "Bounded Context: Tracking (MongoDB)" as ctx_tracking #F6FBF6 {
+
+  entity "help_requests" as help {
+    * _id : ObjectId <<PK>>
+    --
+    * report_id : String <<UK>> (UUID del edge)
+    * edge_id : Long <<ref Assets>>
+    * microphone_id : Long <<ref Assets>>
+    * installation_id : Long <<IDX>> <<ref Soporte Técnico>>
+    * occurred_at : Date
+    * created_at : Date
+    * updated_at : Date
+    ..
+    IDX (installation_id, occurred_at DESC)
+  }
+
+  entity "low_battery_alerts" as battery {
+    * _id : ObjectId <<PK>>
+    --
+    * report_id : String <<UK>> (UUID del edge)
+    * edge_id : Long <<ref Assets>>
+    * device_id : Long <<IDX>> <<ref Assets>>
+    * device_type : String (MICROPHONE, DOOR, WINDOW, CURTAIN, LIGHT)
+    * installation_id : Long <<IDX>> <<ref Soporte Técnico>>
+    * battery_level : Int32 (0 a 100)
+    * occurred_at : Date
+    * created_at : Date
+    * updated_at : Date
+    ..
+    IDX (installation_id, occurred_at DESC)
+    IDX (device_id, occurred_at DESC)
+  }
+
+  entity "actuator_actions" as actions {
+    * _id : ObjectId <<PK>>
+    --
+    * report_id : String <<UK>> (UUID del edge)
+    * edge_id : Long <<ref Assets>>
+    * actuator_id : Long <<ref Assets>>
+    * installation_id : Long <<IDX>> <<ref Soporte Técnico>>
+    * actuator_type : String (DOOR, WINDOW, CURTAIN, LIGHT)
+    * action : String (OPEN, CLOSE, TURN_ON, TURN_OFF)
+    * result : String (SUCCEEDED, FAILED)
+    * occurred_at : Date
+    * created_at : Date
+    * updated_at : Date
+    ..
+    IDX (installation_id, occurred_at DESC)
+    IDX (occurred_at, actuator_type, action)
+  }
+}
+
+note bottom of ctx_tracking
+  <b>MongoDB: una colección por aggregate</b>
+  --
+  Cada documento es un reporte de un edge y no se modifica después de
+  guardarse. Las tres colecciones son independientes: no hay referencias
+  entre ellas ni FK. edge_id, microphone_id, device_id y actuator_id son ids
+  de Assets; installation_id es de Soporte Técnico. Los envía el edge en cada
+  reporte, tomados de la tabla de su red (EdgeAccessTable de Assets).
+  --
+  IDX (installation_id, occurred_at DESC): historial de una instalación,
+  del más reciente al más antiguo.
+  IDX (device_id, occurred_at DESC): alertas de batería de un dispositivo.
+  IDX (occurred_at, actuator_type, action): el resumen de Analytics filtra
+  por periodo y agrupa por tipo de actuador y acción (aggregation pipeline).
+  UK (report_id) en cada colección: un reporte reenviado por el edge tras
+  cortarse la conexión no se guarda dos veces.
+  --
+  device_type, actuator_type, action y result se guardan como texto del enum.
+  Una batería genera como máximo dos documentos por descarga: 10 % y 5 %.
+end note
+
+help -[hidden]right- battery
+battery -[hidden]right- actions
+
+@enduml

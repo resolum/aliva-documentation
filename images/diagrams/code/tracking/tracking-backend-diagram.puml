@@ -1,0 +1,501 @@
+@startuml
+' Bounded Context: Tracking (Telemetría). Solo capa domain. Persistencia: MongoDB.
+'
+' Decisiones de diseño:
+'  T1  Tres aggregates, uno por cada reporte que llega de los edges: HelpRequest (pedido de auxilio),
+'      LowBatteryAlert (batería baja de un dispositivo) y ActuatorAction (acción ejecutada por un
+'      actuador y su resultado). Se guardan en MongoDB y extienden AuditableMongoAggregateRoot (Shared).
+'      Son registros: nadie los marca ni los cambia después de guardarlos.
+'  T2  El pedido de auxilio va del edge de micrófono directo a la nube: no pasa por el broker ni por el
+'      edge de actuadores. Solo informa que la persona asistida pidió auxilio (sin transcripción).
+'      Tracking lo guarda y registra HelpRequestedEvent; Communication avisa a los cuidadores y al
+'      familiar de la persona asistida.
+'  T3  Batería baja: cada edge envía la batería de los dispositivos que atiende (el edge de micrófono,
+'      la del micrófono; el edge de actuadores, la de sus actuadores). La envía una sola vez al llegar a
+'      10 % y otra al llegar a 5 %. Tracking la guarda y registra LowBatteryDetectedEvent; Communication
+'      avisa al cuidador asignado en ese momento y al familiar.
+'  T4  Acciones de actuadores: el edge de actuadores envía cada acción con su resultado. Solo una acción
+'      FAILED registra ActuatorActionFailedEvent (aviso por Communication). Las SUCCEEDED solo se guardan.
+'      Analytics consulta el resumen (total, correctas y fallidas) con las queries de resumen.
+'  T5  El edge ya tiene los datos de su red: Assets se los envía en EdgeAccessTable (networkId,
+'      installationId y el tipo de cada dispositivo) cada vez que la red cambia. Por eso cada reporte
+'      llega completo (edgeId, deviceId, installationId y tipo de dispositivo) y Tracking no consulta a
+'      Assets por cada reporte. El edgeId sale del token con el que IAM autenticó al edge.
+'  T6  EdgeId y DeviceId se agregan a Shared: Tracking referencia equipos de Assets solo por su id.
+'  T7  DeviceType es propio de Tracking (mismos valores que en Assets): guarda el tipo del dispositivo
+'      al momento del reporte, así el historial no cambia si luego el equipo se retira de la red.
+'  T8  ReportId: id único que el edge genera para cada reporte. Si se corta la conexión, el edge
+'      guarda el reporte y lo reintenta; si Tracking ya tiene ese reportId, no lo guarda de nuevo ni
+'      vuelve a avisar (no hay pedidos, alertas ni acciones duplicadas).
+'  T9  Una acción fallida es solo FAILED, sin motivo: el sensor del actuador detecta que no se completó
+'      (ej. la puerta no cerró por completo), pero no la causa. Si el actuador no responde, el edge
+'      también la reporta como FAILED.
+
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+  BackgroundColor<<Exception>> #FFEBEE
+  BorderColor<<Exception>> #C62828
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #B8A800
+}
+skinparam package {
+  BorderColor #888888
+  FontStyle bold
+}
+
+legend left
+  |= Color |= Significado |
+  |<#DCEBFA>   | Aggregate |
+  |<#EADCF8>   | Value Object / Enum |
+  |<#FFE4C4>   | Command (escritura) |
+  |<#D5F0D8>   | Query (lectura) |
+  |<#FFF3B0>   | Service (interface) |
+  |<#CDEFF2>   | Event |
+  |<#FFEBEE>   | Exception (dominio) |
+  |<#2E8B57>   | Flecha de lectura (QueryService) |
+endlegend
+
+package alivia.platform.Tracking {
+
+  package "domain.model.aggregates" #F4F9FE {
+
+    class HelpRequest #DCEBFA {
+      - ReportId reportId
+      - EdgeId edgeId
+      - DeviceId microphoneId
+      - InstallationId installationId
+      - LocalDateTime occurredAt
+      --
+      + HelpRequest(ReportId reportId, EdgeId edgeId, DeviceId microphoneId,
+      \t InstallationId installationId, LocalDateTime occurredAt)
+    }
+
+    note bottom of HelpRequest
+      <b>Pedido de auxilio</b> de la persona asistida.
+      Lo detecta el edge de micrófono por voz y lo envía
+      directo a la nube (no pasa por el broker ni por el
+      edge de actuadores).
+      Solo informa que pidió auxilio: no guarda lo que dijo.
+      Constructor: todos los datos son obligatorios;
+      registra HelpRequestedEvent.
+      occurredAt: cuándo lo detectó el edge. createdAt
+      (base) es cuándo llegó a la nube.
+      Nadie lo marca como atendido: es un registro.
+    end note
+
+    class LowBatteryAlert #DCEBFA {
+      - ReportId reportId
+      - EdgeId edgeId
+      - DeviceId deviceId
+      - DeviceType deviceType
+      - InstallationId installationId
+      - BatteryLevel batteryLevel
+      - LocalDateTime occurredAt
+      --
+      + LowBatteryAlert(ReportId reportId, EdgeId edgeId, DeviceId deviceId, DeviceType deviceType,
+      \t InstallationId installationId, BatteryLevel batteryLevel,
+      \t LocalDateTime occurredAt)
+    }
+
+    note bottom of LowBatteryAlert
+      <b>Batería baja</b> del micrófono o de un actuador.
+      Cada edge envía la de los dispositivos que atiende:
+      el edge de micrófono, la del micrófono; el edge de
+      actuadores, la de sus actuadores.
+      El edge la envía una sola vez al llegar a 10 % y
+      otra al llegar a 5 %; no la repite entre esos dos
+      avisos. Tracking guarda lo que llega.
+      Constructor: el nivel es bajo (BatteryNotLow);
+      registra LowBatteryDetectedEvent.
+      Es un registro: no tiene estado ni métodos de cambio.
+    end note
+
+    class ActuatorAction #DCEBFA {
+      - ReportId reportId
+      - EdgeId edgeId
+      - DeviceId actuatorId
+      - DeviceType actuatorType
+      - InstallationId installationId
+      - ActionType action
+      - ActionResult result
+      - LocalDateTime occurredAt
+      --
+      + ActuatorAction(ReportId reportId, EdgeId edgeId, DeviceId actuatorId, DeviceType actuatorType,
+      \t InstallationId installationId, ActionType action,
+      \t ActionResult result, LocalDateTime occurredAt)
+      + isFailed() : boolean
+    }
+
+    note bottom of ActuatorAction
+      <b>Acción ejecutada por un actuador</b> y su resultado
+      (ej. abrir la puerta: SUCCEEDED o FAILED).
+      La envía el edge de actuadores. FAILED lo detecta el
+      sensor del actuador (no se completó) o el edge (el
+      actuador no respondió); no se guarda el motivo.
+      Constructor: la acción corresponde al tipo de
+      actuador; un MICROPHONE no ejecuta acciones
+      (InvalidActionForDevice). Si el resultado es FAILED,
+      registra ActuatorActionFailedEvent.
+      Una acción SUCCEEDED no avisa a nadie: solo se guarda
+      para el resumen de Analytics.
+      Es un registro: no tiene estado ni métodos de cambio.
+    end note
+  }
+
+  package "domain.model.valueobjects" #F9F4FD {
+
+    class ReportId <<Record>> #EADCF8 {
+      + String reportId
+      + ReportId(String reportId)
+    }
+
+    note bottom of ReportId
+      Id único del reporte, generado por el edge (UUID).
+      Formato UUID válido (InvalidReportId).
+      Sirve para no guardar dos veces un reporte que el
+      edge reintentó al cortarse la conexión.
+    end note
+
+    class BatteryLevel <<Record>> #EADCF8 {
+      + {static} Integer LOW_THRESHOLD = 10
+      + {static} Integer CRITICAL_THRESHOLD = 5
+      + Integer percentage
+      + BatteryLevel(Integer percentage)
+      + isLow() : boolean
+      + isCritical() : boolean
+    }
+
+    note bottom of BatteryLevel
+      Porcentaje de batería entre 0 y 100
+      (InvalidBatteryLevel).
+      isLow: percentage <= LOW_THRESHOLD (10 %).
+      isCritical: percentage <= CRITICAL_THRESHOLD (5 %):
+      es el segundo y último aviso del edge.
+    end note
+
+    class ActuatorActionSummary <<Record>> #EADCF8 {
+      + DeviceType actuatorType
+      + ActionType action
+      + Long total
+      + Long succeeded
+      + Long failed
+      + ActuatorActionSummary(DeviceType actuatorType, ActionType action,
+      \t Long total, Long succeeded, Long failed)
+    }
+
+    note bottom of ActuatorActionSummary
+      Resumen que consulta Analytics: cuántas acciones de
+      un tipo se ejecutaron en un periodo, cuántas fueron
+      correctas y cuántas fallaron. No se guarda: se
+      calcula desde ActuatorAction.
+      total = succeeded + failed.
+    end note
+
+    enum DeviceType #EADCF8 {
+      MICROPHONE
+      DOOR
+      WINDOW
+      CURTAIN
+      LIGHT
+      --
+      + isActuator() : boolean
+    }
+
+    note bottom of DeviceType
+      Copia propia de Tracking, con los mismos valores que
+      DeviceType de Assets. El edge lo conoce por la tabla
+      de su red (EdgeAccessTable) y lo envía en el reporte.
+      isActuator: todos menos MICROPHONE.
+    end note
+
+    enum ActionType #EADCF8 {
+      OPEN
+      CLOSE
+      TURN_ON
+      TURN_OFF
+      --
+      + isValidFor(DeviceType type) : boolean
+    }
+
+    note bottom of ActionType
+      isValidFor: OPEN y CLOSE para DOOR, WINDOW y
+      CURTAIN; TURN_ON y TURN_OFF para LIGHT.
+      Ninguna para MICROPHONE.
+    end note
+
+    enum ActionResult #EADCF8 {
+      SUCCEEDED
+      FAILED
+    }
+  }
+
+  package "domain.model.events" #DDF3F5 {
+
+    class HelpRequestedEvent #CDEFF2 {
+      - HelpRequest helpRequest
+      --
+      + HelpRequestedEvent(HelpRequest helpRequest)
+      + getHelpRequestId() : String
+      + getEdgeId() : Long
+      + getMicrophoneId() : Long
+      + getInstallationId() : Long
+      + getOccurredAt() : LocalDateTime
+    }
+
+    class LowBatteryDetectedEvent #CDEFF2 {
+      - LowBatteryAlert alert
+      --
+      + LowBatteryDetectedEvent(LowBatteryAlert alert)
+      + getAlertId() : String
+      + getEdgeId() : Long
+      + getDeviceId() : Long
+      + getDeviceType() : DeviceType
+      + getInstallationId() : Long
+      + getBatteryLevel() : Integer
+      + getOccurredAt() : LocalDateTime
+    }
+
+    class ActuatorActionFailedEvent #CDEFF2 {
+      - ActuatorAction action
+      --
+      + ActuatorActionFailedEvent(ActuatorAction action)
+      + getActionId() : String
+      + getEdgeId() : Long
+      + getActuatorId() : Long
+      + getActuatorType() : DeviceType
+      + getInstallationId() : Long
+      + getAction() : ActionType
+    }
+
+    note bottom of HelpRequestedEvent
+      Los tres eventos los consume Communication.
+      Leen el id al publicarse, porque MongoDB lo asigna
+      al guardar (como AccessTableUpdatedEvent en Assets).
+      HelpRequestedEvent: avisa a los cuidadores y al
+      familiar de la persona asistida que pidió auxilio.
+      LowBatteryDetectedEvent: avisa al cuidador asignado
+      en ese momento (occurredAt) y al familiar, para que
+      carguen el dispositivo.
+      ActuatorActionFailedEvent: avisa que el actuador no
+      pudo abrir, cerrar, prender o apagar.
+    end note
+  }
+
+  package "domain.model.commands" #FFF6EC {
+
+    class RecordHelpRequestCommand <<Record>> #FFE4C4 {
+      + RecordHelpRequestCommand(String reportId, Long edgeId, Long microphoneId, Long installationId,
+      \t LocalDateTime occurredAt)
+    }
+
+    class RecordLowBatteryCommand <<Record>> #FFE4C4 {
+      + RecordLowBatteryCommand(String reportId, Long edgeId, Long deviceId, DeviceType deviceType,
+      \t Long installationId, Integer batteryLevel, LocalDateTime occurredAt)
+    }
+
+    class RecordActuatorActionCommand <<Record>> #FFE4C4 {
+      + RecordActuatorActionCommand(String reportId, Long edgeId, Long actuatorId, DeviceType actuatorType,
+      \t Long installationId, ActionType action, ActionResult result,
+      \t LocalDateTime occurredAt)
+    }
+  }
+
+  package "domain.model.queries" #EEF8EF {
+
+    class GetAllHelpRequestsByInstallationIdQuery <<Record>> #D5F0D8 {
+      + GetAllHelpRequestsByInstallationIdQuery(Long installationId)
+    }
+
+    class GetAllLowBatteryAlertsByInstallationIdQuery <<Record>> #D5F0D8 {
+      + GetAllLowBatteryAlertsByInstallationIdQuery(Long installationId)
+    }
+
+    class GetAllActuatorActionsByInstallationIdQuery <<Record>> #D5F0D8 {
+      + GetAllActuatorActionsByInstallationIdQuery(Long installationId)
+    }
+
+    class GetActuatorActionSummaryByPeriodQuery <<Record>> #D5F0D8 {
+      + GetActuatorActionSummaryByPeriodQuery(LocalDateTime from, LocalDateTime to)
+    }
+
+    class GetActuatorActionSummaryByInstallationIdQuery <<Record>> #D5F0D8 {
+      + GetActuatorActionSummaryByInstallationIdQuery(Long installationId,
+      \t LocalDateTime from, LocalDateTime to)
+    }
+  }
+
+  package "domain.exceptions" #FFF5F6 {
+    class InvalidReportId <<Exception>> {
+      + InvalidReportId(String reportId)
+    }
+    class InvalidBatteryLevel <<Exception>> {
+      + InvalidBatteryLevel(Integer percentage)
+    }
+    class BatteryNotLow <<Exception>> {
+      + BatteryNotLow(Integer percentage)
+    }
+    class InvalidActionForDevice <<Exception>> {
+      + InvalidActionForDevice(ActionType action, DeviceType type)
+    }
+    class InvalidPeriod <<Exception>> {
+      + InvalidPeriod(LocalDateTime from, LocalDateTime to)
+    }
+  }
+
+  package "domain.services" #FFFCEA {
+
+    interface HelpRequestCommandService #FFF3B0 {
+      String handle(RecordHelpRequestCommand command)
+    }
+
+    interface HelpRequestQueryService #FFF3B0 {
+      List<HelpRequest> handle(GetAllHelpRequestsByInstallationIdQuery query)
+    }
+
+    interface LowBatteryAlertCommandService #FFF3B0 {
+      String handle(RecordLowBatteryCommand command)
+    }
+
+    interface LowBatteryAlertQueryService #FFF3B0 {
+      List<LowBatteryAlert> handle(GetAllLowBatteryAlertsByInstallationIdQuery query)
+    }
+
+    interface ActuatorActionCommandService #FFF3B0 {
+      String handle(RecordActuatorActionCommand command)
+    }
+
+    interface ActuatorActionQueryService #FFF3B0 {
+      List<ActuatorAction> handle(GetAllActuatorActionsByInstallationIdQuery query)
+      List<ActuatorActionSummary> handle(GetActuatorActionSummaryByPeriodQuery query)
+      List<ActuatorActionSummary> handle(GetActuatorActionSummaryByInstallationIdQuery query)
+    }
+  }
+}
+
+note as N_Shared
+  <b>Value objects de Shared que usa Tracking</b>
+  --
+  <b>EdgeId</b>: edge de Assets que envió el reporte.
+  <b>DeviceId</b>: dispositivo de Assets del reporte
+  (micrófono o actuador).
+  <b>InstallationId</b>: instalación de Soporte Técnico
+  de la red del edge.
+  <b>AuditableMongoAggregateRoot</b>: base de los tres
+  aggregates (id de texto, createdAt y eventos).
+  Tracking solo guarda ids: nunca accede a esos
+  contextos directamente.
+end note
+
+' ---------- DISPOSICIÓN ----------
+RecordHelpRequestCommand -[hidden]down- RecordLowBatteryCommand
+RecordLowBatteryCommand -[hidden]down- RecordActuatorActionCommand
+GetAllHelpRequestsByInstallationIdQuery -[hidden]down- GetAllLowBatteryAlertsByInstallationIdQuery
+GetAllLowBatteryAlertsByInstallationIdQuery -[hidden]down- GetAllActuatorActionsByInstallationIdQuery
+GetAllActuatorActionsByInstallationIdQuery -[hidden]down- GetActuatorActionSummaryByPeriodQuery
+GetActuatorActionSummaryByPeriodQuery -[hidden]down- GetActuatorActionSummaryByInstallationIdQuery
+InvalidReportId -[hidden]down- InvalidBatteryLevel
+InvalidBatteryLevel -[hidden]down- BatteryNotLow
+BatteryNotLow -[hidden]down- InvalidActionForDevice
+InvalidActionForDevice -[hidden]down- InvalidPeriod
+
+' ---------- COMPOSICIÓN Y REFERENCIAS ----------
+HelpRequest "1" *-- "1" ReportId : reportId
+LowBatteryAlert "1" *-- "1" ReportId : reportId
+ActuatorAction "1" *-- "1" ReportId : reportId
+LowBatteryAlert "1" *-- "1" BatteryLevel : batteryLevel
+LowBatteryAlert "0..*" --> "1" DeviceType : deviceType
+ActuatorAction "0..*" --> "1" DeviceType : actuatorType
+ActuatorAction "0..*" --> "1" ActionType : action
+ActuatorAction "0..*" --> "1" ActionResult : result
+ActionType ..> DeviceType : isValidFor >
+ActuatorActionSummary "0..*" --> "1" DeviceType : actuatorType
+ActuatorActionSummary "0..*" --> "1" ActionType : action
+ActuatorActionSummary ..> ActuatorAction : resume >
+
+' ---------- EVENTOS ----------
+HelpRequest ..> HelpRequestedEvent : registra >
+LowBatteryAlert ..> LowBatteryDetectedEvent : registra >
+ActuatorAction ..> ActuatorActionFailedEvent : registra >
+
+' ---------- SERVICES ----------
+HelpRequestCommandService ..> RecordHelpRequestCommand : recibe >
+HelpRequestCommandService ..> HelpRequest : crea >
+HelpRequestQueryService -[#2E8B57]-> GetAllHelpRequestsByInstallationIdQuery : recibe >
+HelpRequestQueryService -[#2E8B57]-> HelpRequest : devuelve >
+
+LowBatteryAlertCommandService ..> RecordLowBatteryCommand : recibe >
+LowBatteryAlertCommandService ..> LowBatteryAlert : crea >
+LowBatteryAlertQueryService -[#2E8B57]-> GetAllLowBatteryAlertsByInstallationIdQuery : recibe >
+LowBatteryAlertQueryService -[#2E8B57]-> LowBatteryAlert : devuelve >
+
+ActuatorActionCommandService ..> RecordActuatorActionCommand : recibe >
+ActuatorActionCommandService ..> ActuatorAction : crea >
+ActuatorActionQueryService -[#2E8B57]-> GetAllActuatorActionsByInstallationIdQuery : recibe >
+ActuatorActionQueryService -[#2E8B57]-> GetActuatorActionSummaryByPeriodQuery : recibe >
+ActuatorActionQueryService -[#2E8B57]-> GetActuatorActionSummaryByInstallationIdQuery : recibe >
+ActuatorActionQueryService -[#2E8B57]-> ActuatorAction : devuelve >
+ActuatorActionQueryService -[#2E8B57]-> ActuatorActionSummary : devuelve >
+
+' ---------- REGLAS DE LOS SERVICES ----------
+note as N_RulesReport
+  <b>Reglas comunes de los CommandService</b>
+  --
+  El edge se autentica en IAM con su credencial
+  (AuthenticateDeviceCommand) y envía el reporte con el
+  token que recibe; el edgeId sale de ese token.
+  Un edge retirado de la red ya no tiene credencial y
+  no puede reportar.
+  <b>El reporte llega completo</b>: Assets le envía al
+  edge la tabla de su red (EdgeAccessTable con networkId,
+  installationId y el tipo de cada dispositivo) cada vez
+  que la red cambia. El edge copia de ahí installationId,
+  deviceId y tipo; Tracking no consulta a Assets por cada
+  reporte, así el pedido de auxilio no depende de otra
+  llamada. Un equipo retirado de la red ya no está en la
+  tabla del edge, así que el edge no reporta por él.
+  Todos los datos del command son obligatorios.
+  <b>Reintentos</b>: si se corta la conexión, el edge
+  guarda el reporte en su base local y lo reenvía al
+  reconectarse, con el mismo reportId y su occurredAt
+  original. Si ya existe un reporte con ese reportId en
+  la colección, el CommandService devuelve el id guardado
+  sin crear otro ni registrar el evento de nuevo.
+end note
+
+note as N_RulesEach
+  <b>Reglas de cada CommandService</b>
+  --
+  <b>RecordHelpRequestCommand</b>: lo envía el edge de
+  micrófono, directo a la nube.
+  <b>RecordLowBatteryCommand</b>: cada edge envía la
+  batería de sus dispositivos (el micrófono, por el edge
+  de micrófono; los actuadores, por el edge de
+  actuadores), una vez al llegar a 10 % y otra al llegar
+  a 5 %. BatteryLevel valida 0 a 100 (InvalidBatteryLevel)
+  y el aggregate que sea bajo (BatteryNotLow).
+  <b>RecordActuatorActionCommand</b>: lo envía el edge de
+  actuadores. La acción corresponde al tipo de actuador
+  (InvalidActionForDevice).
+  --
+  <b>Queries de resumen</b> (Analytics, por ACL): from es
+  anterior a to (InvalidPeriod). Agrupan por tipo de
+  actuador y ActionType.
+end note
+
+HelpRequestCommandService .. N_RulesReport
+LowBatteryAlertCommandService .. N_RulesReport
+ActuatorActionCommandService .. N_RulesReport
+ActuatorActionCommandService .. N_RulesEach
+
+@enduml
