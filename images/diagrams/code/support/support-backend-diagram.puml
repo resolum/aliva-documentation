@@ -1,0 +1,1141 @@
+@startuml
+' Bounded Context: Support (Soporte Técnico). Solo capa domain. Persistencia: PostgreSQL.
+'
+' Decisiones de diseño:
+'  ST1 Cuatro aggregates: Installation (el hogar de una persona asistida y sus equipos), Appointment (la
+'      cita que agenda el familiar para la evaluación), Assignment (la visita que el administrador
+'      asigna a un técnico) y Ticket (la falla que reporta el familiar).
+'  ST2 Installation pertenece a la persona asistida (AssistedPersonId). La registra su familiar en el
+'      formulario de instalación, después de suscribirse y pagar: dirección del hogar (inmutable) y
+'      actuadores que eligió. La dirección no tiene método para cambiarse.
+'  ST3 Planes (Payments): MINIMUM, 1 actuador que el familiar elige; CUSTOM, hasta 4 actuadores, en la
+'      cantidad que quiera de cada tipo. Installation guarda una copia del plan y la selección
+'      (ActuatorSelection). Siempre se instalan además los dos edges y el micrófono.
+'  ST4 Appointment: el familiar agenda la cita con un día y un rango de horas en que está libre (ej.
+'      lunes de 13:00 a 17:00) y vuelve a escribir la dirección, que debe coincidir con la de la
+'      instalación (solo valida). El administrador ve las citas pendientes y asigna un técnico.
+'  ST5 Assignment es la base abstracta de InstallationAssignment (evaluar e instalar, nace de una cita) y
+'      RepairAssignment (atender un ticket). Es la lista de asignaciones del técnico.
+'  ST6 La visita de instalación evalúa si el hogar es viable y cuántos actuadores elegidos se pueden
+'      instalar: MEETS (todos), PARTIALLY_MEETS (algunos) o DOES_NOT_MEET (ninguno; se devuelve el
+'      pago si es la primera). La visita no cambia la instalación: registra un evento e Installation
+'      cambia su propio estado.
+'  ST7 Una instalación parcial se queda así hasta que el hogar se adecúa; entonces el familiar agenda
+'      otra cita (re-evaluación) y solo se agregan los actuadores que faltan.
+'  ST8 InstalledEquipment siempre está completo (los dos edges, el micrófono y al menos un actuador) y
+'      se guarda una sola vez, en Installation. Nunca supera lo elegido por el familiar.
+'  ST9 El técnico identifica los equipos por MAC; application los convierte en ids y tipos con Assets.
+'  ST10 Ningún aggregate modifica a otro: los cambios entre ellos pasan por eventos que activan
+'      commands.
+'  ST11 Se agregan a Shared EmployeeId (técnico de HCM) y AssistedPersonId (persona asistida).
+
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+  BackgroundColor<<Exception>> #FFEBEE
+  BorderColor<<Exception>> #C62828
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #B8A800
+}
+skinparam package {
+  BorderColor #888888
+  FontStyle bold
+}
+
+legend left
+  |= Color |= Significado |
+  |<#DCEBFA>   | Aggregate |
+  |<#EADCF8>   | Value Object / Enum |
+  |<#FFE4C4>   | Command (escritura) |
+  |<#D5F0D8>   | Query (lectura) |
+  |<#FFF3B0>   | Service (interface) |
+  |<#CDEFF2>   | Event |
+  |<#FFEBEE>   | Exception (dominio) |
+  |<#6A1B9A>   | Referencia directa (mismo contexto) |
+  |<#2E8B57>   | Flecha de lectura (QueryService) |
+endlegend
+
+package alivia.platform.Support {
+
+  package "domain.model.aggregates" #F4F9FE {
+
+    class Installation #DCEBFA {
+      - AssistedPersonId assistedPersonId
+      - UserId requestedBy
+      - BusinessId businessId
+      - Address address
+      - SubscriptionPlan plan
+      - ActuatorSelection requestedActuators
+      - InstallationStatus status
+      - InstalledEquipment equipment
+      --
+      + Installation(AssistedPersonId assistedPersonId, UserId requestedBy,
+      \t BusinessId businessId, Address address, SubscriptionPlan plan,
+      \t ActuatorSelection requestedActuators)
+      + install(EvaluationResult result, InstalledEquipment equipment)
+      + addActuators(EvaluationResult result, List<InstalledActuator> actuators)
+      + markRequirementsNotMet()
+      + requestReevaluation()
+      + replaceEquipment(List<EquipmentReplacement> replacements)
+      + isPendingEvaluation() : boolean
+      + isPartiallyInstalled() : boolean
+      + hasEquipment() : boolean
+      + hasAddress(Address address) : boolean
+      + isRequestedBy(UserId userId) : boolean
+    }
+
+    note bottom of Installation
+      <b>Instalación del hogar de una persona asistida</b>
+      La registra su familiar en el formulario de
+      instalación. address es inmutable.
+      Constructor: estado PENDING_EVALUATION; sin
+      equipment; requestedActuators cabe en el plan
+      (MINIMUM 1, CUSTOM de 1 a 4; InvalidActuatorSelection).
+      --
+      <b>Transiciones</b> (InvalidInstallationStatusTransition)
+      install, addActuators y markRequirementsNotMet: solo
+      en PENDING_EVALUATION.
+      install (primera visita, sin equipment): guarda el
+      InstalledEquipment. Ningún tipo supera lo elegido
+      (ExceedsRequestedActuators). MEETS si se instalaron
+      todos los elegidos, PARTIALLY_MEETS si faltan
+      (EvaluationResultMismatch). MEETS a INSTALLED,
+      PARTIALLY_MEETS a PARTIALLY_INSTALLED. Registra
+      EquipmentInstalledEvent.
+      addActuators (re-evaluación): suma los actuadores
+      nuevos con las mismas reglas, contando los ya
+      instalados. Registra ActuatorsAddedEvent.
+      markRequirementsNotMet: sin equipment, a REJECTED
+      (estado final; InstallationRejectedEvent, devolución
+      del pago). Con equipment, vuelve a PARTIALLY_INSTALLED.
+      requestReevaluation: PARTIALLY_INSTALLED a
+      PENDING_EVALUATION (el familiar agendó otra cita).
+      replaceEquipment: solo INSTALLED o PARTIALLY_INSTALLED;
+      el viejo está instalado (EquipmentNotInstalled) y el
+      nuevo no (EquipmentAlreadyInstalled); registra
+      EquipmentReplacedEvent.
+      --
+      <b>Consultas</b>: isPendingEvaluation,
+      isPartiallyInstalled, hasAddress e isRequestedBy las
+      usa Appointment; hasEquipment, Ticket e
+      InstallationAssignment.
+    end note
+
+    class Appointment #DCEBFA {
+      - Installation installation
+      - UserId requestedBy
+      - LocalDate date
+      - TimeRange availability
+      - boolean reevaluation
+      - AppointmentStatus status
+      --
+      + Appointment(Installation installation, UserId requestedBy, LocalDate date,
+      \t TimeRange availability, Address confirmedAddress, LocalDate today)
+      + markScheduled()
+      + complete()
+      + isRequested() : boolean
+      + isActive() : boolean
+      + allows(TimeRange timeRange) : boolean
+    }
+
+    note bottom of Appointment
+      <b>Cita para evaluar e instalar</b>
+      El familiar indica el día y el rango de horas en que
+      está libre (ej. lunes de 13:00 a 17:00).
+      Constructor: estado REQUESTED. Solo el familiar que
+      registró la instalación (InstallationNotRequestedByUser).
+      confirmedAddress es igual a la de la instalación
+      (AddressMismatch): solo valida, no se guarda.
+      date no es anterior a hoy (InvalidAppointmentDate);
+      availability no cruza medianoche.
+      La instalación está PENDING_EVALUATION (primera
+      evaluación) o PARTIALLY_INSTALLED (re-evaluación;
+      reevaluation = true); si no, InstallationNotSchedulable.
+      Registra AppointmentRequestedEvent.
+      --
+      markScheduled: REQUESTED a SCHEDULED (se le asignó un
+      técnico). complete: SCHEDULED a COMPLETED (la visita
+      se atendió). InvalidAppointmentStatusTransition.
+      isRequested: REQUESTED (la usa InstallationAssignment
+      al crearse). isActive: REQUESTED o SCHEDULED.
+      allows: el rango de la visita está dentro de
+      availability.
+    end note
+
+    abstract class Assignment #DCEBFA {
+      - EmployeeId technicianId
+      - LocalDate scheduledDate
+      - TimeRange timeRange
+      - AssignmentStatus status
+      - List<Photo> photos
+      - LocalDateTime attendedAt
+      --
+      # Assignment(EmployeeId technicianId, LocalDate scheduledDate,
+      \t TimeRange timeRange, LocalDate today)
+      + isAssignedTo(EmployeeId technicianId) : boolean
+      + overlapsWith(LocalDate date, TimeRange timeRange) : boolean
+      + isAttended() : boolean
+      + reassign(EmployeeId technicianId, LocalDate scheduledDate,
+      \t TimeRange timeRange, LocalDate today)
+      # markAttended(List<Photo> photos, LocalDateTime now)
+    }
+
+    note bottom of Assignment
+      <b>Assignment</b> (base abstracta de las visitas)
+      No es un aggregate propio: no tiene repositorio.
+      Es lo que el técnico ve en su lista de asignaciones.
+      Constructor: estado ASSIGNED; scheduledDate no es
+      anterior a hoy (InvalidAssignmentDate).
+      markAttended: solo ASSIGNED (AssignmentAlreadyAttended);
+      al menos una foto (PhotosRequired); pasa a ATTENDED y
+      guarda attendedAt.
+      reassign: solo ASSIGNED (AssignmentAlreadyAttended);
+      cambia técnico, fecha y horas con las mismas reglas.
+      overlapsWith: misma fecha y rangos que se cruzan.
+      isAssignedTo: el técnico que la atiende es el asignado
+      (AssignmentNotForTechnician). isAttended: si ya se
+      atendió (para la lista del técnico).
+    end note
+
+    class InstallationAssignment #DCEBFA {
+      - Appointment appointment
+      - boolean reevaluation
+      - EvaluationResult result
+      --
+      + InstallationAssignment(Appointment appointment, EmployeeId technicianId,
+      \t TimeRange timeRange, LocalDate today)
+      + attendInstallation(EvaluationResult result, InstalledEquipment installed,
+      \t List<Photo> photos, LocalDateTime now)
+      + attendReevaluation(EvaluationResult result, List<InstalledActuator> actuators,
+      \t List<Photo> photos, LocalDateTime now)
+      + attendRequirementsNotMet(List<Photo> photos, LocalDateTime now)
+      + reassign(EmployeeId technicianId, LocalDate scheduledDate,
+      \t TimeRange timeRange, LocalDate today)
+    }
+
+    class RepairAssignment #DCEBFA {
+      - Ticket ticket
+      - String failureReason
+      - List<EquipmentReplacement> replacements
+      --
+      + RepairAssignment(Ticket ticket, EmployeeId technicianId,
+      \t LocalDate scheduledDate, TimeRange timeRange, LocalDate today)
+      + attend(String failureReason, List<EquipmentReplacement> replacements,
+      \t List<Photo> photos, LocalDateTime now)
+    }
+
+    note bottom of InstallationAssignment
+      <b>InstallationAssignment</b>: la visita de una cita.
+      El técnico evalúa si el hogar es viable y cuántos de
+      los actuadores elegidos se pueden instalar.
+      Constructor: la cita está REQUESTED
+      (AppointmentNotRequested); scheduledDate es el día de
+      la cita y timeRange está dentro de su availability
+      (OutsideAppointmentAvailability). reevaluation se
+      copia de la cita. Registra
+      InstallationAssignmentCreatedEvent.
+      reassign: mismo día de la cita y dentro de su
+      availability (OutsideAppointmentAvailability).
+      Guarda solo el resultado y las fotos; los equipos
+      viajan en el evento y los guarda Installation.
+      attendInstallation: solo la primera visita
+      (EvaluationTypeMismatch); MEETS o PARTIALLY_MEETS
+      (InvalidEvaluationResult). Registra
+      InstallationAssignmentAttendedEvent.
+      attendReevaluation: solo una re-evaluación
+      (EvaluationTypeMismatch); MEETS o PARTIALLY_MEETS
+      (InvalidEvaluationResult); al menos un actuador
+      (EquipmentRequired). Registra
+      ReevaluationAssignmentAttendedEvent.
+      attendRequirementsNotMet: cualquier visita; result
+      DOES_NOT_MEET; sin equipos; las fotos muestran el
+      hogar. Registra RequirementsNotMetEvent.
+      --
+      <b>RepairAssignment</b>: visita para atender un ticket.
+      Constructor: el ticket está OPEN (TicketNotOpen);
+      registra RepairAssignmentCreatedEvent.
+      attend: motivo de la falla no vacío
+      (FailureReasonRequired) y fotos de la reparación.
+      replacements: registro de los equipos que cambió
+      (vacía si solo reparó). Registra
+      RepairAssignmentAttendedEvent.
+    end note
+
+    class Ticket #DCEBFA {
+      - Installation installation
+      - UserId createdBy
+      - String description
+      - TicketStatus status
+      --
+      + Ticket(Installation installation, UserId createdBy, String description)
+      + markAssigned()
+      + resolve()
+      + isOpen() : boolean
+    }
+
+    note bottom of Ticket
+      <b>Ticket</b>: el familiar reporta que un dispositivo
+      del hogar está fallando, solo con una descripción.
+      Constructor: estado OPEN; description no vacía
+      (TicketDescriptionRequired); la instalación tiene
+      equipos (InstallationWithoutEquipment); solo el
+      familiar que la registró (InstallationNotRequestedByUser).
+      markAssigned: OPEN a ASSIGNED (TicketNotOpen).
+      resolve: ASSIGNED a RESOLVED
+      (InvalidTicketStatusTransition).
+      isOpen: lo usa RepairAssignment al crearse.
+    end note
+  }
+
+  package "domain.model.valueobjects" #F9F4FD {
+
+    class ActuatorSelection <<Record>> #EADCF8 {
+      + List<ActuatorQuantity> items
+      + ActuatorSelection(List<ActuatorQuantity> items)
+      + total() : Integer
+      + quantityOf(ActuatorType type) : Integer
+      + fits(SubscriptionPlan plan) : boolean
+    }
+
+    class ActuatorQuantity <<Record>> #EADCF8 {
+      + ActuatorType type
+      + Integer quantity
+      + ActuatorQuantity(ActuatorType type, Integer quantity)
+    }
+
+    note bottom of ActuatorSelection
+      Actuadores que eligió el familiar: cuántos de cada
+      tipo (ej. 2 DOOR, 1 CURTAIN, 1 LIGHT).
+      Cada tipo aparece una vez y quantity es mayor que 0
+      (InvalidActuatorSelection).
+      total: suma de quantity. quantityOf: cuántos se
+      eligieron de un tipo (0 si ninguno).
+      fits: total() entre 1 y plan.maxActuators().
+    end note
+
+    class InstalledActuator <<Record>> #EADCF8 {
+      + DeviceId deviceId
+      + ActuatorType type
+      + InstalledActuator(DeviceId deviceId, ActuatorType type)
+    }
+
+    class InstalledEquipment <<Record>> #EADCF8 {
+      + EdgeId microphoneEdgeId
+      + EdgeId actuatorEdgeId
+      + DeviceId microphoneId
+      + List<InstalledActuator> actuators
+      + InstalledEquipment(EdgeId microphoneEdgeId, EdgeId actuatorEdgeId,
+      \t DeviceId microphoneId, List<InstalledActuator> actuators)
+      + countOf(ActuatorType type) : Integer
+      + covers(ActuatorSelection selection) : boolean
+      + exceeds(ActuatorSelection selection) : boolean
+      + contains(AssetKind kind, Long assetId) : boolean
+      + addActuators(List<InstalledActuator> actuators) : InstalledEquipment
+      + replace(EquipmentReplacement replacement) : InstalledEquipment
+    }
+
+    note bottom of InstalledEquipment
+      Equipos de Assets instalados en el hogar. Siempre
+      completo: el edge de micrófono, el edge de actuadores
+      y el micrófono no son nulos, y hay al menos un
+      actuador, sin repetidos (IncompleteInstalledEquipment).
+      countOf: cuántos actuadores hay de un tipo.
+      covers: de cada tipo, countOf igual a lo elegido.
+      exceeds: de algún tipo, countOf mayor a lo elegido.
+      addActuators: ninguno ya instalado
+      (EquipmentAlreadyInstalled).
+      contains: si un edge o dispositivo está instalado.
+      replace: pone el nuevo en el lugar del viejo.
+      El tipo de cada actuador sale de Assets (DeviceType).
+    end note
+
+    class EquipmentReplacement <<Record>> #EADCF8 {
+      + AssetKind kind
+      + Long oldAssetId
+      + Long newAssetId
+      + EquipmentReplacement(AssetKind kind, Long oldAssetId, Long newAssetId)
+    }
+
+    note bottom of EquipmentReplacement
+      Un equipo malogrado que el técnico cambió por otro en
+      una reparación. oldAssetId y newAssetId son distintos
+      (InvalidReplacement). El técnico los indica por MAC.
+      Assets valida que el nuevo sea del mismo tipo y esté
+      AVAILABLE.
+    end note
+
+    enum SubscriptionPlan #EADCF8 {
+      MINIMUM
+      CUSTOM
+      --
+      + maxActuators() : Integer
+    }
+
+    note bottom of SubscriptionPlan
+      Copia del plan que el familiar pagó en Payments.
+      maxActuators: MINIMUM 1, CUSTOM 4.
+    end note
+
+    enum ActuatorType #EADCF8 {
+      DOOR
+      WINDOW
+      CURTAIN
+      LIGHT
+    }
+
+    enum AssetKind #EADCF8 {
+      EDGE
+      DEVICE
+    }
+
+    enum InstallationStatus #EADCF8 {
+      PENDING_EVALUATION
+      INSTALLED
+      PARTIALLY_INSTALLED
+      REJECTED
+    }
+
+    enum AppointmentStatus #EADCF8 {
+      REQUESTED
+      SCHEDULED
+      COMPLETED
+    }
+
+    enum EvaluationResult #EADCF8 {
+      MEETS
+      PARTIALLY_MEETS
+      DOES_NOT_MEET
+    }
+
+    enum AssignmentStatus #EADCF8 {
+      ASSIGNED
+      ATTENDED
+    }
+
+    enum TicketStatus #EADCF8 {
+      OPEN
+      ASSIGNED
+      RESOLVED
+    }
+  }
+
+  package "domain.model.events" #DDF3F5 {
+
+    class AppointmentRequestedEvent <<Record>> #CDEFF2 {
+      + AppointmentRequestedEvent(Long appointmentId, Long installationId,
+      \t boolean reevaluation)
+    }
+
+    class InstallationAssignmentCreatedEvent <<Record>> #CDEFF2 {
+      + InstallationAssignmentCreatedEvent(Long assignmentId, Long appointmentId)
+    }
+
+    class InstallationAssignmentAttendedEvent <<Record>> #CDEFF2 {
+      + InstallationAssignmentAttendedEvent(Long assignmentId, Long appointmentId,
+      \t Long installationId, EvaluationResult result, InstalledEquipment installed)
+    }
+
+    class ReevaluationAssignmentAttendedEvent <<Record>> #CDEFF2 {
+      + ReevaluationAssignmentAttendedEvent(Long assignmentId, Long appointmentId,
+      \t Long installationId, EvaluationResult result, List<InstalledActuator> actuators)
+    }
+
+    class RequirementsNotMetEvent <<Record>> #CDEFF2 {
+      + RequirementsNotMetEvent(Long assignmentId, Long appointmentId, Long installationId)
+    }
+
+    class RepairAssignmentCreatedEvent <<Record>> #CDEFF2 {
+      + RepairAssignmentCreatedEvent(Long assignmentId, Long ticketId)
+    }
+
+    class RepairAssignmentAttendedEvent <<Record>> #CDEFF2 {
+      + RepairAssignmentAttendedEvent(Long assignmentId, Long ticketId,
+      \t List<EquipmentReplacement> replacements)
+    }
+
+    class EquipmentInstalledEvent <<Record>> #CDEFF2 {
+      + EquipmentInstalledEvent(Long installationId, Long businessId,
+      \t InstalledEquipment installed)
+    }
+
+    class ActuatorsAddedEvent <<Record>> #CDEFF2 {
+      + ActuatorsAddedEvent(Long installationId, List<InstalledActuator> actuators)
+    }
+
+    class EquipmentReplacedEvent <<Record>> #CDEFF2 {
+      + EquipmentReplacedEvent(Long installationId, Long businessId,
+      \t List<EquipmentReplacement> replacements)
+    }
+
+    class InstallationRejectedEvent <<Record>> #CDEFF2 {
+      + InstallationRejectedEvent(Long installationId, Long assistedPersonId, Long requestedBy)
+    }
+
+    note bottom of EquipmentInstalledEvent
+      <b>Dentro de Support</b>
+      AppointmentRequestedEvent: si es re-evaluación, activa
+      RequestReevaluationCommand.
+      InstallationAssignmentCreatedEvent: activa
+      MarkAppointmentScheduledCommand.
+      InstallationAssignmentAttendedEvent: activa
+      InstallEquipmentCommand y CompleteAppointmentCommand.
+      ReevaluationAssignmentAttendedEvent: activa
+      AddActuatorsCommand y CompleteAppointmentCommand.
+      RequirementsNotMetEvent: activa
+      MarkRequirementsNotMetCommand y
+      CompleteAppointmentCommand.
+      RepairAssignmentCreatedEvent: activa
+      MarkTicketAssignedCommand.
+      RepairAssignmentAttendedEvent: activa
+      ResolveTicketCommand y, si hubo cambios,
+      ReplaceEquipmentCommand.
+      --
+      <b>Hacia otros contextos</b> (application, por ACL)
+      EquipmentInstalledEvent: Assets
+      CreateDeviceNetworkCommand con los equipos.
+      ActuatorsAddedEvent: Assets AddDeviceToNetworkCommand
+      por cada actuador (red de
+      GetDeviceNetworkByInstallationIdQuery).
+      EquipmentReplacedEvent: Assets ChangeEdgeStatusCommand
+      o ChangeDeviceStatusCommand con BROKEN para el viejo
+      (lo retira de la red) y luego AddEdgeToNetworkCommand
+      o AddDeviceToNetworkCommand con el nuevo.
+      InstallationRejectedEvent: Payments devuelve el pago y
+      Communication avisa al familiar.
+      --
+      <b>Credencial de cada edge</b>: al crear la red o
+      agregar un edge, Assets pide a IAM su credencial
+      (IssueDeviceCredentialCommand) y devuelve el secreto;
+      application se lo muestra una sola vez al técnico para
+      configurar el edge en el hogar.
+    end note
+  }
+
+  package "domain.model.commands" #FFF6EC {
+
+    class RequestInstallationCommand <<Record>> #FFE4C4 {
+      - Long assistedPersonId
+      - Long requestedBy
+      - String formattedAddress
+      - Double latitude
+      - Double longitude
+      - String placeId
+      - Map<ActuatorType, Integer> actuators
+      + RequestInstallationCommand(...)
+    }
+
+    class ScheduleAppointmentCommand <<Record>> #FFE4C4 {
+      - Long installationId
+      - Long requestedBy
+      - LocalDate date
+      - LocalTime availableFrom
+      - LocalTime availableTo
+      - String formattedAddress
+      - Double latitude
+      - Double longitude
+      - String placeId
+      + ScheduleAppointmentCommand(...)
+    }
+
+    class MarkAppointmentScheduledCommand <<Record>> #FFE4C4 {
+      + MarkAppointmentScheduledCommand(Long appointmentId)
+    }
+
+    class CompleteAppointmentCommand <<Record>> #FFE4C4 {
+      + CompleteAppointmentCommand(Long appointmentId)
+    }
+
+    class RequestReevaluationCommand <<Record>> #FFE4C4 {
+      + RequestReevaluationCommand(Long installationId)
+    }
+
+    class InstallEquipmentCommand <<Record>> #FFE4C4 {
+      + InstallEquipmentCommand(Long installationId, EvaluationResult result,
+      \t InstalledEquipment installed)
+    }
+
+    class AddActuatorsCommand <<Record>> #FFE4C4 {
+      + AddActuatorsCommand(Long installationId, EvaluationResult result,
+      \t List<InstalledActuator> actuators)
+    }
+
+    class MarkRequirementsNotMetCommand <<Record>> #FFE4C4 {
+      + MarkRequirementsNotMetCommand(Long installationId)
+    }
+
+    class ReplaceEquipmentCommand <<Record>> #FFE4C4 {
+      + ReplaceEquipmentCommand(Long installationId,
+      \t List<EquipmentReplacement> replacements)
+    }
+
+    class CreateInstallationAssignmentCommand <<Record>> #FFE4C4 {
+      + CreateInstallationAssignmentCommand(Long appointmentId, Long technicianId,
+      \t LocalTime startTime, LocalTime endTime)
+    }
+
+    class CreateRepairAssignmentCommand <<Record>> #FFE4C4 {
+      + CreateRepairAssignmentCommand(Long ticketId, Long technicianId,
+      \t LocalDate scheduledDate, LocalTime startTime, LocalTime endTime)
+    }
+
+    class ReassignAssignmentCommand <<Record>> #FFE4C4 {
+      + ReassignAssignmentCommand(Long assignmentId, Long technicianId,
+      \t LocalDate scheduledDate, LocalTime startTime, LocalTime endTime)
+    }
+
+    class AttendInstallationAssignmentCommand <<Record>> #FFE4C4 {
+      - Long assignmentId
+      - Long technicianId
+      - EvaluationResult result
+      - String microphoneEdgeMacAddress
+      - String actuatorEdgeMacAddress
+      - String microphoneMacAddress
+      - List<String> actuatorMacAddresses
+      - List<byte[]> photosData
+      + AttendInstallationAssignmentCommand(...)
+    }
+
+    class AttendReevaluationAssignmentCommand <<Record>> #FFE4C4 {
+      + AttendReevaluationAssignmentCommand(Long assignmentId, Long technicianId,
+      \t EvaluationResult result, List<String> actuatorMacAddresses,
+      \t List<byte[]> photosData)
+    }
+
+    class ReportRequirementsNotMetCommand <<Record>> #FFE4C4 {
+      + ReportRequirementsNotMetCommand(Long assignmentId, Long technicianId,
+      \t List<byte[]> photosData)
+    }
+
+    class AttendRepairAssignmentCommand <<Record>> #FFE4C4 {
+      + AttendRepairAssignmentCommand(Long assignmentId, Long technicianId,
+      \t String failureReason, Map<String, String> replacedMacAddresses,
+      \t List<byte[]> photosData)
+    }
+
+    class CreateTicketCommand <<Record>> #FFE4C4 {
+      + CreateTicketCommand(Long installationId, Long createdBy, String description)
+    }
+
+    class MarkTicketAssignedCommand <<Record>> #FFE4C4 {
+      + MarkTicketAssignedCommand(Long ticketId)
+    }
+
+    class ResolveTicketCommand <<Record>> #FFE4C4 {
+      + ResolveTicketCommand(Long ticketId)
+    }
+  }
+
+  package "domain.model.queries" #EEF8EF {
+
+    class GetInstallationByIdQuery <<Record>> #D5F0D8 {
+      + GetInstallationByIdQuery(Long installationId)
+    }
+
+    class GetInstallationByAssistedPersonIdQuery <<Record>> #D5F0D8 {
+      + GetInstallationByAssistedPersonIdQuery(Long assistedPersonId)
+    }
+
+    class GetAllInstallationsByStatusQuery <<Record>> #D5F0D8 {
+      + GetAllInstallationsByStatusQuery(InstallationStatus status)
+    }
+
+    class GetAppointmentByIdQuery <<Record>> #D5F0D8 {
+      + GetAppointmentByIdQuery(Long appointmentId)
+    }
+
+    class GetAllAppointmentsByStatusQuery <<Record>> #D5F0D8 {
+      + GetAllAppointmentsByStatusQuery(AppointmentStatus status)
+    }
+
+    class GetAllAppointmentsByInstallationIdQuery <<Record>> #D5F0D8 {
+      + GetAllAppointmentsByInstallationIdQuery(Long installationId)
+    }
+
+    class GetAssignmentByIdQuery <<Record>> #D5F0D8 {
+      + GetAssignmentByIdQuery(Long assignmentId)
+    }
+
+    class GetAllAssignmentsByTechnicianIdQuery <<Record>> #D5F0D8 {
+      + GetAllAssignmentsByTechnicianIdQuery(Long technicianId)
+    }
+
+    class GetAllAssignmentsByTechnicianIdAndDateQuery <<Record>> #D5F0D8 {
+      + GetAllAssignmentsByTechnicianIdAndDateQuery(Long technicianId, LocalDate date)
+    }
+
+    class GetTicketByIdQuery <<Record>> #D5F0D8 {
+      + GetTicketByIdQuery(Long ticketId)
+    }
+
+    class GetAllTicketsByInstallationIdQuery <<Record>> #D5F0D8 {
+      + GetAllTicketsByInstallationIdQuery(Long installationId)
+    }
+
+    class GetAllTicketsByStatusQuery <<Record>> #D5F0D8 {
+      + GetAllTicketsByStatusQuery(TicketStatus status)
+    }
+  }
+
+  package "domain.exceptions" #FFF5F6 {
+    class SubscriptionNotPaid <<Exception>> {
+      + SubscriptionNotPaid(Long assistedPersonId)
+    }
+    class AssistedPersonNotFound <<Exception>> {
+      + AssistedPersonNotFound(Long assistedPersonId)
+    }
+    class NotRelativeOfAssistedPerson <<Exception>> {
+      + NotRelativeOfAssistedPerson(Long userId, Long assistedPersonId)
+    }
+    class InstallationNotFound <<Exception>> {
+      + InstallationNotFound(Long installationId)
+    }
+    class InstallationAlreadyExists <<Exception>> {
+      + InstallationAlreadyExists(Long assistedPersonId)
+    }
+    class InstallationNotRequestedByUser <<Exception>> {
+      + InstallationNotRequestedByUser(Long installationId)
+    }
+    class InvalidActuatorSelection <<Exception>> {
+      + InvalidActuatorSelection()
+    }
+    class InvalidInstallationStatusTransition <<Exception>> {
+      + InvalidInstallationStatusTransition(InstallationStatus from, InstallationStatus to)
+    }
+    class InstallationNotPendingEvaluation <<Exception>> {
+      + InstallationNotPendingEvaluation(Long installationId)
+    }
+    class InstallationWithoutEquipment <<Exception>> {
+      + InstallationWithoutEquipment(Long installationId)
+    }
+    class IncompleteInstalledEquipment <<Exception>> {
+      + IncompleteInstalledEquipment()
+    }
+    class ExceedsRequestedActuators <<Exception>> {
+      + ExceedsRequestedActuators(ActuatorType type)
+    }
+    class EvaluationResultMismatch <<Exception>> {
+      + EvaluationResultMismatch(EvaluationResult result)
+    }
+    class EquipmentRequired <<Exception>> {
+      + EquipmentRequired()
+    }
+    class EquipmentNotFound <<Exception>> {
+      + EquipmentNotFound(String macAddress)
+    }
+    class EquipmentAlreadyInstalled <<Exception>> {
+      + EquipmentAlreadyInstalled(Long assetId)
+    }
+    class EquipmentNotInstalled <<Exception>> {
+      + EquipmentNotInstalled(Long assetId)
+    }
+    class InvalidReplacement <<Exception>> {
+      + InvalidReplacement(Long oldAssetId, Long newAssetId)
+    }
+    class AppointmentNotFound <<Exception>> {
+      + AppointmentNotFound(Long appointmentId)
+    }
+    class AppointmentAlreadyExists <<Exception>> {
+      + AppointmentAlreadyExists(Long installationId)
+    }
+    class AddressMismatch <<Exception>> {
+      + AddressMismatch(Long installationId)
+    }
+    class InvalidAppointmentDate <<Exception>> {
+      + InvalidAppointmentDate(LocalDate date)
+    }
+    class InstallationNotSchedulable <<Exception>> {
+      + InstallationNotSchedulable(Long installationId)
+    }
+    class AppointmentNotRequested <<Exception>> {
+      + AppointmentNotRequested(Long appointmentId)
+    }
+    class OutsideAppointmentAvailability <<Exception>> {
+      + OutsideAppointmentAvailability(Long appointmentId)
+    }
+    class InvalidAppointmentStatusTransition <<Exception>> {
+      + InvalidAppointmentStatusTransition(AppointmentStatus from, AppointmentStatus to)
+    }
+    class AssignmentNotFound <<Exception>> {
+      + AssignmentNotFound(Long assignmentId)
+    }
+    class InvalidAssignmentDate <<Exception>> {
+      + InvalidAssignmentDate(LocalDate scheduledDate)
+    }
+    class EmployeeNotFound <<Exception>> {
+      + EmployeeNotFound(Long technicianId)
+    }
+    class EmployeeNotTechnician <<Exception>> {
+      + EmployeeNotTechnician(Long technicianId)
+    }
+    class OutsideWorkingHours <<Exception>> {
+      + OutsideWorkingHours(Long technicianId)
+    }
+    class EmployeeOnVacation <<Exception>> {
+      + EmployeeOnVacation(Long technicianId, LocalDate date)
+    }
+    class AssignmentConflict <<Exception>> {
+      + AssignmentConflict(Long technicianId)
+    }
+    class AssignmentNotForTechnician <<Exception>> {
+      + AssignmentNotForTechnician(Long assignmentId)
+    }
+    class AssignmentAlreadyAttended <<Exception>> {
+      + AssignmentAlreadyAttended(Long assignmentId)
+    }
+    class InvalidEvaluationResult <<Exception>> {
+      + InvalidEvaluationResult(EvaluationResult result)
+    }
+    class EvaluationTypeMismatch <<Exception>> {
+      + EvaluationTypeMismatch(Long assignmentId)
+    }
+    class PhotosRequired <<Exception>> {
+      + PhotosRequired()
+    }
+    class FailureReasonRequired <<Exception>> {
+      + FailureReasonRequired()
+    }
+    class TicketNotFound <<Exception>> {
+      + TicketNotFound(Long ticketId)
+    }
+    class TicketDescriptionRequired <<Exception>> {
+      + TicketDescriptionRequired()
+    }
+    class TicketNotOpen <<Exception>> {
+      + TicketNotOpen(Long ticketId)
+    }
+    class InvalidTicketStatusTransition <<Exception>> {
+      + InvalidTicketStatusTransition(TicketStatus from, TicketStatus to)
+    }
+  }
+
+  package "domain.services" #FFFCEA {
+
+    interface InstallationCommandService #FFF3B0 {
+      Long handle(RequestInstallationCommand command)
+      Long handle(RequestReevaluationCommand command)
+      Long handle(InstallEquipmentCommand command)
+      Long handle(AddActuatorsCommand command)
+      Long handle(MarkRequirementsNotMetCommand command)
+      Long handle(ReplaceEquipmentCommand command)
+    }
+
+    interface InstallationQueryService #FFF3B0 {
+      Optional<Installation> handle(GetInstallationByIdQuery query)
+      Optional<Installation> handle(GetInstallationByAssistedPersonIdQuery query)
+      List<Installation> handle(GetAllInstallationsByStatusQuery query)
+    }
+
+    interface AppointmentCommandService #FFF3B0 {
+      Long handle(ScheduleAppointmentCommand command)
+      Long handle(MarkAppointmentScheduledCommand command)
+      Long handle(CompleteAppointmentCommand command)
+    }
+
+    interface AppointmentQueryService #FFF3B0 {
+      Optional<Appointment> handle(GetAppointmentByIdQuery query)
+      List<Appointment> handle(GetAllAppointmentsByStatusQuery query)
+      List<Appointment> handle(GetAllAppointmentsByInstallationIdQuery query)
+    }
+
+    interface AssignmentCommandService #FFF3B0 {
+      Long handle(CreateInstallationAssignmentCommand command)
+      Long handle(CreateRepairAssignmentCommand command)
+      Long handle(ReassignAssignmentCommand command)
+      Long handle(AttendInstallationAssignmentCommand command)
+      Long handle(AttendReevaluationAssignmentCommand command)
+      Long handle(ReportRequirementsNotMetCommand command)
+      Long handle(AttendRepairAssignmentCommand command)
+    }
+
+    interface AssignmentQueryService #FFF3B0 {
+      Optional<Assignment> handle(GetAssignmentByIdQuery query)
+      List<Assignment> handle(GetAllAssignmentsByTechnicianIdQuery query)
+      List<Assignment> handle(GetAllAssignmentsByTechnicianIdAndDateQuery query)
+    }
+
+    interface TicketCommandService #FFF3B0 {
+      Long handle(CreateTicketCommand command)
+      Long handle(MarkTicketAssignedCommand command)
+      Long handle(ResolveTicketCommand command)
+    }
+
+    interface TicketQueryService #FFF3B0 {
+      Optional<Ticket> handle(GetTicketByIdQuery query)
+      List<Ticket> handle(GetAllTicketsByInstallationIdQuery query)
+      List<Ticket> handle(GetAllTicketsByStatusQuery query)
+    }
+  }
+}
+
+note as N_Shared
+  <b>Value objects de Shared que usa Support</b>
+  --
+  <b>AssistedPersonId</b>: persona asistida de Assistance
+  dueña de la instalación.
+  <b>UserId</b>: cuenta del familiar que registra la
+  instalación, agenda las citas y crea los tickets.
+  <b>BusinessId</b>: negocio (Alivia) dueño de los equipos.
+  <b>EmployeeId</b>: técnico de HCM.
+  <b>EdgeId, DeviceId</b>: equipos de Assets instalados.
+  <b>Address</b>: dirección del hogar (inmutable).
+  <b>TimeRange</b>: disponibilidad de la cita y horas de
+  la visita.
+  <b>Photo</b>: fotos de la instalación y de la reparación.
+  Support solo guarda ids: nunca accede a esos contextos
+  directamente.
+end note
+
+' ---------- DISPOSICIÓN ----------
+RequestInstallationCommand -[hidden]down- ScheduleAppointmentCommand
+ScheduleAppointmentCommand -[hidden]down- MarkAppointmentScheduledCommand
+MarkAppointmentScheduledCommand -[hidden]down- CompleteAppointmentCommand
+CompleteAppointmentCommand -[hidden]down- RequestReevaluationCommand
+InstallEquipmentCommand -[hidden]down- AddActuatorsCommand
+AddActuatorsCommand -[hidden]down- MarkRequirementsNotMetCommand
+MarkRequirementsNotMetCommand -[hidden]down- ReplaceEquipmentCommand
+CreateInstallationAssignmentCommand -[hidden]down- CreateRepairAssignmentCommand
+CreateRepairAssignmentCommand -[hidden]down- ReassignAssignmentCommand
+AttendInstallationAssignmentCommand -[hidden]down- AttendReevaluationAssignmentCommand
+AttendReevaluationAssignmentCommand -[hidden]down- ReportRequirementsNotMetCommand
+ReportRequirementsNotMetCommand -[hidden]down- AttendRepairAssignmentCommand
+CreateTicketCommand -[hidden]down- MarkTicketAssignedCommand
+MarkTicketAssignedCommand -[hidden]down- ResolveTicketCommand
+GetInstallationByIdQuery -[hidden]down- GetInstallationByAssistedPersonIdQuery
+GetInstallationByAssistedPersonIdQuery -[hidden]down- GetAllInstallationsByStatusQuery
+GetAppointmentByIdQuery -[hidden]down- GetAllAppointmentsByStatusQuery
+GetAllAppointmentsByStatusQuery -[hidden]down- GetAllAppointmentsByInstallationIdQuery
+GetAssignmentByIdQuery -[hidden]down- GetAllAssignmentsByTechnicianIdQuery
+GetAllAssignmentsByTechnicianIdQuery -[hidden]down- GetAllAssignmentsByTechnicianIdAndDateQuery
+GetTicketByIdQuery -[hidden]down- GetAllTicketsByInstallationIdQuery
+GetAllTicketsByInstallationIdQuery -[hidden]down- GetAllTicketsByStatusQuery
+SubscriptionNotPaid -[hidden]down- AssistedPersonNotFound
+AssistedPersonNotFound -[hidden]down- NotRelativeOfAssistedPerson
+NotRelativeOfAssistedPerson -[hidden]down- InstallationNotFound
+InstallationNotFound -[hidden]down- InstallationAlreadyExists
+InstallationAlreadyExists -[hidden]down- InstallationNotRequestedByUser
+InstallationNotRequestedByUser -[hidden]down- InvalidActuatorSelection
+InvalidActuatorSelection -[hidden]down- InvalidInstallationStatusTransition
+InvalidInstallationStatusTransition -[hidden]down- InstallationNotPendingEvaluation
+InstallationNotPendingEvaluation -[hidden]down- InstallationWithoutEquipment
+IncompleteInstalledEquipment -[hidden]down- ExceedsRequestedActuators
+ExceedsRequestedActuators -[hidden]down- EvaluationResultMismatch
+EvaluationResultMismatch -[hidden]down- EquipmentRequired
+EquipmentRequired -[hidden]down- EquipmentNotFound
+EquipmentNotFound -[hidden]down- EquipmentAlreadyInstalled
+EquipmentAlreadyInstalled -[hidden]down- EquipmentNotInstalled
+EquipmentNotInstalled -[hidden]down- InvalidReplacement
+AppointmentNotFound -[hidden]down- AppointmentAlreadyExists
+AppointmentAlreadyExists -[hidden]down- AddressMismatch
+AddressMismatch -[hidden]down- InvalidAppointmentDate
+InvalidAppointmentDate -[hidden]down- InstallationNotSchedulable
+InstallationNotSchedulable -[hidden]down- AppointmentNotRequested
+AppointmentNotRequested -[hidden]down- OutsideAppointmentAvailability
+OutsideAppointmentAvailability -[hidden]down- InvalidAppointmentStatusTransition
+AssignmentNotFound -[hidden]down- InvalidAssignmentDate
+InvalidAssignmentDate -[hidden]down- EmployeeNotFound
+EmployeeNotFound -[hidden]down- EmployeeNotTechnician
+EmployeeNotTechnician -[hidden]down- OutsideWorkingHours
+OutsideWorkingHours -[hidden]down- EmployeeOnVacation
+EmployeeOnVacation -[hidden]down- AssignmentConflict
+AssignmentConflict -[hidden]down- AssignmentNotForTechnician
+AssignmentNotForTechnician -[hidden]down- AssignmentAlreadyAttended
+AssignmentAlreadyAttended -[hidden]down- InvalidEvaluationResult
+InvalidEvaluationResult -[hidden]down- EvaluationTypeMismatch
+EvaluationTypeMismatch -[hidden]down- PhotosRequired
+PhotosRequired -[hidden]down- FailureReasonRequired
+FailureReasonRequired -[hidden]down- TicketNotFound
+TicketNotFound -[hidden]down- TicketDescriptionRequired
+TicketDescriptionRequired -[hidden]down- TicketNotOpen
+TicketNotOpen -[hidden]down- InvalidTicketStatusTransition
+
+' ---------- HERENCIA, COMPOSICIÓN Y REFERENCIAS ----------
+Assignment <|-- InstallationAssignment
+Assignment <|-- RepairAssignment
+Assignment "0..*" --> "1" AssignmentStatus : status
+Appointment "0..*" -[#6A1B9A]-> "1" Installation : installation >
+InstallationAssignment "0..1" -[#6A1B9A]-> "1" Appointment : appointment >
+RepairAssignment "0..1" -[#6A1B9A]-> "1" Ticket : ticket >
+Ticket "0..*" -[#6A1B9A]-> "1" Installation : installation >
+Installation "1" *-- "1" ActuatorSelection : requestedActuators
+Installation "1" *-- "0..1" InstalledEquipment : equipment
+Installation "0..*" --> "1" SubscriptionPlan : plan
+Installation "0..*" --> "1" InstallationStatus : status
+ActuatorSelection "1" *-- "1..4" ActuatorQuantity : items
+ActuatorQuantity "0..*" --> "1" ActuatorType : type
+InstalledEquipment "1" *-- "1..*" InstalledActuator : actuators
+InstalledActuator "0..*" --> "1" ActuatorType : type
+InstalledEquipment ..> ActuatorSelection : covers / exceeds >
+ActuatorSelection ..> SubscriptionPlan : fits >
+RepairAssignment "1" *-- "0..*" EquipmentReplacement : replacements
+EquipmentReplacement "0..*" --> "1" AssetKind : kind
+InstalledEquipment ..> EquipmentReplacement : replace >
+Appointment "0..*" --> "1" AppointmentStatus : status
+InstallationAssignment "0..*" --> "0..1" EvaluationResult : result
+Ticket "0..*" --> "1" TicketStatus : status
+
+' ---------- EVENTOS ----------
+Appointment ..> AppointmentRequestedEvent : registra >
+InstallationAssignment ..> InstallationAssignmentCreatedEvent : registra >
+InstallationAssignment ..> InstallationAssignmentAttendedEvent : registra >
+InstallationAssignment ..> ReevaluationAssignmentAttendedEvent : registra >
+InstallationAssignment ..> RequirementsNotMetEvent : registra >
+RepairAssignment ..> RepairAssignmentCreatedEvent : registra >
+RepairAssignment ..> RepairAssignmentAttendedEvent : registra >
+Installation ..> EquipmentInstalledEvent : registra >
+Installation ..> ActuatorsAddedEvent : registra >
+Installation ..> EquipmentReplacedEvent : registra >
+Installation ..> InstallationRejectedEvent : registra >
+AppointmentRequestedEvent ..> RequestReevaluationCommand : activa >
+InstallationAssignmentCreatedEvent ..> MarkAppointmentScheduledCommand : activa >
+InstallationAssignmentAttendedEvent ..> InstallEquipmentCommand : activa >
+InstallationAssignmentAttendedEvent ..> CompleteAppointmentCommand : activa >
+ReevaluationAssignmentAttendedEvent ..> AddActuatorsCommand : activa >
+ReevaluationAssignmentAttendedEvent ..> CompleteAppointmentCommand : activa >
+RequirementsNotMetEvent ..> MarkRequirementsNotMetCommand : activa >
+RequirementsNotMetEvent ..> CompleteAppointmentCommand : activa >
+RepairAssignmentCreatedEvent ..> MarkTicketAssignedCommand : activa >
+RepairAssignmentAttendedEvent ..> ResolveTicketCommand : activa >
+RepairAssignmentAttendedEvent ..> ReplaceEquipmentCommand : activa >
+
+' ---------- SERVICES ----------
+InstallationCommandService ..> RequestInstallationCommand : recibe >
+InstallationCommandService ..> RequestReevaluationCommand : recibe >
+InstallationCommandService ..> InstallEquipmentCommand : recibe >
+InstallationCommandService ..> AddActuatorsCommand : recibe >
+InstallationCommandService ..> MarkRequirementsNotMetCommand : recibe >
+InstallationCommandService ..> ReplaceEquipmentCommand : recibe >
+InstallationCommandService ..> Installation : crea / modifica >
+InstallationQueryService -[#2E8B57]-> GetInstallationByIdQuery : recibe >
+InstallationQueryService -[#2E8B57]-> GetInstallationByAssistedPersonIdQuery : recibe >
+InstallationQueryService -[#2E8B57]-> GetAllInstallationsByStatusQuery : recibe >
+InstallationQueryService -[#2E8B57]-> Installation : devuelve >
+
+AppointmentCommandService ..> ScheduleAppointmentCommand : recibe >
+AppointmentCommandService ..> MarkAppointmentScheduledCommand : recibe >
+AppointmentCommandService ..> CompleteAppointmentCommand : recibe >
+AppointmentCommandService ..> Appointment : crea / modifica >
+AppointmentQueryService -[#2E8B57]-> GetAppointmentByIdQuery : recibe >
+AppointmentQueryService -[#2E8B57]-> GetAllAppointmentsByStatusQuery : recibe >
+AppointmentQueryService -[#2E8B57]-> GetAllAppointmentsByInstallationIdQuery : recibe >
+AppointmentQueryService -[#2E8B57]-> Appointment : devuelve >
+
+AssignmentCommandService ..> CreateInstallationAssignmentCommand : recibe >
+AssignmentCommandService ..> CreateRepairAssignmentCommand : recibe >
+AssignmentCommandService ..> ReassignAssignmentCommand : recibe >
+AssignmentCommandService ..> AttendInstallationAssignmentCommand : recibe >
+AssignmentCommandService ..> AttendReevaluationAssignmentCommand : recibe >
+AssignmentCommandService ..> ReportRequirementsNotMetCommand : recibe >
+AssignmentCommandService ..> AttendRepairAssignmentCommand : recibe >
+AssignmentCommandService ..> Assignment : crea / modifica >
+AssignmentQueryService -[#2E8B57]-> GetAssignmentByIdQuery : recibe >
+AssignmentQueryService -[#2E8B57]-> GetAllAssignmentsByTechnicianIdQuery : recibe >
+AssignmentQueryService -[#2E8B57]-> GetAllAssignmentsByTechnicianIdAndDateQuery : recibe >
+AssignmentQueryService -[#2E8B57]-> Assignment : devuelve >
+
+TicketCommandService ..> CreateTicketCommand : recibe >
+TicketCommandService ..> MarkTicketAssignedCommand : recibe >
+TicketCommandService ..> ResolveTicketCommand : recibe >
+TicketCommandService ..> Ticket : crea / modifica >
+TicketQueryService -[#2E8B57]-> GetTicketByIdQuery : recibe >
+TicketQueryService -[#2E8B57]-> GetAllTicketsByInstallationIdQuery : recibe >
+TicketQueryService -[#2E8B57]-> GetAllTicketsByStatusQuery : recibe >
+TicketQueryService -[#2E8B57]-> Ticket : devuelve >
+
+' ---------- REGLAS DE LOS SERVICES ----------
+note as N_RulesInstallation
+  <b>Reglas de InstallationCommandService</b>
+  --
+  RequestInstallationCommand (formulario de instalación):
+  lo envía el familiar. La persona asistida existe en
+  Assistance (ACL, GetAssistedPersonByIdQuery;
+  AssistedPersonNotFound) y la gestiona ese familiar
+  (NotRelativeOfAssistedPerson). No tiene otra
+  instalación que no esté REJECTED
+  (InstallationAlreadyExists). El familiar pagó la
+  suscripción (Payments, ACL; SubscriptionNotPaid); de
+  ahí sale el plan. actuators pasa a ActuatorSelection.
+  businessId sale del familiar en Assistance.
+  Los demás commands solo los activan eventos de Support;
+  no se exponen en la API. La instalación existe
+  (InstallationNotFound).
+end note
+
+note as N_RulesAppointment
+  <b>Reglas de AppointmentCommandService</b>
+  --
+  ScheduleAppointmentCommand: lo envía el familiar. La
+  instalación existe (InstallationNotFound) y no tiene
+  otra cita activa, REQUESTED o SCHEDULED
+  (AppointmentAlreadyExists). availableFrom y availableTo
+  forman la availability. La dirección escrita se compara
+  con la de la instalación.
+  MarkAppointmentScheduledCommand y
+  CompleteAppointmentCommand: solo los activan eventos de
+  la visita. La cita existe (AppointmentNotFound).
+  El administrador ve las citas pendientes con
+  GetAllAppointmentsByStatusQuery(REQUESTED).
+end note
+
+note as N_RulesAssignment
+  <b>Reglas de AssignmentCommandService</b>
+  --
+  <b>CreateInstallationAssignmentCommand</b>: lo envía el
+  administrador desde una cita. La cita existe
+  (AppointmentNotFound) y la instalación está
+  PENDING_EVALUATION (InstallationNotPendingEvaluation).
+  <b>CreateRepairAssignmentCommand</b>: lo envía el
+  administrador; el ticket existe (TicketNotFound) y la
+  fecha puede ser cualquier día de la semana.
+  <b>En ambos y en ReassignAssignmentCommand</b>: el
+  técnico existe en HCM (ACL, GetEmployeeByIdQuery;
+  EmployeeNotFound), es TECH y está ACTIVE
+  (EmployeeNotTechnician); el rango está dentro de un
+  turno de ese día (WorkSchedule.covers;
+  OutsideWorkingHours); no está de vacaciones esa fecha
+  (Employee.isOnVacation; EmployeeOnVacation); no se
+  cruza con otra visita ASSIGNED suya (AssignmentConflict).
+  Reassign: la visita existe (AssignmentNotFound); el
+  administrador la usa si el técnico fue suspendido o
+  cesado (GetAllAssignmentsByTechnicianIdQuery).
+  <b>Attend... y ReportRequirementsNotMetCommand</b>: los
+  envía el técnico desde su lista. La visita existe
+  (AssignmentNotFound) y es suya
+  (AssignmentNotForTechnician); el technicianId sale del
+  usuario autenticado (HCM, GetEmployeeByUserIdQuery).
+  Application sube las fotos y busca cada MAC en Assets
+  (GetEdgeByMacAddressQuery, GetDeviceByMacAddressQuery;
+  EquipmentNotFound): pasa ids y, de cada actuador, su
+  ActuatorType (del DeviceType de Assets).
+  Primera visita: las cuatro MAC; re-evaluación: solo
+  los actuadores nuevos; no cumple: solo fotos.
+  En replacedMacAddresses (MAC vieja a MAC nueva), el
+  kind sale de dónde se encontró la MAC.
+end note
+
+note as N_RulesTicket
+  <b>Reglas de TicketCommandService</b>
+  --
+  CreateTicketCommand: lo envía el familiar que registró
+  la instalación. La instalación existe
+  (InstallationNotFound).
+  MarkTicketAssignedCommand y ResolveTicketCommand: solo
+  los activan eventos de la visita de reparación. El
+  ticket existe (TicketNotFound).
+end note
+
+InstallationCommandService .. N_RulesInstallation
+AppointmentCommandService .. N_RulesAppointment
+AssignmentCommandService .. N_RulesAssignment
+TicketCommandService .. N_RulesTicket
+
+@enduml

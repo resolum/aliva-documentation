@@ -1,0 +1,179 @@
+@startuml
+hide circle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2E7D32
+  BorderThickness 1.2
+  HeaderBackgroundColor #E8F5E9
+  ArrowColor #444444
+}
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
+}
+
+package "Bounded Context: Support" as ctx_support #F6FBF6 {
+
+  entity "installations" as installations {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * assisted_person_id : BIGINT <<IDX>> <<ref Assistance>>
+    * requested_by : BIGINT <<ref IAM>>
+    * business_id : BIGINT <<ref Company>>
+    * formatted_address : VARCHAR(255)
+    * latitude : DOUBLE PRECISION
+    * longitude : DOUBLE PRECISION
+    place_id : VARCHAR(255)
+    * plan : VARCHAR(10) (MINIMUM, CUSTOM)
+    * status : VARCHAR(25)
+    microphone_edge_id : BIGINT <<ref Assets>>
+    actuator_edge_id : BIGINT <<ref Assets>>
+    microphone_id : BIGINT <<ref Assets>>
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    UK parcial (assisted_person_id) WHERE status <> 'REJECTED'
+    CHECK: microphone_edge_id, actuator_edge_id y microphone_id
+    son nulos los tres (aún sin instalar) o no nulos los tres
+  }
+
+  entity "installation_requested_actuators" as requested {
+    * installation_id : BIGINT <<FK>>
+    * actuator_type : VARCHAR(10)
+    * quantity : INT
+    --
+    PK (installation_id, actuator_type)
+    CHECK quantity > 0
+  }
+
+  entity "installation_actuators" as inst_actuators {
+    * installation_id : BIGINT <<FK>>
+    * device_id : BIGINT <<ref Assets>>
+    * actuator_type : VARCHAR(10)
+    --
+    PK (installation_id, device_id)
+  }
+
+  entity "appointments" as appointments {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * installation_id : BIGINT <<FK>>
+    * requested_by : BIGINT <<ref IAM>>
+    * date : DATE
+    * available_from : TIME
+    * available_to : TIME
+    * reevaluation : BOOLEAN
+    * status : VARCHAR(15)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    UK parcial (installation_id) WHERE status IN ('REQUESTED', 'SCHEDULED')
+  }
+
+  entity "tickets" as tickets {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * installation_id : BIGINT <<FK>>
+    * created_by : BIGINT <<ref IAM>>
+    * description : TEXT
+    * status : VARCHAR(15)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+
+  entity "assignments" as assignments {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * assignment_type : VARCHAR(15) (INSTALLATION, REPAIR)
+    * technician_id : BIGINT <<ref HCM>>
+    * scheduled_date : DATE
+    * start_time : TIME
+    * end_time : TIME
+    * status : VARCHAR(15)
+    attended_at : TIMESTAMP
+    appointment_id : BIGINT <<FK>> <<UK>>
+    reevaluation : BOOLEAN
+    result : VARCHAR(20)
+    ticket_id : BIGINT <<FK>> <<UK>>
+    failure_reason : TEXT
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    IDX (technician_id, scheduled_date)
+    CHECK INSTALLATION: appointment_id no nulo, ticket_id nulo
+    CHECK REPAIR: ticket_id no nulo, appointment_id nulo
+  }
+
+  entity "assignment_replacements" as replacements {
+    * assignment_id : BIGINT <<FK>>
+    * kind : VARCHAR(10) (EDGE, DEVICE)
+    * old_asset_id : BIGINT <<ref Assets>>
+    * new_asset_id : BIGINT <<ref Assets>>
+    --
+    PK (assignment_id, old_asset_id)
+  }
+
+  entity "assignment_photos" as photos {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * assignment_id : BIGINT <<FK>>
+    * photo_url : VARCHAR(500)
+    * photo_public_id : VARCHAR(255)
+  }
+}
+
+installations ||--o{ inst_actuators : "actuators\n(0..*)"
+installations ||--o{ tickets : "tickets\n(0..*)"
+installations ||--|{ requested : "actuadores elegidos\n(1..4)"
+installations ||--o{ appointments : "citas\n(0..*)"
+appointments |o--o| assignments : "visita\n(0..1)"
+tickets |o--o| assignments : "visita de reparación\n(0..1)"
+assignments ||--o{ photos : "fotos\n(1..* al atenderse)"
+assignments ||--o{ replacements : "equipos cambiados\n(0..*, solo REPAIR)"
+
+note bottom of ctx_support
+  <b>PostgreSQL</b>
+  --
+  installations: la dirección (formatted_address, latitude, longitude,
+  place_id) no se actualiza nunca. microphone_edge_id, actuator_edge_id,
+  microphone_id e installation_actuators son el InstalledEquipment: nulos
+  hasta la primera instalación y, desde ahí, los tres llenos y al menos un
+  actuador (lo valida el dominio).
+  assignments: una sola tabla para InstallationAssignment y
+  RepairAssignment (herencia SINGLE_TABLE, columna assignment_type).
+  installation_requested_actuators: lo que eligió el familiar (plan
+  MINIMUM: 1 en total; CUSTOM: de 1 a 4); installation_actuators: lo
+  instalado, con su tipo. Nunca hay más instalados que elegidos.
+  appointments: la cita del familiar (día y rango libre); una sola activa
+  por instalación. La dirección de la cita solo se compara, no se guarda.
+  Una visita de instalación nace de una cita (appointment_id único) y
+  guarda solo result, reevaluation y sus fotos.
+  failure_reason y assignment_replacements son de la reparación (registro
+  de qué equipo se cambió por cuál).
+  ticket_id es único: un ticket tiene una sola visita de reparación.
+  assignment_replacements: equipos que se cambiaron en una reparación;
+  al cambiarlos, installations reemplaza el id viejo por el nuevo.
+  Reasignar una visita actualiza technician_id, scheduled_date y las horas.
+  --
+  Los ids de Assistance, IAM, Company, HCM y Assets son valores sin FK.
+  Las FK van de appointments, tickets y las tablas de actuadores hacia
+  installations, y de assignments hacia appointments y tickets: no hay
+  referencias circulares.
+end note
+
+@enduml
