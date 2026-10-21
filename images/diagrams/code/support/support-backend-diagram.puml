@@ -6,11 +6,12 @@
 '      cita que agenda el familiar para la evaluación), Assignment (la visita que el administrador
 '      asigna a un técnico) y Ticket (la falla que reporta el familiar).
 '  ST2 Installation pertenece a la persona asistida (AssistedPersonId). La registra su familiar en el
-'      formulario de instalación, después de suscribirse y pagar: dirección del hogar (inmutable) y
-'      actuadores que eligió. La dirección no tiene método para cambiarse.
-'  ST3 Planes (Payments): MINIMUM, 1 actuador que el familiar elige; CUSTOM, hasta 4 actuadores, en la
-'      cantidad que quiera de cada tipo. Installation guarda una copia del plan y la selección
-'      (ActuatorSelection). Siempre se instalan además los dos edges y el micrófono.
+'      formulario de instalación, después de suscribirse y pagar, con la dirección del hogar (inmutable:
+'      no tiene método para cambiarse).
+'  ST3 Planes (Subscriptions): MINIMUM, 1 actuador que el familiar elige; CUSTOM, de 1 a 4, la cantidad
+'      que quiera de cada tipo. El familiar elige plan y actuadores al suscribirse; Installation copia
+'      de su suscripción ACTIVE el PlanCode y la ActuatorSelection. Siempre se instalan además los dos
+'      edges y el micrófono.
 '  ST4 Appointment: el familiar agenda la cita con un día y un rango de horas en que está libre (ej.
 '      lunes de 13:00 a 17:00) y vuelve a escribir la dirección, que debe coincidir con la de la
 '      instalación (solo valida). El administrador ve las citas pendientes y asigna un técnico.
@@ -74,13 +75,13 @@ package alivia.platform.Support {
       - UserId requestedBy
       - BusinessId businessId
       - Address address
-      - SubscriptionPlan plan
+      - PlanCode plan
       - ActuatorSelection requestedActuators
       - InstallationStatus status
       - InstalledEquipment equipment
       --
       + Installation(AssistedPersonId assistedPersonId, UserId requestedBy,
-      \t BusinessId businessId, Address address, SubscriptionPlan plan,
+      \t BusinessId businessId, Address address, PlanCode plan,
       \t ActuatorSelection requestedActuators)
       + install(EvaluationResult result, InstalledEquipment equipment)
       + addActuators(EvaluationResult result, List<InstalledActuator> actuators)
@@ -99,8 +100,9 @@ package alivia.platform.Support {
       La registra su familiar en el formulario de
       instalación. address es inmutable.
       Constructor: estado PENDING_EVALUATION; sin
-      equipment; requestedActuators cabe en el plan
-      (MINIMUM 1, CUSTOM de 1 a 4; InvalidActuatorSelection).
+      equipment. plan y requestedActuators son la copia de
+      la suscripción ACTIVE de la persona asistida
+      (Subscriptions ya validó que caben en el plan).
       --
       <b>Transiciones</b> (InvalidInstallationStatusTransition)
       install, addActuators y markRequirementsNotMet: solo
@@ -304,7 +306,6 @@ package alivia.platform.Support {
       + ActuatorSelection(List<ActuatorQuantity> items)
       + total() : Integer
       + quantityOf(ActuatorType type) : Integer
-      + fits(SubscriptionPlan plan) : boolean
     }
 
     class ActuatorQuantity <<Record>> #EADCF8 {
@@ -314,13 +315,13 @@ package alivia.platform.Support {
     }
 
     note bottom of ActuatorSelection
-      Actuadores que eligió el familiar: cuántos de cada
-      tipo (ej. 2 DOOR, 1 CURTAIN, 1 LIGHT).
+      Copia de los actuadores que eligió el familiar al
+      suscribirse (Subscriptions): cuántos de cada tipo
+      (ej. 2 DOOR, 1 CURTAIN, 1 LIGHT).
       Cada tipo aparece una vez y quantity es mayor que 0
       (InvalidActuatorSelection).
       total: suma de quantity. quantityOf: cuántos se
       eligieron de un tipo (0 si ninguno).
-      fits: total() entre 1 y plan.maxActuators().
     end note
 
     class InstalledActuator <<Record>> #EADCF8 {
@@ -374,16 +375,13 @@ package alivia.platform.Support {
       AVAILABLE.
     end note
 
-    enum SubscriptionPlan #EADCF8 {
+    enum PlanCode #EADCF8 {
       MINIMUM
       CUSTOM
-      --
-      + maxActuators() : Integer
     }
 
-    note bottom of SubscriptionPlan
-      Copia del plan que el familiar pagó en Payments.
-      maxActuators: MINIMUM 1, CUSTOM 4.
+    note bottom of PlanCode
+      Copia del plan que el familiar pagó en Subscriptions.
     end note
 
     enum ActuatorType #EADCF8 {
@@ -510,7 +508,8 @@ package alivia.platform.Support {
       o ChangeDeviceStatusCommand con BROKEN para el viejo
       (lo retira de la red) y luego AddEdgeToNetworkCommand
       o AddDeviceToNetworkCommand con el nuevo.
-      InstallationRejectedEvent: Payments devuelve el pago y
+      InstallationRejectedEvent: Subscriptions devuelve el
+      pago (RefundSubscriptionCommand) y
       Communication avisa al familiar.
       --
       <b>Credencial de cada edge</b>: al crear la red o
@@ -530,7 +529,6 @@ package alivia.platform.Support {
       - Double latitude
       - Double longitude
       - String placeId
-      - Map<ActuatorType, Integer> actuators
       + RequestInstallationCommand(...)
     }
 
@@ -968,14 +966,13 @@ RepairAssignment "0..1" -[#6A1B9A]-> "1" Ticket : ticket >
 Ticket "0..*" -[#6A1B9A]-> "1" Installation : installation >
 Installation "1" *-- "1" ActuatorSelection : requestedActuators
 Installation "1" *-- "0..1" InstalledEquipment : equipment
-Installation "0..*" --> "1" SubscriptionPlan : plan
+Installation "0..*" --> "1" PlanCode : plan
 Installation "0..*" --> "1" InstallationStatus : status
 ActuatorSelection "1" *-- "1..4" ActuatorQuantity : items
 ActuatorQuantity "0..*" --> "1" ActuatorType : type
 InstalledEquipment "1" *-- "1..*" InstalledActuator : actuators
 InstalledActuator "0..*" --> "1" ActuatorType : type
 InstalledEquipment ..> ActuatorSelection : covers / exceeds >
-ActuatorSelection ..> SubscriptionPlan : fits >
 RepairAssignment "1" *-- "0..*" EquipmentReplacement : replacements
 EquipmentReplacement "0..*" --> "1" AssetKind : kind
 InstalledEquipment ..> EquipmentReplacement : replace >
@@ -1061,9 +1058,11 @@ note as N_RulesInstallation
   AssistedPersonNotFound) y la gestiona ese familiar
   (NotRelativeOfAssistedPerson). No tiene otra
   instalación que no esté REJECTED
-  (InstallationAlreadyExists). El familiar pagó la
-  suscripción (Payments, ACL; SubscriptionNotPaid); de
-  ahí sale el plan. actuators pasa a ActuatorSelection.
+  (InstallationAlreadyExists). La persona asistida tiene
+  una suscripción ACTIVE (Subscriptions, ACL,
+  GetActiveSubscriptionByAssistedPersonIdQuery;
+  SubscriptionNotPaid); de ahí se copian el plan y los
+  actuadores elegidos.
   businessId sale del familiar en Assistance.
   Los demás commands solo los activan eventos de Support;
   no se exponen en la API. La instalación existe

@@ -8,14 +8,15 @@
 '      Son registros: nadie los marca ni los cambia después de guardarlos.
 '  T2  El pedido de auxilio va del edge de micrófono directo a la nube: no pasa por el broker ni por el
 '      edge de actuadores. Solo informa que la persona asistida pidió auxilio (sin transcripción).
-'      Tracking lo guarda y registra HelpRequestedEvent; Communication avisa a los cuidadores y al
-'      familiar de la persona asistida.
+'      Tracking lo guarda y registra HelpRequestedEvent; Communication avisa al familiar y al cuidador
+'      asignado en ese momento.
 '  T3  Batería baja: cada edge envía la batería de los dispositivos que atiende (el edge de micrófono,
 '      la del micrófono; el edge de actuadores, la de sus actuadores). La envía una sola vez al llegar a
 '      10 % y otra al llegar a 5 %. Tracking la guarda y registra LowBatteryDetectedEvent; Communication
 '      avisa al cuidador asignado en ese momento y al familiar.
 '  T4  Acciones de actuadores: el edge de actuadores envía cada acción con su resultado. Solo una acción
-'      FAILED registra ActuatorActionFailedEvent (aviso por Communication). Las SUCCEEDED solo se guardan.
+'      FAILED registra ActuatorActionFailedEvent: Communication avisa al familiar y al cuidador asignado
+'      en ese momento. Las SUCCEEDED solo se guardan.
 '      Analytics consulta el resumen (total, correctas y fallidas) con las queries de resumen.
 '  T5  El edge ya tiene los datos de su red: Assets se los envía en EdgeAccessTable (networkId,
 '      installationId y el tipo de cada dispositivo) cada vez que la red cambia. Por eso cada reporte
@@ -134,7 +135,6 @@ package alivia.platform.Tracking {
       + ActuatorAction(ReportId reportId, EdgeId edgeId, DeviceId actuatorId, DeviceType actuatorType,
       \t InstallationId installationId, ActionType action,
       \t ActionResult result, LocalDateTime occurredAt)
-      + isFailed() : boolean
     }
 
     note bottom of ActuatorAction
@@ -282,18 +282,29 @@ package alivia.platform.Tracking {
       Los tres eventos los consume Communication.
       Leen el id al publicarse, porque MongoDB lo asigna
       al guardar (como AccessTableUpdatedEvent en Assets).
-      HelpRequestedEvent: avisa a los cuidadores y al
-      familiar de la persona asistida que pidió auxilio.
-      LowBatteryDetectedEvent: avisa al cuidador asignado
-      en ese momento (occurredAt) y al familiar, para que
-      carguen el dispositivo.
-      Communication obtiene la persona asistida de la
-      instalación en Support (GetInstallationByIdQuery) y
-      sus cuidadores, familiar y agenda en Assistance
-      (GetCaregiversByAssistedPersonIdQuery,
-      GetAgendaByAssistedPersonIdQuery).
-      ActuatorActionFailedEvent: avisa que el actuador no
-      pudo abrir, cerrar, prender o apagar.
+      <b>A quién avisa Communication</b>
+      HelpRequestedEvent: al familiar y al cuidador
+      asignado en ese momento.
+      LowBatteryDetectedEvent: al familiar y al cuidador
+      asignado en ese momento, para que cargue el
+      dispositivo.
+      ActuatorActionFailedEvent: al familiar y al cuidador
+      asignado en ese momento: el actuador no pudo abrir,
+      cerrar, prender o apagar.
+      "En ese momento" = occurredAt del reporte.
+      --
+      <b>Cómo encuentra a quién avisar</b>
+      1. installationId: Support (GetInstallationByIdQuery)
+      da la persona asistida.
+      2. Assistance: GetAssistedPersonByIdQuery da el
+      familiar; GetAgendaByAssistedPersonIdQuery, la
+      actividad IN_PROGRESS en occurredAt y quién la tiene
+      asignada; GetCaregiversByAssistedPersonIdQuery
+      confirma que ese cuidador sigue ACTIVE
+      (Caregiver.isActive).
+      Si nadie tiene una actividad en curso, solo se avisa
+      al familiar. Si la actividad en curso es del propio
+      familiar, recibe un solo aviso.
     end note
   }
 

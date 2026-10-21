@@ -640,6 +640,13 @@ note as N_RulesUser
   (InvalidCredentials).
   RequestPasswordResetCommand: si el correo no tiene
   cuenta no lanza error (no revela qué correos existen).
+  ChangePasswordCommand y RequestPasswordResetCommand
+  valen para cualquier cuenta ACTIVE, sin importar el
+  rol: familiar, cuidador, administrador o empleado.
+  Cada uno define su primera contraseña a su manera
+  (familiar y administrador al registrarse, cuidador con
+  el enlace de la invitación, empleado cambiando la
+  temporal); después todos la cambian igual.
   ChangeUserRoleCommand, BlockUserCommand,
   UnblockUserCommand y DeactivateUserCommand: el usuario
   existe (UserNotFound). Los activan los eventos de HCM.
