@@ -41,6 +41,8 @@
 '      inicial lo recibe IAM al crear la cuenta (CreateCorporateAccountCommand); la contraseña temporal
 '      la envía Communication con el evento CorporateAccountCreatedEvent de IAM.
 '  H18 Relaciones con nombre y multiplicidad (5.X.7.1); los enums se enlazan con la clase que los usa.
+'  H19 WorkSchedule.covers(day, range): Support valida que una visita del técnico caiga dentro de un solo
+'      turno de ese día (isWorkingAt solo revisa una hora).
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -310,6 +312,7 @@ package alivia.platform.Hcm {
       + List<WeeklyPeriod> shifts
       + WorkSchedule(List<WeeklyPeriod> shifts)
       + isWorkingAt(DayOfWeek day, LocalTime time) : boolean
+      + covers(DayOfWeek day, TimeRange range) : boolean
       + fitsWithin(OperatingHours operatingHours) : boolean
     }
 
@@ -329,6 +332,10 @@ package alivia.platform.Hcm {
       con otro (InvalidWorkSchedule).
       fitsWithin: cada turno está dentro del horario de
       atención de su negocio (OperatingHours).
+      covers: un turno de ese día contiene todo el rango
+      (lo usa Support al asignar una visita al técnico).
+      isOnVacation(date) de Employee sirve para cualquier
+      fecha, también la de una visita futura.
       --
       <b>OperatingHours</b>
       Horario de atención del Business del empleado (hoy,
