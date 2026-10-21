@@ -39,6 +39,10 @@
 '  B15 ExistsEdgeByMacAddressQuery y ExistsDeviceByMacAddressQuery validan que la MAC no se repita entre
 '      edges y devices (MacAddressAlreadyExists), como las Exists...Query de Profiles.
 '  B16 Se declara BusinessNotFound en domain.exceptions, igual que en HCM y Assistance.
+'  B17 EdgeAccessTable lleva networkId e installationId, y NodeRef el DeviceType de cada dispositivo:
+'      el edge los agrega a sus reportes a Tracking, que así no consulta a Assets por cada reporte.
+'  B18 GetEdgeByMacAddressQuery y GetDeviceByMacAddressQuery: Support identifica por MAC los equipos que
+'      el técnico instala o reemplaza (la MAC se normaliza igual que al registrar).
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -234,7 +238,8 @@ package alivia.platform.Assets {
       + NodeType type
       + Long assetId
       + MacAddress macAddress
-      + NodeRef(NodeType type, Long assetId, MacAddress macAddress)
+      + DeviceType deviceType
+      + NodeRef(NodeType type, Long assetId, MacAddress macAddress, DeviceType deviceType)
       + {static} of(Asset asset) : NodeRef
       + {static} cloud() : NodeRef
     }
@@ -244,13 +249,20 @@ package alivia.platform.Assets {
       que es con lo que el edge identifica a quien le envía.
       Para CLOUD, assetId y macAddress son nulos
       (NodeRef.cloud()).
+      deviceType: tipo del micrófono o del actuador
+      (DOOR, LIGHT, etc.); nulo para edges y CLOUD. El edge
+      de actuadores lo usa para ejecutar la acción y para
+      reportarla a Tracking.
     end note
 
     class EdgeAccessTable <<Record>> #EADCF8 {
       + Long edgeId
+      + Long networkId
+      + Long installationId
       + List<NodeRef> allowedSources
       + List<NodeRef> allowedTargets
-      + EdgeAccessTable(Long edgeId, List<NodeRef> allowedSources, List<NodeRef> allowedTargets)
+      + EdgeAccessTable(Long edgeId, Long networkId, Long installationId,
+      	 List<NodeRef> allowedSources, List<NodeRef> allowedTargets)
       + canSendToCloud() : boolean
     }
 
@@ -262,6 +274,10 @@ package alivia.platform.Assets {
       (el otro edge, los actuadores o CLOUD).
       El edge reemplaza su copia local (SQLite) completa
       cada vez que recibe una.
+      networkId e installationId: datos de la red que el
+      edge agrega a cada reporte que envía a Tracking
+      (edgeId, deviceId, installationId y tipo), para que
+      Tracking no consulte a Assets por cada reporte.
     end note
 
     enum EdgeType #EADCF8 {
@@ -433,6 +449,14 @@ package alivia.platform.Assets {
       + ExistsEdgeByMacAddressQuery(String macAddress)
     }
 
+    class GetEdgeByMacAddressQuery <<Record>> #D5F0D8 {
+      + GetEdgeByMacAddressQuery(String macAddress)
+    }
+
+    class GetDeviceByMacAddressQuery <<Record>> #D5F0D8 {
+      + GetDeviceByMacAddressQuery(String macAddress)
+    }
+
     class ExistsDeviceByMacAddressQuery <<Record>> #D5F0D8 {
       + ExistsDeviceByMacAddressQuery(String macAddress)
     }
@@ -523,6 +547,7 @@ package alivia.platform.Assets {
       Optional<Edge> handle(GetEdgeByIdQuery query)
       List<Edge> handle(GetAllEdgesByBusinessIdQuery query)
       boolean handle(ExistsEdgeByMacAddressQuery query)
+      Optional<Edge> handle(GetEdgeByMacAddressQuery query)
     }
 
     interface DeviceCommandService #FFF3B0 {
@@ -538,6 +563,7 @@ package alivia.platform.Assets {
       List<Device> handle(GetAllDevicesByBusinessIdQuery query)
       List<Device> handle(GetAllDevicesByBusinessIdAndStatusQuery query)
       boolean handle(ExistsDeviceByMacAddressQuery query)
+      Optional<Device> handle(GetDeviceByMacAddressQuery query)
     }
 
     interface DeviceNetworkCommandService #FFF3B0 {
@@ -586,9 +612,11 @@ RemoveEdgeFromNetworkCommand -[hidden]down- RemoveDeviceFromNetworkCommand
 RemoveDeviceFromNetworkCommand -[hidden]down- DeactivateDeviceNetworkCommand
 GetEdgeByIdQuery -[hidden]down- GetAllEdgesByBusinessIdQuery
 GetAllEdgesByBusinessIdQuery -[hidden]down- ExistsEdgeByMacAddressQuery
+ExistsEdgeByMacAddressQuery -[hidden]down- GetEdgeByMacAddressQuery
 GetDeviceByIdQuery -[hidden]down- GetAllDevicesByBusinessIdQuery
 GetAllDevicesByBusinessIdQuery -[hidden]down- GetAllDevicesByBusinessIdAndStatusQuery
 GetAllDevicesByBusinessIdAndStatusQuery -[hidden]down- ExistsDeviceByMacAddressQuery
+ExistsDeviceByMacAddressQuery -[hidden]down- GetDeviceByMacAddressQuery
 GetDeviceNetworkByIdQuery -[hidden]down- GetDeviceNetworkByInstallationIdQuery
 GetDeviceNetworkByInstallationIdQuery -[hidden]down- GetDeviceNetworkByEdgeIdQuery
 GetDeviceNetworkByEdgeIdQuery -[hidden]down- GetDeviceNetworkByDeviceIdQuery
@@ -621,6 +649,7 @@ DeviceNetwork "0..1" -[#6A1B9A]-> "0..*" Device : actuators >
 DeviceNetwork ..> EdgeAccessTable : tableFor >
 EdgeAccessTable "1" *-- "0..*" NodeRef : allowedSources / allowedTargets
 NodeRef "0..*" --> "1" NodeType : type
+NodeRef "0..*" --> "0..1" DeviceType : deviceType
 
 ' ---------- EVENTOS ----------
 Asset ..> AssetStatusChangedEvent : registra >
@@ -644,6 +673,7 @@ EdgeCommandService ..> Edge : crea / modifica >
 EdgeQueryService ..> GetEdgeByIdQuery : recibe >
 EdgeQueryService ..> GetAllEdgesByBusinessIdQuery : recibe >
 EdgeQueryService ..> ExistsEdgeByMacAddressQuery : recibe >
+EdgeQueryService ..> GetEdgeByMacAddressQuery : recibe >
 EdgeQueryService ..> Edge : devuelve >
 
 DeviceCommandService ..> RegisterDeviceCommand : recibe >
@@ -656,6 +686,7 @@ DeviceQueryService ..> GetDeviceByIdQuery : recibe >
 DeviceQueryService ..> GetAllDevicesByBusinessIdQuery : recibe >
 DeviceQueryService ..> GetAllDevicesByBusinessIdAndStatusQuery : recibe >
 DeviceQueryService ..> ExistsDeviceByMacAddressQuery : recibe >
+DeviceQueryService ..> GetDeviceByMacAddressQuery : recibe >
 DeviceQueryService ..> Device : devuelve >
 
 DeviceNetworkCommandService ..> CreateDeviceNetworkCommand : recibe >
@@ -719,8 +750,10 @@ note as N_RulesNetwork
   credencial a IAM (ACL, IssueDeviceCredentialCommand) y
   devuelve el secreto a Soporte Técnico para configurarlo;
   al retirarlo, IAM la revoca (AssetRemovedFromNetworkEvent).
-  Telemetría guarda las acciones y estados que envían los
-  edges (MongoDB); Assets no los guarda.
+  Tracking (Telemetría) guarda lo que reportan los edges
+  (MongoDB); Assets no lo guarda. Los reportes llegan con
+  los datos de la red que el edge recibió en su
+  EdgeAccessTable; Tracking no consulta a Assets.
 end note
 
 EdgeCommandService .. N_RulesAssets
