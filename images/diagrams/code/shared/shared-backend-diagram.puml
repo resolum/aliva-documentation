@@ -17,6 +17,10 @@
 '  S8  Se agrega StaffProfileId: identidad del StaffProfile (personal de Alivia) en Profiles.
 '  S9  Se agrega InstallationId: identidad de la instalación de Soporte Técnico; la usa Assets.
 '  S10 Composición WeeklyPeriod-TimeRange con nombre y multiplicidad (5.X.7.1).
+'  S11 Se agregan EdgeId y DeviceId: identidad de un edge y de un dispositivo de Assets; los usa
+'      Tracking para referenciar al equipo que envía cada reporte.
+'  S12 Se agregan EmployeeId (técnico de HCM) y AssistedPersonId (persona asistida de Assistance);
+'      los usa Support.
 
 ' ==============================
 ' CONFIGURACIÓN GENERAL
@@ -143,6 +147,22 @@ package alivia.platform.shared {
       + InstallationId(Long installationId)
     }
 
+    class EdgeId <<ValueObject, record>> {
+      + EdgeId(Long edgeId)
+    }
+
+    class DeviceId <<ValueObject, record>> {
+      + DeviceId(Long deviceId)
+    }
+
+    class EmployeeId <<ValueObject, record>> {
+      + EmployeeId(Long employeeId)
+    }
+
+    class AssistedPersonId <<ValueObject, record>> {
+      + AssistedPersonId(Long assistedPersonId)
+    }
+
     class TimeRange <<ValueObject, record>> {
       + TimeRange(LocalTime start, LocalTime end)
       + contains(time : LocalTime) : boolean
@@ -218,11 +238,13 @@ note as N_Invariantes
   en minúsculas. Así, la validación de email ya registrado
   trata Ana@x.com y ana@x.com como el mismo correo.
   <b>PersonProfileId, StaffProfileId, BusinessProfileId,
-  UserId, BusinessId, InstallationId</b>: no nulos y mayores
-  que 0. Cada uno identifica el aggregate de un solo
-  contexto (PersonProfile, StaffProfile y BusinessProfile
-  en Profiles, User en IAM, Business en Company y la
-  instalación en Soporte Técnico).
+  UserId, BusinessId, InstallationId, EdgeId, DeviceId,
+  EmployeeId, AssistedPersonId</b>: no nulos y mayores que
+  0. Cada uno identifica el aggregate de un solo contexto
+  (PersonProfile, StaffProfile y BusinessProfile en
+  Profiles, User en IAM, Business en Company, Installation
+  en Support, Edge y Device en Assets, Employee en HCM y
+  AssistedPerson en Assistance).
   <b>WeeklyPeriod</b>: days no vacío; range válido.
   occursOn compara el día de la semana en que empieza
   la ocurrencia. overlapsWith: alguna ocurrencia de uno se
@@ -261,8 +283,9 @@ note as N_Clases
   aggregate (por ejemplo, ActivityAssignment).
   --
   <b>PersonProfileId, StaffProfileId, BusinessProfileId,
-  UserId, BusinessId, InstallationId</b>: la identidad de un aggregate de
-  otro contexto. Es la única
+  UserId, BusinessId, InstallationId, EdgeId, DeviceId,
+  EmployeeId, AssistedPersonId</b>: la identidad de un
+  aggregate de otro contexto. Es la única
   forma en que un contexto referencia a otro.
   <b>EmailAddress, PhoneNumber, Photo, Address</b>: datos de
   contacto y ubicación que comparten varios contextos.

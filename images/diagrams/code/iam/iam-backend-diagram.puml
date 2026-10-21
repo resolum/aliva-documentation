@@ -665,6 +665,9 @@ note as N_ExternalContexts
   Soporte Técnico para configurar el edge.
   AssetRemovedFromNetworkEvent de un edge:
   RevokeDeviceCredentialCommand.
+  <b>Tracking</b>: el edge envía sus reportes con el token
+  de AuthenticateDeviceCommand; Tracking toma el edgeId
+  del token.
   <b>Communication</b> (eventos): envía el código de
   verificación, la contraseña temporal y el enlace de
   recuperación.

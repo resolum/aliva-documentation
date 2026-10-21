@@ -287,6 +287,11 @@ package alivia.platform.Tracking {
       LowBatteryDetectedEvent: avisa al cuidador asignado
       en ese momento (occurredAt) y al familiar, para que
       carguen el dispositivo.
+      Communication obtiene la persona asistida de la
+      instalación en Support (GetInstallationByIdQuery) y
+      sus cuidadores, familiar y agenda en Assistance
+      (GetCaregiversByAssistedPersonIdQuery,
+      GetAgendaByAssistedPersonIdQuery).
       ActuatorActionFailedEvent: avisa que el actuador no
       pudo abrir, cerrar, prender o apagar.
     end note
