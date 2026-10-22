@@ -1,0 +1,435 @@
+@startuml
+' Bounded Context: Analytics (Métricas). Solo capa domain. Persistencia: PostgreSQL.
+'
+' Decisiones de diseño (base: analytics de veyra-backend y de restock-web-services):
+'  AN1 Dos aggregates: BusinessMetric (lo que ve el administrador, por BusinessId) y RelativeMetric (lo
+'      que ve el familiar: acciones de los actuadores de su instalación, por InstallationId). Cada uno
+'      cuenta cuántas veces pasó algo en un día, como el Metric de veyra: con los días se arma cualquier
+'      periodo (del 22 de octubre al 22 de diciembre), un año o el total desde el inicio.
+'  AN2 Las métricas solo cuentan lo que pasa (eventos): contrataciones, suspensiones, ceses, nuevos
+'      suscriptos, cancelaciones, cobros, devoluciones, equipos malogrados y acciones. No se guardan fotos
+'      diarias de "cuánto hay".
+'  AN3 El estado actual (empleados por estado, suscripciones por estado, equipos por estado) no se
+'      guarda: se cuenta al consultar, pidiéndolo a HCM, Subscriptions, Support y Assets por ACL. Así
+'      siempre coincide con el contexto dueño.
+'  AN4 Las métricas empiezan cuando empieza su dueño: un negocio desde que se creó en Company y una
+'      instalación desde que se registró en Support. Un periodo anterior (ej. 1900) se rechaza y uno que
+'      empieza antes se recorta (Period.startingFrom). Sin periodo, es el total desde el inicio.
+'  AN5 Mejoras sobre veyra: una query por vista (estado actual y periodo) en vez de una query por tipo,
+'      mes y año; Period cubre rango, año y total; el valor admite montos en soles; se filtra por los
+'      tipos que se quieran ver; no se cuentan días anteriores al negocio.
+'  AN6 Todo monto está en soles (PEN).
+'  AN7 Cambios en otros contextos para tener los datos: HCM guarda el motivo del cese; Assets lleva el
+'      businessId en AssetStatusChangedEvent; Subscription guarda el BusinessId, PaymentSucceededEvent
+'      lleva el monto, SubscriptionActivatedEvent el businessId y se agrega SubscriptionCanceledEvent;
+'      Tracking registra ActuatorActionSucceededEvent y quita su query de resumen.
+
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+  BackgroundColor<<Exception>> #FFEBEE
+  BorderColor<<Exception>> #C62828
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #B8A800
+}
+skinparam package {
+  BorderColor #888888
+  FontStyle bold
+}
+
+legend left
+  |= Color |= Significado |
+  |<#DCEBFA>   | Aggregate |
+  |<#EADCF8>   | Value Object / Enum |
+  |<#FFE4C4>   | Command (escritura) |
+  |<#D5F0D8>   | Query (lectura) |
+  |<#FFF3B0>   | Service (interface) |
+  |<#FFEBEE>   | Exception (dominio) |
+  |<#2E8B57>   | Flecha de lectura (QueryService) |
+endlegend
+
+package alivia.platform.Analytics {
+
+  package "domain.model.aggregates" #F4F9FE {
+
+    class BusinessMetric #DCEBFA {
+      - BusinessId businessId
+      - BusinessMetricType type
+      - LocalDate date
+      - BigDecimal value
+      --
+      + BusinessMetric(BusinessId businessId, BusinessMetricType type, LocalDate date,
+      \t BigDecimal amount)
+      + add(BigDecimal amount)
+    }
+
+    note bottom of BusinessMetric
+      <b>Métrica del negocio en un día</b>
+      Cuánto pasó de un tipo ese día: una sola por
+      negocio, tipo y fecha.
+      Constructor y add: amount mayor que 0
+      (InvalidMetricValue). Es 1 por contratación,
+      suspensión, cese, suscripción, cancelación o equipo;
+      el monto en soles en cobros y devoluciones.
+      add: suma otro evento del mismo día.
+      date: el día en que pasó, en la zona horaria global
+      (America/Lima).
+    end note
+
+    class RelativeMetric #DCEBFA {
+      - InstallationId installationId
+      - RelativeMetricType type
+      - LocalDate date
+      - Long value
+      --
+      + RelativeMetric(InstallationId installationId, RelativeMetricType type,
+      \t LocalDate date)
+      + increment()
+    }
+
+    note bottom of RelativeMetric
+      <b>Métrica del familiar en un día</b>
+      Acciones de los actuadores de una instalación: una
+      sola por instalación, tipo y fecha.
+      Constructor: value = 1 (la primera acción del día).
+      increment: suma 1.
+      La ve el familiar que registró la instalación.
+    end note
+  }
+
+  package "domain.model.valueobjects" #F9F4FD {
+
+    enum BusinessMetricType #EADCF8 {
+      EMPLOYEES_HIRED
+      EMPLOYEES_SUSPENDED
+      EMPLOYEES_DISMISSED
+      EMPLOYEES_RESIGNED
+      SUBSCRIPTIONS_STARTED
+      SUBSCRIPTIONS_CANCELED
+      REVENUE_COLLECTED
+      REVENUE_REFUNDED
+      EDGES_BROKEN
+      DEVICES_BROKEN
+      ACTUATORS_BROKEN
+    }
+
+    note bottom of BusinessMetricType
+      EMPLOYEES_*: contratados, suspendidos, despedidos y
+      que renunciaron.
+      SUBSCRIPTIONS_STARTED: nuevos suscriptos (primer
+      pago). SUBSCRIPTIONS_CANCELED: canceladas (también
+      las devueltas, que registran una sola cancelación).
+      REVENUE_COLLECTED y REVENUE_REFUNDED: soles cobrados
+      y devueltos.
+      *_BROKEN: equipos marcados BROKEN. EDGES: edges de
+      ambos tipos; DEVICES: micrófonos y actuadores;
+      ACTUATORS: solo actuadores.
+    end note
+
+    enum RelativeMetricType #EADCF8 {
+      ACTIONS_SUCCEEDED
+      ACTIONS_FAILED
+    }
+
+    class Period <<Record>> #EADCF8 {
+      + LocalDate from
+      + LocalDate to
+      + Period(LocalDate from, LocalDate to)
+      + {static} ofYear(Integer year) : Period
+      + startingFrom(LocalDate start) : Period
+    }
+
+    note bottom of Period
+      Rango de fechas, ambas incluidas. from no es
+      posterior a to (InvalidPeriod).
+      ofYear: del 1 de enero al 31 de diciembre.
+      startingFrom(start): start es el día en que empezó
+      el dueño (creación del negocio o registro de la
+      instalación). Si to es anterior a start, no hay nada
+      que mostrar (PeriodBeforeStart; ej. el año 1900).
+      Si solo from es anterior, el periodo empieza en
+      start (ej. el año en que se creó el negocio).
+      Sin from ni to: de start a hoy (el total).
+    end note
+
+    class EmployeeCounts <<Record>> #EADCF8 {
+      + Long active
+      + Long suspended
+      + Long dismissed
+      + Long resigned
+      + Long total
+      + EmployeeCounts(...)
+    }
+
+    class SubscriptionCounts <<Record>> #EADCF8 {
+      + Long current
+      + Long pendingEvaluation
+      + Long canceled
+      + Long total
+      + SubscriptionCounts(...)
+    }
+
+    class EquipmentCounts <<Record>> #EADCF8 {
+      + Long available
+      + Long inUse
+      + Long maintenance
+      + Long broken
+      + Long total
+      + EquipmentCounts(...)
+    }
+
+    class BusinessCurrentStatus <<Record>> #EADCF8 {
+      + EmployeeCounts employees
+      + SubscriptionCounts subscriptions
+      + EquipmentCounts edges
+      + EquipmentCounts devices
+      + EquipmentCounts actuators
+      + BusinessCurrentStatus(...)
+    }
+
+    note bottom of BusinessCurrentStatus
+      <b>Estado actual del negocio, por estado</b>
+      No se guarda: se cuenta al consultar en cada
+      contexto dueño. El frontend filtra por el estado
+      que se quiera ver.
+      EmployeeCounts: ACTIVE, SUSPENDED y TERMINATED por
+      motivo (DISMISSED, RESIGNED); total = la suma.
+      SubscriptionCounts: current = suscriptos ACTIVE o
+      PAST_DUE (incluye cobro fallido, aunque nunca haya
+      pagado, hasta que Stripe la cancela; y re-evaluación),
+      sin las que esperan su primera evaluación;
+      pendingEvaluation = instalaciones que esperan la
+      primera visita del técnico; canceled = CANCELED;
+      total = la suma.
+      EquipmentCounts: AVAILABLE, IN_USE, MAINTENANCE y
+      BROKEN; total = la suma.
+    end note
+
+    class BusinessPeriodReport <<Record>> #EADCF8 {
+      + Period period
+      + Map<BusinessMetricType, BigDecimal> values
+      + BigDecimal netRevenue
+      + BusinessPeriodReport(Period period, Map<BusinessMetricType, BigDecimal> values,
+      \t BigDecimal netRevenue)
+    }
+
+    note bottom of BusinessPeriodReport
+      <b>Lo que pasó en un periodo</b> (o el total desde
+      que existe el negocio). values: la suma de los días
+      del periodo de cada tipo pedido (0 si no hubo).
+      netRevenue = REVENUE_COLLECTED - REVENUE_REFUNDED
+      (soles); solo si se pidieron los dos.
+    end note
+
+    class RelativeReport <<Record>> #EADCF8 {
+      + Period period
+      + Long succeeded
+      + Long failed
+      + Long total
+      + RelativeReport(Period period, Long succeeded, Long failed, Long total)
+    }
+
+    note bottom of RelativeReport
+      Lo que ve el familiar: acciones de los actuadores de
+      su instalación en un periodo, o el total desde que
+      se registró. Suma las RelativeMetric del periodo.
+      total = succeeded + failed.
+    end note
+  }
+
+  package "domain.model.commands" #FFF6EC {
+
+    class RecordBusinessMetricCommand <<Record>> #FFE4C4 {
+      + RecordBusinessMetricCommand(Long businessId, BusinessMetricType type,
+      \t LocalDate date, BigDecimal amount)
+    }
+
+    class RecordRelativeMetricCommand <<Record>> #FFE4C4 {
+      + RecordRelativeMetricCommand(Long installationId, RelativeMetricType type,
+      \t LocalDate date)
+    }
+  }
+
+  package "domain.model.queries" #EEF8EF {
+
+    class GetBusinessCurrentStatusQuery <<Record>> #D5F0D8 {
+      + GetBusinessCurrentStatusQuery(Long businessId)
+    }
+
+    class GetBusinessMetricsByPeriodQuery <<Record>> #D5F0D8 {
+      + GetBusinessMetricsByPeriodQuery(Long businessId, LocalDate from, LocalDate to,
+      \t Set<BusinessMetricType> types)
+    }
+
+    class GetRelativeMetricsByPeriodQuery <<Record>> #D5F0D8 {
+      + GetRelativeMetricsByPeriodQuery(Long installationId, Long userId,
+      \t LocalDate from, LocalDate to)
+    }
+  }
+
+  package "domain.exceptions" #FFF5F6 {
+    class InvalidPeriod <<Exception>> {
+      + InvalidPeriod(LocalDate from, LocalDate to)
+    }
+    class PeriodBeforeStart <<Exception>> {
+      + PeriodBeforeStart(LocalDate start)
+    }
+    class InvalidMetricValue <<Exception>> {
+      + InvalidMetricValue(BigDecimal value)
+    }
+    class BusinessNotFound <<Exception>> {
+      + BusinessNotFound(Long businessId)
+    }
+    class InstallationNotFound <<Exception>> {
+      + InstallationNotFound(Long installationId)
+    }
+    class InstallationNotOfRelative <<Exception>> {
+      + InstallationNotOfRelative(Long installationId)
+    }
+  }
+
+  package "domain.services" #FFFCEA {
+
+    interface BusinessMetricCommandService #FFF3B0 {
+      void handle(RecordBusinessMetricCommand command)
+    }
+
+    interface BusinessMetricQueryService #FFF3B0 {
+      BusinessCurrentStatus handle(GetBusinessCurrentStatusQuery query)
+      BusinessPeriodReport handle(GetBusinessMetricsByPeriodQuery query)
+    }
+
+    interface RelativeMetricCommandService #FFF3B0 {
+      void handle(RecordRelativeMetricCommand command)
+    }
+
+    interface RelativeMetricQueryService #FFF3B0 {
+      RelativeReport handle(GetRelativeMetricsByPeriodQuery query)
+    }
+  }
+}
+
+note as N_Shared
+  <b>Value objects de Shared que usa Analytics</b>
+  --
+  <b>BusinessId</b>: negocio de BusinessMetric (Company).
+  <b>InstallationId</b>: instalación de RelativeMetric
+  (Support).
+  Los dos aggregates extienden
+  AuditableAbstractAggregateRoot.
+  Analytics solo guarda ids y números: nunca accede a
+  otros contextos directamente.
+end note
+
+' ---------- DISPOSICIÓN ----------
+RecordBusinessMetricCommand -[hidden]down- RecordRelativeMetricCommand
+GetBusinessCurrentStatusQuery -[hidden]down- GetBusinessMetricsByPeriodQuery
+GetBusinessMetricsByPeriodQuery -[hidden]down- GetRelativeMetricsByPeriodQuery
+InvalidPeriod -[hidden]down- PeriodBeforeStart
+PeriodBeforeStart -[hidden]down- InvalidMetricValue
+InvalidMetricValue -[hidden]down- BusinessNotFound
+BusinessNotFound -[hidden]down- InstallationNotFound
+InstallationNotFound -[hidden]down- InstallationNotOfRelative
+
+' ---------- REFERENCIAS ----------
+BusinessMetric "0..*" --> "1" BusinessMetricType : type
+RelativeMetric "0..*" --> "1" RelativeMetricType : type
+BusinessCurrentStatus "1" *-- "1" EmployeeCounts : employees
+BusinessCurrentStatus "1" *-- "1" SubscriptionCounts : subscriptions
+BusinessCurrentStatus "1" *-- "3" EquipmentCounts : edges / devices / actuators
+BusinessPeriodReport "1" *-- "1" Period : period
+RelativeReport "1" *-- "1" Period : period
+BusinessPeriodReport ..> BusinessMetric : suma >
+RelativeReport ..> RelativeMetric : suma >
+
+' ---------- SERVICES ----------
+BusinessMetricCommandService ..> RecordBusinessMetricCommand : recibe >
+BusinessMetricCommandService ..> BusinessMetric : crea / modifica >
+BusinessMetricQueryService -[#2E8B57]-> GetBusinessCurrentStatusQuery : recibe >
+BusinessMetricQueryService -[#2E8B57]-> GetBusinessMetricsByPeriodQuery : recibe >
+BusinessMetricQueryService -[#2E8B57]-> BusinessCurrentStatus : devuelve >
+BusinessMetricQueryService -[#2E8B57]-> BusinessPeriodReport : devuelve >
+RelativeMetricCommandService ..> RecordRelativeMetricCommand : recibe >
+RelativeMetricCommandService ..> RelativeMetric : crea / modifica >
+RelativeMetricQueryService -[#2E8B57]-> GetRelativeMetricsByPeriodQuery : recibe >
+RelativeMetricQueryService -[#2E8B57]-> RelativeReport : devuelve >
+
+' ---------- REGLAS DE LOS SERVICES ----------
+note as N_RulesCommands
+  <b>Reglas de los CommandService</b>
+  --
+  Los dos commands solo los activan eventos de otros
+  contextos; no se exponen en la API. date = el día del
+  evento. Si ya hay una métrica de ese dueño, tipo y
+  fecha, suma (add o increment); si no, la crea.
+  Cada evento se publica una sola vez (Subscriptions ya
+  descarta los webhooks repetidos de Stripe; Tracking, los
+  reportes repetidos del edge).
+  --
+  <b>RecordBusinessMetricCommand</b>
+  EmployeeHiredEvent (HCM): EMPLOYEES_HIRED, 1.
+  EmployeeSuspendedEvent: EMPLOYEES_SUSPENDED, 1.
+  EmployeeTerminatedEvent, según su TerminationReason:
+  EMPLOYEES_DISMISSED o EMPLOYEES_RESIGNED, 1.
+  SubscriptionActivatedEvent (Subscriptions):
+  SUBSCRIPTIONS_STARTED, 1.
+  SubscriptionCanceledEvent: SUBSCRIPTIONS_CANCELED, 1.
+  SubscriptionRefundedEvent: REVENUE_REFUNDED, el monto
+  (la cancelación ya llega por SubscriptionCanceledEvent).
+  PaymentSucceededEvent: REVENUE_COLLECTED, el monto.
+  AssetStatusChangedEvent (Assets) con BROKEN: un edge,
+  EDGES_BROKEN; un micrófono, DEVICES_BROKEN; un
+  actuador, DEVICES_BROKEN y ACTUATORS_BROKEN.
+  --
+  <b>RecordRelativeMetricCommand</b>
+  ActuatorActionSucceededEvent (Tracking):
+  ACTIONS_SUCCEEDED; ActuatorActionFailedEvent:
+  ACTIONS_FAILED. date = el día de occurredAt.
+end note
+
+note as N_RulesQueries
+  <b>Reglas de las QueryService</b>
+  --
+  <b>Del administrador</b>: businessId sale de la sesión
+  (Company, GetAdministratorByUserIdQuery y
+  GetBusinessByAdministratorIdQuery). El negocio existe
+  (GetBusinessByIdQuery; BusinessNotFound).
+  <b>GetBusinessCurrentStatusQuery</b>: cuenta ahora, por ACL:
+  HCM, GetAllEmployeesByBusinessIdQuery (por estado y
+  motivo). Subscriptions,
+  GetAllSubscriptionsByBusinessIdAndStatusQuery. Support,
+  GetAllInstallationsByBusinessIdAndStatusQuery (PENDING_EVALUATION
+  y sin equipos: Installation.hasEquipment falso). Assets, GetAllEdgesByBusinessIdQuery y
+  GetAllDevicesByBusinessIdQuery (por tipo y estado).
+  <b>GetBusinessMetricsByPeriodQuery</b>: from y to forman
+  el Period (InvalidPeriod); por año, ofYear; sin los dos,
+  el total. Luego startingFrom(día de creación del
+  negocio) (PeriodBeforeStart). types filtra lo que se
+  quiere ver (vacío = todos). Suma las BusinessMetric de
+  esos tipos en el periodo.
+  --
+  <b>GetRelativeMetricsByPeriodQuery</b>: lo pide el
+  familiar; userId sale de la sesión. La instalación
+  existe (Support, GetInstallationByIdQuery;
+  InstallationNotFound) y la registró ese familiar
+  (requestedBy; InstallationNotOfRelative). Period igual
+  que arriba, con startingFrom(día en que se registró la
+  instalación). Suma ACTIONS_SUCCEEDED y ACTIONS_FAILED.
+end note
+
+BusinessMetricCommandService .. N_RulesCommands
+RelativeMetricCommandService .. N_RulesCommands
+BusinessMetricQueryService .. N_RulesQueries
+RelativeMetricQueryService .. N_RulesQueries
+
+@enduml

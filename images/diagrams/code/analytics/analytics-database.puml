@@ -1,0 +1,80 @@
+@startuml
+hide circle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2E7D32
+  BorderThickness 1.2
+  HeaderBackgroundColor #E8F5E9
+  ArrowColor #444444
+}
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
+}
+
+package "Bounded Context: Analytics" as ctx_analytics #F6FBF6 {
+
+  entity "business_metrics" as business {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * business_id : BIGINT <<ref Company>>
+    * type : VARCHAR(40)
+    * date : DATE
+    * value : NUMERIC(14,2)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    UK (business_id, type, date)
+    CHECK value > 0
+  }
+
+  entity "relative_metrics" as relative {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * installation_id : BIGINT <<ref Support>>
+    * type : VARCHAR(20) (ACTIONS_SUCCEEDED, ACTIONS_FAILED)
+    * date : DATE
+    * value : BIGINT
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    UK (installation_id, type, date)
+    CHECK value >= 1
+  }
+}
+
+business -[hidden]right- relative
+
+note bottom of ctx_analytics
+  <b>PostgreSQL</b>
+  --
+  Solo se guarda lo que pasa: una fila por dueño, tipo y día con cuántas
+  veces pasó (o cuántos soles). No hay fotos diarias: el estado actual se
+  cuenta al consultar en cada contexto dueño.
+  business_metrics: la UK respalda que un evento sume sobre la fila del
+  día y sirve de índice para el periodo (business_id, type y date entre
+  from y to). value: contadores o soles con dos decimales.
+  relative_metrics: una fila por instalación, tipo y día; value cuenta las
+  acciones (desde 1). La UK es también el índice del periodo.
+  --
+  business_id (Company) e installation_id (Support) no tienen FK. Las dos
+  tablas son independientes. Los reportes no se guardan: se calculan al
+  consultar.
+end note
+
+@enduml

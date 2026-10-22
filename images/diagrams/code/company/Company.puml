@@ -25,6 +25,11 @@
 '      cuenta la registra él mismo. Los familiares se registran solos (pagan la suscripción).
 '  C12 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
 '      domain.model, domain.services y domain.exceptions.
+'  C13 Enlace con IAM: el administrador se registra con SignUpCommand (ROLE_ADMIN) y activa su cuenta con
+'      el código de verificación que le llega al correo.
+'  C14 Relación Business-Administrator con multiplicidad: un administrador gestiona a lo sumo un negocio.
+'  C15 Por ahora el administrador se registra desde Swagger (CreateAdministratorCommand), sin aprobación:
+'      decisión de Oscar. Puede actualizar sus datos personales menos el dni y el correo corporativo.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -207,7 +212,7 @@ BusinessQueryService -[#2E8B57]-> Business : "devuelve"
 AdministratorQueryService -[#2E8B57]-> Administrator : "devuelve"
 
 ' ---------- REFERENCIA ENTRE AGGREGATES (mismo contexto) ----------
-Business "1" -[#1F6FB2]-> "1" Administrator : "gestionado por"
+Business "0..1" -[#1F6FB2]-> "1" Administrator : "gestionado por >"
 
 ' ---------- PARÁMETROS DE LOS CONSTRUCTORES (notas fuera del package) ----------
 note as N_CreateBusiness
@@ -307,7 +312,11 @@ note as N_CreateAdministrator
   Un administrador no puede ser también empleado: ambos
   usan el mismo registro de personal (StaffProfile).
   IAM crea su cuenta corporativa con corporateEmail +
-  password: el administrador registra su propia cuenta.
+  password (SignUpCommand con ROLE_ADMIN): el administrador
+  registra su propia cuenta y la activa con el código que
+  le llega al correo. IAM también rechaza un correo que ya
+  es una cuenta, aunque no tenga perfil (por ejemplo, la de
+  un cuidador): EmailAddressAlreadyExists.
   Después todo se enlaza por id, nunca por dni ni email.
   backupPersonalEmail no está registrado en otro
   Administrator (BackupPersonalEmailAlreadyExists).
@@ -321,11 +330,13 @@ note as N_UpdateAdministrator
   String photoFileName
   String firstName
   String lastName
+  LocalDate birthDate
   String phoneNumber
   --Información de contacto--
   String backupPersonalEmail  // opcional
   ..
   El Administrator existe (AdministratorNotFound).
+  El correo corporativo y el dni no se modifican.
   Administrator solo cambia backupPersonalEmail;
   los demás datos se actualizan en su StaffProfile
   (Profiles) mediante el ACL.
@@ -344,6 +355,9 @@ note bottom of Administrator
   y password al contexto de IAM.
   GetAdministratorByUserIdQuery resuelve el
   Administrator desde el usuario logueado (UserId de IAM).
+  GetBusinessByIdQuery: Analytics toma de ahí el día en
+  que se creó el negocio (createdAt): sus métricas
+  empiezan ese día.
 end note
 
 note bottom of Business

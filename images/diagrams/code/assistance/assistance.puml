@@ -29,13 +29,26 @@
 '      OVERDUE. Una ocurrencia que terminó sin registro se muestra como MISSED.
 '  A15 El familiar cancela cualquier ocurrencia que aún no terminó; las pasadas no.
 '  A16 Un cuidador que ya tiene cuenta no recibe una nueva: le llega una notificación y acepta
-'      desde la app (assignExistingCaregiverAccount, InvitationNotificationRequestedEvent,
-'      SendInvitationNotificationCommand). Antes de asignar la cuenta se valida CaregiverAlreadyExists.
+'      desde la app (assignExistingCaregiverAccount, InvitationNotificationRequestedEvent). Antes de
+'      asignar la cuenta se valida CaregiverAlreadyExists.
 '  A17 Una AssistedPerson no se da de baja; lo que se revoca es el acceso de un cuidador.
 '  A18 DniAlreadyExists y EmailAddressAlreadyExists: el dni y el email del nuevo cliente no pueden estar
 '      registrados.
 '  A19 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
 '      domain.model, domain.services y domain.exceptions.
+'  A20 Enlace con IAM: el familiar se registra con SignUpCommand (ROLE_RELATIVE) y verifica su correo con un
+'      código; el cuidador se invita con RegisterInvitedCaregiverCommand y PasswordDefinedEvent activa la
+'      aceptación. El familiar y el cuidador usan correos distintos (EmailAddressAlreadyExists).
+'  A21 Relaciones con nombre y multiplicidad (5.X.7.1); los enums se enlazan con su clase y cada
+'      QueryService recibe sus queries y devuelve su aggregate (flechas verdes).
+'  A22 Communication consume directamente InvitationAccountCreatedEvent e
+'      InvitationNotificationRequestedEvent: se quitan SendInvitationEmailCommand y
+'      SendInvitationNotificationCommand, que solo reenviaban el pedido por ACL. Así Assistance avisa
+'      como los demás contextos (por eventos) y no depende de Communication.
+'  A23 El familiar actualiza sus datos personales y los de su persona asistida (UpdateRelativeCommand,
+'      UpdateAssistedPersonCommand): nombres, fecha de nacimiento, teléfono y foto, nunca el dni ni el
+'      email. Los datos viven en el PersonProfile: Assistance valida y Profiles los guarda
+'      (UpdatePersonProfileCommand). Decisión de Oscar.
 '
 ' Reglas de negocio:
 '  - Un Relative gestiona varias AssistedPerson; cada AssistedPerson pertenece a un solo Relative.
@@ -58,10 +71,12 @@
 '    otros contextos pasan solo por un Value Object de identidad (UserId, PersonProfileId, BusinessId).
 '  - ActivityAssignment es una entidad interna de CareActivity y se agrupa en el componente
 '    embebido ActivityAssignments. ActivityLog la referencia por assignmentId, no por objeto.
-'  - Los eventos son internos: cada evento activa el siguiente command.
+'  - Cada evento activa el siguiente command dentro del contexto. InvitationAccountCreatedEvent e
+'    InvitationNotificationRequestedEvent también los consume Communication (correo o aviso).
 '  - Una invitación vencida (PENDING con expiresAt pasado) se calcula, no se guarda; se reenvía
 '    con ResendInvitationCommand sobre la misma invitación.
-'  - IAM, Communication, Profiles y Company se consumen por ACL (capa application, aún no implementada).
+'  - IAM, Profiles y Company se consumen por ACL (capa application, aún no implementada). Communication
+'    reacciona a los eventos de la invitación.
 '    El familiar crea su propia cuenta personal (paga la suscripción). La AssistedPerson no tiene cuenta
 '    en IAM. Ambos son clientes (PersonProfile). Company valida que el Business exista (BusinessId).
 '  - Shared (herencia y Value Objects importados) solo se documenta en una nota; no se dibuja.
@@ -101,12 +116,13 @@ legend left
   |<#FFE4C4>   | Command (escritura) |
   |<#D5F0D8>   | Query (lectura) |
   |<#FFF3B0>   | Service (interface) |
-  |<#CDEFF2>   | Event (interno) |
+  |<#CDEFF2>   | Event |
   |<#FFEBEE>   | Exception (dominio) |
   |<#E67E22>   | Command que crea / cambia un aggregate |
   |<#7E57C2>   | Referencia directa entre aggregates (mismo contexto) |
   |<#AD1457>   | Entity -> componente embebido -> Aggregate (ActivityAssignment -> ActivityAssignments -> CareActivity) |
   |<#00838F>   | Evento interno: activa el siguiente command |
+  |<#2E8B57>   | Query service: recibe la query y devuelve el resultado |
 endlegend
 
 package alivia.platform.Assistance {
@@ -325,6 +341,9 @@ package alivia.platform.Assistance {
 
     note bottom of ActivityAssignment
       caregiver null = la actividad la hace el familiar.
+      isAssignedTo / isAssignedToRelative: los usa
+      ActivityLog.completed (NotResponsibleForActivity);
+      isAssignedTo, también reassignToRelative.
       Vive dentro de CareActivity: solo se accede por su root.
       careActivity = referencia de vuelta a su root: lado dueño
       de la relación.
@@ -384,7 +403,6 @@ package alivia.platform.Assistance {
       + deactivateAssignment(Long assignmentId)
       + reassignToRelative(Caregiver revokedCaregiver)
       + occurrencesOn(LocalDate date) : List<ActivityAssignment>
-      + isEmpty() : boolean
     }
 
     note bottom of ActivityAssignments
@@ -404,6 +422,9 @@ package alivia.platform.Assistance {
       CareActivity recién creada.
       getAssignmentWithId usa getFirstAssignmentWhere y lanza
       ActivityAssignmentNotFound si no existe (nunca devuelve null).
+      occurrencesOn(date): las asignaciones ACTIVE que ocurren
+      esa fecha; lo usan la agenda (AgendaItem) y
+      MarkMissedActivitiesCommand.
     end note
 
     class Schedule <<Record>> #EADCF8 {
@@ -565,18 +586,9 @@ package alivia.platform.Assistance {
       + RelativeNotFound()
     }
 
-
-
     class DniAlreadyExists <<Exception>> #FFEBEE {
       + DniAlreadyExists()
     }
-
-
-
-
-
-
-
 
     class EmailAddressAlreadyExists <<Exception>> #FFEBEE {
       + EmailAddressAlreadyExists()
@@ -589,7 +601,6 @@ package alivia.platform.Assistance {
     class AssistedPersonNotFound <<Exception>> #FFEBEE {
       + AssistedPersonNotFound()
     }
-
 
     class AssistedPersonNotManagedByRelative <<Exception>> #FFEBEE {
       + AssistedPersonNotManagedByRelative()
@@ -674,20 +685,20 @@ package alivia.platform.Assistance {
       + CreateAssistedPersonCommand(...)
     }
 
+    class UpdateRelativeCommand <<Record>> #FFE4C4 {
+      + UpdateRelativeCommand(...)
+    }
+
+    class UpdateAssistedPersonCommand <<Record>> #FFE4C4 {
+      + UpdateAssistedPersonCommand(...)
+    }
+
     class CreateInvitationCommand <<Record>> #FFE4C4 {
       + CreateInvitationCommand(Long relativeId, Long assistedPersonId, String inviteeEmail)
     }
 
     class RegisterCaregiverAccountCommand <<Record>> #FFE4C4 {
       + RegisterCaregiverAccountCommand(Long invitationId)
-    }
-
-    class SendInvitationNotificationCommand <<Record>> #FFE4C4 {
-      + SendInvitationNotificationCommand(Long invitationId, Long caregiverUserId)
-    }
-
-    class SendInvitationEmailCommand <<Record>> #FFE4C4 {
-      + SendInvitationEmailCommand(Long invitationId, String inviteeEmail, String passwordSetupUrl)
     }
 
     class AcceptInvitationCommand <<Record>> #FFE4C4 {
@@ -830,17 +841,17 @@ package alivia.platform.Assistance {
 
     interface RelativeCommandService #FFF3B0 {
       Long handle(CreateRelativeCommand command)
+      Long handle(UpdateRelativeCommand command)
     }
 
     interface AssistedPersonCommandService #FFF3B0 {
       Long handle(CreateAssistedPersonCommand command)
+      Long handle(UpdateAssistedPersonCommand command)
     }
 
     interface InvitationCommandService #FFF3B0 {
       Long handle(CreateInvitationCommand command)
       Long handle(RegisterCaregiverAccountCommand command)
-      void handle(SendInvitationEmailCommand command)
-      void handle(SendInvitationNotificationCommand command)
       Long handle(AcceptInvitationCommand command)
       Long handle(RevokeInvitationCommand command)
       Long handle(ResendInvitationCommand command)
@@ -912,19 +923,32 @@ note as N_ContextosExternos
   Relative crea su cuenta personal con su password y
   devuelve el userId. Al invitar a un cuidador: si inviteeEmail ya tiene
   cuenta, devuelve su userId sin crear otra; si no, crea la
-  cuenta y devuelve userId + url para cambiar la contraseña.
-  Cuando la contraseña se cambia, avisa y se ejecuta
-  AcceptInvitationCommand.
-  <b>Communication</b> (ACL): envía el correo con la url
-  (SendInvitationEmailCommand) o la notificación en la app
-  (SendInvitationNotificationCommand).
+  cuenta y devuelve userId + url para cambiar la contraseña
+  (RegisterInvitedCaregiverCommand de IAM). Cuando la
+  contraseña se define, IAM registra PasswordDefinedEvent y
+  se ejecuta AcceptInvitationCommand.
+  <b>Communication</b> (eventos, después del commit):
+  InvitationAccountCreatedEvent: el correo con la url
+  (SendEmailCommand, plantilla CAREGIVER_INVITATION).
+  InvitationNotificationRequestedEvent: el aviso en la
+  app y push (CreateNotificationCommand,
+  CAREGIVER_INVITATION).
   <b>Profiles</b> (ACL): dueño del PersonProfile de Relative y
   AssistedPerson. Al crear un Relative o una AssistedPerson,
   valida que el dni y el email no estén registrados entre
   los clientes y crea el PersonProfile (en la AssistedPerson
-  el email es opcional).
+  el email es opcional). Al actualizarlos, recibe
+  UpdatePersonProfileCommand (sin dni ni email).
   <b>Company</b> (ACL): dueño del Business. Al crear un Relative
   valida que el negocio exista con su businessId.
+  <b>Contextos que leen Assistance</b> (ACL, solo lectura):
+  Subscriptions y Support validan que la persona asistida
+  exista y la gestione el familiar
+  (GetAssistedPersonByIdQuery, isManagedBy). Communication
+  obtiene el familiar, la agenda y los cuidadores de turno
+  (GetAssistedPersonByIdQuery,
+  GetAgendaByAssistedPersonIdQuery,
+  GetCaregiversByAssistedPersonIdQuery).
   --
   UserId identifica al usuario de IAM (Relative, Caregiver e
   Invitation lo guardan).
@@ -935,26 +959,38 @@ note as N_ContextosExternos
 end note
 
 ' ---------- REFERENCIAS DIRECTAS ENTRE AGGREGATES (mismo contexto) ----------
-AssistedPerson .[#7E57C2].> Relative
-Caregiver .[#7E57C2].> AssistedPerson
-Invitation .[#7E57C2].> AssistedPerson
-Invitation .[#7E57C2].> Relative
-CareActivity .[#7E57C2].> AssistedPerson
-ActivityAssignment .[#7E57C2].> Caregiver
-ActivityLog .[#7E57C2].> AssistedPerson
-ActivityLog .[#7E57C2].> CareActivity
-ActivityLog .[#7E57C2].> Caregiver
+AssistedPerson "0..*" .[#7E57C2].> "1" Relative : "gestionada por >"
+Caregiver "0..*" .[#7E57C2].> "1" AssistedPerson : "cuida a >"
+Invitation "0..*" .[#7E57C2].> "1" AssistedPerson : "invita a cuidar a >"
+Invitation "0..*" .[#7E57C2].> "1" Relative : "enviada por (inviter) >"
+CareActivity "0..*" .[#7E57C2].> "1" AssistedPerson : "cuidado de >"
+ActivityAssignment "0..*" .[#7E57C2].> "0..1" Caregiver : "realizada por (null = familiar) >"
+ActivityLog "0..*" .[#7E57C2].> "1" AssistedPerson : "historial de >"
+ActivityLog "0..*" .[#7E57C2].> "1" CareActivity : "registra ocurrencia de >"
+ActivityLog "0..*" .[#7E57C2].> "0..1" Caregiver : "assignedCaregiver / completedBy >"
 
 ' ---------- COMPOSICIÓN ----------
-ActivityAssignment *-- Schedule
+ActivityAssignment "1" *-- "1" Schedule : schedule
 
 ' ---------- ENTITY -> VALUE OBJECT -> AGGREGATE ----------
-ActivityAssignment -[#AD1457]-> ActivityAssignments
-ActivityAssignments -[#AD1457]-> CareActivity
+ActivityAssignment "0..*" -[#AD1457]-> "1" ActivityAssignments : "agrupada en >"
+ActivityAssignments "1" -[#AD1457]-> "1" CareActivity : "embebido en >"
+
+' ---------- ENUMS DE CADA CLASE ----------
+Invitation "0..*" --> "1" InvitationStatus : status
+Caregiver "0..*" --> "1" CaregiverStatus : status
+CareActivity "0..*" --> "1" CareActivityType : type
+CareActivity "0..*" --> "1" ActivityStatus : status
+ActivityAssignment "0..*" --> "1" ActivityStatus : status
+ActivityLog "0..*" --> "1" ActivityLogStatus : status
+Schedule "0..*" --> "1" ScheduleType : type
+AgendaItem "0..*" --> "1" OccurrenceStatus : status
 
 ' ---------- ALTA DE RELATIVE Y ASSISTEDPERSON ----------
 CreateRelativeCommand -[#E67E22]-> Relative
 CreateAssistedPersonCommand -[#E67E22]-> AssistedPerson
+UpdateRelativeCommand -[#E67E22]-> Relative : "valida; datos en Profiles"
+UpdateAssistedPersonCommand -[#E67E22]-> AssistedPerson : "valida; datos en Profiles"
 
 ' ---------- FLUJO DE LA INVITACIÓN ----------
 CreateInvitationCommand -[#E67E22]-> Invitation
@@ -962,9 +998,7 @@ Invitation .[#00838F].> InvitationCreatedEvent
 InvitationCreatedEvent .[#00838F].> RegisterCaregiverAccountCommand
 RegisterCaregiverAccountCommand -[#E67E22]-> Invitation
 Invitation .[#00838F].> InvitationAccountCreatedEvent
-InvitationAccountCreatedEvent .[#00838F].> SendInvitationEmailCommand
 Invitation .[#00838F].> InvitationNotificationRequestedEvent
-InvitationNotificationRequestedEvent .[#00838F].> SendInvitationNotificationCommand
 AcceptInvitationCommand -[#E67E22]-> Invitation
 Invitation .[#00838F].> InvitationAcceptedEvent
 InvitationAcceptedEvent .[#00838F].> CreateCaregiverCommand
@@ -994,6 +1028,31 @@ DeactivateActivityAssignmentCommand -[#E67E22]-> CareActivity
 CompleteActivityCommand -[#E67E22]-> ActivityLog
 CancelActivityOccurrenceCommand -[#E67E22]-> ActivityLog
 MarkMissedActivitiesCommand -[#E67E22]-> ActivityLog
+
+' ---------- QUERIES: LECTURA (verde) ----------
+InvitationQueryService -[#2E8B57]-> GetInvitationByIdQuery : "recibe"
+InvitationQueryService -[#2E8B57]-> GetInvitationsByAssistedPersonIdQuery : "recibe"
+InvitationQueryService -[#2E8B57]-> GetPendingInvitationsByCaregiverUserIdQuery : "recibe"
+InvitationQueryService -[#2E8B57]-> Invitation : "devuelve"
+RelativeQueryService -[#2E8B57]-> GetRelativeByIdQuery : "recibe"
+RelativeQueryService -[#2E8B57]-> GetRelativeByUserIdQuery : "recibe"
+RelativeQueryService -[#2E8B57]-> GetRelativesByBusinessIdQuery : "recibe"
+RelativeQueryService -[#2E8B57]-> Relative : "devuelve"
+AssistedPersonQueryService -[#2E8B57]-> GetAssistedPersonsByRelativeIdQuery : "recibe"
+AssistedPersonQueryService -[#2E8B57]-> GetAssistedPersonByIdQuery : "recibe"
+AssistedPersonQueryService -[#2E8B57]-> AssistedPerson : "devuelve"
+CaregiverQueryService -[#2E8B57]-> GetCaregiversByAssistedPersonIdQuery : "recibe"
+CaregiverQueryService -[#2E8B57]-> GetCaregiversByUserIdQuery : "recibe"
+CaregiverQueryService -[#2E8B57]-> Caregiver : "devuelve"
+CareActivityQueryService -[#2E8B57]-> GetCareActivityByIdQuery : "recibe"
+CareActivityQueryService -[#2E8B57]-> GetCareActivitiesByAssistedPersonIdQuery : "recibe"
+CareActivityQueryService -[#2E8B57]-> GetAgendaByAssistedPersonIdQuery : "recibe"
+CareActivityQueryService -[#2E8B57]-> GetAgendaByCaregiverIdQuery : "recibe"
+CareActivityQueryService -[#2E8B57]-> CareActivity : "devuelve"
+CareActivityQueryService -[#2E8B57]-> AgendaItem : "devuelve"
+ActivityLogQueryService -[#2E8B57]-> GetActivityLogsByAssistedPersonIdQuery : "recibe"
+ActivityLogQueryService -[#2E8B57]-> GetActivityLogsByCaregiverIdQuery : "recibe"
+ActivityLogQueryService -[#2E8B57]-> ActivityLog : "devuelve"
 
 ' ---------- NOTAS: VARIABLES Y REGLAS DE CADA COMMAND ----------
 note as N_CreateRelative
@@ -1029,7 +1088,12 @@ note as N_CreateRelative
   Si también es empleado de Alivia, tiene además un
   StaffProfile y una cuenta corporativa aparte: son dos
   relaciones distintas y sus datos no se comparten.
-  IAM crea su cuenta personal con emailAddress + password.
+  IAM crea su cuenta personal con emailAddress + password
+  (SignUpCommand con ROLE_RELATIVE) y le envía un código
+  para verificar el correo. El correo no puede tener otra
+  cuenta: un cuidador que se registra como familiar usa
+  otro correo (EmailAddressAlreadyExists). Lo valida IAM,
+  porque el cuidador no tiene PersonProfile.
   Después todo se enlaza por id, nunca por dni ni email.
 end note
 
@@ -1058,6 +1122,32 @@ note as N_CreateAssistedPerson
   No tiene cuenta en IAM.
   Después todo se enlaza por id, nunca por dni ni email.
   Queda gestionada por ese Relative.
+end note
+
+note as N_UpdatePersons
+  <b>UpdateRelativeCommand</b>
+  --
+  Long relativeId  // del usuario logueado
+  byte[] photoData
+  String photoFileName
+  String phoneNumber
+  String firstName
+  String lastName
+  LocalDate birthDate
+  --
+  <b>UpdateAssistedPersonCommand</b>
+  --
+  Long assistedPersonId
+  Long relativeId  // del usuario logueado
+  (los mismos datos que arriba)
+  --
+  <b>Valida</b>
+  El Relative existe (RelativeNotFound); la persona
+  asistida existe (AssistedPersonNotFound) y la gestiona
+  ese familiar (AssistedPersonNotManagedByRelative).
+  Relative y AssistedPerson no cambian: el ACL envía
+  UpdatePersonProfileCommand a Profiles con su
+  personProfileId. dni y email no se modifican nunca.
 end note
 
 note as N_CreateCareActivity
@@ -1167,6 +1257,8 @@ end note
 
 CreateRelativeCommand .. N_CreateRelative
 CreateAssistedPersonCommand .. N_CreateAssistedPerson
+UpdateRelativeCommand .. N_UpdatePersons
+UpdateAssistedPersonCommand .. N_UpdatePersons
 CreateCareActivityCommand .. N_CreateCareActivity
 UpdateCareActivityCommand .. N_UpdateCareActivity
 AssignCareActivityCommand .. N_AssignCareActivity
@@ -1214,6 +1306,10 @@ note as N_RulesInvitation
   y llama a invitation.assignExistingCaregiverAccount(userId).
   Si no: IAM crea la cuenta y llama a
   invitation.assignCaregiverAccount(userId, passwordSetupUrl).
+  Si el correo es de un familiar o de una cuenta
+  corporativa, IAM lo rechaza (EmailAddressAlreadyExists):
+  para cuidar a otra persona se usa otro correo. Solo se
+  reutiliza la cuenta de alguien que ya es cuidador.
   Si la cuenta se creó en un envío anterior y su contraseña
   nunca se cambió, IAM regenera la url (la anterior deja de
   valer) y devuelve el mismo userId.
@@ -1344,7 +1440,6 @@ note as N_RetornoCommands
   (id del ActivityLog en ActivityLogCommandService; id de la
   CareActivity en las operaciones sobre sus asignaciones).
   void cuando no hay aggregate que devolver:
-  SendInvitationEmailCommand, SendInvitationNotificationCommand,
   ReassignCaregiverActivitiesCommand y MarkMissedActivitiesCommand.
   Optional solo en los QueryService.
   --
@@ -1403,8 +1498,9 @@ note as N_Clases
   ciertos días de la semana, con su rango de horas.
   <b>AgendaItem</b>: una ocurrencia calculada para mostrar en
   la agenda, con su estado actual; no se guarda.
-  <b>Events</b>: avisos internos; cada uno activa el siguiente
-  command del flujo.
+  <b>Events</b>: cada uno activa el siguiente command del
+  flujo; los de la invitación también llegan a
+  Communication (correo o aviso al cuidador).
 end note
 
 @enduml

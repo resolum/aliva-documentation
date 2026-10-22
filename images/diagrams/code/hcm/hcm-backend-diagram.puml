@@ -37,6 +37,17 @@
 '      no hay proceso automático.
 '  H16 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
 '      domain.model, domain.services y domain.exceptions.
+'  H17 changeRole registra EmployeeRoleChangedEvent: IAM cambia el rol de la cuenta corporativa. El rol
+'      inicial lo recibe IAM al crear la cuenta (CreateCorporateAccountCommand); la contraseña temporal
+'      la envía Communication con el evento CorporateAccountCreatedEvent de IAM.
+'  H18 Relaciones con nombre y multiplicidad (5.X.7.1); los enums se enlazan con la clase que los usa.
+'  H19 WorkSchedule.covers(day, range) reemplaza a isWorkingAt(day, time): Support valida que una visita
+'      del técnico caiga dentro de un solo turno de ese día; isWorkingAt solo revisaba una hora y nada
+'      más la usaba.
+'  H20 Al contratar, Communication solo envía el correo con la contraseña temporal
+'      (CorporateAccountCreatedEvent de IAM): es la bienvenida. EmployeeHiredEvent ya no envía otro correo.
+'  H21 Al cesar, el administrador indica el motivo (TerminationReason): DISMISSED (despedido) o RESIGNED
+'      (renunció). Viaja en EmployeeTerminatedEvent: Analytics cuenta los dos por separado.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -86,6 +97,7 @@ package alivia.platform.Hcm {
       - WorkSchedule workSchedule
       - ContractHistory contractHistory
       - VacationHistory vacationHistory
+      - TerminationReason terminationReason
       --
       + Employee(BusinessId businessId, UserId userId, StaffProfileId staffProfileId, EmployeeRole role,
       \t WorkSchedule workSchedule, OperatingHours operatingHours,
@@ -99,7 +111,7 @@ package alivia.platform.Hcm {
       + cancelVacation(Long vacationId, LocalDate today)
       + suspend()
       + reinstate()
-      + terminate(LocalDate today)
+      + terminate(TerminationReason reason, LocalDate today)
       + currentContract(LocalDate today) : Optional<Contract>
       + isOnVacation(LocalDate today) : boolean
       + isTerminated() : boolean
@@ -117,8 +129,11 @@ package alivia.platform.Hcm {
       reinstate: SUSPENDED a ACTIVE; registra
       EmployeeReinstatedEvent.
       terminate: ACTIVE o SUSPENDED a TERMINATED (estado
-      final); termina el contrato vigente, cancela las
-      vacaciones futuras y registra EmployeeTerminatedEvent.
+      final); guarda el motivo (DISMISSED o RESIGNED);
+      termina el contrato vigente, cancela las vacaciones
+      futuras y registra EmployeeTerminatedEvent.
+      changeRole: registra EmployeeRoleChangedEvent si el rol
+      cambia.
       updateWorkSchedule: cada turno cabe en OperatingHours
       (WorkScheduleOutsideOperatingHours).
       addContract: no empieza antes de today
@@ -213,7 +228,12 @@ package alivia.platform.Hcm {
     }
 
     class EmployeeTerminatedEvent <<Record>> #CDEFF2 {
-      + EmployeeTerminatedEvent(Long employeeId, Long businessId, Long userId)
+      + EmployeeTerminatedEvent(Long employeeId, Long businessId, Long userId,
+      \t TerminationReason reason)
+    }
+
+    class EmployeeRoleChangedEvent <<Record>> #CDEFF2 {
+      + EmployeeRoleChangedEvent(Long employeeId, Long businessId, Long userId, EmployeeRole role)
     }
 
     note bottom of EmployeeHiredEvent
@@ -221,9 +241,12 @@ package alivia.platform.Hcm {
       no hay id: getEmployeeId() lo lee del aggregate al
       publicarse, después del save.
       Los demás se registran sobre empleados ya guardados.
-      Consumidores (ver Contextos externos): IAM habilita o
-      bloquea la cuenta corporativa; Communication avisa al
-      empleado.
+      Consumidores (ver Contextos externos): IAM bloquea,
+      habilita, desactiva o cambia el rol de la cuenta
+      corporativa; Communication avisa al empleado por
+      correo de la suspensión, la reincorporación y el cese.
+      Analytics cuenta contrataciones, suspensiones y
+      ceses por negocio y día.
     end note
   }
 
@@ -299,7 +322,7 @@ package alivia.platform.Hcm {
     class WorkSchedule <<Record>> #EADCF8 {
       + List<WeeklyPeriod> shifts
       + WorkSchedule(List<WeeklyPeriod> shifts)
-      + isWorkingAt(DayOfWeek day, LocalTime time) : boolean
+      + covers(DayOfWeek day, TimeRange range) : boolean
       + fitsWithin(OperatingHours operatingHours) : boolean
     }
 
@@ -319,6 +342,10 @@ package alivia.platform.Hcm {
       con otro (InvalidWorkSchedule).
       fitsWithin: cada turno está dentro del horario de
       atención de su negocio (OperatingHours).
+      covers: un turno de ese día contiene todo el rango
+      (lo usa Support al asignar una visita al técnico).
+      isOnVacation(date) de Employee sirve para cualquier
+      fecha, también la de una visita futura.
       --
       <b>OperatingHours</b>
       Horario de atención del Business del empleado (hoy,
@@ -331,6 +358,11 @@ package alivia.platform.Hcm {
       ACTIVE
       SUSPENDED
       TERMINATED
+    }
+
+    enum TerminationReason #EADCF8 {
+      DISMISSED
+      RESIGNED
     }
 
     enum EmployeeRole #EADCF8 {
@@ -426,9 +458,6 @@ package alivia.platform.Hcm {
       + DniAlreadyExists()
     }
 
-
-
-
     class EmailAddressAlreadyExists <<Exception>> {
       + EmailAddressAlreadyExists()
     }
@@ -463,7 +492,7 @@ package alivia.platform.Hcm {
     }
 
     class TerminateEmployeeCommand <<Record>> #FFE4C4 {
-      + TerminateEmployeeCommand(Long employeeId, Long businessId)
+      + TerminateEmployeeCommand(Long employeeId, Long businessId, TerminationReason reason)
     }
 
     class CreateContractCommand <<Record>> #FFE4C4 {
@@ -566,25 +595,27 @@ GetEmployeeByUserIdQuery -[hidden]down- GetContractByIdQuery
 GetAllContractsByEmployeeIdQuery -[hidden]down- GetAllVacationsByEmployeeIdQuery
 
 ' ---------- COMPOSICIÓN DEL AGGREGATE ----------
-Employee *-- WorkSchedule
-Employee *-- ContractHistory
-Employee *-- VacationHistory
-ContractHistory "1" *-- "1..*" Contract
-VacationHistory "1" *-- "0..*" Vacation
-Contract *-- ContractPeriod
-Vacation *-- VacationPeriod
+Employee "1" *-- "1" WorkSchedule : workSchedule
+Employee "1" *-- "1" ContractHistory : contractHistory
+Employee "1" *-- "1" VacationHistory : vacationHistory
+ContractHistory "1" *-- "1..*" Contract : contracts
+VacationHistory "1" *-- "0..*" Vacation : vacations
+Contract "1" *-- "1" ContractPeriod : period
+Vacation "1" *-- "1" VacationPeriod : period
 Employee ..> OperatingHours : valida con
-Employee ..> EmployeeRole
-Employee ..> EmployeeStatus
-Contract ..> TypeOfContract
-Contract ..> ContractStatus
-Vacation ..> VacationStatus
+Employee "0..*" --> "1" EmployeeRole : role
+Employee "0..*" --> "1" EmployeeStatus : status
+Employee "0..*" --> "0..1" TerminationReason : terminationReason
+Contract "0..*" --> "1" TypeOfContract : type
+Contract "0..*" --> "1" ContractStatus : status
+Vacation "0..*" --> "1" VacationStatus : status
 
 ' ---------- EVENTOS ----------
 Employee ..> EmployeeHiredEvent : registra
 Employee ..> EmployeeSuspendedEvent : registra
 Employee ..> EmployeeReinstatedEvent : registra
 Employee ..> EmployeeTerminatedEvent : registra
+Employee ..> EmployeeRoleChangedEvent : registra
 
 ' ---------- SERVICES ----------
 EmployeeCommandService ..> CreateEmployeeCommand : recibe
@@ -646,9 +677,13 @@ note as N_CreateEmployee
   PersonProfile y su cuenta personal.
   Si es una persona asistida no se valida: lo decide el
   administrador.
-  IAM crea su cuenta corporativa con una contraseña
-  temporal; Communication se la envía al correo
-  corporativo. No tiene acceso hasta que la cambia.
+  IAM crea su cuenta corporativa con su rol y una
+  contraseña temporal (CreateCorporateAccountCommand);
+  Communication se la envía al correo corporativo
+  (CorporateAccountCreatedEvent). No tiene acceso hasta
+  que la cambia. IAM también rechaza un correo que ya es
+  una cuenta, aunque no tenga perfil (por ejemplo, la de
+  un cuidador): EmailAddressAlreadyExists.
   Después todo se enlaza por id, nunca por dni ni email.
   application entrega today y el OperatingHours del negocio.
 end note
@@ -664,13 +699,15 @@ note as N_UpdateEmployee
   String phoneNumber
   String firstName
   String lastName
+  LocalDate birthDate
   --
   El empleado existe (EmployeeNotFound), es del negocio
   (EmployeeNotInBusiness) y no está TERMINATED
   (EmployeeTerminated).
   Employee no cambia: los datos se actualizan en su
   StaffProfile (Profiles) mediante el ACL.
-  email, dni y birthDate no se modifican.
+  Lo envía el administrador del negocio. El correo
+  corporativo y el dni no se modifican nunca.
 end note
 
 note as N_RulesEmployee
@@ -727,17 +764,29 @@ note as N_ContextosExternos
   BusinessHours del negocio, que el ACL traduce a
   OperatingHours.
   <b>IAM</b> (ACL y eventos): dueño del usuario. Al contratar
-  crea la cuenta corporativa con una contraseña temporal
-  (el acceso se habilita cuando la cambia). Reacciona a:
-  EmployeeHiredEvent: registra el rol de empleado.
+  crea la cuenta corporativa con el rol del empleado y una
+  contraseña temporal (CreateCorporateAccountCommand; el
+  acceso se habilita cuando la cambia). Reacciona a:
+  EmployeeRoleChangedEvent: cambia el rol de la cuenta.
   EmployeeSuspendedEvent: bloquea la cuenta corporativa.
   EmployeeReinstatedEvent: la vuelve a habilitar.
   EmployeeTerminatedEvent: desactiva la cuenta corporativa.
   La cuenta personal de familiar, si la tiene, no cambia.
   <b>Communication</b> (eventos): avisa al empleado por correo
-  corporativo (bienvenida con la contraseña temporal al
-  contratar;
-  suspensión, reincorporación y cese).
+  corporativo: la contraseña temporal le llega por el
+  evento CorporateAccountCreatedEvent de IAM; la
+  suspensión, reincorporación y cese, por los eventos de
+  este contexto. Al contratar no hay otro correo: la
+  contraseña temporal es la bienvenida. También busca el
+  userId del técnico (GetEmployeeByIdQuery) para avisarle
+  de una visita asignada en Support.
+  <b>Support</b> (ACL, solo lectura): al asignar una visita,
+  GetEmployeeByIdQuery (TECH, ACTIVE, WorkSchedule.covers e
+  isOnVacation con la fecha de la visita); al atenderla,
+  GetEmployeeByUserIdQuery (el técnico logueado).
+  <b>Analytics</b> (eventos y ACL): cuenta contrataciones,
+  suspensiones y ceses, y el personal actual por estado
+  (GetAllEmployeesByBusinessIdQuery).
   --
   BusinessId identifica el Business de Company.
   UserId identifica al usuario de IAM.
@@ -776,8 +825,12 @@ note as N_Clases
   que limita los turnos.
   <b>EmployeeStatus</b>: ACTIVE, SUSPENDED o TERMINATED
   (final). Estar de vacaciones se calcula con las fechas.
-  <b>Events</b>: contratación, suspensión, reincorporación y
-  cese; los usan IAM y Communication.
+  <b>Events</b>: suspensión, reincorporación y cese los
+  usan IAM y Communication; el cambio de rol, IAM.
+  Analytics cuenta contrataciones (EmployeeHiredEvent),
+  suspensiones y ceses (con su motivo).
+  <b>TerminationReason</b>: DISMISSED (despedido) o
+  RESIGNED (renunció); solo en un empleado TERMINATED.
 end note
 
 @enduml

@@ -1,0 +1,120 @@
+@startuml
+hide circle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2E7D32
+  BorderThickness 1.2
+  HeaderBackgroundColor #E8F5E9
+  ArrowColor #444444
+}
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
+}
+
+package "Bounded Context: Communication" as ctx_comm #F6FBF6 {
+
+  entity "alerts" as alerts {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * recipient_user_id : BIGINT <<ref IAM>>
+    * help_request_id : VARCHAR(64) <<ref Tracking>>
+    * title : VARCHAR(150)
+    * body : TEXT
+    * status : VARCHAR(12) (PENDING, SENT, UNDELIVERED)
+    sent_at : TIMESTAMP
+    * attempts : INT (0)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    IDX (recipient_user_id, created_at DESC)
+    IDX (status, attempts): alertas por reintentar
+  }
+
+  entity "notifications" as notifications {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * recipient_user_id : BIGINT <<ref IAM>>
+    * type : VARCHAR(25) (ver NotificationType: 11 valores)
+    * source_id : VARCHAR(64)
+    * title : VARCHAR(150)
+    * body : TEXT
+    * status : VARCHAR(10) (UNREAD, READ)
+    read_at : TIMESTAMP
+    * push_status : VARCHAR(12) (PENDING, SENT, UNDELIVERED)
+    * push_attempts : INT (0)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    IDX (recipient_user_id, status, created_at DESC)
+    IDX (push_status, push_attempts): avisos por reintentar
+  }
+
+  entity "emails" as emails {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * email_address : VARCHAR(254)
+    * template : VARCHAR(30) (ver EmailTemplate: 12 valores)
+    * status : VARCHAR(10) (PENDING, SENT, FAILED)
+    sent_at : TIMESTAMP
+    failure_reason : VARCHAR(500)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    IDX (status, created_at DESC)
+  }
+
+  entity "push_devices" as devices {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * user_id : BIGINT <<IDX>> <<ref IAM>>
+    * token : VARCHAR(512) <<UK>>
+    * platform : VARCHAR(10) (ANDROID, IOS)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+}
+
+alerts -[hidden]right- notifications
+notifications -[hidden]right- emails
+emails -[hidden]right- devices
+
+note bottom of ctx_comm
+  <b>PostgreSQL</b>
+  --
+  alerts: una alarma por destinatario de cada pedido de auxilio.
+  help_request_id es el id de MongoDB del HelpRequest. sent_at solo en
+  SENT. IDX (recipient_user_id, created_at DESC): historial de alertas
+  del usuario.
+  notifications: un aviso por destinatario. source_id es texto porque
+  puede ser un id de MongoDB (Tracking) o un id numérico (invitación,
+  pago, suscripción o instalación). read_at solo en READ.
+  IDX (recipient_user_id, status, created_at DESC): la lista de avisos
+  del usuario, con o sin filtro de estado.
+  emails: un registro por correo, sin sus variables (algunas son
+  secretas). failure_reason solo en FAILED. IDX (status, created_at
+  DESC): correos fallidos para el administrador.
+  push_devices: token único (UK): un token registrado con otra cuenta se
+  reasigna en vez de duplicarse. Solo celulares: la web no recibe push.
+  Al cerrar sesión o si FCM da el token por inválido, la fila se borra.
+  --
+  recipient_user_id y user_id son ids de IAM; help_request_id, de
+  Tracking: sin FK. Las cuatro tablas son independientes.
+end note
+
+@enduml
