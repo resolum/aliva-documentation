@@ -60,6 +60,7 @@ package alivia.platform.Iam {
       + issuePasswordToken(PasswordToken token)
       + definePassword(String tokenHash, HashedPassword password, LocalDateTime now)
       + changeTemporaryPassword(HashedPassword password)
+      + renewTemporaryPassword(HashedPassword temporaryPassword, String rawPassword)
       + changePassword(HashedPassword password)
       + block()
       + unblock()
@@ -114,6 +115,11 @@ package alivia.platform.Iam {
       changeTemporaryPassword: la contraseña es temporal
       (PasswordNotTemporary); deja la cuenta ACTIVE y
       registra PasswordDefinedEvent.
+      renewTemporaryPassword: solo una cuenta CORPORATE
+      PENDING con contraseña temporal (PasswordNotTemporary;
+      AccountNotPending); reemplaza la anterior, que deja de
+      valer, y registra TemporaryPasswordRenewedEvent. Sirve
+      cuando el correo con la primera no llegó.
       changePassword: cuenta ACTIVE (AccountNotActive).
       Transiciones (InvalidAccountStatusTransition):
       block: PENDING o ACTIVE a BLOCKED.
@@ -125,11 +131,11 @@ package alivia.platform.Iam {
     end note
 
     class DeviceCredential #DCEBFA {
-      - Long edgeId
+      - EdgeId edgeId
       - HashedPassword secret
       - CredentialStatus status
       --
-      + DeviceCredential(Long edgeId, HashedPassword secret)
+      + DeviceCredential(EdgeId edgeId, HashedPassword secret)
       + revoke()
       + isActive() : boolean
     }
@@ -137,7 +143,7 @@ package alivia.platform.Iam {
     note bottom of DeviceCredential
       <b>DeviceCredential</b>: credencial con la que un edge
       se autentica ante la API. edgeId es el id del Edge
-      de Assets (referencia por id).
+      de Assets (EdgeId de Shared, como en Tracking).
       Constructor: ACTIVE. revoke: ACTIVE a REVOKED
       (DeviceCredentialRevoked si ya lo está).
       Un edge tiene una sola credencial ACTIVE
@@ -270,6 +276,16 @@ package alivia.platform.Iam {
       + getCode() : String
     }
 
+    class TemporaryPasswordRenewedEvent #CDEFF2 {
+      - User user
+      - String temporaryPassword
+      --
+      + TemporaryPasswordRenewedEvent(User user, String temporaryPassword)
+      + getUserId() : Long
+      + getEmailAddress() : String
+      + getTemporaryPassword() : String
+    }
+
     class PasswordResetRequestedEvent <<Record>> #CDEFF2 {
       + PasswordResetRequestedEvent(Long userId, String emailAddress, String resetUrl)
     }
@@ -282,6 +298,8 @@ package alivia.platform.Iam {
       bienvenida con la contraseña temporal al correo
       corporativo. Lee el id al publicarse. La contraseña
       temporal solo viaja en el evento; se guarda hasheada.
+      TemporaryPasswordRenewedEvent: Communication vuelve a
+      enviar CORPORATE_ACCOUNT con la contraseña nueva.
       PasswordResetRequestedEvent: Communication envía el
       enlace de recuperación.
       EmailVerificationRequestedEvent: Communication envía
@@ -325,6 +343,10 @@ package alivia.platform.Iam {
 
     class ChangeTemporaryPasswordCommand <<Record>> #FFE4C4 {
       + ChangeTemporaryPasswordCommand(String emailAddress, String temporaryPassword, String newPassword)
+    }
+
+    class RenewTemporaryPasswordCommand <<Record>> #FFE4C4 {
+      + RenewTemporaryPasswordCommand(Long userId)
     }
 
     class ChangePasswordCommand <<Record>> #FFE4C4 {
@@ -378,9 +400,6 @@ package alivia.platform.Iam {
       + ExistsUserByEmailAddressQuery(String emailAddress)
     }
 
-    class GetAllUsersQuery <<Record>> #D5F0D8 {
-      + GetAllUsersQuery()
-    }
 
     class GetAllRolesQuery <<Record>> #D5F0D8 {
       + GetAllRolesQuery()
@@ -407,6 +426,9 @@ package alivia.platform.Iam {
     }
     class AccountNotActive <<Exception>> {
       + AccountNotActive(AccountStatus status)
+    }
+    class AccountNotPending <<Exception>> {
+      + AccountNotPending(AccountStatus status)
     }
     class PasswordChangeRequired <<Exception>> {
       + PasswordChangeRequired()
@@ -463,6 +485,7 @@ package alivia.platform.Iam {
       Optional<User> handle(CreateCorporateAccountCommand command)
       void handle(DefinePasswordCommand command)
       void handle(ChangeTemporaryPasswordCommand command)
+      void handle(RenewTemporaryPasswordCommand command)
       void handle(ChangePasswordCommand command)
       void handle(RequestPasswordResetCommand command)
       void handle(ChangeUserRoleCommand command)
@@ -475,7 +498,6 @@ package alivia.platform.Iam {
       Optional<User> handle(GetUserByIdQuery query)
       Optional<User> handle(GetUserByEmailAddressQuery query)
       boolean handle(ExistsUserByEmailAddressQuery query)
-      List<User> handle(GetAllUsersQuery query)
     }
 
     interface RoleCommandService #FFF3B0 {
@@ -508,6 +530,8 @@ note as N_Shared
   <b>UserId</b>: los demás contextos guardan el id de User
   con este value object; IAM no guarda ids de otros
   contextos de personas.
+  <b>EdgeId</b>: el edge de Assets dueño de una
+  DeviceCredential.
 end note
 
 ' ---------- DISPOSICIÓN ----------
@@ -519,7 +543,8 @@ SignInCommand -[hidden]down- RegisterInvitedCaregiverCommand
 RegisterInvitedCaregiverCommand -[hidden]down- CreateCorporateAccountCommand
 CreateCorporateAccountCommand -[hidden]down- DefinePasswordCommand
 DefinePasswordCommand -[hidden]down- ChangeTemporaryPasswordCommand
-ChangeTemporaryPasswordCommand -[hidden]down- ChangePasswordCommand
+ChangeTemporaryPasswordCommand -[hidden]down- RenewTemporaryPasswordCommand
+RenewTemporaryPasswordCommand -[hidden]down- ChangePasswordCommand
 ChangePasswordCommand -[hidden]down- RequestPasswordResetCommand
 ChangeUserRoleCommand -[hidden]down- BlockUserCommand
 BlockUserCommand -[hidden]down- UnblockUserCommand
@@ -529,13 +554,13 @@ IssueDeviceCredentialCommand -[hidden]down- RevokeDeviceCredentialCommand
 RevokeDeviceCredentialCommand -[hidden]down- AuthenticateDeviceCommand
 GetUserByIdQuery -[hidden]down- GetUserByEmailAddressQuery
 GetUserByEmailAddressQuery -[hidden]down- ExistsUserByEmailAddressQuery
-ExistsUserByEmailAddressQuery -[hidden]down- GetAllUsersQuery
 GetAllRolesQuery -[hidden]down- GetRoleByNameQuery
 GetRoleByNameQuery -[hidden]down- GetDeviceCredentialByEdgeIdQuery
 UserNotFound -[hidden]down- EmailAddressAlreadyExists
 EmailAddressAlreadyExists -[hidden]down- InvalidCredentials
 InvalidCredentials -[hidden]down- AccountNotActive
-AccountNotActive -[hidden]down- PasswordChangeRequired
+AccountNotActive -[hidden]down- AccountNotPending
+AccountNotPending -[hidden]down- PasswordChangeRequired
 EmailNotVerified -[hidden]down- EmailAlreadyVerified
 EmailAlreadyVerified -[hidden]down- InvalidVerificationCode
 InvalidVerificationCode -[hidden]down- VerificationCodeExpired
@@ -564,6 +589,7 @@ User ..> PasswordDefinedEvent : registra >
 User ..> CorporateAccountCreatedEvent : registra >
 User ..> PasswordResetRequestedEvent : registra >
 User ..> EmailVerificationRequestedEvent : registra >
+User ..> TemporaryPasswordRenewedEvent : registra >
 
 ' ---------- SERVICES ----------
 UserCommandService ..> SignUpCommand : recibe >
@@ -574,6 +600,7 @@ UserCommandService ..> RegisterInvitedCaregiverCommand : recibe >
 UserCommandService ..> CreateCorporateAccountCommand : recibe >
 UserCommandService ..> DefinePasswordCommand : recibe >
 UserCommandService ..> ChangeTemporaryPasswordCommand : recibe >
+UserCommandService ..> RenewTemporaryPasswordCommand : recibe >
 UserCommandService ..> ChangePasswordCommand : recibe >
 UserCommandService ..> RequestPasswordResetCommand : recibe >
 UserCommandService ..> ChangeUserRoleCommand : recibe >
@@ -584,7 +611,6 @@ UserCommandService ..> User : crea / modifica >
 UserQueryService ..> GetUserByIdQuery : recibe >
 UserQueryService ..> GetUserByEmailAddressQuery : recibe >
 UserQueryService ..> ExistsUserByEmailAddressQuery : recibe >
-UserQueryService ..> GetAllUsersQuery : recibe >
 UserQueryService ..> User : devuelve >
 RoleCommandService ..> SeedRolesCommand : recibe >
 RoleCommandService ..> Role : crea >
@@ -638,6 +664,15 @@ note as N_RulesUser
   token (InvalidPasswordToken) y llama a definePassword.
   ChangeTemporaryPasswordCommand: la contraseña temporal
   coincide (InvalidCredentials).
+  RenewTemporaryPasswordCommand: lo envía el
+  administrador (ROLE_ADMIN) con el userId del empleado,
+  que ve en HCM, cuando el empleado no recibió el correo
+  (lo ve en Communication, GetAllEmailsByStatusQuery con
+  FAILED). El usuario existe (UserNotFound) y application
+  confirma en HCM que es un empleado del negocio del
+  administrador (GetEmployeeByUserIdQuery y belongsTo);
+  genera la contraseña nueva y llama a
+  renewTemporaryPassword.
   ChangePasswordCommand: la contraseña actual coincide
   (InvalidCredentials).
   RequestPasswordResetCommand: si el correo no tiene
@@ -669,17 +704,19 @@ note as N_ExternalContexts
   EmployeeReinstatedEvent: Unblock; EmployeeTerminatedEvent:
   Deactivate; EmployeeRoleChangedEvent: ChangeUserRole.
   La cuenta personal de familiar, si la tiene, no cambia.
-  <b>Assets</b> (ACL y eventos): al asignar un edge a una red
-  pide IssueDeviceCredentialCommand; el secreto vuelve a
-  Soporte Técnico para configurar el edge.
-  AssetRemovedFromNetworkEvent de un edge:
+  <b>Assets</b> (ACL y eventos): al registrar un edge pide
+  IssueDeviceCredentialCommand; el secreto vuelve al
+  administrador, que lo copia en la configuración del
+  edge. RenewEdgeCredentialCommand: Revoke e Issue.
+  AssetRemovedFromNetworkEvent de un edge y
+  DeviceNetworkDeactivatedEvent (por cada edge):
   RevokeDeviceCredentialCommand.
   <b>Tracking</b>: el edge envía sus reportes con el token
   de AuthenticateDeviceCommand; Tracking toma el edgeId
   del token.
   <b>Communication</b> (eventos): envía el código de
-  verificación, la contraseña temporal y el enlace de
-  recuperación.
+  verificación, la contraseña temporal (también cuando se
+  renueva) y el enlace de recuperación.
   <b>Autorización</b>: cada request lleva el token; el rol
   decide qué endpoints puede usar. Qué familiar o
   cuidador ve qué persona asistida lo valida Assistance.
@@ -691,9 +728,10 @@ note as N_RulesDevice
   IssueDeviceCredentialCommand: el edge no tiene otra
   credencial ACTIVE (DeviceCredentialAlreadyExists).
   application genera el secreto y lo devuelve una sola vez.
-  RevokeDeviceCredentialCommand: existe una credencial del
-  edge (DeviceCredentialNotFound) y está ACTIVE
-  (DeviceCredentialRevoked).
+  RevokeDeviceCredentialCommand: revoca la credencial
+  ACTIVE del edge. Si no tiene una, no hace nada: llega
+  por eventos que pueden repetirse (el edge sale de la red
+  después de que la red se desactivó).
   AuthenticateDeviceCommand: existe (DeviceCredentialNotFound),
   está ACTIVE (DeviceCredentialRevoked) y el secreto
   coincide (InvalidCredentials). Devuelve el token del edge.

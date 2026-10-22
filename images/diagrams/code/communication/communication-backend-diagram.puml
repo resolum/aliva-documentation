@@ -18,14 +18,25 @@
 '  CM5 EmailTemplate pasa de Shared a Communication: solo este contexto envía correos. Cada plantilla
 '      declara sus variables obligatorias. Se quita el aviso de contratación: al contratar, el correo con
 '      la contraseña temporal (IAM) es la bienvenida.
-'  CM6 Communication no decide cuándo avisar: reacciona a los eventos de IAM, HCM, Subscriptions,
-'      Support y Tracking, y a lo que Assistance le pide por ACL (invitaciones). Sí decide a quién
+'  CM6 Communication no decide cuándo avisar: reacciona a los eventos de IAM, HCM, Assistance,
+'      Subscriptions, Support y Tracking (antes Assistance se lo pedía por ACL). Sí decide a quién
 '      (destinatarios) y por qué canal.
 '  CM7 Alert y Notification se envían después de guardarse (AlertCreatedEvent, NotificationCreatedEvent),
 '      como el handler AFTER_COMMIT de restock: si FCM falla, el registro igual queda.
 '  CM8 Mejoras sobre las referencias: markAsRead valida que lo marque su destinatario; un token de FCM
 '      que ya existe se reasigna al nuevo usuario; un token que FCM da por inválido se borra; las
 '      variables de la plantilla se validan; los estados cambian solo por métodos.
+'  CM9 Un pedido de auxilio que llega 5 minutos o más después de occurredAt (estuvo guardado en el edge
+'      sin internet) no suena como alarma: se crea una Notification HELP_REQUEST_DELAYED para los
+'      mismos destinatarios.
+'  CM10 SendAlertCommand reintenta un error temporal de FCM hasta 3 veces antes de marcar UNDELIVERED.
+'  CM12 Una alarma o un aviso que no llegó al celular se vuelve a enviar a los mismos destinatarios (el
+'      familiar y los cuidadores de turno en occurredAt), igual para todas las alarmas y notificaciones:
+'      decisión de Oscar. Un proceso programado lo reintenta cada minuto, hasta 5 intentos en total
+'      (valores ajustables por configuración). No se busca otro canal.
+'  CM11 Nuevos avisos: el edge sin señal por 5 minutos y su reconexión (solo al familiar), la visita
+'      asignada (al técnico) y la instalación cancelada por no agendar otra cita (al familiar, también
+'      por correo).
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -73,10 +84,12 @@ package alivia.platform.Communication {
       - String body
       - AlertStatus status
       - LocalDateTime sentAt
+      - Integer attempts
       --
       + Alert(UserId recipientId, String helpRequestId, String title, String body)
       + markSent(LocalDateTime now)
       + markUndelivered()
+      + canRetry(Integer maxAttempts) : boolean
     }
 
     note bottom of Alert
@@ -90,11 +103,14 @@ package alivia.platform.Communication {
       Suena una sola vez: no se marca como atendida.
       --
       <b>Transiciones</b> (InvalidAlertStatusTransition)
-      markSent: PENDING a SENT; guarda sentAt. FCM aceptó
-      el envío a al menos un celular del destinatario.
-      markUndelivered: PENDING a UNDELIVERED. El
-      destinatario no tiene celular registrado o FCM
-      rechazó todos sus envíos.
+      markSent: PENDING o UNDELIVERED a SENT; guarda
+      sentAt. FCM aceptó el envío a al menos un celular del
+      destinatario.
+      markUndelivered: PENDING o UNDELIVERED a UNDELIVERED;
+      suma 1 a attempts. El destinatario no tiene celular
+      registrado o FCM rechazó todos sus envíos.
+      canRetry: UNDELIVERED y attempts menor que
+      maxAttempts (lo usa el reintento programado).
     end note
 
     class Notification #DCEBFA {
@@ -105,10 +121,15 @@ package alivia.platform.Communication {
       - String body
       - NotificationStatus status
       - LocalDateTime readAt
+      - PushStatus pushStatus
+      - Integer pushAttempts
       --
       + Notification(UserId recipientId, NotificationType type, String sourceId,
       \t String title, String body)
       + markAsRead(UserId userId, LocalDateTime now)
+      + markPushSent()
+      + markPushUndelivered()
+      + canRetryPush(Integer maxAttempts) : boolean
     }
 
     note bottom of Notification
@@ -126,6 +147,14 @@ package alivia.platform.Communication {
       markAsRead: solo su destinatario
       (NotificationNotForUser); pasa a READ y guarda
       readAt. Si ya estaba READ no cambia nada.
+      --
+      <b>Envío al celular</b> (pushStatus, aparte de
+      leído o no leído). Constructor: PENDING.
+      markPushSent: PENDING o UNDELIVERED a SENT.
+      markPushUndelivered: PENDING o UNDELIVERED a
+      UNDELIVERED; suma 1 a pushAttempts.
+      canRetryPush: UNDELIVERED y pushAttempts menor que
+      maxAttempts. El aviso igual queda en la app.
     end note
 
     class Email #DCEBFA {
@@ -188,6 +217,11 @@ package alivia.platform.Communication {
       PAYMENT_FAILED
       SUBSCRIPTION_REFUNDED
       INSTALLATION_REJECTED
+      INSTALLATION_CANCELED
+      HELP_REQUEST_DELAYED
+      EDGE_DISCONNECTED
+      EDGE_RECONNECTED
+      ASSIGNMENT_CREATED
     }
 
     note bottom of NotificationType
@@ -196,9 +230,24 @@ package alivia.platform.Communication {
       prender o apagar.
       CAREGIVER_INVITATION: invitación a un cuidador que
       ya tiene cuenta; la acepta desde la app.
-      PAYMENT_FAILED, SUBSCRIPTION_REFUNDED e
-      INSTALLATION_REJECTED: también van por correo.
+      PAYMENT_FAILED, SUBSCRIPTION_REFUNDED,
+      INSTALLATION_REJECTED e INSTALLATION_CANCELED: también
+      van por correo.
+      HELP_REQUEST_DELAYED: pedido de auxilio que llegó
+      tarde; dice la hora en que se pidió.
+      EDGE_DISCONNECTED y EDGE_RECONNECTED: "no recibimos
+      señal del sistema de la casa desde las ..." y su
+      vuelta; solo al familiar.
+      ASSIGNMENT_CREATED: al técnico, con la fecha y las
+      horas de la visita (instalación, reparación o
+      retiro), también cuando se le reasigna.
     end note
+
+    enum PushStatus #EADCF8 {
+      PENDING
+      SENT
+      UNDELIVERED
+    }
 
     enum AlertStatus #EADCF8 {
       PENDING
@@ -231,6 +280,7 @@ package alivia.platform.Communication {
       PAYMENT_FAILED
       SUBSCRIPTION_REFUNDED
       INSTALLATION_REJECTED
+      INSTALLATION_CANCELED
       EMPLOYEE_SUSPENDED
       EMPLOYEE_REINSTATED
       EMPLOYEE_TERMINATED
@@ -248,7 +298,8 @@ package alivia.platform.Communication {
       SUBSCRIPTION_WELCOME: plan.
       PAYMENT_FAILED: failureMessage.
       SUBSCRIPTION_REFUNDED: amount (en soles).
-      INSTALLATION_REJECTED y EMPLOYEE_*: ninguna.
+      INSTALLATION_REJECTED, INSTALLATION_CANCELED y
+      EMPLOYEE_*: ninguna.
       requiredVariables: la usa el constructor de Email.
       El asunto y el HTML viven en SendGrid (dynamic
       template); el dominio solo nombra la plantilla.
@@ -300,6 +351,14 @@ package alivia.platform.Communication {
 
     class SendPushNotificationCommand <<Record>> #FFE4C4 {
       + SendPushNotificationCommand(Long notificationId)
+    }
+
+    class RetryUndeliveredAlertsCommand <<Record>> #FFE4C4 {
+      + RetryUndeliveredAlertsCommand(Integer maxAttempts)
+    }
+
+    class RetryUndeliveredPushNotificationsCommand <<Record>> #FFE4C4 {
+      + RetryUndeliveredPushNotificationsCommand(Integer maxAttempts)
     }
 
     class MarkNotificationAsReadCommand <<Record>> #FFE4C4 {
@@ -377,6 +436,7 @@ package alivia.platform.Communication {
     interface AlertCommandService #FFF3B0 {
       Long handle(CreateAlertCommand command)
       void handle(SendAlertCommand command)
+      void handle(RetryUndeliveredAlertsCommand command)
     }
 
     interface AlertQueryService #FFF3B0 {
@@ -386,6 +446,7 @@ package alivia.platform.Communication {
     interface NotificationCommandService #FFF3B0 {
       Long handle(CreateNotificationCommand command)
       void handle(SendPushNotificationCommand command)
+      void handle(RetryUndeliveredPushNotificationsCommand command)
       Long handle(MarkNotificationAsReadCommand command)
     }
 
@@ -426,6 +487,8 @@ end note
 
 ' ---------- DISPOSICIÓN ----------
 CreateAlertCommand -[hidden]down- SendAlertCommand
+SendAlertCommand -[hidden]down- RetryUndeliveredAlertsCommand
+MarkNotificationAsReadCommand -[hidden]down- RetryUndeliveredPushNotificationsCommand
 CreateNotificationCommand -[hidden]down- SendPushNotificationCommand
 SendPushNotificationCommand -[hidden]down- MarkNotificationAsReadCommand
 SendEmailCommand -[hidden]down- RegisterPushDeviceCommand
@@ -447,6 +510,7 @@ PushDeviceNotFound -[hidden]down- PushDeviceNotForUser
 Alert "0..*" --> "1" AlertStatus : status
 Notification "0..*" --> "1" NotificationType : type
 Notification "0..*" --> "1" NotificationStatus : status
+Notification "0..*" --> "1" PushStatus : pushStatus
 Email "0..*" --> "1" EmailTemplate : template
 Email "0..*" --> "1" EmailStatus : status
 PushDevice "0..*" --> "1" PushPlatform : platform
@@ -460,6 +524,7 @@ NotificationCreatedEvent ..> SendPushNotificationCommand : activa >
 ' ---------- SERVICES ----------
 AlertCommandService ..> CreateAlertCommand : recibe >
 AlertCommandService ..> SendAlertCommand : recibe >
+AlertCommandService ..> RetryUndeliveredAlertsCommand : recibe >
 AlertCommandService ..> Alert : crea / modifica >
 AlertCommandService ..> PushDevice : lee los del destinatario >
 AlertQueryService -[#2E8B57]-> GetAllAlertsByUserIdQuery : recibe >
@@ -467,6 +532,7 @@ AlertQueryService -[#2E8B57]-> Alert : devuelve >
 
 NotificationCommandService ..> CreateNotificationCommand : recibe >
 NotificationCommandService ..> SendPushNotificationCommand : recibe >
+NotificationCommandService ..> RetryUndeliveredPushNotificationsCommand : recibe >
 NotificationCommandService ..> MarkNotificationAsReadCommand : recibe >
 NotificationCommandService ..> Notification : crea / modifica >
 NotificationCommandService ..> PushDevice : lee los del destinatario >
@@ -489,7 +555,9 @@ note as N_RulesAlert
   --
   <b>CreateAlertCommand</b>: solo lo usa application al
   recibir HelpRequestedEvent; no se expone en la API.
-  Uno por destinatario.
+  Uno por destinatario. Si el evento llega 5 minutos o
+  más después de occurredAt, no crea Alert: crea una
+  Notification HELP_REQUEST_DELAYED.
   <b>SendAlertCommand</b>: lo activa AlertCreatedEvent
   después de guardar. La alerta existe (AlertNotFound).
   Envía a cada PushDevice del destinatario por FCM, con
@@ -498,9 +566,19 @@ note as N_RulesAlert
   importancia máxima); en iOS, Critical Alert con sonido
   propio (necesita el permiso de Apple; sin él,
   interruption level time-sensitive). Si FCM aceptó al
-  menos un envío, markSent; si no tiene celular o todos
-  fallaron, markUndelivered. Un token que FCM da por
+  menos un envío, markSent. Un error temporal de FCM
+  (UNAVAILABLE, INTERNAL) se reintenta hasta 3 veces con
+  espera creciente. Si no tiene celular o todos fallaron,
+  markUndelivered; la alarma queda en el historial. Un token que FCM da por
   inválido (UNREGISTERED): UnregisterPushDeviceCommand.
+  <b>RetryUndeliveredAlertsCommand</b>: lo ejecuta cada
+  minuto el proceso programado. Vuelve a enviar cada
+  alerta UNDELIVERED con canRetry (hasta 5 intentos en
+  total) al mismo destinatario: el familiar o el
+  cuidador de turno en occurredAt, sin volver a
+  calcularlos. Mismas reglas de envío que SendAlert. Si
+  entretanto el destinatario registró su celular, ahora
+  le llega.
   <b>GetAllAlertsByUserIdQuery</b>: las alertas que
   recibió el usuario, de la más reciente a la más
   antigua (historial en la app móvil).
@@ -519,8 +597,13 @@ note as N_RulesNotification
   push normal a cada PushDevice del destinatario. Si un
   envío falla no detiene los demás: el aviso ya está en
   la app. Token inválido: UnregisterPushDeviceCommand.
-  Sin celular registrado, el aviso queda solo en la app
-  (y en la web al abrirla).
+  Si FCM aceptó al menos un envío, markPushSent; si no
+  tiene celular o todos fallaron, markPushUndelivered:
+  el aviso queda en la app (y en la web al abrirla).
+  <b>RetryUndeliveredPushNotificationsCommand</b>: cada
+  minuto, el proceso programado vuelve a enviar el push
+  de cada notificación UNDELIVERED con canRetryPush
+  (hasta 5 intentos en total) al mismo destinatario.
   <b>MarkNotificationAsReadCommand</b>: lo envía el
   destinatario; userId sale de la sesión. La
   notificación existe (NotificationNotFound).
@@ -571,21 +654,31 @@ note as N_Consumers
   tipo de dispositivo y el nivel (a 5 %: batería crítica).
   ActuatorActionFailedEvent (Tracking): ACTUATOR_FAILURE,
   con el actuador y la acción que no se completó.
-  Los dos: al familiar y a los cuidadores de turno.
-  Assistance, SendInvitationNotificationCommand (ACL):
+  HelpRequestedEvent atrasado: HELP_REQUEST_DELAYED.
+  Los tres: al familiar y a los cuidadores de turno.
+  EdgeDisconnectedEvent y EdgeReconnectedEvent (Tracking):
+  EDGE_DISCONNECTED y EDGE_RECONNECTED, solo al familiar.
+  InvitationNotificationRequestedEvent (Assistance):
   CAREGIVER_INVITATION al cuidador que ya tiene cuenta
   (lo invitan a cuidar a otra persona); sourceId =
   invitationId.
   PaymentFailedEvent, SubscriptionRefundedEvent
-  (Subscriptions) e InstallationRejectedEvent (Support):
-  al familiar, además del correo.
+  (Subscriptions), InstallationRejectedEvent e
+  InstallationCanceledEvent (Support): al familiar,
+  además del correo.
+  InstallationAssignmentCreatedEvent,
+  RepairAssignmentCreatedEvent,
+  RemovalAssignmentCreatedEvent y
+  AssignmentReassignedEvent (Support): ASSIGNMENT_CREATED
+  al técnico (userId de HCM, GetEmployeeByIdQuery).
   --
   <b>Email</b> (SendEmailCommand)
   IAM: EmailVerificationRequestedEvent (VERIFICATION_CODE),
   CorporateAccountCreatedEvent (CORPORATE_ACCOUNT; es la
-  bienvenida del empleado), PasswordResetRequestedEvent
+  bienvenida del empleado; también
+  TemporaryPasswordRenewedEvent), PasswordResetRequestedEvent
   (RESET_PASSWORD); el correo viene en el evento.
-  Assistance, SendInvitationEmailCommand (ACL):
+  InvitationAccountCreatedEvent (Assistance):
   CAREGIVER_INVITATION al cuidador sin cuenta (primera
   invitación: define su contraseña con el enlace).
   Subscriptions: SubscriptionActivatedEvent
@@ -593,7 +686,12 @@ note as N_Consumers
   (PAYMENT_FAILED), SubscriptionRefundedEvent
   (SUBSCRIPTION_REFUNDED); al familiar (userId).
   Support: InstallationRejectedEvent
-  (INSTALLATION_REJECTED); al familiar (requestedBy).
+  (INSTALLATION_REJECTED) e InstallationCanceledEvent
+  (INSTALLATION_CANCELED); al familiar (requestedBy).
+  --
+  Todos se consumen después del commit (política de
+  eventos en Shared); los de Tracking, con
+  fallbackExecution.
   HCM: EmployeeSuspendedEvent, EmployeeReinstatedEvent y
   EmployeeTerminatedEvent (EMPLOYEE_*); al correo
   corporativo (userId).
@@ -601,6 +699,8 @@ end note
 
 note as N_Recipients
   <b>Destinatarios de los avisos de Tracking</b>
+  (auxilio, batería y falla; los de conexión del edge van
+  solo al familiar, paso 2)
   --
   1. Support (ACL, GetInstallationByIdQuery): con el
   installationId del evento, la persona asistida.

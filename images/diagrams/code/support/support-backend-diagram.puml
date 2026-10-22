@@ -15,8 +15,9 @@
 '  ST4 Appointment: el familiar agenda la cita con un día y un rango de horas en que está libre (ej.
 '      lunes de 13:00 a 17:00) y vuelve a escribir la dirección, que debe coincidir con la de la
 '      instalación (solo valida). El administrador ve las citas pendientes y asigna un técnico.
-'  ST5 Assignment es la base abstracta de InstallationAssignment (evaluar e instalar, nace de una cita) y
-'      RepairAssignment (atender un ticket). Es la lista de asignaciones del técnico.
+'  ST5 Assignment es la base abstracta de InstallationAssignment (evaluar e instalar, nace de una cita),
+'      RepairAssignment (atender un ticket) y RemovalAssignment (recoger los equipos cuando terminó el
+'      servicio). Es la lista de asignaciones del técnico.
 '  ST6 La visita de instalación evalúa si el hogar es viable y cuántos actuadores elegidos se pueden
 '      instalar: MEETS (todos), PARTIALLY_MEETS (algunos) o DOES_NOT_MEET (ninguno; se devuelve el
 '      pago si es la primera). La visita no cambia la instalación: registra un evento e Installation
@@ -31,6 +32,26 @@
 '  ST10 Ningún aggregate modifica a otro: los cambios entre ellos pasan por eventos que activan
 '      commands.
 '  ST11 Se agregan a Shared EmployeeId (técnico de HCM) y AssistedPersonId (persona asistida).
+'  ST12 Cita que no se realiza: al final de su día, si la visita no se atendió, la cita pasa a EXPIRED y
+'      su visita ASSIGNED se cancela. Si era re-evaluación, la instalación vuelve a PARTIALLY_INSTALLED y
+'      no cambia nada más. Si era la primera evaluación, el familiar tiene 7 días hábiles (lunes a
+'      viernes, sin descontar feriados) para agendar otra; si no lo hace, la instalación pasa a CANCELED
+'      y se le devuelve el pago (InstallationCanceledEvent, mismo camino que el rechazo).
+'  ST13 Cancelación de la suscripción: se apaga todo. Una instalación con equipos pasa a REMOVAL_PENDING
+'      (InstallationServiceEndedEvent: Assets desactiva la red; se cancelan la cita activa y los tickets
+'      abiertos con sus visitas). El administrador asigna una visita de retiro (RemovalAssignment); al
+'      atenderla, la instalación pasa a REMOVED y Assets libera los equipos (EquipmentRemovedEvent).
+'      Sin equipos (aún no se instaló, aunque ya haya una cita aceptada), la instalación pasa a CANCELED
+'      sin devolución, confirmado por Oscar: la baja la decidió el familiar. Igual registra
+'      InstallationServiceEndedEvent para cancelar la cita activa y su visita.
+'  ST14 Los eventos que se registran en un constructor (cita, visitas) guardan el aggregate y leen el id
+'      al publicarse, como InvitationCreatedEvent: antes eran Record con un id que aún no existía.
+'      También exponen técnico, fecha y horas: Communication avisa al técnico de cada visita asignada
+'      o reasignada (al nuevo; al que la pierde no).
+'  ST15 La cadena de eventos internos de Support es síncrona, en la misma transacción del command que la
+'      inicia (@EventListener, como learning-center-platform). Si InstallEquipmentCommand lanza
+'      ExceedsRequestedActuators o EvaluationResultMismatch, se revierte también la visita y el técnico
+'      recibe el error.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -81,6 +102,7 @@ package alivia.platform.Support {
       - ActuatorSelection requestedActuators
       - InstallationStatus status
       - InstalledEquipment equipment
+      - LocalDate schedulingDeadline
       --
       + Installation(AssistedPersonId assistedPersonId, UserId requestedBy,
       \t BusinessId businessId, Address address, PlanCode plan,
@@ -90,7 +112,14 @@ package alivia.platform.Support {
       + markRequirementsNotMet()
       + requestReevaluation()
       + replaceEquipment(List<EquipmentReplacement> replacements)
+      + awaitNewAppointment(LocalDate expiredOn)
+      + cancelReevaluation()
+      + cancelForMissingAppointment(LocalDate today)
+      + endService()
+      + completeRemoval()
       + isPendingEvaluation() : boolean
+      + isInService() : boolean
+      + isPendingRemoval() : boolean
       + isPartiallyInstalled() : boolean
       + hasEquipment() : boolean
       + hasAddress(Address address) : boolean
@@ -125,16 +154,41 @@ package alivia.platform.Support {
       requestReevaluation: PARTIALLY_INSTALLED a
       PENDING_EVALUATION (el familiar agendó otra cita).
       replaceEquipment: la instalación tiene equipment
-      (InstallationWithoutEquipment), en cualquier estado:
+      (InstallationWithoutEquipment) y está en servicio:
       una reparación puede terminar mientras hay una
       re-evaluación en curso (PENDING_EVALUATION). El viejo
       está instalado (EquipmentNotInstalled) y el nuevo no
       (EquipmentAlreadyInstalled); registra
       EquipmentReplacedEvent.
       --
+      <b>Cita que no se realiza</b>
+      awaitNewAppointment: PENDING_EVALUATION sin equipment
+      (primera evaluación); schedulingDeadline = expiredOn
+      + 7 días hábiles (lunes a viernes).
+      cancelReevaluation: PENDING_EVALUATION con equipment
+      a PARTIALLY_INSTALLED, sin evento: la casa sigue con
+      su servicio.
+      cancelForMissingAppointment: PENDING_EVALUATION sin
+      equipment y schedulingDeadline anterior a today, a
+      CANCELED (final); registra InstallationCanceledEvent.
+      <b>Fin del servicio</b>
+      endService: con equipment (INSTALLED,
+      PARTIALLY_INSTALLED o PENDING_EVALUATION) a
+      REMOVAL_PENDING y registra
+      InstallationServiceEndedEvent; sin equipment, a
+      CANCELED, sin devolución, y registra
+      InstallationServiceEndedEvent (cancela la cita activa
+      y su visita; no hay red que apagar). REJECTED,
+      CANCELED, REMOVAL_PENDING y REMOVED no cambian.
+      completeRemoval: REMOVAL_PENDING a REMOVED (final);
+      registra EquipmentRemovedEvent.
+      --
       <b>Consultas</b>: isPendingEvaluation,
       isPartiallyInstalled, hasAddress e isRequestedBy las
-      usa Appointment; isRequestedBy y hasEquipment, Ticket.
+      usa Appointment; isRequestedBy, hasEquipment e
+      isInService, Ticket; isPendingRemoval,
+      RemovalAssignment. isInService: PENDING_EVALUATION,
+      INSTALLED o PARTIALLY_INSTALLED.
     end note
 
     class Appointment #DCEBFA {
@@ -149,6 +203,8 @@ package alivia.platform.Support {
       \t TimeRange availability, Address confirmedAddress, LocalDate today)
       + markScheduled()
       + complete()
+      + expire(LocalDate today)
+      + cancel()
       + isRequested() : boolean
       + isActive() : boolean
       + allows(TimeRange timeRange) : boolean
@@ -171,7 +227,12 @@ package alivia.platform.Support {
       --
       markScheduled: REQUESTED a SCHEDULED (se le asignó un
       técnico). complete: SCHEDULED a COMPLETED (la visita
-      se atendió). InvalidAppointmentStatusTransition.
+      se atendió). expire: REQUESTED o SCHEDULED con date
+      anterior a today, a EXPIRED; registra
+      AppointmentExpiredEvent. cancel: REQUESTED o
+      SCHEDULED a CANCELED (terminó el servicio); registra
+      AppointmentCanceledEvent.
+      InvalidAppointmentStatusTransition.
       isRequested: REQUESTED (la usa InstallationAssignment
       al crearse). isActive: REQUESTED o SCHEDULED.
       allows: el rango de la visita está dentro de
@@ -192,6 +253,7 @@ package alivia.platform.Support {
       + overlapsWith(LocalDate date, TimeRange timeRange) : boolean
       + reassign(EmployeeId technicianId, LocalDate scheduledDate,
       \t TimeRange timeRange, LocalDate today)
+      + cancel()
       # markAttended(List<Photo> photos, LocalDateTime now)
     }
 
@@ -205,7 +267,11 @@ package alivia.platform.Support {
       al menos una foto (PhotosRequired); pasa a ATTENDED y
       guarda attendedAt.
       reassign: solo ASSIGNED (AssignmentAlreadyAttended);
-      cambia técnico, fecha y horas con las mismas reglas.
+      cambia técnico, fecha y horas con las mismas reglas;
+      registra AssignmentReassignedEvent.
+      cancel: ASSIGNED a CANCELED (AssignmentAlreadyAttended);
+      su cita venció o se canceló, o se cerró su ticket.
+      Sin evento.
       overlapsWith: misma fecha y rangos que se cruzan.
       isAssignedTo: el técnico que la atiende es el asignado
       (AssignmentNotForTechnician).
@@ -236,6 +302,14 @@ package alivia.platform.Support {
       \t LocalDate scheduledDate, TimeRange timeRange, LocalDate today)
       + attend(String failureReason, List<EquipmentReplacement> replacements,
       \t List<Photo> photos, LocalDateTime now)
+    }
+
+    class RemovalAssignment #DCEBFA {
+      - Installation installation
+      --
+      + RemovalAssignment(Installation installation, EmployeeId technicianId,
+      \t LocalDate scheduledDate, TimeRange timeRange, LocalDate today)
+      + attend(List<Photo> photos, LocalDateTime now)
     }
 
     note bottom of InstallationAssignment
@@ -273,6 +347,17 @@ package alivia.platform.Support {
       replacements: registro de los equipos que cambió
       (vacía si solo reparó). Registra
       RepairAssignmentAttendedEvent.
+      --
+      <b>RemovalAssignment</b>: visita para recoger todos los
+      equipos después de cancelarse la suscripción.
+      Constructor: la instalación está REMOVAL_PENDING
+      (InstallationNotPendingRemoval); registra
+      RemovalAssignmentCreatedEvent.
+      attend: fotos de los equipos recogidos; registra
+      RemovalAssignmentAttendedEvent.
+      --
+      Los eventos de creación guardan la visita y leen su
+      id al publicarse (aún no existe en el constructor).
     end note
 
     class Ticket #DCEBFA {
@@ -284,6 +369,7 @@ package alivia.platform.Support {
       + Ticket(Installation installation, UserId createdBy, String description)
       + markAssigned()
       + resolve()
+      + close()
       + isOpen() : boolean
     }
 
@@ -297,6 +383,10 @@ package alivia.platform.Support {
       markAssigned: OPEN a ASSIGNED (TicketNotOpen).
       resolve: ASSIGNED a RESOLVED
       (InvalidTicketStatusTransition).
+      close: OPEN o ASSIGNED a CLOSED (terminó el servicio);
+      registra TicketClosedEvent.
+      Constructor: además, la instalación está en servicio
+      (isInService; InstallationOutOfService).
       isOpen: lo usa RepairAssignment al crearse.
     end note
   }
@@ -404,12 +494,17 @@ package alivia.platform.Support {
       INSTALLED
       PARTIALLY_INSTALLED
       REJECTED
+      CANCELED
+      REMOVAL_PENDING
+      REMOVED
     }
 
     enum AppointmentStatus #EADCF8 {
       REQUESTED
       SCHEDULED
       COMPLETED
+      EXPIRED
+      CANCELED
     }
 
     enum EvaluationResult #EADCF8 {
@@ -421,24 +516,37 @@ package alivia.platform.Support {
     enum AssignmentStatus #EADCF8 {
       ASSIGNED
       ATTENDED
+      CANCELED
     }
 
     enum TicketStatus #EADCF8 {
       OPEN
       ASSIGNED
       RESOLVED
+      CLOSED
     }
   }
 
   package "domain.model.events" #DDF3F5 {
 
-    class AppointmentRequestedEvent <<Record>> #CDEFF2 {
-      + AppointmentRequestedEvent(Long appointmentId, Long installationId,
-      \t boolean reevaluation)
+    class AppointmentRequestedEvent #CDEFF2 {
+      - Appointment appointment
+      --
+      + AppointmentRequestedEvent(Appointment appointment)
+      + getAppointmentId() : Long
+      + getInstallationId() : Long
+      + isReevaluation() : boolean
     }
 
-    class InstallationAssignmentCreatedEvent <<Record>> #CDEFF2 {
-      + InstallationAssignmentCreatedEvent(Long assignmentId, Long appointmentId)
+    class InstallationAssignmentCreatedEvent #CDEFF2 {
+      - InstallationAssignment assignment
+      --
+      + InstallationAssignmentCreatedEvent(InstallationAssignment assignment)
+      + getAssignmentId() : Long
+      + getAppointmentId() : Long
+      + getTechnicianId() : Long
+      + getScheduledDate() : LocalDate
+      + getTimeRange() : TimeRange
     }
 
     class InstallationAssignmentAttendedEvent <<Record>> #CDEFF2 {
@@ -455,8 +563,48 @@ package alivia.platform.Support {
       + RequirementsNotMetEvent(Long assignmentId, Long appointmentId, Long installationId)
     }
 
-    class RepairAssignmentCreatedEvent <<Record>> #CDEFF2 {
-      + RepairAssignmentCreatedEvent(Long assignmentId, Long ticketId)
+    class RepairAssignmentCreatedEvent #CDEFF2 {
+      - RepairAssignment assignment
+      --
+      + RepairAssignmentCreatedEvent(RepairAssignment assignment)
+      + getAssignmentId() : Long
+      + getTicketId() : Long
+      + getTechnicianId() : Long
+      + getScheduledDate() : LocalDate
+      + getTimeRange() : TimeRange
+    }
+
+    class RemovalAssignmentCreatedEvent #CDEFF2 {
+      - RemovalAssignment assignment
+      --
+      + RemovalAssignmentCreatedEvent(RemovalAssignment assignment)
+      + getAssignmentId() : Long
+      + getInstallationId() : Long
+      + getTechnicianId() : Long
+      + getScheduledDate() : LocalDate
+      + getTimeRange() : TimeRange
+    }
+
+    class AssignmentReassignedEvent <<Record>> #CDEFF2 {
+      + AssignmentReassignedEvent(Long assignmentId, Long technicianId,
+      \t LocalDate scheduledDate, TimeRange timeRange)
+    }
+
+    class RemovalAssignmentAttendedEvent <<Record>> #CDEFF2 {
+      + RemovalAssignmentAttendedEvent(Long assignmentId, Long installationId)
+    }
+
+    class AppointmentExpiredEvent <<Record>> #CDEFF2 {
+      + AppointmentExpiredEvent(Long appointmentId, Long installationId,
+      \t boolean reevaluation, LocalDate expiredOn)
+    }
+
+    class AppointmentCanceledEvent <<Record>> #CDEFF2 {
+      + AppointmentCanceledEvent(Long appointmentId)
+    }
+
+    class TicketClosedEvent <<Record>> #CDEFF2 {
+      + TicketClosedEvent(Long ticketId)
     }
 
     class RepairAssignmentAttendedEvent <<Record>> #CDEFF2 {
@@ -482,6 +630,18 @@ package alivia.platform.Support {
       + InstallationRejectedEvent(Long installationId, Long assistedPersonId, Long requestedBy)
     }
 
+    class InstallationCanceledEvent <<Record>> #CDEFF2 {
+      + InstallationCanceledEvent(Long installationId, Long assistedPersonId, Long requestedBy)
+    }
+
+    class InstallationServiceEndedEvent <<Record>> #CDEFF2 {
+      + InstallationServiceEndedEvent(Long installationId, Long businessId)
+    }
+
+    class EquipmentRemovedEvent <<Record>> #CDEFF2 {
+      + EquipmentRemovedEvent(Long installationId)
+    }
+
     note bottom of EquipmentInstalledEvent
       <b>Dentro de Support</b>
       AppointmentRequestedEvent: si es re-evaluación, activa
@@ -500,6 +660,17 @@ package alivia.platform.Support {
       RepairAssignmentAttendedEvent: activa
       ResolveTicketCommand y, si hubo cambios,
       ReplaceEquipmentCommand.
+      AppointmentExpiredEvent: activa CancelAssignmentCommand
+      si la cita tiene una visita ASSIGNED; si era
+      re-evaluación, CancelReevaluationCommand; si no,
+      SetSchedulingDeadlineCommand.
+      AppointmentCanceledEvent y TicketClosedEvent: activan
+      CancelAssignmentCommand si hay visita ASSIGNED.
+      InstallationServiceEndedEvent: activa
+      CancelAppointmentCommand (cita activa) y
+      CloseTicketCommand (tickets OPEN o ASSIGNED).
+      RemovalAssignmentAttendedEvent: activa
+      CompleteRemovalCommand.
       --
       <b>Hacia otros contextos</b> (application, por ACL)
       EquipmentInstalledEvent: Assets
@@ -511,15 +682,25 @@ package alivia.platform.Support {
       o ChangeDeviceStatusCommand con BROKEN para el viejo
       (lo retira de la red) y luego AddEdgeToNetworkCommand
       o AddDeviceToNetworkCommand con el nuevo.
-      InstallationRejectedEvent: Subscriptions devuelve el
-      pago (RefundSubscriptionCommand) y
-      Communication avisa al familiar.
+      InstallationRejectedEvent e InstallationCanceledEvent:
+      Subscriptions devuelve el pago
+      (RefundSubscriptionCommand) y Communication avisa al
+      familiar por correo y en la app.
+      InstallationServiceEndedEvent: Assets
+      DeactivateDeviceNetworkCommand (se apaga todo).
+      EquipmentRemovedEvent: Assets
+      DismantleDeviceNetworkCommand (libera los equipos).
+      InstallationAssignmentCreatedEvent,
+      RepairAssignmentCreatedEvent,
+      RemovalAssignmentCreatedEvent y
+      AssignmentReassignedEvent: Communication avisa al
+      técnico asignado (ASSIGNMENT_CREATED).
       --
-      <b>Credencial de cada edge</b>: al crear la red o
-      agregar un edge, Assets pide a IAM su credencial
-      (IssueDeviceCredentialCommand) y devuelve el secreto;
-      application se lo muestra una sola vez al técnico para
-      configurar el edge en el hogar.
+      <b>Desde otros contextos</b>
+      SubscriptionCanceledEvent (Subscriptions): activa
+      EndInstallationServiceCommand.
+      La credencial de cada edge nace al registrarlo en
+      Assets; Support no la maneja.
     end note
   }
 
@@ -556,6 +737,14 @@ package alivia.platform.Support {
       + CompleteAppointmentCommand(Long appointmentId)
     }
 
+    class ExpireOverdueAppointmentsCommand <<Record>> #FFE4C4 {
+      + ExpireOverdueAppointmentsCommand(LocalDate today)
+    }
+
+    class CancelAppointmentCommand <<Record>> #FFE4C4 {
+      + CancelAppointmentCommand(Long appointmentId)
+    }
+
     class RequestReevaluationCommand <<Record>> #FFE4C4 {
       + RequestReevaluationCommand(Long installationId)
     }
@@ -579,6 +768,26 @@ package alivia.platform.Support {
       \t List<EquipmentReplacement> replacements)
     }
 
+    class SetSchedulingDeadlineCommand <<Record>> #FFE4C4 {
+      + SetSchedulingDeadlineCommand(Long installationId, LocalDate expiredOn)
+    }
+
+    class CancelReevaluationCommand <<Record>> #FFE4C4 {
+      + CancelReevaluationCommand(Long installationId)
+    }
+
+    class CancelInstallationsWithoutAppointmentCommand <<Record>> #FFE4C4 {
+      + CancelInstallationsWithoutAppointmentCommand(LocalDate today)
+    }
+
+    class EndInstallationServiceCommand <<Record>> #FFE4C4 {
+      + EndInstallationServiceCommand(Long assistedPersonId)
+    }
+
+    class CompleteRemovalCommand <<Record>> #FFE4C4 {
+      + CompleteRemovalCommand(Long installationId)
+    }
+
     class CreateInstallationAssignmentCommand <<Record>> #FFE4C4 {
       + CreateInstallationAssignmentCommand(Long appointmentId, Long technicianId,
       \t LocalTime startTime, LocalTime endTime)
@@ -589,9 +798,18 @@ package alivia.platform.Support {
       \t LocalDate scheduledDate, LocalTime startTime, LocalTime endTime)
     }
 
+    class CreateRemovalAssignmentCommand <<Record>> #FFE4C4 {
+      + CreateRemovalAssignmentCommand(Long installationId, Long technicianId,
+      \t LocalDate scheduledDate, LocalTime startTime, LocalTime endTime)
+    }
+
     class ReassignAssignmentCommand <<Record>> #FFE4C4 {
       + ReassignAssignmentCommand(Long assignmentId, Long technicianId,
       \t LocalDate scheduledDate, LocalTime startTime, LocalTime endTime)
+    }
+
+    class CancelAssignmentCommand <<Record>> #FFE4C4 {
+      + CancelAssignmentCommand(Long assignmentId)
     }
 
     class AttendInstallationAssignmentCommand <<Record>> #FFE4C4 {
@@ -623,6 +841,11 @@ package alivia.platform.Support {
       \t List<byte[]> photosData)
     }
 
+    class AttendRemovalAssignmentCommand <<Record>> #FFE4C4 {
+      + AttendRemovalAssignmentCommand(Long assignmentId, Long technicianId,
+      \t List<byte[]> photosData)
+    }
+
     class CreateTicketCommand <<Record>> #FFE4C4 {
       + CreateTicketCommand(Long installationId, Long createdBy, String description)
     }
@@ -633,6 +856,10 @@ package alivia.platform.Support {
 
     class ResolveTicketCommand <<Record>> #FFE4C4 {
       + ResolveTicketCommand(Long ticketId)
+    }
+
+    class CloseTicketCommand <<Record>> #FFE4C4 {
+      + CloseTicketCommand(Long ticketId)
     }
   }
 
@@ -646,8 +873,8 @@ package alivia.platform.Support {
       + GetInstallationByAssistedPersonIdQuery(Long assistedPersonId)
     }
 
-    class GetAllInstallationsByStatusQuery <<Record>> #D5F0D8 {
-      + GetAllInstallationsByStatusQuery(InstallationStatus status)
+    class GetAllInstallationsByBusinessIdAndStatusQuery <<Record>> #D5F0D8 {
+      + GetAllInstallationsByBusinessIdAndStatusQuery(Long businessId, InstallationStatus status)
     }
 
     class GetAppointmentByIdQuery <<Record>> #D5F0D8 {
@@ -717,6 +944,12 @@ package alivia.platform.Support {
     }
     class InstallationWithoutEquipment <<Exception>> {
       + InstallationWithoutEquipment(Long installationId)
+    }
+    class InstallationOutOfService <<Exception>> {
+      + InstallationOutOfService(Long installationId)
+    }
+    class InstallationNotPendingRemoval <<Exception>> {
+      + InstallationNotPendingRemoval(Long installationId)
     }
     class IncompleteInstalledEquipment <<Exception>> {
       + IncompleteInstalledEquipment()
@@ -834,18 +1067,25 @@ package alivia.platform.Support {
       Long handle(AddActuatorsCommand command)
       Long handle(MarkRequirementsNotMetCommand command)
       Long handle(ReplaceEquipmentCommand command)
+      Long handle(SetSchedulingDeadlineCommand command)
+      Long handle(CancelReevaluationCommand command)
+      void handle(CancelInstallationsWithoutAppointmentCommand command)
+      void handle(EndInstallationServiceCommand command)
+      Long handle(CompleteRemovalCommand command)
     }
 
     interface InstallationQueryService #FFF3B0 {
       Optional<Installation> handle(GetInstallationByIdQuery query)
       Optional<Installation> handle(GetInstallationByAssistedPersonIdQuery query)
-      List<Installation> handle(GetAllInstallationsByStatusQuery query)
+      List<Installation> handle(GetAllInstallationsByBusinessIdAndStatusQuery query)
     }
 
     interface AppointmentCommandService #FFF3B0 {
       Long handle(ScheduleAppointmentCommand command)
       Long handle(MarkAppointmentScheduledCommand command)
       Long handle(CompleteAppointmentCommand command)
+      void handle(ExpireOverdueAppointmentsCommand command)
+      Long handle(CancelAppointmentCommand command)
     }
 
     interface AppointmentQueryService #FFF3B0 {
@@ -862,6 +1102,9 @@ package alivia.platform.Support {
       Long handle(AttendReevaluationAssignmentCommand command)
       Long handle(ReportRequirementsNotMetCommand command)
       Long handle(AttendRepairAssignmentCommand command)
+      Long handle(CreateRemovalAssignmentCommand command)
+      Long handle(AttendRemovalAssignmentCommand command)
+      Long handle(CancelAssignmentCommand command)
     }
 
     interface AssignmentQueryService #FFF3B0 {
@@ -874,6 +1117,7 @@ package alivia.platform.Support {
       Long handle(CreateTicketCommand command)
       Long handle(MarkTicketAssignedCommand command)
       Long handle(ResolveTicketCommand command)
+      Long handle(CloseTicketCommand command)
     }
 
     interface TicketQueryService #FFF3B0 {
@@ -897,7 +1141,8 @@ note as N_Shared
   <b>Address</b>: dirección del hogar (inmutable).
   <b>TimeRange</b>: disponibilidad de la cita y horas de
   la visita.
-  <b>Photo</b>: fotos de la instalación y de la reparación.
+  <b>Photo</b>: fotos de la instalación, la reparación y el
+  retiro.
   Support solo guarda ids: nunca accede a esos contextos
   directamente.
 end note
@@ -907,18 +1152,29 @@ RequestInstallationCommand -[hidden]down- ScheduleAppointmentCommand
 ScheduleAppointmentCommand -[hidden]down- MarkAppointmentScheduledCommand
 MarkAppointmentScheduledCommand -[hidden]down- CompleteAppointmentCommand
 CompleteAppointmentCommand -[hidden]down- RequestReevaluationCommand
+RequestReevaluationCommand -[hidden]down- ExpireOverdueAppointmentsCommand
+ExpireOverdueAppointmentsCommand -[hidden]down- CancelAppointmentCommand
 InstallEquipmentCommand -[hidden]down- AddActuatorsCommand
 AddActuatorsCommand -[hidden]down- MarkRequirementsNotMetCommand
 MarkRequirementsNotMetCommand -[hidden]down- ReplaceEquipmentCommand
+ReplaceEquipmentCommand -[hidden]down- SetSchedulingDeadlineCommand
+SetSchedulingDeadlineCommand -[hidden]down- CancelReevaluationCommand
+CancelReevaluationCommand -[hidden]down- CancelInstallationsWithoutAppointmentCommand
+CancelInstallationsWithoutAppointmentCommand -[hidden]down- EndInstallationServiceCommand
+EndInstallationServiceCommand -[hidden]down- CompleteRemovalCommand
 CreateInstallationAssignmentCommand -[hidden]down- CreateRepairAssignmentCommand
-CreateRepairAssignmentCommand -[hidden]down- ReassignAssignmentCommand
+CreateRepairAssignmentCommand -[hidden]down- CreateRemovalAssignmentCommand
+CreateRemovalAssignmentCommand -[hidden]down- ReassignAssignmentCommand
+ReassignAssignmentCommand -[hidden]down- CancelAssignmentCommand
 AttendInstallationAssignmentCommand -[hidden]down- AttendReevaluationAssignmentCommand
 AttendReevaluationAssignmentCommand -[hidden]down- ReportRequirementsNotMetCommand
 ReportRequirementsNotMetCommand -[hidden]down- AttendRepairAssignmentCommand
+AttendRepairAssignmentCommand -[hidden]down- AttendRemovalAssignmentCommand
 CreateTicketCommand -[hidden]down- MarkTicketAssignedCommand
 MarkTicketAssignedCommand -[hidden]down- ResolveTicketCommand
+ResolveTicketCommand -[hidden]down- CloseTicketCommand
 GetInstallationByIdQuery -[hidden]down- GetInstallationByAssistedPersonIdQuery
-GetInstallationByAssistedPersonIdQuery -[hidden]down- GetAllInstallationsByStatusQuery
+GetInstallationByAssistedPersonIdQuery -[hidden]down- GetAllInstallationsByBusinessIdAndStatusQuery
 GetAppointmentByIdQuery -[hidden]down- GetAllAppointmentsByStatusQuery
 GetAllAppointmentsByStatusQuery -[hidden]down- GetAllAppointmentsByInstallationIdQuery
 GetAssignmentByIdQuery -[hidden]down- GetAllAssignmentsByTechnicianIdQuery
@@ -934,6 +1190,8 @@ InstallationNotRequestedByUser -[hidden]down- InvalidActuatorSelection
 InvalidActuatorSelection -[hidden]down- InvalidInstallationStatusTransition
 InvalidInstallationStatusTransition -[hidden]down- InstallationNotPendingEvaluation
 InstallationNotPendingEvaluation -[hidden]down- InstallationWithoutEquipment
+InstallationWithoutEquipment -[hidden]down- InstallationOutOfService
+InstallationOutOfService -[hidden]down- InstallationNotPendingRemoval
 IncompleteInstalledEquipment -[hidden]down- ExceedsRequestedActuators
 ExceedsRequestedActuators -[hidden]down- EvaluationResultMismatch
 EvaluationResultMismatch -[hidden]down- EquipmentRequired
@@ -967,13 +1225,31 @@ TicketNotFound -[hidden]down- TicketDescriptionRequired
 TicketDescriptionRequired -[hidden]down- TicketNotOpen
 TicketNotOpen -[hidden]down- InvalidTicketStatusTransition
 
+AppointmentRequestedEvent -[hidden]down- AppointmentExpiredEvent
+AppointmentExpiredEvent -[hidden]down- AppointmentCanceledEvent
+AppointmentCanceledEvent -[hidden]down- TicketClosedEvent
+TicketClosedEvent -[hidden]down- AssignmentReassignedEvent
+InstallationAssignmentCreatedEvent -[hidden]down- InstallationAssignmentAttendedEvent
+InstallationAssignmentAttendedEvent -[hidden]down- ReevaluationAssignmentAttendedEvent
+ReevaluationAssignmentAttendedEvent -[hidden]down- RequirementsNotMetEvent
+RepairAssignmentCreatedEvent -[hidden]down- RepairAssignmentAttendedEvent
+RepairAssignmentAttendedEvent -[hidden]down- RemovalAssignmentCreatedEvent
+RemovalAssignmentCreatedEvent -[hidden]down- RemovalAssignmentAttendedEvent
+EquipmentInstalledEvent -[hidden]down- ActuatorsAddedEvent
+ActuatorsAddedEvent -[hidden]down- EquipmentReplacedEvent
+EquipmentReplacedEvent -[hidden]down- EquipmentRemovedEvent
+InstallationRejectedEvent -[hidden]down- InstallationCanceledEvent
+InstallationCanceledEvent -[hidden]down- InstallationServiceEndedEvent
+
 ' ---------- HERENCIA, COMPOSICIÓN Y REFERENCIAS ----------
 Assignment <|-- InstallationAssignment
 Assignment <|-- RepairAssignment
+Assignment <|-- RemovalAssignment
 Assignment "0..*" --> "1" AssignmentStatus : status
 Appointment "0..*" -[#6A1B9A]-> "1" Installation : installation >
 InstallationAssignment "0..1" -[#6A1B9A]-> "1" Appointment : appointment >
 RepairAssignment "0..1" -[#6A1B9A]-> "1" Ticket : ticket >
+RemovalAssignment "0..1" -[#6A1B9A]-> "1" Installation : installation >
 Ticket "0..*" -[#6A1B9A]-> "1" Installation : installation >
 Installation "1" *-- "1" ActuatorSelection : requestedActuators
 Installation "1" *-- "0..1" InstalledEquipment : equipment
@@ -999,10 +1275,19 @@ InstallationAssignment ..> ReevaluationAssignmentAttendedEvent : registra >
 InstallationAssignment ..> RequirementsNotMetEvent : registra >
 RepairAssignment ..> RepairAssignmentCreatedEvent : registra >
 RepairAssignment ..> RepairAssignmentAttendedEvent : registra >
+RemovalAssignment ..> RemovalAssignmentCreatedEvent : registra >
+RemovalAssignment ..> RemovalAssignmentAttendedEvent : registra >
+Assignment ..> AssignmentReassignedEvent : registra >
+Appointment ..> AppointmentExpiredEvent : registra >
+Appointment ..> AppointmentCanceledEvent : registra >
+Ticket ..> TicketClosedEvent : registra >
 Installation ..> EquipmentInstalledEvent : registra >
 Installation ..> ActuatorsAddedEvent : registra >
 Installation ..> EquipmentReplacedEvent : registra >
 Installation ..> InstallationRejectedEvent : registra >
+Installation ..> InstallationCanceledEvent : registra >
+Installation ..> InstallationServiceEndedEvent : registra >
+Installation ..> EquipmentRemovedEvent : registra >
 AppointmentRequestedEvent ..> RequestReevaluationCommand : activa >
 InstallationAssignmentCreatedEvent ..> MarkAppointmentScheduledCommand : activa >
 InstallationAssignmentAttendedEvent ..> InstallEquipmentCommand : activa >
@@ -1014,6 +1299,14 @@ RequirementsNotMetEvent ..> CompleteAppointmentCommand : activa >
 RepairAssignmentCreatedEvent ..> MarkTicketAssignedCommand : activa >
 RepairAssignmentAttendedEvent ..> ResolveTicketCommand : activa >
 RepairAssignmentAttendedEvent ..> ReplaceEquipmentCommand : activa >
+AppointmentExpiredEvent ..> CancelAssignmentCommand : activa >
+AppointmentExpiredEvent ..> CancelReevaluationCommand : activa >
+AppointmentExpiredEvent ..> SetSchedulingDeadlineCommand : activa >
+AppointmentCanceledEvent ..> CancelAssignmentCommand : activa >
+TicketClosedEvent ..> CancelAssignmentCommand : activa >
+InstallationServiceEndedEvent ..> CancelAppointmentCommand : activa >
+InstallationServiceEndedEvent ..> CloseTicketCommand : activa >
+RemovalAssignmentAttendedEvent ..> CompleteRemovalCommand : activa >
 
 ' ---------- SERVICES ----------
 InstallationCommandService ..> RequestInstallationCommand : recibe >
@@ -1022,15 +1315,22 @@ InstallationCommandService ..> InstallEquipmentCommand : recibe >
 InstallationCommandService ..> AddActuatorsCommand : recibe >
 InstallationCommandService ..> MarkRequirementsNotMetCommand : recibe >
 InstallationCommandService ..> ReplaceEquipmentCommand : recibe >
+InstallationCommandService ..> SetSchedulingDeadlineCommand : recibe >
+InstallationCommandService ..> CancelReevaluationCommand : recibe >
+InstallationCommandService ..> CancelInstallationsWithoutAppointmentCommand : recibe >
+InstallationCommandService ..> EndInstallationServiceCommand : recibe >
+InstallationCommandService ..> CompleteRemovalCommand : recibe >
 InstallationCommandService ..> Installation : crea / modifica >
 InstallationQueryService -[#2E8B57]-> GetInstallationByIdQuery : recibe >
 InstallationQueryService -[#2E8B57]-> GetInstallationByAssistedPersonIdQuery : recibe >
-InstallationQueryService -[#2E8B57]-> GetAllInstallationsByStatusQuery : recibe >
+InstallationQueryService -[#2E8B57]-> GetAllInstallationsByBusinessIdAndStatusQuery : recibe >
 InstallationQueryService -[#2E8B57]-> Installation : devuelve >
 
 AppointmentCommandService ..> ScheduleAppointmentCommand : recibe >
 AppointmentCommandService ..> MarkAppointmentScheduledCommand : recibe >
 AppointmentCommandService ..> CompleteAppointmentCommand : recibe >
+AppointmentCommandService ..> ExpireOverdueAppointmentsCommand : recibe >
+AppointmentCommandService ..> CancelAppointmentCommand : recibe >
 AppointmentCommandService ..> Appointment : crea / modifica >
 AppointmentQueryService -[#2E8B57]-> GetAppointmentByIdQuery : recibe >
 AppointmentQueryService -[#2E8B57]-> GetAllAppointmentsByStatusQuery : recibe >
@@ -1044,6 +1344,9 @@ AssignmentCommandService ..> AttendInstallationAssignmentCommand : recibe >
 AssignmentCommandService ..> AttendReevaluationAssignmentCommand : recibe >
 AssignmentCommandService ..> ReportRequirementsNotMetCommand : recibe >
 AssignmentCommandService ..> AttendRepairAssignmentCommand : recibe >
+AssignmentCommandService ..> CreateRemovalAssignmentCommand : recibe >
+AssignmentCommandService ..> AttendRemovalAssignmentCommand : recibe >
+AssignmentCommandService ..> CancelAssignmentCommand : recibe >
 AssignmentCommandService ..> Assignment : crea / modifica >
 AssignmentQueryService -[#2E8B57]-> GetAssignmentByIdQuery : recibe >
 AssignmentQueryService -[#2E8B57]-> GetAllAssignmentsByTechnicianIdQuery : recibe >
@@ -1053,6 +1356,7 @@ AssignmentQueryService -[#2E8B57]-> Assignment : devuelve >
 TicketCommandService ..> CreateTicketCommand : recibe >
 TicketCommandService ..> MarkTicketAssignedCommand : recibe >
 TicketCommandService ..> ResolveTicketCommand : recibe >
+TicketCommandService ..> CloseTicketCommand : recibe >
 TicketCommandService ..> Ticket : crea / modifica >
 TicketQueryService -[#2E8B57]-> GetTicketByIdQuery : recibe >
 TicketQueryService -[#2E8B57]-> GetAllTicketsByInstallationIdQuery : recibe >
@@ -1068,16 +1372,35 @@ note as N_RulesInstallation
   Assistance (ACL, GetAssistedPersonByIdQuery;
   AssistedPersonNotFound) y la gestiona ese familiar
   (NotRelativeOfAssistedPerson). No tiene otra
-  instalación que no esté REJECTED
+  instalación que no esté REJECTED, CANCELED o REMOVED
   (InstallationAlreadyExists). La persona asistida tiene
   una suscripción ACTIVE (Subscriptions, ACL,
   GetActiveSubscriptionByAssistedPersonIdQuery;
   SubscriptionNotPaid); de ahí se copian el plan y los
   actuadores elegidos.
   businessId sale del familiar en Assistance.
-  Los demás commands solo los activan eventos de Support;
-  no se exponen en la API. La instalación existe
-  (InstallationNotFound).
+  Los demás commands solo los activan eventos o el
+  proceso programado; no se exponen en la API. La
+  instalación existe (InstallationNotFound).
+  <b>CancelInstallationsWithoutAppointmentCommand</b>: el
+  proceso programado lo ejecuta cada día. Toma las
+  instalaciones PENDING_EVALUATION sin equipos con
+  schedulingDeadline anterior a today y sin cita
+  REQUESTED o SCHEDULED, y llama a
+  cancelForMissingAppointment.
+  <b>EndInstallationServiceCommand</b>: lo activa
+  SubscriptionCanceledEvent. Busca la instalación de la
+  persona asistida que no esté REJECTED, CANCELED o
+  REMOVED; si no hay, no hace nada (la suscripción se
+  canceló por un rechazo o una cancelación ya hechos).
+  Llama a endService.
+  <b>Queries</b>: GetInstallationByAssistedPersonIdQuery
+  devuelve la instalación vigente de la persona (la que no
+  está REJECTED, CANCELED ni REMOVED); las anteriores
+  quedan como historial (GetAllInstallationsByBusinessIdAndStatusQuery).
+  GetAllInstallationsByBusinessIdAndStatusQuery: las del
+  negocio del administrador en ese estado; la usa también
+  Analytics.
 end note
 
 note as N_RulesAppointment
@@ -1094,6 +1417,14 @@ note as N_RulesAppointment
   la visita. La cita existe (AppointmentNotFound).
   El administrador ve las citas pendientes con
   GetAllAppointmentsByStatusQuery(REQUESTED).
+  <b>ExpireOverdueAppointmentsCommand</b>: el proceso
+  programado lo ejecuta cada día a las 00:05 con today =
+  el día que empieza. Llama a expire en cada cita
+  REQUESTED o SCHEDULED con date anterior a today: su
+  visita no se atendió (atenderla completa la cita en la
+  misma transacción).
+  <b>CancelAppointmentCommand</b>: lo activa
+  InstallationServiceEndedEvent para la cita activa.
 end note
 
 note as N_RulesAssignment
@@ -1114,9 +1445,19 @@ note as N_RulesAssignment
   OutsideWorkingHours); no está de vacaciones esa fecha
   (Employee.isOnVacation; EmployeeOnVacation); no se
   cruza con otra visita ASSIGNED suya (AssignmentConflict).
+  <b>CreateRemovalAssignmentCommand</b>: lo envía el
+  administrador; la instalación existe
+  (InstallationNotFound) y está REMOVAL_PENDING (lo
+  valida el constructor). Mismas validaciones del
+  técnico.
   Reassign: la visita existe (AssignmentNotFound); el
   administrador la usa si el técnico fue suspendido o
-  cesado (GetAllAssignmentsByTechnicianIdQuery).
+  cesado (GetAllAssignmentsByTechnicianIdQuery). Es
+  manual por diseño: el administrador suspende o cesa al
+  técnico, así que no se le avisa. Solo se avisa al
+  técnico nuevo.
+  <b>CancelAssignmentCommand</b>: solo lo activan
+  eventos (cita vencida o cancelada, ticket cerrado).
   <b>Attend... y ReportRequirementsNotMetCommand</b>: los
   envía el técnico desde su lista. La visita existe
   (AssignmentNotFound) y es suya
@@ -1135,7 +1476,9 @@ note as N_RulesAssignment
   no guarda equipos que Assets luego rechazaría al armar
   o cambiar la red.
   Primera visita: las cuatro MAC; re-evaluación: solo
-  los actuadores nuevos; no cumple: solo fotos.
+  los actuadores nuevos; no cumple y retiro: solo fotos.
+  Si después de subir las fotos falla una validación,
+  application las borra del almacenamiento.
   En replacedMacAddresses (MAC vieja a MAC nueva), el
   kind sale de dónde se encontró la MAC.
 end note
@@ -1145,7 +1488,11 @@ note as N_RulesTicket
   --
   CreateTicketCommand: lo envía el familiar que registró
   la instalación. La instalación existe
-  (InstallationNotFound).
+  (InstallationNotFound) y está en servicio
+  (InstallationOutOfService).
+  CloseTicketCommand: lo activa
+  InstallationServiceEndedEvent para cada ticket OPEN o
+  ASSIGNED.
   MarkTicketAssignedCommand y ResolveTicketCommand: solo
   los activan eventos de la visita de reparación. El
   ticket existe (TicketNotFound).

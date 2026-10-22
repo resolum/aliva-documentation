@@ -18,10 +18,11 @@
 '      FAILED registra ActuatorActionFailedEvent: Communication avisa al familiar y al cuidador asignado
 '      en ese momento. Una SUCCEEDED registra ActuatorActionSucceededEvent. Analytics escucha los dos
 '      para contar, por instalación y día, las acciones correctas y fallidas que ve el familiar.
-'  T5  El edge ya tiene los datos de su red: Assets se los envía en EdgeAccessTable (networkId,
-'      installationId y el tipo de cada dispositivo) cada vez que la red cambia. Por eso cada reporte
-'      llega completo (edgeId, deviceId, installationId y tipo de dispositivo) y Tracking no consulta a
-'      Assets por cada reporte. El edgeId sale del token con el que IAM autenticó al edge.
+'  T5  El edge ya tiene los datos de su red: los pide a Assets (GetEdgeAccessTableQuery) al arrancar y
+'      cada cierto tiempo, con su token; la nube no le envía nada por su cuenta, porque no puede llegar
+'      a un edge detrás del router del hogar. Por eso cada reporte llega completo (edgeId, deviceId,
+'      installationId y tipo de dispositivo) y Tracking no consulta a Assets por cada reporte. El edgeId
+'      sale del token con el que IAM autenticó al edge.
 '  T6  EdgeId y DeviceId se agregan a Shared: Tracking referencia equipos de Assets solo por su id.
 '  T7  DeviceType es propio de Tracking (mismos valores que en Assets): guarda el tipo del dispositivo
 '      al momento del reporte, así el historial no cambia si luego el equipo se retira de la red.
@@ -31,6 +32,23 @@
 '  T9  Una acción fallida es solo FAILED, sin motivo: el sensor del actuador detecta que no se completó
 '      (ej. la puerta no cerró por completo), pero no la causa. Si el actuador no responde, el edge
 '      también la reporta como FAILED.
+'  T10 EdgeConnection: Tracking sabe qué edges están en servicio, en qué instalación y cuándo se
+'      comunicaron por última vez. Lo arman los eventos de la red de Assets (alta, baja y
+'      desactivación). Sirve para dos cosas: rechazar reportes de un edge fuera de servicio o con un
+'      installationId que no es el de su red, sin consultar a Assets; y avisar al familiar si un edge
+'      pasa 5 minutos sin comunicarse (EdgeDisconnectedEvent) y cuando vuelve (EdgeReconnectedEvent).
+'  T11 Un edge sin internet no puede avisar que no tiene internet: la nube lo detecta por la falta de
+'      latido. El latido es un command propio (RecordEdgeHeartbeatCommand) y no la consulta de la
+'      tabla, porque una query no modifica estado. Un proceso programado de application ejecuta
+'      DetectDisconnectedEdgesCommand cada minuto.
+'  T12 ActuatorActionFailedEvent expone occurredAt: Communication lo necesita para hallar a los
+'      cuidadores de turno y Analytics para el día de la falla.
+'  T13 Historial: el familiar ve el de su instalación y el de cada uno de sus dispositivos; el
+'      administrador, el de cada micrófono y actuador de su negocio. Las queries llevan el userId
+'      y application valida a quién pertenece (HistoryAccessDenied).
+'  T14 Los handlers que consumen eventos de Tracking después del commit usan fallbackExecution = true:
+'      el guardado en MongoDB no participa de la transacción de PostgreSQL y, sin transacción activa,
+'      un @TransactionalEventListener no se ejecuta (ver la política de eventos en Shared).
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -152,6 +170,45 @@ package alivia.platform.Tracking {
       Analytics.
       Es un registro: no tiene estado ni métodos de cambio.
     end note
+
+    class EdgeConnection #DCEBFA {
+      - EdgeId edgeId
+      - InstallationId installationId
+      - ConnectionStatus status
+      - LocalDateTime lastSeenAt
+      --
+      + EdgeConnection(EdgeId edgeId, InstallationId installationId)
+      + markSeen(LocalDateTime now)
+      + markOfflineIfSilent(LocalDateTime now)
+      + retire()
+      + isInService() : boolean
+      + belongsTo(InstallationId installationId) : boolean
+    }
+
+    note bottom of EdgeConnection
+      <b>Conexión de un edge en servicio</b>
+      Una por cada vez que un edge entra a la red de una
+      instalación. A lo sumo una no RETIRED por edge.
+      Constructor: estado PENDING (el edge aún no se
+      comunicó desde que entró a la red); sin lastSeenAt.
+      Lo crea StartEdgeMonitoringCommand.
+      --
+      <b>Transiciones</b> (InvalidConnectionStatusTransition)
+      markSeen: guarda lastSeenAt. PENDING u ONLINE quedan
+      ONLINE; OFFLINE pasa a ONLINE y registra
+      EdgeReconnectedEvent. RETIRED: EdgeNotInService.
+      markOfflineIfSilent: solo ONLINE; si lastSeenAt tiene
+      5 minutos o más, pasa a OFFLINE y registra
+      EdgeDisconnectedEvent. Si no, no cambia nada.
+      PENDING no pasa a OFFLINE: un edge que nunca se
+      conectó todavía se está configurando.
+      retire: cualquier estado a RETIRED (final); el edge
+      salió de la red o la red se desactivó. No avisa a
+      nadie.
+      isInService: PENDING, ONLINE u OFFLINE.
+      belongsTo: el installationId del reporte es el de la
+      red del edge.
+    end note
   }
 
   package "domain.model.valueobjects" #F9F4FD {
@@ -218,6 +275,13 @@ package alivia.platform.Tracking {
       SUCCEEDED
       FAILED
     }
+
+    enum ConnectionStatus #EADCF8 {
+      PENDING
+      ONLINE
+      OFFLINE
+      RETIRED
+    }
   }
 
   package "domain.model.events" #DDF3F5 {
@@ -256,6 +320,7 @@ package alivia.platform.Tracking {
       + getActuatorType() : DeviceType
       + getInstallationId() : Long
       + getAction() : ActionType
+      + getOccurredAt() : LocalDateTime
     }
 
     class ActuatorActionSucceededEvent #CDEFF2 {
@@ -267,16 +332,30 @@ package alivia.platform.Tracking {
       + getOccurredAt() : LocalDateTime
     }
 
+    class EdgeDisconnectedEvent <<Record>> #CDEFF2 {
+      + EdgeDisconnectedEvent(Long edgeId, Long installationId, LocalDateTime lastSeenAt)
+    }
+
+    class EdgeReconnectedEvent <<Record>> #CDEFF2 {
+      + EdgeReconnectedEvent(Long edgeId, Long installationId, LocalDateTime reconnectedAt)
+    }
+
     note bottom of HelpRequestedEvent
       HelpRequested, LowBatteryDetected y ActuatorActionFailed
       los consume Communication. ActuatorActionFailed y
       ActuatorActionSucceeded, Analytics (acciones de la
       instalación por día).
       Leen el id al publicarse, porque MongoDB lo asigna
-      al guardar (como AccessTableUpdatedEvent en Assets).
+      al guardar. EdgeDisconnected y EdgeReconnected son
+      Record: se registran sobre una EdgeConnection ya
+      guardada. Los consume Communication: solo al
+      familiar, con una notificación al teléfono.
       <b>A quién avisa Communication</b>
       HelpRequestedEvent: al familiar y al cuidador
-      asignado en ese momento.
+      asignado en ese momento. Si llega 5 minutos o más
+      después de occurredAt (estuvo guardado en el edge sin
+      internet), no suena como alarma: llega como
+      notificación a los mismos destinatarios.
       LowBatteryDetectedEvent: al familiar y al cuidador
       asignado en ese momento, para que cargue el
       dispositivo.
@@ -327,20 +406,48 @@ package alivia.platform.Tracking {
       \t Long installationId, ActionType action, ActionResult result,
       \t LocalDateTime occurredAt)
     }
+
+    class StartEdgeMonitoringCommand <<Record>> #FFE4C4 {
+      + StartEdgeMonitoringCommand(Long edgeId, Long installationId)
+    }
+
+    class StopEdgeMonitoringCommand <<Record>> #FFE4C4 {
+      + StopEdgeMonitoringCommand(Long edgeId)
+    }
+
+    class RecordEdgeHeartbeatCommand <<Record>> #FFE4C4 {
+      + RecordEdgeHeartbeatCommand(Long edgeId)
+    }
+
+    class DetectDisconnectedEdgesCommand <<Record>> #FFE4C4 {
+      + DetectDisconnectedEdgesCommand(LocalDateTime now)
+    }
   }
 
   package "domain.model.queries" #EEF8EF {
 
     class GetAllHelpRequestsByInstallationIdQuery <<Record>> #D5F0D8 {
-      + GetAllHelpRequestsByInstallationIdQuery(Long installationId)
+      + GetAllHelpRequestsByInstallationIdQuery(Long installationId, Long userId)
     }
 
     class GetAllLowBatteryAlertsByInstallationIdQuery <<Record>> #D5F0D8 {
-      + GetAllLowBatteryAlertsByInstallationIdQuery(Long installationId)
+      + GetAllLowBatteryAlertsByInstallationIdQuery(Long installationId, Long userId)
     }
 
     class GetAllActuatorActionsByInstallationIdQuery <<Record>> #D5F0D8 {
-      + GetAllActuatorActionsByInstallationIdQuery(Long installationId)
+      + GetAllActuatorActionsByInstallationIdQuery(Long installationId, Long userId)
+    }
+
+    class GetAllHelpRequestsByMicrophoneIdQuery <<Record>> #D5F0D8 {
+      + GetAllHelpRequestsByMicrophoneIdQuery(Long microphoneId, Long userId)
+    }
+
+    class GetAllLowBatteryAlertsByDeviceIdQuery <<Record>> #D5F0D8 {
+      + GetAllLowBatteryAlertsByDeviceIdQuery(Long deviceId, Long userId)
+    }
+
+    class GetAllActuatorActionsByActuatorIdQuery <<Record>> #D5F0D8 {
+      + GetAllActuatorActionsByActuatorIdQuery(Long actuatorId, Long userId)
     }
   }
 
@@ -357,6 +464,18 @@ package alivia.platform.Tracking {
     class InvalidActionForDevice <<Exception>> {
       + InvalidActionForDevice(ActionType action, DeviceType type)
     }
+    class EdgeNotInService <<Exception>> {
+      + EdgeNotInService(Long edgeId)
+    }
+    class ReportInstallationMismatch <<Exception>> {
+      + ReportInstallationMismatch(Long edgeId, Long installationId)
+    }
+    class InvalidConnectionStatusTransition <<Exception>> {
+      + InvalidConnectionStatusTransition(ConnectionStatus from, ConnectionStatus to)
+    }
+    class HistoryAccessDenied <<Exception>> {
+      + HistoryAccessDenied(Long userId)
+    }
   }
 
   package "domain.services" #FFFCEA {
@@ -367,6 +486,7 @@ package alivia.platform.Tracking {
 
     interface HelpRequestQueryService #FFF3B0 {
       List<HelpRequest> handle(GetAllHelpRequestsByInstallationIdQuery query)
+      List<HelpRequest> handle(GetAllHelpRequestsByMicrophoneIdQuery query)
     }
 
     interface LowBatteryAlertCommandService #FFF3B0 {
@@ -375,6 +495,7 @@ package alivia.platform.Tracking {
 
     interface LowBatteryAlertQueryService #FFF3B0 {
       List<LowBatteryAlert> handle(GetAllLowBatteryAlertsByInstallationIdQuery query)
+      List<LowBatteryAlert> handle(GetAllLowBatteryAlertsByDeviceIdQuery query)
     }
 
     interface ActuatorActionCommandService #FFF3B0 {
@@ -383,6 +504,14 @@ package alivia.platform.Tracking {
 
     interface ActuatorActionQueryService #FFF3B0 {
       List<ActuatorAction> handle(GetAllActuatorActionsByInstallationIdQuery query)
+      List<ActuatorAction> handle(GetAllActuatorActionsByActuatorIdQuery query)
+    }
+
+    interface EdgeConnectionCommandService #FFF3B0 {
+      String handle(StartEdgeMonitoringCommand command)
+      void handle(StopEdgeMonitoringCommand command)
+      void handle(RecordEdgeHeartbeatCommand command)
+      void handle(DetectDisconnectedEdgesCommand command)
     }
   }
 }
@@ -395,7 +524,7 @@ note as N_Shared
   (micrófono o actuador).
   <b>InstallationId</b>: instalación de Soporte Técnico
   de la red del edge.
-  <b>AuditableMongoAggregateRoot</b>: base de los tres
+  <b>AuditableMongoAggregateRoot</b>: base de los cuatro
   aggregates (id de texto, createdAt y eventos).
   Tracking solo guarda ids: nunca accede a esos
   contextos directamente.
@@ -404,11 +533,19 @@ end note
 ' ---------- DISPOSICIÓN ----------
 RecordHelpRequestCommand -[hidden]down- RecordLowBatteryCommand
 RecordLowBatteryCommand -[hidden]down- RecordActuatorActionCommand
+StartEdgeMonitoringCommand -[hidden]down- StopEdgeMonitoringCommand
+StopEdgeMonitoringCommand -[hidden]down- RecordEdgeHeartbeatCommand
+RecordEdgeHeartbeatCommand -[hidden]down- DetectDisconnectedEdgesCommand
 GetAllHelpRequestsByInstallationIdQuery -[hidden]down- GetAllLowBatteryAlertsByInstallationIdQuery
 GetAllLowBatteryAlertsByInstallationIdQuery -[hidden]down- GetAllActuatorActionsByInstallationIdQuery
+GetAllHelpRequestsByMicrophoneIdQuery -[hidden]down- GetAllLowBatteryAlertsByDeviceIdQuery
+GetAllLowBatteryAlertsByDeviceIdQuery -[hidden]down- GetAllActuatorActionsByActuatorIdQuery
 InvalidReportId -[hidden]down- InvalidBatteryLevel
 InvalidBatteryLevel -[hidden]down- BatteryNotLow
 BatteryNotLow -[hidden]down- InvalidActionForDevice
+EdgeNotInService -[hidden]down- ReportInstallationMismatch
+ReportInstallationMismatch -[hidden]down- InvalidConnectionStatusTransition
+InvalidConnectionStatusTransition -[hidden]down- HistoryAccessDenied
 
 ' ---------- COMPOSICIÓN Y REFERENCIAS ----------
 HelpRequest "1" *-- "1" ReportId : reportId
@@ -420,53 +557,76 @@ ActuatorAction "0..*" --> "1" DeviceType : actuatorType
 ActuatorAction "0..*" --> "1" ActionType : action
 ActuatorAction "0..*" --> "1" ActionResult : result
 ActionType ..> DeviceType : isValidFor >
+EdgeConnection "0..*" --> "1" ConnectionStatus : status
 
 ' ---------- EVENTOS ----------
 HelpRequest ..> HelpRequestedEvent : registra >
 LowBatteryAlert ..> LowBatteryDetectedEvent : registra >
 ActuatorAction ..> ActuatorActionFailedEvent : registra >
 ActuatorAction ..> ActuatorActionSucceededEvent : registra >
+EdgeConnection ..> EdgeDisconnectedEvent : registra >
+EdgeConnection ..> EdgeReconnectedEvent : registra >
 
 ' ---------- SERVICES ----------
 HelpRequestCommandService ..> RecordHelpRequestCommand : recibe >
 HelpRequestCommandService ..> HelpRequest : crea >
 HelpRequestQueryService -[#2E8B57]-> GetAllHelpRequestsByInstallationIdQuery : recibe >
+HelpRequestQueryService -[#2E8B57]-> GetAllHelpRequestsByMicrophoneIdQuery : recibe >
 HelpRequestQueryService -[#2E8B57]-> HelpRequest : devuelve >
 
 LowBatteryAlertCommandService ..> RecordLowBatteryCommand : recibe >
 LowBatteryAlertCommandService ..> LowBatteryAlert : crea >
 LowBatteryAlertQueryService -[#2E8B57]-> GetAllLowBatteryAlertsByInstallationIdQuery : recibe >
+LowBatteryAlertQueryService -[#2E8B57]-> GetAllLowBatteryAlertsByDeviceIdQuery : recibe >
 LowBatteryAlertQueryService -[#2E8B57]-> LowBatteryAlert : devuelve >
 
 ActuatorActionCommandService ..> RecordActuatorActionCommand : recibe >
 ActuatorActionCommandService ..> ActuatorAction : crea >
 ActuatorActionQueryService -[#2E8B57]-> GetAllActuatorActionsByInstallationIdQuery : recibe >
+ActuatorActionQueryService -[#2E8B57]-> GetAllActuatorActionsByActuatorIdQuery : recibe >
 ActuatorActionQueryService -[#2E8B57]-> ActuatorAction : devuelve >
+
+EdgeConnectionCommandService ..> StartEdgeMonitoringCommand : recibe >
+EdgeConnectionCommandService ..> StopEdgeMonitoringCommand : recibe >
+EdgeConnectionCommandService ..> RecordEdgeHeartbeatCommand : recibe >
+EdgeConnectionCommandService ..> DetectDisconnectedEdgesCommand : recibe >
+EdgeConnectionCommandService ..> EdgeConnection : crea / modifica >
 
 ' ---------- REGLAS DE LOS SERVICES ----------
 note as N_RulesReport
-  <b>Reglas comunes de los CommandService</b>
+  <b>Reglas comunes de los Record...CommandService</b>
   --
   El edge se autentica en IAM con su credencial
   (AuthenticateDeviceCommand) y envía el reporte con el
   token que recibe; el edgeId sale de ese token.
-  Un edge retirado de la red ya no tiene credencial y
-  no puede reportar.
-  <b>El reporte llega completo</b>: Assets le envía al
-  edge la tabla de su red (EdgeAccessTable con networkId,
-  installationId y el tipo de cada dispositivo) cada vez
-  que la red cambia. El edge copia de ahí installationId,
-  deviceId y tipo; Tracking no consulta a Assets por cada
-  reporte, así el pedido de auxilio no depende de otra
-  llamada. Un equipo retirado de la red ya no está en la
-  tabla del edge, así que el edge no reporta por él.
+  <b>El edge está en servicio</b>: tiene una
+  EdgeConnection no RETIRED (EdgeNotInService) y el
+  installationId del reporte es el de su red
+  (belongsTo; ReportInstallationMismatch). Así un edge
+  retirado, de una red desactivada o con datos ajenos no
+  genera avisos, sin consultar a Assets.
+  Cada reporte aceptado también cuenta como latido
+  (markSeen).
+  <b>El reporte llega completo</b>: el edge pide a Assets
+  la tabla de su red (GetEdgeAccessTableQuery, con
+  networkId, installationId y el tipo de cada dispositivo)
+  al arrancar y cada cierto tiempo. El edge copia de ahí
+  installationId, deviceId y tipo; Tracking no consulta a
+  Assets por cada reporte, así el pedido de auxilio no
+  depende de otra llamada. Un equipo retirado de la red
+  ya no está en la tabla del edge, así que el edge no
+  reporta por él.
   Todos los datos del command son obligatorios.
   <b>Reintentos</b>: si se corta la conexión, el edge
   guarda el reporte en su base local y lo reenvía al
   reconectarse, con el mismo reportId y su occurredAt
-  original. Si ya existe un reporte con ese reportId en
-  la colección, el CommandService devuelve el id guardado
-  sin crear otro ni registrar el evento de nuevo.
+  original; el pedido de auxilio sale primero. Si ya
+  existe un reporte con ese reportId en la colección, el
+  CommandService devuelve el id guardado sin crear otro
+  ni registrar el evento de nuevo. Si dos reintentos
+  llegan a la vez y el segundo choca con el índice único
+  de report_id, application captura la clave duplicada y
+  devuelve el id existente.
 end note
 
 note as N_RulesEach
@@ -485,9 +645,55 @@ note as N_RulesEach
   (InvalidActionForDevice).
 end note
 
+note as N_RulesConnection
+  <b>Reglas de EdgeConnectionCommandService</b>
+  --
+  <b>StartEdgeMonitoringCommand</b>: lo activa
+  AssetAssignedToNetworkEvent de un edge (Assets). Si el
+  edge ya tiene una EdgeConnection no RETIRED de esa
+  instalación, devuelve su id; si es de otra, la retira
+  antes de crear la nueva.
+  <b>StopEdgeMonitoringCommand</b>: lo activan
+  AssetRemovedFromNetworkEvent de un edge y
+  DeviceNetworkDeactivatedEvent (uno por edge de la red).
+  Llama a retire; si no hay EdgeConnection en servicio,
+  no hace nada.
+  <b>RecordEdgeHeartbeatCommand</b>: el edge lo envía
+  cada 60 segundos con su token (edgeId del token).
+  Llama a markSeen (EdgeNotInService si no está en
+  servicio: el edge debe dejar de reportar).
+  <b>DetectDisconnectedEdgesCommand</b>: lo ejecuta cada
+  minuto el proceso programado de application, con la
+  hora actual. Llama a markOfflineIfSilent en cada
+  EdgeConnection ONLINE.
+  Los avisos de desconexión y reconexión van solo al
+  familiar (Communication).
+end note
+
+note as N_RulesQueries
+  <b>Reglas de los QueryService</b>
+  --
+  userId sale de la sesión. Application valida a quién
+  pertenece lo que se pide (HistoryAccessDenied):
+  <b>Familiar</b>: la instalación es suya (Support,
+  GetInstallationByIdQuery, isRequestedBy). Por
+  dispositivo: el equipo está en la red de su instalación
+  (Assets, GetDeviceNetworkByDeviceIdQuery).
+  <b>Administrador</b>: el dispositivo es de su negocio
+  (Assets, GetDeviceByIdQuery y belongsTo; el negocio
+  del administrador sale de Company). Ve el historial de
+  cada micrófono y actuador.
+  Todas devuelven del más reciente al más antiguo
+  (occurredAt).
+end note
+
 HelpRequestCommandService .. N_RulesReport
 LowBatteryAlertCommandService .. N_RulesReport
 ActuatorActionCommandService .. N_RulesReport
 ActuatorActionCommandService .. N_RulesEach
+EdgeConnectionCommandService .. N_RulesConnection
+HelpRequestQueryService .. N_RulesQueries
+LowBatteryAlertQueryService .. N_RulesQueries
+ActuatorActionQueryService .. N_RulesQueries
 
 @enduml

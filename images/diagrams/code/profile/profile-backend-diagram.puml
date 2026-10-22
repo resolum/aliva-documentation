@@ -6,7 +6,8 @@
 '  P2  Comportamiento explícito: constructores y métodos de actualización.
 '  P3  Se agregan ExistsPersonProfileByEmailAddressQuery y ExistsBusinessProfileByEmailAddressQuery:
 '      validan si un email ya está registrado. Los perfiles se buscan solo por id.
-'  P4  GetAll* devuelve List (antes Optional); GetAllBusinessProfilesQuery en plural.
+'  P4  Sin queries GetAll: ningún contexto ni flujo las usaba y exponían datos personales de todos los
+'      perfiles (auditoría integrada, B1).
 '  P5  Se elimina PersonNameAlreadyExists: dos personas pueden llamarse igual.
 '  P6  Se agrega EmailAddressAlreadyExists: el email de un perfil no se repite.
 '  P7  Ningún perfil se busca ni se recupera por dni ni por email: solo se valida si existen
@@ -27,6 +28,9 @@
 '  P17 Las excepciones van en domain.exceptions, fuera de domain.model: domain se organiza en
 '      domain.model, domain.services y domain.exceptions.
 '  P18 Composiciones con nombre y multiplicidad (5.X.7.1).
+'  P19 Todos los datos personales se pueden corregir (nombres, fecha de nacimiento, teléfono y foto),
+'      menos el dni y el email: decisión de Oscar. El administrador lo hace por su personal (HCM, y por
+'      sí mismo en Company) y el familiar por él y por su persona asistida (Assistance).
 
 skinparam shadowing false
 skinparam packageStyle rectangle
@@ -101,7 +105,8 @@ package alivia.platform.Profiles #F5F5F5 {
       --
       + PersonProfile(EmailAddress emailAddress, Photo photo, PhoneNumber phoneNumber,
       \t PersonName personName, Dni dni, BirthDate birthDate)
-      + updatePersonalInformation(PersonName personName, PhoneNumber phoneNumber, Photo photo)
+      + updatePersonalInformation(PersonName personName, BirthDate birthDate, PhoneNumber phoneNumber,
+      \t Photo photo)
     }
 
     class StaffProfile <<Aggregate>> {
@@ -111,7 +116,8 @@ package alivia.platform.Profiles #F5F5F5 {
       --
       + StaffProfile(EmailAddress corporateEmail, Photo photo, PhoneNumber phoneNumber,
       \t PersonName personName, Dni dni, BirthDate birthDate)
-      + updatePersonalInformation(PersonName personName, PhoneNumber phoneNumber, Photo photo)
+      + updatePersonalInformation(PersonName personName, BirthDate birthDate, PhoneNumber phoneNumber,
+      \t Photo photo)
     }
 
     class BusinessProfile <<Aggregate>> {
@@ -267,10 +273,6 @@ package alivia.platform.Profiles #F5F5F5 {
       + ExistsStaffProfileByDniQuery(Dni dni)
     }
 
-    class GetAllStaffProfilesQuery <<Record>> <<Query>> {
-      + GetAllStaffProfilesQuery()
-    }
-
     class ExistsBusinessProfileByEmailAddressQuery <<Record>> <<Query>> {
       + ExistsBusinessProfileByEmailAddressQuery(EmailAddress emailAddress)
     }
@@ -279,13 +281,6 @@ package alivia.platform.Profiles #F5F5F5 {
       + GetBusinessProfileByIdQuery(Long id)
     }
 
-    class GetAllPersonProfilesQuery <<Record>> <<Query>> {
-      + GetAllPersonProfilesQuery()
-    }
-
-    class GetAllBusinessProfilesQuery <<Record>> <<Query>> {
-      + GetAllBusinessProfilesQuery()
-    }
   }
 
   package domain.services #FFFDE7 {
@@ -299,7 +294,6 @@ package alivia.platform.Profiles #F5F5F5 {
       Optional<PersonProfile> handle(GetPersonProfileByIdQuery query)
       boolean handle(ExistsPersonProfileByEmailAddressQuery query)
       boolean handle(ExistsPersonProfileByDniQuery query)
-      List<PersonProfile> handle(GetAllPersonProfilesQuery query)
     }
 
     interface StaffProfileCommandService {
@@ -311,13 +305,11 @@ package alivia.platform.Profiles #F5F5F5 {
       Optional<StaffProfile> handle(GetStaffProfileByIdQuery query)
       boolean handle(ExistsStaffProfileByEmailAddressQuery query)
       boolean handle(ExistsStaffProfileByDniQuery query)
-      List<StaffProfile> handle(GetAllStaffProfilesQuery query)
     }
 
     interface BusinessProfileQueryService {
       Optional<BusinessProfile> handle(GetBusinessProfileByIdQuery query)
       boolean handle(ExistsBusinessProfileByEmailAddressQuery query)
-      List<BusinessProfile> handle(GetAllBusinessProfilesQuery query)
     }
 
     interface BusinessProfileCommandService {
@@ -341,17 +333,14 @@ package alivia.platform.Profiles #F5F5F5 {
   BusinessProfile "1" *-- "1" Ruc : ruc
   BusinessProfile "1" *-- "1" BusinessHours : businessHours
 
-  BusinessProfileQueryService ..> GetAllBusinessProfilesQuery : recibe
   BusinessProfileQueryService ..> GetBusinessProfileByIdQuery : recibe
 
-  PersonProfileQueryService ..> GetAllPersonProfilesQuery : recibe
   PersonProfileQueryService ..> GetPersonProfileByIdQuery : recibe
   PersonProfileQueryService ..> ExistsPersonProfileByEmailAddressQuery : recibe
   PersonProfileQueryService ..> ExistsPersonProfileByDniQuery : recibe
   StaffProfileQueryService ..> GetStaffProfileByIdQuery : recibe
   StaffProfileQueryService ..> ExistsStaffProfileByEmailAddressQuery : recibe
   StaffProfileQueryService ..> ExistsStaffProfileByDniQuery : recibe
-  StaffProfileQueryService ..> GetAllStaffProfilesQuery : recibe
   StaffProfileCommandService ..> CreateStaffProfileCommand : recibe
   StaffProfileCommandService ..> UpdateStaffProfileCommand : recibe
   BusinessProfileQueryService ..> ExistsBusinessProfileByEmailAddressQuery : recibe
@@ -399,10 +388,12 @@ note as N_UpdatePerson
   String phoneNumber
   String firstName
   String lastName
+  LocalDate birthDate
   --
   El perfil existe (PersonProfileNotFound).
-  dni (nunca) y birthDate no se modifican.
-  emailAddress no se modifica.
+  dni y emailAddress no se modifican nunca.
+  Lo envía Assistance: el familiar actualiza sus datos y
+  los de su persona asistida.
 end note
 
 note as N_CreateBusiness
@@ -494,9 +485,12 @@ note as N_UpdateStaff
   String phoneNumber
   String firstName
   String lastName
+  LocalDate birthDate
   --
   El perfil existe (StaffProfileNotFound).
-  dni (nunca), birthDate y corporateEmail no se modifican.
+  dni y corporateEmail no se modifican nunca.
+  Lo envían HCM (el administrador actualiza a su
+  personal) y Company (el administrador, sus datos).
   No cambia el PersonProfile de la misma persona, si lo
   tiene: son relaciones distintas.
 end note

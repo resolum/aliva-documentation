@@ -15,13 +15,19 @@
 '  S7  TimeRange admite rangos que cruzan medianoche (crossesMidnight). Cada contexto decide
 '      si los acepta: BusinessHours (Profiles) no; Schedule (Assistance) sí.
 '  S8  Se agrega StaffProfileId: identidad del StaffProfile (personal de Alivia) en Profiles.
-'  S9  Se agrega InstallationId: identidad de la instalación de Soporte Técnico; la usa Assets.
+'  S9  Se agrega InstallationId: identidad de la instalación de Soporte Técnico; la usan Assets, Tracking
+'      y Analytics.
 '  S10 Composición WeeklyPeriod-TimeRange con nombre y multiplicidad (5.X.7.1).
 '  S11 Se agregan EdgeId y DeviceId: identidad de un edge y de un dispositivo de Assets; los usa
 '      Tracking para referenciar al equipo que envía cada reporte.
 '  S12 Se agregan EmployeeId (técnico de HCM) y AssistedPersonId (persona asistida de Assistance);
 '      los usa Support.
 '  S13 EmailTemplate pasa a Communication: solo ese contexto envía correos.
+'  S14 Política de eventos común a todos los contextos (nota N_Eventos): qué handler corre dentro de la
+'      transacción y cuál después del commit. Antes ningún diagrama lo decía y de eso dependían la
+'      instalación, el rechazo, el auxilio y los avisos.
+'  S15 Procesos programados (nota N_Programados): los únicos commands que no inicia un usuario ni un
+'      evento.
 
 ' ==============================
 ' CONFIGURACIÓN GENERAL
@@ -233,9 +239,9 @@ note as N_Invariantes
   <b>EmailAddress</b>: formato válido; se guarda sin espacios y
   en minúsculas. Así, la validación de email ya registrado
   trata Ana@x.com y ana@x.com como el mismo correo.
-  <b>PersonProfileId, StaffProfileId, BusinessProfileId,
-  UserId, BusinessId, InstallationId, EdgeId, DeviceId,
-  EmployeeId, AssistedPersonId</b>: no nulos y mayores que
+  <b>PersonProfileId, StaffProfileId, BusinessProfileId,</b>
+  <b>UserId, BusinessId, InstallationId, EdgeId, DeviceId,</b>
+  <b>EmployeeId, AssistedPersonId</b>: no nulos y mayores que
   0. Cada uno identifica el aggregate de un solo contexto
   (PersonProfile, StaffProfile y BusinessProfile en
   Profiles, User en IAM, Business en Company, Installation
@@ -274,9 +280,9 @@ note as N_Clases
   <b>AuditableModel</b>: base de las entidades internas de un
   aggregate (por ejemplo, ActivityAssignment).
   --
-  <b>PersonProfileId, StaffProfileId, BusinessProfileId,
-  UserId, BusinessId, InstallationId, EdgeId, DeviceId,
-  EmployeeId, AssistedPersonId</b>: la identidad de un
+  <b>PersonProfileId, StaffProfileId, BusinessProfileId,</b>
+  <b>UserId, BusinessId, InstallationId, EdgeId, DeviceId,</b>
+  <b>EmployeeId, AssistedPersonId</b>: la identidad de un
   aggregate de otro contexto. Es la única
   forma en que un contexto referencia a otro.
   <b>EmailAddress, PhoneNumber, Photo, Address</b>: datos de
@@ -284,5 +290,57 @@ note as N_Clases
   <b>TimeRange, WeeklyPeriod</b>: rangos de horas y periodos
   semanales para horarios de negocio y de cuidado.
 end note
+
+note as N_Eventos
+  <b>Política de eventos</b> (application de cada contexto)
+  --
+  Cada aggregate registra sus eventos con addDomainEvent
+  (registerEvent de Spring Data) y Spring los publica al
+  guardarlo (save), como en learning-center-platform.
+  <b>Síncrono, en la misma transacción</b> (@EventListener):
+  las cadenas dentro de un contexto (Support, Assistance,
+  Assets, Subscriptions), Support hacia
+  Assets, Subscriptions hacia Support (fin del servicio),
+  HCM hacia IAM, Assets hacia IAM y Tracking, e IAM
+  hacia Assistance. Si un handler falla, se revierte
+  también el command que inició la cadena y el usuario
+  recibe el error.
+  <b>Después del commit</b> (@TransactionalEventListener
+  AFTER_COMMIT, como restock): todo lo que consumen
+  Communication y Analytics; dentro de Communication, el
+  envío por FCM (AlertCreatedEvent y
+  NotificationCreatedEvent), para que la alerta o el aviso
+  quede guardado aunque FCM falle; y Subscriptions cuando
+  devuelve un pago (llama a Stripe). Un fallo ahí no
+  revierte la operación de negocio, que ya es válida.
+  Los eventos de Tracking (MongoDB) usan además
+  fallbackExecution = true: ese guardado no abre una
+  transacción de PostgreSQL.
+  <b>Orquestaciones entre contextos</b> (crear familiar,
+  administrador o empleado: IAM, Profiles y el contexto
+  dueño): una sola transacción; si un paso falla, no
+  queda nada a medias.
+  <b>Eventos registrados en un constructor</b>: guardan el
+  aggregate y leen su id al publicarse, porque antes de
+  guardar no existe.
+end note
+
+note as N_Programados
+  <b>Procesos programados</b> (@Scheduled en application)
+  --
+  Cada minuto: DetectDisconnectedEdgesCommand (Tracking;
+  edges sin contacto por 5 minutos).
+  Cada minuto: RetryUndeliveredAlertsCommand y
+  RetryUndeliveredPushNotificationsCommand
+  (Communication; hasta 5 intentos por alarma o aviso).
+  Cada día a las 00:05: ExpireOverdueAppointmentsCommand
+  y CancelInstallationsWithoutAppointmentCommand
+  (Support; citas vencidas y plazo de 7 días hábiles).
+  Son idempotentes: si se ejecutan dos veces, la segunda
+  no cambia nada.
+end note
+
+N_Clases -[hidden]down- N_Eventos
+N_Eventos -[hidden]down- N_Programados
 
 @enduml

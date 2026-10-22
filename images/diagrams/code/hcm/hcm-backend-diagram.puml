@@ -458,9 +458,6 @@ package alivia.platform.Hcm {
       + DniAlreadyExists()
     }
 
-
-
-
     class EmailAddressAlreadyExists <<Exception>> {
       + EmailAddressAlreadyExists()
     }
@@ -702,13 +699,15 @@ note as N_UpdateEmployee
   String phoneNumber
   String firstName
   String lastName
+  LocalDate birthDate
   --
   El empleado existe (EmployeeNotFound), es del negocio
   (EmployeeNotInBusiness) y no está TERMINATED
   (EmployeeTerminated).
   Employee no cambia: los datos se actualizan en su
   StaffProfile (Profiles) mediante el ACL.
-  email, dni y birthDate no se modifican.
+  Lo envía el administrador del negocio. El correo
+  corporativo y el dni no se modifican nunca.
 end note
 
 note as N_RulesEmployee
@@ -778,7 +777,16 @@ note as N_ContextosExternos
   evento CorporateAccountCreatedEvent de IAM; la
   suspensión, reincorporación y cese, por los eventos de
   este contexto. Al contratar no hay otro correo: la
-  contraseña temporal es la bienvenida.
+  contraseña temporal es la bienvenida. También busca el
+  userId del técnico (GetEmployeeByIdQuery) para avisarle
+  de una visita asignada en Support.
+  <b>Support</b> (ACL, solo lectura): al asignar una visita,
+  GetEmployeeByIdQuery (TECH, ACTIVE, WorkSchedule.covers e
+  isOnVacation con la fecha de la visita); al atenderla,
+  GetEmployeeByUserIdQuery (el técnico logueado).
+  <b>Analytics</b> (eventos y ACL): cuenta contrataciones,
+  suspensiones y ceses, y el personal actual por estado
+  (GetAllEmployeesByBusinessIdQuery).
   --
   BusinessId identifica el Business de Company.
   UserId identifica al usuario de IAM.

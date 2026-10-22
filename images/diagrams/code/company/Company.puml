@@ -28,6 +28,8 @@
 '  C13 Enlace con IAM: el administrador se registra con SignUpCommand (ROLE_ADMIN) y activa su cuenta con
 '      el código de verificación que le llega al correo.
 '  C14 Relación Business-Administrator con multiplicidad: un administrador gestiona a lo sumo un negocio.
+'  C15 Por ahora el administrador se registra desde Swagger (CreateAdministratorCommand), sin aprobación:
+'      decisión de Oscar. Puede actualizar sus datos personales menos el dni y el correo corporativo.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -328,11 +330,13 @@ note as N_UpdateAdministrator
   String photoFileName
   String firstName
   String lastName
+  LocalDate birthDate
   String phoneNumber
   --Información de contacto--
   String backupPersonalEmail  // opcional
   ..
   El Administrator existe (AdministratorNotFound).
+  El correo corporativo y el dni no se modifican.
   Administrator solo cambia backupPersonalEmail;
   los demás datos se actualizan en su StaffProfile
   (Profiles) mediante el ACL.

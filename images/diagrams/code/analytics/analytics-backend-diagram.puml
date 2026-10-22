@@ -128,7 +128,7 @@ package alivia.platform.Analytics {
       que renunciaron.
       SUBSCRIPTIONS_STARTED: nuevos suscriptos (primer
       pago). SUBSCRIPTIONS_CANCELED: canceladas (también
-      las devueltas).
+      las devueltas, que registran una sola cancelación).
       REVENUE_COLLECTED y REVENUE_REFUNDED: soles cobrados
       y devueltos.
       *_BROKEN: equipos marcados BROKEN. EDGES: edges de
@@ -205,7 +205,8 @@ package alivia.platform.Analytics {
       EmployeeCounts: ACTIVE, SUSPENDED y TERMINATED por
       motivo (DISMISSED, RESIGNED); total = la suma.
       SubscriptionCounts: current = suscriptos ACTIVE o
-      PAST_DUE (incluye cobro fallido y re-evaluación),
+      PAST_DUE (incluye cobro fallido, aunque nunca haya
+      pagado, hasta que Stripe la cancela; y re-evaluación),
       sin las que esperan su primera evaluación;
       pendingEvaluation = instalaciones que esperan la
       primera visita del técnico; canceled = CANCELED;
@@ -383,8 +384,8 @@ note as N_RulesCommands
   SubscriptionActivatedEvent (Subscriptions):
   SUBSCRIPTIONS_STARTED, 1.
   SubscriptionCanceledEvent: SUBSCRIPTIONS_CANCELED, 1.
-  SubscriptionRefundedEvent: REVENUE_REFUNDED, el monto; y
-  SUBSCRIPTIONS_CANCELED, 1.
+  SubscriptionRefundedEvent: REVENUE_REFUNDED, el monto
+  (la cancelación ya llega por SubscriptionCanceledEvent).
   PaymentSucceededEvent: REVENUE_COLLECTED, el monto.
   AssetStatusChangedEvent (Assets) con BROKEN: un edge,
   EDGES_BROKEN; un micrófono, DEVICES_BROKEN; un
@@ -407,9 +408,8 @@ note as N_RulesQueries
   HCM, GetAllEmployeesByBusinessIdQuery (por estado y
   motivo). Subscriptions,
   GetAllSubscriptionsByBusinessIdAndStatusQuery. Support,
-  GetAllInstallationsByStatusQuery (PENDING_EVALUATION,
-  de ese negocio y sin equipos: Installation.hasEquipment
-  falso). Assets, GetAllEdgesByBusinessIdQuery y
+  GetAllInstallationsByBusinessIdAndStatusQuery (PENDING_EVALUATION
+  y sin equipos: Installation.hasEquipment falso). Assets, GetAllEdgesByBusinessIdQuery y
   GetAllDevicesByBusinessIdQuery (por tipo y estado).
   <b>GetBusinessMetricsByPeriodQuery</b>: from y to forman
   el Period (InvalidPeriod); por año, ofYear; sin los dos,

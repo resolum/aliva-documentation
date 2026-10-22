@@ -26,16 +26,17 @@
 '  B9  BusinessId viene de Shared (antes se duplicaba en Assets). Se elimina DeviceId, que no existía.
 '  B10 Nombres alineados con los demás contextos: exceptions sin sufijo Exception, services en singular,
 '      commands en PascalCase, GetAll...By...Query, paquetes en plural.
-'  B11 Eventos: cada cambio de la red envía las tablas actualizadas a sus edges (AccessTableUpdatedEvent)
-'      y mantiene el estado de cada equipo (AssetAssignedToNetworkEvent, AssetRemovedFromNetworkEvent,
-'      AssetStatusChangedEvent).
+'  B11 Eventos: cada cambio de la red mantiene el estado de cada equipo (AssetAssignedToNetworkEvent,
+'      AssetRemovedFromNetworkEvent, AssetStatusChangedEvent). La tabla no se envía por evento (B14).
 '  B12 DeviceNetwork es aggregate (no entidad suelta como Role de IAM): tiene invariantes, cambia por
 '      commands y registra eventos.
 '  B13 DeviceNetwork referencia directamente a Edge y Device (mismo contexto, como en Assistance): se
 '      eliminan NetworkMember y NetworkMembers. Un campo por cada edge y por el micrófono garantiza "uno
 '      de cada tipo"; los actuadores son una lista.
-'  B14 Sin versión de la tabla: los edges reciben la tabla completa por eventos y la reemplazan; si un
-'      edge estuvo desconectado, al reconectarse la pide con GetEdgeAccessTableQuery.
+'  B14 La nube no envía nada al edge: no puede llegar a un edge detrás del router del hogar. Cada edge
+'      pide su tabla con GetEdgeAccessTableQuery (con su token) al arrancar y cada 30 segundos, y
+'      reemplaza su copia completa. Se quita AccessTableUpdatedEvent: su único consumidor era el envío.
+'      Como en veyra-edge (GET /edge/registry).
 '  B15 ExistsEdgeByMacAddressQuery y ExistsDeviceByMacAddressQuery validan que la MAC no se repita entre
 '      edges y devices (MacAddressAlreadyExists), como las Exists...Query de Profiles.
 '  B16 Se declara BusinessNotFound en domain.exceptions, igual que en HCM y Assistance.
@@ -44,6 +45,18 @@
 '  B18 GetEdgeByMacAddressQuery y GetDeviceByMacAddressQuery: Support identifica por MAC los equipos que
 '      el técnico instala o reemplaza (la MAC se normaliza igual que al registrar).
 '  B19 AssetStatusChangedEvent lleva el businessId: Analytics cuenta los equipos malogrados por negocio.
+'  B20 La credencial del edge nace con el edge: RegisterEdgeCommand pide a IAM la credencial y devuelve
+'      el secreto una sola vez al administrador, que lo copia en la configuración del edge antes de
+'      llevarlo al hogar. Así el secreto no se genera dentro de un event handler, donde no había a quién
+'      devolverlo. RenewEdgeCredentialCommand emite otra para reutilizar un edge (su credencial se revoca
+'      al salir de una red) o si se perdió el secreto.
+'  B21 Al cancelarse la suscripción se apaga todo: la red pasa a DEACTIVATED, las tablas de sus edges
+'      quedan vacías, IAM revoca sus credenciales y Tracking deja de monitorearlos
+'      (DeviceNetworkDeactivatedEvent). Los equipos siguen IN_USE porque siguen en el hogar hasta que el
+'      técnico los recoge; entonces la red pasa a DISMANTLED y los libera (DismantleDeviceNetworkCommand).
+'  B22 AssetStatusChangedEvent solo lo registran los cambios manuales (sendToMaintenance, markBroken,
+'      markRepaired); markInUse y release los activa la red y no lo registran, así no hay ciclos.
+'  B23 AssetAssignedToNetworkEvent lleva installationId: Tracking empieza a monitorear al edge.
 
 skinparam linetype ortho
 skinparam nodesep 40
@@ -104,7 +117,10 @@ package alivia.platform.Assets {
       <b>Asset</b> (base abstracta de Edge y Device)
       No es un aggregate propio: no tiene repositorio.
       Constructor: estado AVAILABLE (en almacén).
-      Transiciones (InvalidAssetStatusTransition):
+      Transiciones (InvalidAssetStatusTransition).
+      sendToMaintenance, markBroken y markRepaired
+      registran AssetStatusChangedEvent; markInUse y
+      release no (los activa la red).
       markInUse: AVAILABLE a IN_USE (se asigna a una red).
       release: IN_USE a AVAILABLE (sale de una red).
       sendToMaintenance: AVAILABLE o IN_USE a MAINTENANCE.
@@ -174,6 +190,7 @@ package alivia.platform.Assets {
       + removeEdge(Long edgeId)
       + removeDevice(Long deviceId)
       + deactivate()
+      + dismantle()
       + containsEdge(Long edgeId) : boolean
       + containsDevice(Long deviceId) : boolean
       + edgeIds() : List<Long>
@@ -205,12 +222,18 @@ package alivia.platform.Assets {
       (containsEdge / containsDevice; AssetNotInNetwork); su
       campo queda vacío hasta que Soporte Técnico asigne otro.
       addDevice usa containsDevice (AssetAlreadyInNetwork).
-      Ningún método modifica una red DEACTIVATED
+      add y remove solo en una red ACTIVE
       (isActive; DeviceNetworkDeactivated).
-      deactivate: ACTIVE a DEACTIVATED (desinstalación);
-      retira todos los equipos.
+      deactivate: ACTIVE a DEACTIVATED (se canceló la
+      suscripción). Los equipos siguen asignados e IN_USE
+      (están en el hogar); registra
+      DeviceNetworkDeactivatedEvent.
+      dismantle: DEACTIVATED a DISMANTLED (el técnico
+      recogió los equipos); retira todos y registra
+      AssetRemovedFromNetworkEvent por cada uno
+      (InvalidNetworkStatusTransition).
       Cada alta o baja registra AssetAssignedToNetworkEvent
-      o AssetRemovedFromNetworkEvent y AccessTableUpdatedEvent.
+      o AssetRemovedFromNetworkEvent.
       --
       <b>tableFor(edgeId)</b>: calcula la tabla del edge con
       los equipos asignados en ese momento:
@@ -218,7 +241,8 @@ package alivia.platform.Assets {
       MICROPHONE_EDGE a ACTUATOR_EDGE (por el broker)
       ACTUATOR_EDGE a cada actuador
       cada edge a CLOUD
-      Un equipo retirado ya no aparece.
+      Un equipo retirado ya no aparece. Una red que no está
+      ACTIVE no da tabla: el edge queda sin equipos.
     end note
   }
 
@@ -268,13 +292,18 @@ package alivia.platform.Assets {
     }
 
     note bottom of EdgeAccessTable
-      La tabla que se envía a un edge. No se guarda: la
-      calcula DeviceNetwork.tableFor.
+      La tabla de un edge. No se guarda: la calcula
+      DeviceNetwork.tableFor. El edge la pide
+      (GetEdgeAccessTableQuery) al arrancar y cada 30
+      segundos; la nube no se la envía.
       allowedSources: quién le puede enviar (el micrófono
       o el otro edge). allowedTargets: a quién puede enviar
       (el otro edge, los actuadores o CLOUD).
       El edge reemplaza su copia local (SQLite) completa
-      cada vez que recibe una.
+      cada vez que recibe una. Los dispositivos se conectan
+      al edge por HTTP y, si falla el wifi, por Bluetooth;
+      por los dos canales el edge los valida con la MAC de
+      esta tabla.
       networkId e installationId: datos de la red que el
       edge agrega a cada reporte que envía a Tracking
       (edgeId, deviceId, installationId y tipo), para que
@@ -304,6 +333,7 @@ package alivia.platform.Assets {
     enum NetworkStatus #EADCF8 {
       ACTIVE
       DEACTIVATED
+      DISMANTLED
     }
 
     enum NodeType #EADCF8 {
@@ -318,19 +348,15 @@ package alivia.platform.Assets {
   package "domain.model.events" #DDF3F5 {
 
     class AssetAssignedToNetworkEvent <<Record>> #CDEFF2 {
-      + AssetAssignedToNetworkEvent(NodeType type, Long assetId)
+      + AssetAssignedToNetworkEvent(NodeType type, Long assetId, Long installationId)
     }
 
     class AssetRemovedFromNetworkEvent <<Record>> #CDEFF2 {
       + AssetRemovedFromNetworkEvent(NodeType type, Long assetId)
     }
 
-    class AccessTableUpdatedEvent #CDEFF2 {
-      - DeviceNetwork network
-      --
-      + AccessTableUpdatedEvent(DeviceNetwork network)
-      + getNetworkId() : Long
-      + getEdgeIds() : List<Long>
+    class DeviceNetworkDeactivatedEvent <<Record>> #CDEFF2 {
+      + DeviceNetworkDeactivatedEvent(Long networkId, Long installationId, List<Long> edgeIds)
     }
 
     class AssetStatusChangedEvent <<Record>> #CDEFF2 {
@@ -338,18 +364,30 @@ package alivia.platform.Assets {
       \t AssetStatus status)
     }
 
-    note bottom of AccessTableUpdatedEvent
-      AccessTableUpdatedEvent: infrastructure calcula
-      tableFor de cada edge de la red y se la envía. Lee el
-      id al publicarse, porque una red nueva aún no lo tiene.
+    note bottom of DeviceNetworkDeactivatedEvent
+      <b>Dentro de Assets</b>
       AssetAssignedToNetworkEvent: activa
       MarkEdgeInUseCommand o MarkDeviceInUseCommand.
       AssetRemovedFromNetworkEvent: activa ReleaseEdgeCommand
       o ReleaseDeviceCommand si el equipo sigue IN_USE.
-      AssetStatusChangedEvent: si el equipo está en una red,
-      activa RemoveEdgeFromNetworkCommand o
-      RemoveDeviceFromNetworkCommand. Con BROKEN, Analytics
-      cuenta un equipo malogrado de ese negocio.
+      AssetStatusChangedEvent: con MAINTENANCE o BROKEN y
+      el equipo en una red, activa
+      RemoveEdgeFromNetworkCommand o
+      RemoveDeviceFromNetworkCommand.
+      --
+      <b>Hacia otros contextos</b>
+      AssetAssignedToNetworkEvent de un edge: Tracking
+      StartEdgeMonitoringCommand (con installationId; se
+      registra en el constructor de la red, antes de que
+      exista networkId, por eso no lo lleva).
+      AssetRemovedFromNetworkEvent de un edge: IAM
+      RevokeDeviceCredentialCommand y Tracking
+      StopEdgeMonitoringCommand.
+      DeviceNetworkDeactivatedEvent: por cada edge, IAM
+      RevokeDeviceCredentialCommand y Tracking
+      StopEdgeMonitoringCommand.
+      AssetStatusChangedEvent con BROKEN: Analytics cuenta
+      un equipo malogrado de ese negocio.
     end note
   }
 
@@ -424,6 +462,14 @@ package alivia.platform.Assets {
     class DeactivateDeviceNetworkCommand <<Record>> #FFE4C4 {
       + DeactivateDeviceNetworkCommand(Long networkId)
     }
+
+    class DismantleDeviceNetworkCommand <<Record>> #FFE4C4 {
+      + DismantleDeviceNetworkCommand(Long networkId)
+    }
+
+    class RenewEdgeCredentialCommand <<Record>> #FFE4C4 {
+      + RenewEdgeCredentialCommand(Long edgeId, Long businessId)
+    }
   }
 
   package "domain.model.queries" #EEF8EF {
@@ -444,9 +490,6 @@ package alivia.platform.Assets {
       + GetAllDevicesByBusinessIdQuery(Long businessId)
     }
 
-    class GetAllDevicesByBusinessIdAndStatusQuery <<Record>> #D5F0D8 {
-      + GetAllDevicesByBusinessIdAndStatusQuery(Long businessId, AssetStatus status)
-    }
 
     class ExistsEdgeByMacAddressQuery <<Record>> #D5F0D8 {
       + ExistsEdgeByMacAddressQuery(String macAddress)
@@ -534,12 +577,16 @@ package alivia.platform.Assets {
     class DeviceNetworkDeactivated <<Exception>> {
       + DeviceNetworkDeactivated(Long networkId)
     }
+    class InvalidNetworkStatusTransition <<Exception>> {
+      + InvalidNetworkStatusTransition(NetworkStatus from, NetworkStatus to)
+    }
   }
 
   package "domain.services" #FFFCEA {
 
     interface EdgeCommandService #FFF3B0 {
-      Long handle(RegisterEdgeCommand command)
+      ImmutablePair<Long, String> handle(RegisterEdgeCommand command)
+      String handle(RenewEdgeCredentialCommand command)
       Long handle(UpdateEdgeCommand command)
       Long handle(ChangeEdgeStatusCommand command)
       Long handle(MarkEdgeInUseCommand command)
@@ -564,7 +611,6 @@ package alivia.platform.Assets {
     interface DeviceQueryService #FFF3B0 {
       Optional<Device> handle(GetDeviceByIdQuery query)
       List<Device> handle(GetAllDevicesByBusinessIdQuery query)
-      List<Device> handle(GetAllDevicesByBusinessIdAndStatusQuery query)
       boolean handle(ExistsDeviceByMacAddressQuery query)
       Optional<Device> handle(GetDeviceByMacAddressQuery query)
     }
@@ -576,6 +622,7 @@ package alivia.platform.Assets {
       Long handle(RemoveEdgeFromNetworkCommand command)
       Long handle(RemoveDeviceFromNetworkCommand command)
       Long handle(DeactivateDeviceNetworkCommand command)
+      Long handle(DismantleDeviceNetworkCommand command)
     }
 
     interface DeviceNetworkQueryService #FFF3B0 {
@@ -613,12 +660,13 @@ AddEdgeToNetworkCommand -[hidden]down- AddDeviceToNetworkCommand
 AddDeviceToNetworkCommand -[hidden]down- RemoveEdgeFromNetworkCommand
 RemoveEdgeFromNetworkCommand -[hidden]down- RemoveDeviceFromNetworkCommand
 RemoveDeviceFromNetworkCommand -[hidden]down- DeactivateDeviceNetworkCommand
+DeactivateDeviceNetworkCommand -[hidden]down- DismantleDeviceNetworkCommand
+ReleaseEdgeCommand -[hidden]down- RenewEdgeCredentialCommand
 GetEdgeByIdQuery -[hidden]down- GetAllEdgesByBusinessIdQuery
 GetAllEdgesByBusinessIdQuery -[hidden]down- ExistsEdgeByMacAddressQuery
 ExistsEdgeByMacAddressQuery -[hidden]down- GetEdgeByMacAddressQuery
 GetDeviceByIdQuery -[hidden]down- GetAllDevicesByBusinessIdQuery
-GetAllDevicesByBusinessIdQuery -[hidden]down- GetAllDevicesByBusinessIdAndStatusQuery
-GetAllDevicesByBusinessIdAndStatusQuery -[hidden]down- ExistsDeviceByMacAddressQuery
+GetAllDevicesByBusinessIdQuery -[hidden]down- ExistsDeviceByMacAddressQuery
 ExistsDeviceByMacAddressQuery -[hidden]down- GetDeviceByMacAddressQuery
 GetDeviceNetworkByIdQuery -[hidden]down- GetDeviceNetworkByInstallationIdQuery
 GetDeviceNetworkByInstallationIdQuery -[hidden]down- GetDeviceNetworkByEdgeIdQuery
@@ -636,6 +684,7 @@ InvalidNetworkMember -[hidden]down- NodeTypeAlreadyInNetwork
 NodeTypeAlreadyInNetwork -[hidden]down- AssetAlreadyInNetwork
 AssetAlreadyInNetwork -[hidden]down- AssetNotInNetwork
 DeviceNetworkAlreadyExists -[hidden]down- DeviceNetworkDeactivated
+DeviceNetworkDeactivated -[hidden]down- InvalidNetworkStatusTransition
 
 ' ---------- HERENCIA, COMPOSICIÓN Y REFERENCIAS ----------
 Asset <|-- Edge
@@ -658,7 +707,7 @@ NodeRef "0..*" --> "0..1" DeviceType : deviceType
 Asset ..> AssetStatusChangedEvent : registra >
 DeviceNetwork ..> AssetAssignedToNetworkEvent : registra >
 DeviceNetwork ..> AssetRemovedFromNetworkEvent : registra >
-DeviceNetwork ..> AccessTableUpdatedEvent : registra >
+DeviceNetwork ..> DeviceNetworkDeactivatedEvent : registra >
 AssetAssignedToNetworkEvent ..> MarkEdgeInUseCommand : activa >
 AssetAssignedToNetworkEvent ..> MarkDeviceInUseCommand : activa >
 AssetRemovedFromNetworkEvent ..> ReleaseEdgeCommand : activa >
@@ -672,6 +721,7 @@ EdgeCommandService ..> UpdateEdgeCommand : recibe >
 EdgeCommandService ..> ChangeEdgeStatusCommand : recibe >
 EdgeCommandService ..> MarkEdgeInUseCommand : recibe >
 EdgeCommandService ..> ReleaseEdgeCommand : recibe >
+EdgeCommandService ..> RenewEdgeCredentialCommand : recibe >
 EdgeCommandService ..> Edge : crea / modifica >
 EdgeQueryService ..> GetEdgeByIdQuery : recibe >
 EdgeQueryService ..> GetAllEdgesByBusinessIdQuery : recibe >
@@ -687,7 +737,6 @@ DeviceCommandService ..> ReleaseDeviceCommand : recibe >
 DeviceCommandService ..> Device : crea / modifica >
 DeviceQueryService ..> GetDeviceByIdQuery : recibe >
 DeviceQueryService ..> GetAllDevicesByBusinessIdQuery : recibe >
-DeviceQueryService ..> GetAllDevicesByBusinessIdAndStatusQuery : recibe >
 DeviceQueryService ..> ExistsDeviceByMacAddressQuery : recibe >
 DeviceQueryService ..> GetDeviceByMacAddressQuery : recibe >
 DeviceQueryService ..> Device : devuelve >
@@ -698,6 +747,7 @@ DeviceNetworkCommandService ..> AddDeviceToNetworkCommand : recibe >
 DeviceNetworkCommandService ..> RemoveEdgeFromNetworkCommand : recibe >
 DeviceNetworkCommandService ..> RemoveDeviceFromNetworkCommand : recibe >
 DeviceNetworkCommandService ..> DeactivateDeviceNetworkCommand : recibe >
+DeviceNetworkCommandService ..> DismantleDeviceNetworkCommand : recibe >
 DeviceNetworkCommandService ..> DeviceNetwork : crea / modifica >
 DeviceNetworkQueryService ..> GetDeviceNetworkByIdQuery : recibe >
 DeviceNetworkQueryService ..> GetDeviceNetworkByInstallationIdQuery : recibe >
@@ -715,6 +765,18 @@ note as N_RulesAssets
   ExistsEdgeByMacAddressQuery y
   ExistsDeviceByMacAddressQuery (MacAddressAlreadyExists). El negocio existe en Company
   (BusinessNotFound, vía ACL).
+  <b>RegisterEdgeCommand</b>: después de guardar el edge,
+  application pide a IAM su credencial (ACL,
+  IssueDeviceCredentialCommand) y devuelve el id y el
+  secreto una sola vez. El administrador lo copia en la
+  configuración del edge (.env) antes de llevarlo al
+  hogar; con edgeId y secreto el edge obtiene su token.
+  <b>RenewEdgeCredentialCommand</b>: el edge existe, es
+  del negocio y está AVAILABLE (AssetNotAvailable).
+  Application revoca la credencial ACTIVE si la hay y
+  pide una nueva a IAM; devuelve el secreto una sola vez.
+  Se usa para reutilizar un edge que salió de una red o
+  si se perdió el secreto.
   Update: el equipo existe y es del negocio; está
   AVAILABLE (AssetNotEditable); la MAC nueva es válida y
   no la usa otro edge o device (las mismas dos queries;
@@ -738,9 +800,16 @@ note as N_RulesNetwork
   pasa al constructor, que valida tipos, negocio y
   disponibilidad. El número de actuadores lo decide
   Soporte Técnico; Assets no lo limita.
-  Add / Remove / Deactivate: la red existe
+  Add / Remove / Deactivate / Dismantle: la red existe
   (DeviceNetworkNotFound) y carga el equipo por id; las
   demás reglas las valida DeviceNetwork.
+  DeactivateDeviceNetworkCommand: lo activa el evento de
+  Support que apaga el servicio al cancelarse la
+  suscripción (InstallationServiceEndedEvent; la red se
+  busca con GetDeviceNetworkByInstallationIdQuery). Si la
+  instalación aún no tiene red, no hace nada.
+  DismantleDeviceNetworkCommand: lo activa el evento de
+  Support de la visita de retiro (EquipmentRemovedEvent).
   RemoveEdgeFromNetworkCommand y
   RemoveDeviceFromNetworkCommand también llegan por
   AssetStatusChangedEvent: application busca la red con
@@ -748,11 +817,12 @@ note as N_RulesNetwork
   GetDeviceNetworkByDeviceIdQuery.
   <b>Quién valida qué</b>
   Assets decide quién puede enviar a quién (tableFor).
-  IAM solo autentica al edge cuando llama a la API: al
-  asignar un edge a la red, application pide su
-  credencial a IAM (ACL, IssueDeviceCredentialCommand) y
-  devuelve el secreto a Soporte Técnico para configurarlo;
-  al retirarlo, IAM la revoca (AssetRemovedFromNetworkEvent).
+  IAM solo autentica al edge cuando llama a la API: la
+  credencial nace al registrar el edge (B20) y IAM la
+  revoca cuando el edge sale de una red o la red se
+  desactiva.
+  GetEdgeAccessTableQuery: la llama el edge con su token
+  (edgeId del token). Sin red ACTIVE, Optional vacío.
   Tracking (Telemetría) guarda lo que reportan los edges
   (MongoDB); Assets no lo guarda. Los reportes llegan con
   los datos de la red que el edge recibió en su
