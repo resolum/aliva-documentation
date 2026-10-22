@@ -330,7 +330,7 @@ Las dos notas siguientes del diagrama de Shared rigen a todos los bounded contex
 
 El diagrama muestra las bases abstractas (`AuditableAbstractAggregateRoot`, `AuditableMongoAggregateRoot` y `AuditableModel`) y los value objects compartidos, con sus atributos, métodos y visibilidad. La única relación propia de Shared es la composición entre `WeeklyPeriod` y `TimeRange` (1 a 1). Las notas documentan las invariantes de cada value object, la semántica de `TimeRange`, la política de eventos que siguen todos los contextos y los procesos programados.
 
-![Diagrama de clases de la capa de dominio - Elementos compartidos (Shared)](../images/diagrams/img/chapter-5/shared-backend-diagram.svg)
+![shared-domain-diagarm](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/shared/shared-backend-diagram.puml&fmt=svg)
 
 #### Database Design Diagram
 
@@ -1299,7 +1299,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra los aggregates `User` y `DeviceCredential` y la entidad de catálogo `Role`, con la asociación dirigida `roles` (0..* a 1..*). `User` se compone de sus value objects `HashedPassword`, `PasswordToken` y `VerificationCode` (0..1 cada uno) y registra los cinco eventos que consumen Assistance y Communication. `DeviceCredential` se compone de su secreto (`HashedPassword`) y guarda el `EdgeId` de Assets. Los services reciben sus commands y queries, y las notas detallan las reglas de cada service y los contextos que usan IAM: Company, Assistance, HCM, Assets, Tracking y Communication.
 
-![Diagrama de clases de la capa de dominio - IAM](../images/diagrams/img/chapter-5/iam-backend-diagram.svg)
+![iam-domain-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/iam/iam-backend-diagram.puml&fmt=svg)
 
 #### 5.1.7.2. Bounded Context Database Design Diagram
 
@@ -1331,7 +1331,7 @@ Relaciones entre tablas: `users` a `user_roles` (roles (1..*)); `roles` a `user_
 
 
 
-![Diagrama de base de datos - IAM](../images/diagrams/img/chapter-5/iam-database-diagram.svg)
+![iam-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/iam/iam-database-diagram.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -1703,7 +1703,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra los aggregates `Business` y `Administrator`, relacionados por la asociación dirigida "gestionado por" (0..1 a 1). Los colores distinguen el flujo de escritura (el command service recibe el command y crea o actualiza el aggregate) y el de lectura (el query service recibe la query y devuelve el aggregate). Los atributos de cada command se muestran en una nota enlazada a su clase, junto con sus validaciones.
 
-![Diagrama de clases de la capa de dominio - Gestión del Negocio](../images/diagrams/img/chapter-5/Business.svg)
+![company-domain-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/company/Company.puml&fmt=svg)
 
 #### 5.2.7.2. Bounded Context Database Design Diagram
 
@@ -1725,7 +1725,7 @@ Relaciones entre tablas: `administrators` a `businesses` (gestiona (1 : 0..1)).
 `business_profile_id`: sus datos públicos y legales en Profiles (`BusinessProfileId`). Sin FK. `administrator_id`: FK dentro del contexto. Único: un administrador gestiona un solo `Business` (`BusinessAlreadyExistsForAdministrator`). El administrador se registra primero y luego crea el negocio: por eso un administrador puede existir aún sin `Business` (0..1).
 
 
-![Diagrama de base de datos - Gestión del Negocio](../images/diagrams/img/chapter-5/Business-database.svg)
+![company-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/company/Company-database.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -2358,7 +2358,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra la base abstracta `Profile` y sus tres aggregates (`PersonProfile`, `StaffProfile` y `BusinessProfile`), relacionados por generalización. Cada aggregate se compone de sus value objects propios con multiplicidad 1 a 1. Los services reciben sus commands y queries mediante dependencias nombradas ("recibe"). Los atributos de cada command se muestran en una nota enlazada a su clase, con sus validaciones; otras notas detallan las invariantes de los value objects y el horario `BusinessHours`.
 
-![Diagrama de clases de la capa de dominio - Perfiles](../images/diagrams/img/chapter-5/profile-backend-diagram.svg)
+![profiles-domain-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/profile/profile-backend-diagram.puml&fmt=svg)
 
 #### 5.3.7.2. Bounded Context Database Design Diagram
 
@@ -2390,7 +2390,7 @@ Relaciones entre tablas: `business_profiles` a `business_profile_opening_periods
 
 
 
-![Diagrama de base de datos - Perfiles](../images/diagrams/img/chapter-5/profile-database-diagram.svg)
+![profiles-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/profile/profile-database-diagram.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -3293,7 +3293,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra el aggregate `Employee` con sus componentes embebidos (`WorkSchedule`, `ContractHistory` y `VacationHistory`) y las entidades `Contract` (1..*) y `Vacation` (0..*), todo por composición con nombre y multiplicidad. Los enums se enlazan con la clase que los usa. `Employee` registra los cinco eventos y depende de `OperatingHours` para validar los turnos. Los services reciben sus commands y queries, y las notas detallan las reglas de los commands y los contextos externos: Company, Profiles, IAM, Communication, Support y Analytics.
 
-![Diagrama de clases de la capa de dominio - Capital Humano](../images/diagrams/img/chapter-5/hcm-backend-diagram.svg)
+![hcm-domain-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/hcm/hcm-backend-diagram.puml&fmt=svg)
 
 #### 5.4.7.2. Bounded Context Database Design Diagram
 
@@ -3325,7 +3325,7 @@ Relaciones entre tablas: `employees` a `employee_work_shifts` (work_schedule (1.
 
 
 
-![Diagrama de base de datos - Capital Humano](../images/diagrams/img/chapter-5/hcm-database-diagram.svg)
+![hcm-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/hcm/hcm-database-diagram.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -4870,7 +4870,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra los seis aggregates, la entidad `ActivityAssignment`, los value objects y enums con sus relaciones nombradas y su multiplicidad. Las referencias directas entre aggregates del mismo contexto se dibujan en morado; la composición `CareActivity` → `ActivityAssignments` → `ActivityAssignment`, en magenta. Las flechas naranjas indican el aggregate que crea o modifica cada command, y las verde azuladas, el flujo de eventos internos: el aggregate registra el evento y el evento activa el siguiente command (por ejemplo, la invitación: crear, asignar cuenta, avisar, aceptar y crear el cuidador). Los atributos de los commands con más datos se muestran en una nota enlazada a su clase; otras notas detallan las reglas de cada service y los contextos externos.
 
-![Diagrama de clases de la capa de dominio - Asistencia Médica](../images/diagrams/img/chapter-5/assistance.svg)
+![assitance-domain-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assistance/assistance.puml&fmt=svg)
 
 #### 5.5.7.2. Bounded Context Database Design Diagram
 
@@ -4913,7 +4913,7 @@ Relaciones entre tablas: `relatives` a `assisted_persons` (gestiona); `relatives
 **Por qué en PostgreSQL y no en MongoDB** Completar o cancelar lee la actividad, la asignación y el cuidador y escribe el log en una sola transacción. `OccurrenceClosed`, `ScheduleNotEditable`, `MISSED` y la agenda cruzan logs con asignaciones. Es un registro de negocio con relaciones, no tracking. Si se necesita un historial para análisis, se copia a MongoDB por eventos, sin ser la fuente de verdad.
 
 
-![Diagrama de base de datos - Asistencia Médica](../images/diagrams/img/chapter-5/assistance-database.svg)
+![assitance-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assistance/assistance-database.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -5702,7 +5702,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra los aggregates `Plan`, `Subscription` y `Payment`, con sus referencias directas dentro del contexto (`Subscription` a `Plan` y `Payment` a `Subscription`). `Plan` y `Subscription` usan los value objects `Money`, `ActuatorSelection` y `BillingPeriod`; `Payment` se crea con un `PaymentResult`. Los aggregates registran cinco eventos: los de `Payment` activan, dentro del contexto, la activación o el atraso de la suscripción; los de `Subscription` los consumen Communication, Analytics y Support. Las notas detallan las reglas de cada service y el orden de las llamadas a Stripe.
 
-![Diagrama de clases de la capa de dominio - Pagos y Suscripciones](../images/diagrams/img/chapter-5/subscriptions-backend-diagram.svg)
+![subscriptions-domain-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/subscriptions/Subscription.puml&fmt=svg)
 
 #### 5.6.7.2. Bounded Context Database Design Diagram
 
@@ -5724,7 +5724,7 @@ Todos los montos están en soles: currency siempre es 'PEN' (CHECK). plans: cat�
 `user_id`, `assisted_person_id` y `business_id` son ids de IAM, Assistance y Company, sin FK. IDX (`business_id`): suscripciones de un negocio por estado. Las FK van de subscriptions a plans y de `subscription_actuators` y payments a subscriptions: no hay referencias circulares.
 
 
-![Diagrama de base de datos - Pagos y Suscripciones](../images/diagrams/img/chapter-5/subscriptions-database-diagram.svg)
+![subscriptions-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/subscriptions/subscriptions-database.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -7745,8 +7745,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra los aggregates `Installation`, `Appointment`, `Ticket` y la base abstracta `Assignment` con sus tres visitas (`InstallationAssignment`, `RepairAssignment` y `RemovalAssignment`), unidos por referencias directas del mismo contexto (en morado). Los value objects describen lo que eligió el familiar (`ActuatorSelection`), lo instalado (`InstalledEquipment`) y los cambios de una reparación (`EquipmentReplacement`). Los aggregates registran veinte eventos: los internos activan el siguiente command (flechas "activa") y una nota detalla los que salen hacia Assets, Subscriptions y Communication y el que llega desde Subscriptions. Las notas de los services detallan las validaciones con HCM, Assets, Assistance y Subscriptions.
 
-![Diagrama de clases de la capa de dominio - Soporte Técnico](../images/diagrams/img/chapter-5/support-backend-diagram.svg)
-
+![support-domain-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/support/support-backend-diagram.puml&fmt=svg)
 #### 5.7.7.2. Bounded Context Database Design Diagram
 
 La base de datos es PostgreSQL.
@@ -7771,7 +7770,7 @@ installations: la dirección (`formatted_address`, latitude, longitude, `place_i
 Los ids de Assistance, IAM, Company, HCM y Assets son valores sin FK. Las FK van de appointments, tickets y las tablas de actuadores hacia installations, y de assignments hacia appointments, tickets e installations: no hay referencias circulares.
 
 
-![Diagrama de base de datos - Soporte Técnico](../images/diagrams/img/chapter-5/support-database-diagram.svg)
+![support-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/support/support-database.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -8430,7 +8429,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra un aggregate por canal (`Alert`, `Notification` y `Email`) y `PushDevice`, el registro de los celulares que usan los dos primeros. Cada aggregate se asocia con sus enums de estado, tipo, plantilla o plataforma. `Alert` y `Notification` registran un evento al crearse que activa su envío por FCM dentro del contexto. Las notas detallan las reglas de cada service, qué envía Communication por cada evento de otros contextos y cómo encuentra a los destinatarios de los avisos de Tracking.
 
-![Diagrama de clases de la capa de dominio - Comunicaciones](../images/diagrams/img/chapter-5/communication-backend-diagram.svg)
+![communication-domain-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/communication/communication-backend-diagram.puml&fmt=svg)
 
 #### 5.8.7.2. Bounded Context Database Design Diagram
 
@@ -8450,7 +8449,7 @@ alerts: una alarma por destinatario de cada pedido de auxilio. `help_request_id`
 `recipient_user_id` y `user_id` son ids de IAM; `help_request_id`, de Tracking: sin FK. Las cuatro tablas son independientes.
 
 
-![Diagrama de base de datos - Comunicaciones](../images/diagrams/img/chapter-5/communication-database-diagram.svg)
+![communication-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/communication/communication-database-diagram.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -8875,7 +8874,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra los aggregates `BusinessMetric` (por negocio) y `RelativeMetric` (por instalación), cada uno con su enum de tipos. Los value objects son los resultados de las consultas: `BusinessCurrentStatus` (con `EmployeeCounts`, `SubscriptionCounts` y tres `EquipmentCounts`), `BusinessPeriodReport` y `RelativeReport`, que suman las métricas de un `Period`. Las notas detallan qué evento suma cada tipo de métrica y qué consulta cada query en otros contextos.
 
-![Diagrama de clases de la capa de dominio - Analíticas](../images/diagrams/img/chapter-5/analytics-backend-diagram.svg)
+![analytics-domain-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/analytics/analytics-backend-diagram.puml&fmt=svg)
 
 #### 5.9.7.2. Bounded Context Database Design Diagram
 
@@ -8893,7 +8892,7 @@ Solo se guarda lo que pasa: una fila por dueño, tipo y día con cuántas veces 
 `business_id` (Company) e `installation_id` (Support) no tienen FK. Las dos tablas son independientes. Los reportes no se guardan: se calculan al consultar.
 
 
-![Diagrama de base de datos - Analíticas](../images/diagrams/img/chapter-5/analytics-database-diagram.svg)
+![analytics-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/analytics/analytics-database.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -9591,7 +9590,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra los cuatro aggregates de Tracking: `HelpRequest`, `LowBatteryAlert` y `ActuatorAction`, registros independientes de cada reporte, y `EdgeConnection`, la conexión de un edge en servicio. Los tres registros se componen de su `ReportId`; `LowBatteryAlert` se compone además de `BatteryLevel`, y `ActuatorAction` se asocia con sus enums. Las flechas de eventos muestran qué aggregate registra cada aviso que consumen Communication y Analytics. Las notas detallan las reglas comunes de los reportes, el latido y la desconexión de los edges, el acceso al historial y cómo Communication encuentra a quién avisar.
 
-![Diagrama de clases de la capa de dominio - Telemetría](../images/diagrams/img/chapter-5/tracking-backend-diagram.svg)
+![tracking-doamin-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/tracking/tracking-backend-diagram.puml&fmt=svg)
 
 #### 5.10.7.2. Bounded Context Database Design Diagram
 
@@ -9615,7 +9614,7 @@ IDX (`installation_id`, `occurred_at` DESC): historial de una instalación, del 
 `edge_connections`: el único documento que cambia. Uno por cada vez que un edge entra a una red; a lo sumo uno no `RETIRED` por edge (índice único parcial). IDX (status, `last_seen_at`): el proceso programado busca cada minuto los `ONLINE` sin contacto por 5 minutos.
 
 
-![Diagrama de base de datos - Telemetría](../images/diagrams/img/chapter-5/tracking-database-diagram.svg)
+![tracking-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/tracking/tracking-database-diagram.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
 
@@ -10639,7 +10638,7 @@ Pendiente. Se documenta cuando se diseñe esta capa, a partir del Domain Layer d
 
 El diagrama muestra la base abstracta `Asset` con sus dos aggregates (`Edge` y `Device`) y el aggregate `DeviceNetwork`, que referencia directamente a los equipos asignados (un edge de micrófono, un edge de actuadores, un micrófono y N actuadores). `DeviceNetwork` calcula la `EdgeAccessTable` de cada edge con sus `NodeRef`. Los eventos de la red y del estado de los equipos activan commands dentro del contexto y los consumen IAM, Tracking y Analytics. Las notas detallan las reglas de cada service.
 
-![Diagrama de clases de la capa de dominio - Bienes](../images/diagrams/img/chapter-5/devices-backend-diagram.svg)
+![assets-domain-diagram](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assets/devices-backend-diagram.puml&fmt=svg)
 
 #### 5.11.7.2. Bounded Context Database Design Diagram
 
@@ -10671,6 +10670,6 @@ Relaciones entre tablas: `device_networks` a `edges` (microphone_edge_id (0..1))
 
 
 
-![Diagrama de base de datos - Bienes](../images/diagrams/img/chapter-5/devices-database-diagram.svg)
+![assets-database](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/resolum/aliva-documentation/refs/heads/develop/images/diagrams/code/assets/devices-database-diagram.puml&fmt=svg)
 
 <div style="page-break-after: always;"></div>
