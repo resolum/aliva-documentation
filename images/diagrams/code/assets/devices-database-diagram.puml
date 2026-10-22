@@ -56,14 +56,14 @@ package "Bounded Context: Assets" as ctx_assets #F6FBF6 {
     --
     * installation_id : BIGINT <<ref Soporte Técnico>>
     * business_id : BIGINT <<IDX>> <<ref Company>>
-    * status : VARCHAR(15)
+    * status : VARCHAR(15) (ACTIVE, DEACTIVATED, DISMANTLED)
     microphone_edge_id : BIGINT <<FK>>
     actuator_edge_id : BIGINT <<FK>>
     microphone_id : BIGINT <<FK>>
     * created_at : TIMESTAMP
     * updated_at : TIMESTAMP
     ..
-    UK parcial (installation_id) WHERE status = 'ACTIVE'
+    UK parcial (installation_id) WHERE status <> 'DISMANTLED'
     UK (microphone_edge_id), UK (actuator_edge_id), UK (microphone_id)
   }
 
@@ -109,10 +109,14 @@ note bottom of networks
   el equipo retirado no se reemplaza.
   UK de cada campo de equipo: un equipo está en una
   sola red. PostgreSQL admite varios NULL en un UNIQUE,
-  y al desactivar la red sus campos quedan vacíos.
+  y al desmontar la red sus campos quedan vacíos.
+  status: DEACTIVATED al cancelarse la suscripción (los
+  equipos siguen en el hogar, la red no da tabla);
+  DISMANTLED cuando el técnico los recoge (campos
+  vacíos, equipos AVAILABLE).
   UK parcial de installation_id: una instalación tiene
-  una sola red ACTIVE; las DEACTIVATED se conservan,
-  pero sin equipos.
+  una sola red que no esté DISMANTLED (ACTIVE o DEACTIVATED); las
+  desmontadas se conservan como historial.
 end note
 
 note bottom of actuators
@@ -120,7 +124,7 @@ note bottom of actuators
   Lista de actuadores de la red (@ManyToMany de
   DeviceNetwork a Device). Sin id propio.
   UK (device_id): un actuador está en una sola red a la
-  vez. Al retirarlo o desactivar la red, su fila se borra.
+  vez. Al retirarlo o desmontar la red, su fila se borra.
 end note
 
 note as N_Table

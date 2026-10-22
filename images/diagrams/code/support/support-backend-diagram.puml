@@ -608,7 +608,7 @@ package alivia.platform.Support {
     }
 
     class RepairAssignmentAttendedEvent <<Record>> #CDEFF2 {
-      + RepairAssignmentAttendedEvent(Long assignmentId, Long ticketId,
+      + RepairAssignmentAttendedEvent(Long assignmentId, Long ticketId, Long installationId,
       \t List<EquipmentReplacement> replacements)
     }
 
@@ -901,6 +901,14 @@ package alivia.platform.Support {
       + GetAllAssignmentsByTechnicianIdAndDateQuery(Long technicianId, LocalDate date)
     }
 
+    class GetAssignmentByAppointmentIdQuery <<Record>> #D5F0D8 {
+      + GetAssignmentByAppointmentIdQuery(Long appointmentId)
+    }
+
+    class GetAssignmentByTicketIdQuery <<Record>> #D5F0D8 {
+      + GetAssignmentByTicketIdQuery(Long ticketId)
+    }
+
     class GetTicketByIdQuery <<Record>> #D5F0D8 {
       + GetTicketByIdQuery(Long ticketId)
     }
@@ -1111,6 +1119,8 @@ package alivia.platform.Support {
       Optional<Assignment> handle(GetAssignmentByIdQuery query)
       List<Assignment> handle(GetAllAssignmentsByTechnicianIdQuery query)
       List<Assignment> handle(GetAllAssignmentsByTechnicianIdAndDateQuery query)
+      Optional<Assignment> handle(GetAssignmentByAppointmentIdQuery query)
+      Optional<Assignment> handle(GetAssignmentByTicketIdQuery query)
     }
 
     interface TicketCommandService #FFF3B0 {
@@ -1179,6 +1189,8 @@ GetAppointmentByIdQuery -[hidden]down- GetAllAppointmentsByStatusQuery
 GetAllAppointmentsByStatusQuery -[hidden]down- GetAllAppointmentsByInstallationIdQuery
 GetAssignmentByIdQuery -[hidden]down- GetAllAssignmentsByTechnicianIdQuery
 GetAllAssignmentsByTechnicianIdQuery -[hidden]down- GetAllAssignmentsByTechnicianIdAndDateQuery
+GetAllAssignmentsByTechnicianIdAndDateQuery -[hidden]down- GetAssignmentByAppointmentIdQuery
+GetAssignmentByAppointmentIdQuery -[hidden]down- GetAssignmentByTicketIdQuery
 GetTicketByIdQuery -[hidden]down- GetAllTicketsByInstallationIdQuery
 GetAllTicketsByInstallationIdQuery -[hidden]down- GetAllTicketsByStatusQuery
 SubscriptionNotPaid -[hidden]down- AssistedPersonNotFound
@@ -1351,6 +1363,8 @@ AssignmentCommandService ..> Assignment : crea / modifica >
 AssignmentQueryService -[#2E8B57]-> GetAssignmentByIdQuery : recibe >
 AssignmentQueryService -[#2E8B57]-> GetAllAssignmentsByTechnicianIdQuery : recibe >
 AssignmentQueryService -[#2E8B57]-> GetAllAssignmentsByTechnicianIdAndDateQuery : recibe >
+AssignmentQueryService -[#2E8B57]-> GetAssignmentByAppointmentIdQuery : recibe >
+AssignmentQueryService -[#2E8B57]-> GetAssignmentByTicketIdQuery : recibe >
 AssignmentQueryService -[#2E8B57]-> Assignment : devuelve >
 
 TicketCommandService ..> CreateTicketCommand : recibe >
@@ -1457,7 +1471,14 @@ note as N_RulesAssignment
   técnico, así que no se le avisa. Solo se avisa al
   técnico nuevo.
   <b>CancelAssignmentCommand</b>: solo lo activan
-  eventos (cita vencida o cancelada, ticket cerrado).
+  eventos (cita vencida o cancelada, ticket cerrado). El
+  handler busca la visita con
+  GetAssignmentByAppointmentIdQuery o
+  GetAssignmentByTicketIdQuery; si no hay una ASSIGNED,
+  no hace nada.
+  <b>InstallationServiceEndedEvent</b>: el handler busca
+  la cita activa (GetAllAppointmentsByInstallationIdQuery)
+  y los tickets abiertos (GetAllTicketsByInstallationIdQuery).
   <b>Attend... y ReportRequirementsNotMetCommand</b>: los
   envía el técnico desde su lista. La visita existe
   (AssignmentNotFound) y es suya

@@ -40,14 +40,18 @@ package "Bounded Context: Support" as ctx_support #F6FBF6 {
     * longitude : DOUBLE PRECISION
     place_id : VARCHAR(255)
     * plan : VARCHAR(10) (MINIMUM, CUSTOM) <<copia de Subscriptions>>
-    * status : VARCHAR(25)
+    * status : VARCHAR(25) (PENDING_EVALUATION, INSTALLED, PARTIALLY_INSTALLED,
+      REJECTED, CANCELED, REMOVAL_PENDING, REMOVED)
+    scheduling_deadline : DATE
     microphone_edge_id : BIGINT <<ref Assets>>
     actuator_edge_id : BIGINT <<ref Assets>>
     microphone_id : BIGINT <<ref Assets>>
     * created_at : TIMESTAMP
     * updated_at : TIMESTAMP
     ..
-    UK parcial (assisted_person_id) WHERE status <> 'REJECTED'
+    UK parcial (assisted_person_id)
+      WHERE status NOT IN ('REJECTED', 'CANCELED', 'REMOVED')
+    IDX (business_id, status): instalaciones del negocio por estado
     CHECK: microphone_edge_id, actuator_edge_id y microphone_id
     son nulos los tres (aún sin instalar) o no nulos los tres
   }
@@ -78,11 +82,12 @@ package "Bounded Context: Support" as ctx_support #F6FBF6 {
     * available_from : TIME
     * available_to : TIME
     * reevaluation : BOOLEAN
-    * status : VARCHAR(15)
+    * status : VARCHAR(15) (REQUESTED, SCHEDULED, COMPLETED, EXPIRED, CANCELED)
     * created_at : TIMESTAMP
     * updated_at : TIMESTAMP
     ..
     UK parcial (installation_id) WHERE status IN ('REQUESTED', 'SCHEDULED')
+    IDX (status, date): citas vencidas que expira el proceso diario
   }
 
   entity "tickets" as tickets {
@@ -91,7 +96,7 @@ package "Bounded Context: Support" as ctx_support #F6FBF6 {
     * installation_id : BIGINT <<FK>>
     * created_by : BIGINT <<ref IAM>>
     * description : TEXT
-    * status : VARCHAR(15)
+    * status : VARCHAR(15) (OPEN, ASSIGNED, RESOLVED, CLOSED)
     * created_at : TIMESTAMP
     * updated_at : TIMESTAMP
   }
@@ -99,24 +104,26 @@ package "Bounded Context: Support" as ctx_support #F6FBF6 {
   entity "assignments" as assignments {
     * id : BIGINT <<PK>> <<identity>>
     --
-    * assignment_type : VARCHAR(15) (INSTALLATION, REPAIR)
+    * assignment_type : VARCHAR(15) (INSTALLATION, REPAIR, REMOVAL)
     * technician_id : BIGINT <<ref HCM>>
     * scheduled_date : DATE
     * start_time : TIME
     * end_time : TIME
-    * status : VARCHAR(15)
+    * status : VARCHAR(15) (ASSIGNED, ATTENDED, CANCELED)
     attended_at : TIMESTAMP
     appointment_id : BIGINT <<FK>> <<UK>>
     reevaluation : BOOLEAN
     result : VARCHAR(20)
     ticket_id : BIGINT <<FK>> <<UK>>
     failure_reason : TEXT
+    installation_id : BIGINT <<FK>>
     * created_at : TIMESTAMP
     * updated_at : TIMESTAMP
     ..
     IDX (technician_id, scheduled_date)
-    CHECK INSTALLATION: appointment_id no nulo, ticket_id nulo
-    CHECK REPAIR: ticket_id no nulo, appointment_id nulo
+    CHECK INSTALLATION: appointment_id no nulo; ticket_id e installation_id nulos
+    CHECK REPAIR: ticket_id no nulo; appointment_id e installation_id nulos
+    CHECK REMOVAL: installation_id no nulo; appointment_id y ticket_id nulos
   }
 
   entity "assignment_replacements" as replacements {
@@ -143,6 +150,7 @@ installations ||--|{ requested : "actuadores elegidos\n(1..4)"
 installations ||--o{ appointments : "citas\n(0..*)"
 appointments |o--o| assignments : "visita\n(0..1)"
 tickets |o--o| assignments : "visita de reparación\n(0..1)"
+installations ||--o{ assignments : "visitas de retiro\n(0..*, solo REMOVAL)"
 assignments ||--o{ photos : "fotos\n(1..* al atenderse)"
 assignments ||--o{ replacements : "equipos cambiados\n(0..*, solo REPAIR)"
 
@@ -166,14 +174,22 @@ note bottom of ctx_support
   failure_reason y assignment_replacements son de la reparación (registro
   de qué equipo se cambió por cuál).
   ticket_id es único: un ticket tiene una sola visita de reparación.
+  REMOVAL: visita para recoger los equipos cuando terminó el servicio; va
+  directo a la instalación (installation_id). Puede haber otra si una se
+  canceló.
+  scheduling_deadline: hasta cuándo el familiar puede agendar otra cita
+  después de que una venció (7 días hábiles, lunes a viernes); nulo si no
+  aplica. Una instalación CANCELED o REMOVED no impide registrar otra.
+  Las visitas CANCELED quedan como registro (su cita venció o se canceló, o
+  se cerró su ticket).
   assignment_replacements: equipos que se cambiaron en una reparación;
   al cambiarlos, installations reemplaza el id viejo por el nuevo.
   Reasignar una visita actualiza technician_id, scheduled_date y las horas.
   --
   Los ids de Assistance, IAM, Company, HCM y Assets son valores sin FK.
   Las FK van de appointments, tickets y las tablas de actuadores hacia
-  installations, y de assignments hacia appointments y tickets: no hay
-  referencias circulares.
+  installations, y de assignments hacia appointments, tickets e
+  installations: no hay referencias circulares.
 end note
 
 @enduml

@@ -795,7 +795,11 @@ note as N_RulesNetwork
   --
   CreateDeviceNetworkCommand: lo envía Soporte Técnico al
   terminar la instalación. La instalación no tiene otra
-  red ACTIVE (DeviceNetworkAlreadyExists). Carga los Edge
+  red que no esté DISMANTLED (DeviceNetworkAlreadyExists).
+  GetDeviceNetworkByInstallationIdQuery devuelve esa red,
+  ACTIVE o DEACTIVATED: la usan ActuatorsAdded y
+  EquipmentReplaced (ACTIVE), Deactivate (ACTIVE) y
+  Dismantle (DEACTIVATED). Carga los Edge
   y Device por id (EdgeNotFound, DeviceNotFound) y se los
   pasa al constructor, que valida tipos, negocio y
   disponibilidad. El número de actuadores lo decide

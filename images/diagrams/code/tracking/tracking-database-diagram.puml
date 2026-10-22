@@ -41,6 +41,7 @@ package "Bounded Context: Tracking (MongoDB)" as ctx_tracking #F6FBF6 {
     * updated_at : Date
     ..
     IDX (installation_id, occurred_at DESC)
+    IDX (microphone_id, occurred_at DESC)
   }
 
   entity "low_battery_alerts" as battery {
@@ -75,29 +76,51 @@ package "Bounded Context: Tracking (MongoDB)" as ctx_tracking #F6FBF6 {
     * updated_at : Date
     ..
     IDX (installation_id, occurred_at DESC)
+    IDX (actuator_id, occurred_at DESC)
+  }
+
+  entity "edge_connections" as connections {
+    * _id : ObjectId <<PK>>
+    --
+    * edge_id : Long <<IDX>> <<ref Assets>>
+    * installation_id : Long <<ref Soporte Técnico>>
+    * status : String (PENDING, ONLINE, OFFLINE, RETIRED)
+    last_seen_at : Date
+    * created_at : Date
+    * updated_at : Date
+    ..
+    UK parcial (edge_id) WHERE status <> 'RETIRED'
+    IDX (status, last_seen_at)
   }
 }
 
 note bottom of ctx_tracking
   <b>MongoDB: una colección por aggregate</b>
   --
-  Cada documento es un reporte de un edge y no se modifica después de
-  guardarse. Las tres colecciones son independientes: no hay referencias
+  Cada documento de reporte es de un edge y no se modifica después de
+  guardarse. Las colecciones son independientes: no hay referencias
   entre ellas ni FK. edge_id, microphone_id, device_id y actuator_id son ids
   de Assets; installation_id es de Soporte Técnico. Los envía el edge en cada
   reporte, tomados de la tabla de su red (EdgeAccessTable de Assets).
   --
   IDX (installation_id, occurred_at DESC): historial de una instalación,
   del más reciente al más antiguo.
-  IDX (device_id, occurred_at DESC): alertas de batería de un dispositivo.
-  UK (report_id) en cada colección: un reporte reenviado por el edge tras
+  IDX (device_id, occurred_at DESC), (microphone_id, ...) y (actuator_id, ...):
+  historial de un dispositivo (familiar y administrador).
+  UK (report_id) en cada colección de reportes: un reporte reenviado por el edge tras
   cortarse la conexión no se guarda dos veces.
   --
   device_type, actuator_type, action y result se guardan como texto del enum.
   Una batería genera como máximo dos documentos por descarga: 10 % y 5 %.
+  --
+  edge_connections: el único documento que cambia. Uno por cada vez que un
+  edge entra a una red; a lo sumo uno no RETIRED por edge (índice único
+  parcial). IDX (status, last_seen_at): el proceso programado busca cada
+  minuto los ONLINE sin contacto por 5 minutos.
 end note
 
 help -[hidden]right- battery
 battery -[hidden]right- actions
+help -[hidden]down- connections
 
 @enduml

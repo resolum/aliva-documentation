@@ -38,33 +38,38 @@ package "Bounded Context: Communication" as ctx_comm #F6FBF6 {
     * body : TEXT
     * status : VARCHAR(12) (PENDING, SENT, UNDELIVERED)
     sent_at : TIMESTAMP
+    * attempts : INT (0)
     * created_at : TIMESTAMP
     * updated_at : TIMESTAMP
     ..
     IDX (recipient_user_id, created_at DESC)
+    IDX (status, attempts): alertas por reintentar
   }
 
   entity "notifications" as notifications {
     * id : BIGINT <<PK>> <<identity>>
     --
     * recipient_user_id : BIGINT <<ref IAM>>
-    * type : VARCHAR(25)
+    * type : VARCHAR(25) (ver NotificationType: 11 valores)
     * source_id : VARCHAR(64)
     * title : VARCHAR(150)
     * body : TEXT
     * status : VARCHAR(10) (UNREAD, READ)
     read_at : TIMESTAMP
+    * push_status : VARCHAR(12) (PENDING, SENT, UNDELIVERED)
+    * push_attempts : INT (0)
     * created_at : TIMESTAMP
     * updated_at : TIMESTAMP
     ..
     IDX (recipient_user_id, status, created_at DESC)
+    IDX (push_status, push_attempts): avisos por reintentar
   }
 
   entity "emails" as emails {
     * id : BIGINT <<PK>> <<identity>>
     --
     * email_address : VARCHAR(254)
-    * template : VARCHAR(30)
+    * template : VARCHAR(30) (ver EmailTemplate: 12 valores)
     * status : VARCHAR(10) (PENDING, SENT, FAILED)
     sent_at : TIMESTAMP
     failure_reason : VARCHAR(500)

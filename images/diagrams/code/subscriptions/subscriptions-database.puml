@@ -56,8 +56,9 @@ package "Bounded Context: Subscriptions" as ctx_subs #F6FBF6 {
     * monthly_amount : NUMERIC(10,2)
     * currency : CHAR(3) (PEN)
     * status : VARCHAR(20)
-    * stripe_customer_id : VARCHAR(100)
-    * stripe_subscription_id : VARCHAR(100) <<UK>>
+    stripe_customer_id : VARCHAR(100)
+    stripe_subscription_id : VARCHAR(100) <<UK>>
+    * refunded : BOOLEAN (false)
     current_period_start : TIMESTAMP
     current_period_end : TIMESTAMP
     * created_at : TIMESTAMP
@@ -109,7 +110,9 @@ note bottom of ctx_subs
   id son los de Stripe.
   subscriptions: una vigente por persona asistida (UK parcial). monthly_amount
   es la copia del precio al suscribirse. stripe_subscription_id es único: con
-  él se encuentra la suscripción al llegar un webhook.
+  él se encuentra la suscripción al llegar un webhook. Los dos ids de Stripe
+  son nulos solo mientras se crea (se guarda antes de llamar a Stripe).
+  refunded: la suscripción ya se devolvió; evita devolver dos veces.
   payments: un registro por factura de Stripe; stripe_invoice_id es único,
   así un webhook repetido no crea otro pago.
   --
