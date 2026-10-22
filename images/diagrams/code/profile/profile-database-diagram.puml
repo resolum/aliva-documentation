@@ -103,7 +103,7 @@ note right of staff_profiles
   único; es la cuenta corporativa en IAM.
   dni: índice único entre el personal (nadie es
   empleado dos veces; un administrador no es empleado).
-  No se modifican: corporate_email, dni, birth_date.
+  No se modifican: corporate_email ni dni.
   Sus datos no se comparten con person_profiles aunque
   sea la misma persona: son relaciones distintas.
   El email tampoco puede repetirse entre
@@ -122,7 +122,7 @@ note right of person_profiles
   email_address: único pero opcional (la persona
   asistida puede no tener correo). En PostgreSQL un
   índice único admite varios NULL.
-  No se modifican: email_address, dni, birth_date.
+  No se modifican: email_address ni dni.
   dni: índice único entre los clientes; respalda
   DniAlreadyExists y ExistsPersonProfileByDniQuery.
   El mismo dni puede estar en staff_profiles (la persona

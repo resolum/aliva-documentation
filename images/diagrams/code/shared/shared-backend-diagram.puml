@@ -335,7 +335,9 @@ note as N_Programados
   (Communication; hasta 5 intentos por alarma o aviso).
   Cada día a las 00:05: ExpireOverdueAppointmentsCommand
   y CancelInstallationsWithoutAppointmentCommand
-  (Support; citas vencidas y plazo de 7 días hábiles).
+  (Support; citas vencidas y plazo de 7 días hábiles) y
+  MarkMissedActivitiesCommand (Assistance; con la fecha
+  de ayer como closingDate).
   Son idempotentes: si se ejecutan dos veces, la segunda
   no cambia nada.
 end note

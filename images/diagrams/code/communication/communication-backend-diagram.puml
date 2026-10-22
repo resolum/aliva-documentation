@@ -141,9 +141,9 @@ package alivia.platform.Communication {
       (InvalidMessageContent); registra
       NotificationCreatedEvent.
       sourceId: id de lo que originó el aviso (reporte de
-      Tracking, invitación, pago, suscripción o
-      instalación), para que la app abra su detalle. Es
-      texto porque Tracking usa ids de MongoDB.
+      Tracking, edge, invitación, pago, suscripción,
+      instalación o visita), para que la app abra su
+      detalle. Es texto porque Tracking usa ids de MongoDB.
       markAsRead: solo su destinatario
       (NotificationNotForUser); pasa a READ y guarda
       readAt. Si ya estaba READ no cambia nada.
@@ -588,8 +588,8 @@ note as N_RulesNotification
   <b>Reglas de NotificationCommandService</b>
   --
   <b>CreateNotificationCommand</b>: solo lo usa
-  application al reaccionar a un evento o a un pedido
-  de Assistance por ACL; no se expone en la API. Uno por
+  application al reaccionar a un evento de otro
+  contexto; no se expone en la API. Uno por
   destinatario.
   <b>SendPushNotificationCommand</b>: lo activa
   NotificationCreatedEvent después de guardar. La
@@ -615,8 +615,8 @@ end note
 note as N_RulesEmail
   <b>Reglas de EmailCommandService</b>
   --
-  <b>SendEmailCommand</b>: solo lo usa application (eventos
-  y ACL); no se expone en la API. emailAddress es válido
+  <b>SendEmailCommand</b>: solo lo usa application al
+  reaccionar a un evento; no se expone en la API. emailAddress es válido
   (EmailAddress de Shared). Crea el Email PENDING y lo
   guarda; envía la plantilla con sus variables por
   SendGrid; según la respuesta, markSent o markFailed.
@@ -688,13 +688,13 @@ note as N_Consumers
   Support: InstallationRejectedEvent
   (INSTALLATION_REJECTED) e InstallationCanceledEvent
   (INSTALLATION_CANCELED); al familiar (requestedBy).
+  HCM: EmployeeSuspendedEvent, EmployeeReinstatedEvent y
+  EmployeeTerminatedEvent (EMPLOYEE_*); al correo
+  corporativo (userId).
   --
   Todos se consumen después del commit (política de
   eventos en Shared); los de Tracking, con
   fallbackExecution.
-  HCM: EmployeeSuspendedEvent, EmployeeReinstatedEvent y
-  EmployeeTerminatedEvent (EMPLOYEE_*); al correo
-  corporativo (userId).
 end note
 
 note as N_Recipients

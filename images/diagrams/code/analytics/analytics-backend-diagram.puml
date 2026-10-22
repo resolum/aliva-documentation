@@ -412,8 +412,9 @@ note as N_RulesQueries
   y sin equipos: Installation.hasEquipment falso). Assets, GetAllEdgesByBusinessIdQuery y
   GetAllDevicesByBusinessIdQuery (por tipo y estado).
   <b>GetBusinessMetricsByPeriodQuery</b>: from y to forman
-  el Period (InvalidPeriod); por año, ofYear; sin los dos,
-  el total. Luego startingFrom(día de creación del
+  el Period (InvalidPeriod); si el administrador elige un
+  año, application arma from y to con Period.ofYear; sin
+  los dos, el total. Luego startingFrom(día de creación del
   negocio) (PeriodBeforeStart). types filtra lo que se
   quiere ver (vacío = todos). Suma las BusinessMetric de
   esos tipos en el periodo.

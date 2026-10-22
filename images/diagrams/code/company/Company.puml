@@ -297,6 +297,7 @@ note as N_CreateAdministrator
   String firstName
   String lastName
   String dni
+  LocalDate birthDate
   String phoneNumber
   --Información de contacto--
   String backupPersonalEmail  // opcional
