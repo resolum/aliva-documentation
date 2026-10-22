@@ -102,8 +102,9 @@ note bottom of ctx_comm
   SENT. IDX (recipient_user_id, created_at DESC): historial de alertas
   del usuario.
   notifications: un aviso por destinatario. source_id es texto porque
-  puede ser un id de MongoDB (Tracking) o un id numérico (invitación,
-  pago, suscripción o instalación). read_at solo en READ.
+  puede ser un id de MongoDB (Tracking) o un id numérico (edge,
+  invitación, pago, suscripción, instalación o visita). read_at solo en
+  READ.
   IDX (recipient_user_id, status, created_at DESC): la lista de avisos
   del usuario, con o sin filtro de estado.
   emails: un registro por correo, sin sus variables (algunas son

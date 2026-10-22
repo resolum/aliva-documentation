@@ -737,10 +737,10 @@ note as N_RulesQueries
   (null = sin filtro).
   GetEmployeeByUserIdQuery: el empleado del usuario
   logueado (UserId de IAM).
-  GetAllContractsByEmployeeIdQuery y
-  GetAllVacationsByEmployeeIdQuery: from, to y status
-  son filtros opcionales; devuelven los periodos que se
-  cruzan con [from, to].
+  GetAllContractsByEmployeeIdQuery: from, to y status
+  son filtros opcionales. GetAllVacationsByEmployeeIdQuery:
+  from y to son filtros opcionales. Las dos devuelven los
+  periodos que se cruzan con [from, to].
   GetContractByIdQuery: el contrato se busca dentro de su
   Employee (employeeId + contractId).
   Id inexistente: Optional vacío o lista vacía.

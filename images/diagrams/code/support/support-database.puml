@@ -162,8 +162,9 @@ note bottom of ctx_support
   microphone_id e installation_actuators son el InstalledEquipment: nulos
   hasta la primera instalación y, desde ahí, los tres llenos y al menos un
   actuador (lo valida el dominio).
-  assignments: una sola tabla para InstallationAssignment y
-  RepairAssignment (herencia SINGLE_TABLE, columna assignment_type).
+  assignments: una sola tabla para InstallationAssignment,
+  RepairAssignment y RemovalAssignment (herencia SINGLE_TABLE, columna
+  assignment_type).
   plan e installation_requested_actuators: copia de lo que el familiar eligió
   al suscribirse (Subscriptions; MINIMUM 1, CUSTOM de 1 a 4); installation_actuators: lo
   instalado, con su tipo. Nunca hay más instalados que elegidos.
