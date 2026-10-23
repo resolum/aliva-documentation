@@ -73,14 +73,14 @@ En este sprint se planifica el primer incremento de Alivia, centrado en el contr
 
 La siguiente matriz muestra la participación de cada integrante en los aspectos del proyecto. **L** identifica al responsable principal, **C** a quien colabora y **—** indica que no tiene una participación asignada en ese aspecto.
 
-| **Team Member** | **GitHub Username** | IAM | Company | Profiles | HCM | Medical Assistance | Subscriptions | Support | Assets | Tracking | Communications | Analytics | Shared |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Oscar Armas | Racso24k | C | — | — | — | C | — | **L** | — | — | C | — | **L** |
-| Renato Calvo | RenatoCY | — | — | — | — | C | — | — | **L** | **L** | — | C | C |
-| Farid Coronel | Far14z | — | C | C | **L** | — | **L** | C | C | — | — | — | — |
-| Matías Diaz | equinox-1092 | C | — | — | — | C | — | — | — | C | **L** | **L** | C |
-| Nicolas Juarez | JuarezLn10 | **L** | — | C | — | **L** | — | — | C | C | — | — | — |
-| Dayro Rios | Addicted2you | — | **L** | **L** | C | — | C | — | C | C | — | — | — |
+| **Team Member**                    | **GitHub Username** | IAM   | Company | Profiles | HCM   | Medical Assistance | Subscriptions | Support | Assets | Tracking | Communications | Analytics | Shared |
+|------------------------------------|---------------------|-------|---------|----------|-------|--------------------|---------------|---------|--------|----------|----------------|-----------|--------|
+| Armas Sánchez, Oscar Javier        | Racso24k            | C     | —       | —        | —     | C                  | —             | **L**   | —      | —        | C              | —         | **L**  |
+| Calvo Yalan, Renato Guillermo      | RenatoCY            | —     | —       | —        | —     | C                  | —             | —       | **L**  | **L**    | —              | C         | C      |
+| Coronel Espinoza, Farid Sebastian  | Far14z              | —     | C       | C        | **L** | —                  | **L**         | C       | C      | —        | —              | —         | —      |
+| Diaz Quispe, Matías Sebastian      | equinox-1092        | C     | —       | —        | —     | C                  | —             | —       | —      | C        | **L**          | **L**     | C      |
+| Juarez Leon, Nicolas Emilio Walter | JuarezLn10          | **L** | —       | C        | —     | **L**              | —             | —       | C      | C        | —              | —         | —      |
+| Rios Piñan, Dayro Richard          | Addicted2you        | —     | **L**   | **L**    | C     | —                  | C             | —       | C      | C        | —              | —         | —      |
 
 #### 7.2.1.3. Development Evidence for Sprint 1 Review
 
