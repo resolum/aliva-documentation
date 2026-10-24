@@ -6,6 +6,170 @@
 
 ### 7.1.2. Source Code Management
 
+El control de versiones del código fuente de los productos de software para el proyecto se gestiona siguiendo un esquema orientado al trabajo efectivo. Para ello, se utiliza GitHub como plataforma en la nube para el almacenamiento del código de los productos en repositorios asignados para cada uno. Por otro lado, se usa Git Flow como flujo de trabajo para el desarrollo de las funcionalidades de las aplicaciones y la creación de ramas para el trabajo en paralelo del proyecto. A su vez, para un mejor entendimiento del trabajo implementado en cada confirmación (commit), se utiliza Conventional Commits como norma general para cada entrega de avance en los repositorios. Finalmente, se aplica SemVer para el nombrado de versiones de los productos de software.
+
+**Repositorios de los productos de software**
+
+| Producto de software                | URL del repositorio en Github                            |
+| ----------------------------------- | -------------------------------------------------------- |
+| Sitio web estático                  | https://github.com/resolum/alivia-landing-page           |
+| Aplicación web - Usuarios           | https://github.com/resolum/alivia-users-web-application  |
+| Aplicación web - Administrativa     | https://github.com/resolum/alivia-admin-web-application  |
+| Aplicación móvil - Android          | https://github.com/resolum/alivia-android-application    |
+| Aplicación móvil - iOS              | https://github.com/resolum/alivia-ios-application        |
+| Servicios Web - REST API            | https://github.com/resolum/alivia-web-services           |
+| Servicios en el borde - Controlador | https://github.com/resolum/alivia-control-edge-service   |
+| Servicios en el borde - Actuadores  | https://github.com/resolum/alivia-actuators-edge-service |
+| Aplicación embebida - Controlador   |                                                          |
+| Aplicación embebida - Actuadores    |                                                          |
+
+**Aplicación de Git Flow**
+
+A continuación, se realiza una explicación más detallada sobre el uso de Git Flow en el proyecto. A su vez, se describen las principales reglas que aplican a cada tipo de rama.
+
+<table style="max-width: 100%;">
+  <tr>
+    <th style="text-align:center;">Rama</th>
+    <th style="text-align:center;">Objetivo</th>
+    <th style="text-align:center;">Reglas</th>
+  </tr>
+  <tr>
+    <td>main</td>
+    <td>Se almacena la última versión más estable del producto lista para fase de producción.</td>
+    <td>
+      <ul>
+        <li>No se realizan commits a esta rama.</li>
+        <li>Esta rama solo puede aceptar Pull Requests que provengan desde alguna rama de tipo release.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>develop</td>
+    <td>Esta rama sirve como integradora de todos los cambios realizados relacionados a nuevas funciones o correcciones.</td>
+    <td>
+      <ul>
+        <li>No se realizan commits a esta rama.</li>
+        <li>Esta rama solo puede aceptar Pull Requests que provengan desde alguna rama de tipo feature o bugfix.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>release</td>
+    <td>El conjunto de estas ramas facilitan el versionamiento y lanzamiento de nuevas versiones del producto de software.</td>
+    <td>
+      <ul>
+        <li>No se realizan commits a esta rama.</li>
+        <li>Esta rama solo puede aceptar Pull Requests que provengan desde alguna rama de tipo bugfix.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>feature</td>
+    <td>El conjunto de estas ramas permiten el desarrollo de nuevas funcionalidades o correcciones previas a la fase de staging</td>
+    <td>
+      <ul>
+        <li>Solo se deben realizar commits acorde a la rama creada.</li>
+        <li>Cada rama debe ser nombrada según la funcionalidad que se va a implementar.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>bugfix</td>
+    <td>El conjunto de estas ramas permiten las correcciones de bugs o errores encontrados en la rama release</td>
+    <td>
+      <ul>
+        <li>Los cambios hechos en esta rama deben verse reflejados tanto en la rama develop como en release.</li>
+        <li>Cada rama debe ser nombrada según el bug a corregir.</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+**Uso de Semantic Versioning**
+
+En esta sección, se explica brevemente la forma de aplicación de Semantic Versioning (SemVer). Para ello, se describen los principales componentes que dan forma a la versión de un producto de software.
+
+![Referencia a una versión utilizando Semantic Versioning 2.0](https://miro.medium.com/v2/resize:fit:1200/1*S0S5Qv9AK3mc1M3Vq39nPQ.jpeg)
+
+<table style="max-width: 100%;">
+  <tr>
+    <th style="text-align:center;">Componente</th>
+    <th style="text-align:center;">Objetivo</th>
+    <th style="text-align:center;">Reglas</th>
+  </tr>
+  <tr>
+    <td>MAJOR</td>
+    <td>Indica la implementación de un cambio que rompe las versiones anteriores</td>
+    <td>En Alivia, se utiliza esta versión para el lanzamiento de versiones que incluyan un conjunto sólido de funcionalidades.</td>
+  </tr>
+  <tr>
+    <td>MINOR</td>
+    <td>Indica la implementación cambios menores que no afectan la integridad del producto</td>
+    <td>En Alivia, se utiliza esta versión cuando se finaliza el desarrollo de un componente que forma parte de un conjunto de funcionalidades.</td>
+  </tr>
+  <tr>
+    <td>PATCH</td>
+    <td>Indica la implementación de correcciones pequeñas en el producto</td>
+    <td>En Alivia, se utiliza esta versión para indicar que se ha realizado una corrección de un bug ya sea en una rama feature o bugfix.</td>
+  </tr>
+</table>
+
+**Aplicación de Conventional Commits**
+
+Los commits son necesarios para dar una descripción breve al equipo acerca del contenido agregado o modificado dentro del código de los productos de software. Por ello, se debe seguir un estándar interno que facilite la lectura de estos mensajes y dejen clara qué se ha implementado. A continuación, se explica el estándar definido para los commits dentro de la organización:
+
+<div align="center">
+  <img src="https://imgur.com/vfirypa.png" alt="mensaje de ejemplo para commits">
+</div>
+
+<table style="max-width: 100%;">
+  <tr>
+    <th style="text-align:center;">Tipo de commit</th>
+    <th style="text-align:center;">Objetivo</th>
+    <th style="text-align:center;">Ejemplo</th>
+  </tr>
+  <tr>
+    <td>feat</td>
+    <td>Indica la implementación de un componente nuevo de funcionalidad.</td>
+    <td>feat(sign-in): add login page.</td>
+  </tr>
+  <tr>
+    <td>fix</td>
+    <td>Indica la corrección de un error o bug encontrado en el producto.</td>
+    <td>fix: remove hard-coded database password.</td>
+  </tr>
+  <tr>
+    <td>docs</td>
+    <td>Indica que se añadió documentación referida al producto de software.</td>
+    <td>docs: add iam context domain class diagram.</td>
+  </tr>
+  <tr>
+    <td>ci</td>
+    <td>Indica la implementación de componentes de integración continua al repositorio.</td>
+    <td>ci: add static code analysis workflow.</td>
+  </tr>
+  <tr>
+    <td>refactor</td>
+    <td>Indica la modificación de la estructura de un componente de código sin modificar su comportamiento externo.</td>
+    <td>refactor: extract verification logic into a new independent service.</td>
+  </tr>
+  <tr>
+    <td>test</td>
+    <td>Indica la implementación de algún tipo de prueba en código dentro del producto de software.</td>
+    <td>test(sign-in): add password secure storage validation</td>
+  </tr>
+  <tr>
+    <td>chore</td>
+    <td>Indica la actualización de dependencias o tareas de mantenimiento del código.</td>
+    <td>chore: update mongodb driver dependency.</td>
+  </tr>
+  <tr>
+    <td>build</td>
+    <td>Indica la modificación del sistema de compilación y ejecución del producto asociado</td>
+    <td>build: update java version to 26.</td>
+  </tr>
+</table>
+
 ### 7.1.3. Source Code Style Guide & Conventions
 
 ### 7.1.4. Software Deployment Configuration
