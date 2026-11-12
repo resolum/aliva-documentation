@@ -123,20 +123,30 @@ Se describen las herramientas requeridas para el desarrollo del proyecto. Entre 
     <td>https://www.postman.com/downloads/</td>
   </tr>
   <tr>
-    <td rowspan="5">Software Deployment</td>
+    <td rowspan="7">Software Deployment</td>
     <td>Cloudflare Pages</td>
     <td>Servicio en la nube para desplegar el sitio web estático y de las aplicaciones web (administrativa y de usuarios)</td>
     <td>https://www.cloudflare.com/es-es/developer-platform/products/pages/</td>
   </tr>
   <tr>
-    <td>Oracle Cloud Infrastructure</td>
-    <td>Servicio en la nube para desplegar el API y gestionar el balanceador de carga</td>
-    <td>https://www.oracle.com/latam/cloud/</td>
+    <td>Terraform</td>
+    <td>Herramienta para preparar la infraestructura del despliegue de la aplicación mediante archivos redactados con código</td>
+    <td>https://developer.hashicorp.com/terraform/install</td>
   </tr>
   <tr>
-    <td>Oracle Autonomous Database</td>
-    <td>Servicio en la nube para desplegar la base de datos operacional en PostgreSQL</td>
-    <td>https://www.oracle.com/latam/autonomous-database/</td>
+    <td>Azure Container Registry</td>
+    <td>Servicio en la nube para alojar las imágenes en contenedores del API generadas por Docker previo despliegue</td>
+    <td>https://azure.microsoft.com/en-us/products/container-registry</td>
+  </tr>
+  <tr>
+    <td>Azure App Service</td>
+    <td>Servicio en la nube para realizar el proceso de despliegue del API</td>
+    <td>https://azure.microsoft.com/es-es/products/app-service</td>
+  </tr>
+  <tr>
+    <td>Azure Database for PostgreSQL (Servidores flexibles)</td>
+    <td>Servicio en la nube para alojar la base de datos principal del servidor</td>
+    <td>https://azure.microsoft.com/es-es/products/postgresql</td>
   </tr>
   <tr>
     <td>MongoDB Atlas</td>
@@ -166,7 +176,7 @@ El control de versiones del código fuente de los productos de software para el 
 | Servicios Web - REST API            | https://github.com/resolum/alivia-web-services           |
 | Servicios en el borde - Controlador | https://github.com/resolum/alivia-control-edge-service   |
 | Servicios en el borde - Actuadores  | https://github.com/resolum/alivia-actuators-edge-service |
-| Aplicación embebida - Controlador   |                                                          |
+| Aplicación embebida - Controlador   | https://github.com/resolum/embebido                      |
 | Aplicación embebida - Actuadores    |                                                          |
 
 **Aplicación de Git Flow**
@@ -263,10 +273,6 @@ En esta sección, se explica brevemente la forma de aplicación de Semantic Vers
 **Aplicación de Conventional Commits**
 
 Los commits son necesarios para dar una descripción breve al equipo acerca del contenido agregado o modificado dentro del código de los productos de software. Por ello, se debe seguir un estándar interno que facilite la lectura de estos mensajes y dejen clara qué se ha implementado. A continuación, se explica el estándar definido para los commits dentro de la organización:
-
-<div align="center">
-  <img src="https://imgur.com/vfirypa.png" alt="mensaje de ejemplo para commits">
-</div>
 
 <table style="max-width: 100%;">
   <tr>
