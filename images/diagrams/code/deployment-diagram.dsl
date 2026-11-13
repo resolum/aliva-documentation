@@ -65,15 +65,15 @@ workspace "Alivia - Despliegue" "Diagrama de despliegue del Sistema Alivia" {
 
     deploymentNode "Oracle Cloud" "" "Cloud Provider" {
      tags "Oracle"
-     deploymentNode "Oracle Cloud Infrastructure - Compute" "" "PaaS - Auto-scaling Compute" {
-      deploymentNode "API Instance" "" "Oracle OCI Compute" {
+     deploymentNode "Azure App Service" "" "PaaS - Auto-scaling Compute" {
+      deploymentNode "API Instance" "" "Deployment Instance" {
        containerInstance ss.api
       }
-      deploymentNode "Nginx Instance" "" "Oracle OCI Compute" {
+      deploymentNode "Nginx Instance" "" "Deployment Instance" {
        containerInstance ss.nginx
       }
      }
-     deploymentNode "Oracle Autonomous Database" "" "Managed Relational Database" {
+     deploymentNode "Azure Database for PostgreSQL" "" "Flexible Servers" {
       containerInstance ss.postgress
      }
     }
