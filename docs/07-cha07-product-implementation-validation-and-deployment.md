@@ -1174,9 +1174,66 @@ De la misma forma, cada despliegue sigue distintos pasos tanto para configurar, 
 
 #### Landing Page y Aplicaciones web
 
+El despliegue de una aplicación web en Cloudflare Pages se realiza mediante la integración con un repositorio GitHub, desde donde Cloudflare obtiene el código fuente, instala las dependencias, ejecuta el proceso de compilación y publica los archivos generados.
 
+**Paso 1: Preparación del proyecto**
+
+Primero, se debe preparar el entorno para desplegar. La estrategia aquí consiste en utilizar la carpeta "dist" donde se aloja el archivo html compilado de la aplicación. De esta forma, se debe ejecutar el comando de compilación localmente.
+
+```bash
+# 1) Landing Page
+astro build  # Compilar la Landing Page
+```
+
+```bash
+# 2) Aplicación Web de Usuarios
+pnpm install    # Instalar las dependencias del proyecto
+pnpm build      # Genera la carpeta dist
+```
+
+```bash
+# 3) Aplicación Web Administrativa
+npm install    # Instalar las dependencias del proyecto
+npm build      # Genera la carpeta dist
+```
+
+**Paso 2: Creación y conexión del proyecto en Cloudflare Pages**
+
+A continuación, lo que sigue es crear el proyecto en el dashboard de Cloudflare. De esta forma, se conecta el repositorio de la aplicación deseada con la página para que los cambios se desplieguen automáticamente al subir cambios a la rama principal.
+
+- Iniciar sesión en el Dashboard de Cloudflare.
+- Ingresar a `Workers & Pages`.
+- Seleccionar `Create application` y luego `Pages`.
+- Seleccionar `Connect to Git`.
+- Autorizar la integración con GitHub.
+- Seleccionar el repositorio de la aplicación web.
+- Hacer clic en `Begin setup`.
+
+**Paso 3: Configuración del proceso de construcción**
+
+Después, se deben establecer los parámetros que Cloudflare utilizará para compilar y publicar la aplicación web. Con ello, Cloudflare podrá iniciar el proceso automático de despliegue tomando la carpeta dist.
+
+- Definir el nombre del proyecto en Cloudflare.
+- Seleccionar la rama de producción (main).
+- Seleccionar el framework correspondiente (Astro para Landing Page, React para aplicación de usuarios y Angular para administrativa).
+- Configurar el comando de construcción (astro build; pnpm build o npm build).
+- Configurar el directorio de salida mediante un archivo `wrangler.jsonc`, de esta forma, Cloudflare utilizará `dist` para los despliegues.
+- Configurar la variables de entorno que contiene el URL del API desplegado.
+- Hacer clic en `Save and Deploy`.
+
+**Paso 4: Ejecución del despliegue**
+
+Finalmente, se ejecuta el proceso de automatización de despliegues. Además, se supervisa que el proceso concluya sin errores.
+
+- Tras realizar cambios en la rama main, se debe esperar la ejecución del proceso de construcción.
+- Para verificar que todo haya salido sin errores, se revisan los registros de ejecución (Build Logs).
+- Luego, se verifica el resultado del despliegue.
+
+Si estos pasos ocurren sin errores, solo falta acceder a la URL generada por Cloudflare Pages para visualizar la aplicación desplegada.
 
 #### Servicios web
+
+El despliegue de los servicios web se realiza con punto de finalización en Azure App Service, teniendo las bases de datos en Azure Database for PostgreSQL y MongoDB Atlas Cloud. Además, el despliegue se realiza de forma continua mediante workflows de GitHub Actions para agilizar el proceso. De la misma forma, la infraestructura se maneja mediante Terraform para crear los recursos de una manera más sencilla.
 
 **Paso 1: Preparación de la infraestructura**
 
