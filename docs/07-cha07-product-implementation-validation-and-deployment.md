@@ -1231,6 +1231,90 @@ Finalmente, se ejecuta el proceso de automatización de despliegues. Además, se
 
 Si estos pasos ocurren sin errores, solo falta acceder a la URL generada por Cloudflare Pages para visualizar la aplicación desplegada.
 
+#### Aplicación móvil
+
+La aplicación móvil de Alivia está desarrollada utilizando Kotlin y el entorno de desarrollo Android. Para su distribución en entornos de prueba, se utiliza Firebase App Distribution, permitiendo compartir versiones APK con testers registrados antes de una publicación formal en Google Play Store.
+
+**Paso 1: Instalación de dependencias**
+
+La administración de dependencias se realiza mediante Gradle. Para preparar el proyecto, se debe abrir en Android Studio y sincronizar las dependencias declaradas en los archivos de configuración del proyecto.
+
+```bash
+./gradlew build
+```
+
+Con este comando, se instalan las dependencias y se genera el APK para ejecutar la aplicación en modo prueba antes de desplegarla.
+
+**Paso 2: Generar el APK de distribución**
+
+A continuación, se debe generar el APK que será utilizada para el despliegue en el ambiente de Firebase App Distribution.
+
+```bash
+./gradlew assembleRelease
+```
+
+El archivo generado se ubicará en:
+
+```text
+app/build/outputs/apk/release/app-release.apk
+```
+
+**Paso 3: Configuración de Firebase App Distribution**
+
+Para distribuir la aplicación móvil mediante Firebase App Distribution, se deben seguir los siguientes pasos:
+
+- Crear o seleccionar un proyecto en Firebase Console.
+- Registrar la aplicación Android dentro del proyecto Firebase, utilizando el mismo `applicationId` definido en Gradle.
+- Obtener el identificador de la aplicación Firebase (Firebase App ID), necesario para realizar la distribución.
+- Descargar el archivo de configuración:
+
+```text
+google-services.json
+```
+
+Luego, Ubicar el archivo dentro del proyecto Android en:
+
+```text
+app/
+└── google-services.json
+```
+
+- Habilitar Firebase App Distribution.
+- Registrar los correos de los testers autorizados.
+- Subir el archivo APK generado desde Firebase Console o mediante Firebase CLI.
+
+**Paso 4: Distribución mediante Firebase Console**
+
+- Ingresar a Firebase Console.
+- Seleccionar el proyecto de Alivia.
+- Entrar a `App Distribution`.
+- Seleccionar la aplicación Android.
+- Subir el archivo:
+
+```text
+app-release.apk
+```
+
+- Agregar testers o grupos de testers.
+- Añadir notas de versión.
+- Publicar la distribución.
+
+**Paso 5: Distribución mediante Firebase CLI**
+
+Para distribuir el APK mediante consola, se puede utilizar Firebase CLI:
+
+```bash
+npm install -g firebase-tools
+firebase login
+```
+
+```bash
+firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
+  --app <firebase-app-id> \
+  --groups "testers" \
+  --release-notes "Release version for testing"
+```
+
 #### Servicios web
 
 El despliegue de los servicios web se realiza con punto de finalización en Azure App Service, teniendo las bases de datos en Azure Database for PostgreSQL y MongoDB Atlas Cloud. Además, el despliegue se realiza de forma continua mediante workflows de GitHub Actions para agilizar el proceso. De la misma forma, la infraestructura se maneja mediante Terraform para crear los recursos de una manera más sencilla.
