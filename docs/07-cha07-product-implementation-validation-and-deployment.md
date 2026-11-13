@@ -1473,6 +1473,12 @@ Finalmente, se compila y transfiere el firmware generado al dispositivo físico 
 - Esperar a que finalice la carga.
 - Verificar el resultado en la consola.
 
+#### Diagrama de Despliegue
+
+A continuación, se muestra un diagrama de despliegue que representa la arquitectura de la solución implementada, incluyendo los servicios en la nube, el API y la aplicación embebida.
+
+![Diagrama de despliegue de Alivia](../images/diagrams/img/alivia-deployment-diagram.svg)
+
 ## 7.2. Solution Implementation
 
 ### 7.2.1. Sprint 1
