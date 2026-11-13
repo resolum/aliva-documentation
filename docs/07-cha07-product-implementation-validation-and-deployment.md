@@ -1174,6 +1174,8 @@ De la misma forma, cada despliegue sigue distintos pasos tanto para configurar, 
 
 #### Landing Page y Aplicaciones web
 
+
+
 #### Servicios web
 
 **Paso 1: Preparación de la infraestructura**
@@ -1295,6 +1297,40 @@ cp <ruta-referencia>/.github/workflows/cd-deploy.yml .github/workflows/
 Con el archivo bash y el workflow creados, se debe realizar un commit en la rama correspondiente y realizar un Pull Request hacia develop para que inicie el pipeline de despliegue.
 
 #### Aplicación embebida
+
+**Paso 1: Preparación del entorno de desarrollo**
+
+Primero, se deben instalar las dependencias del framework ModestIoT para poder ejecutar la aplicación. Para ello, se accede al administrador de bibliotecas de Arduino IDE y se realiza la instalación de las dependencias requeridas por el framework.
+
+**Paso 2: Configuración de parámetros de conexión**
+
+Luego, antes de cargar el firmware, se debe colocar las variables necesarias para configurar la conexión a utilizar. En este caso, la conexión WiFi. Para ello, se siguen los siguientes pasos:
+
+- Ubicar el archivo de configuración del proyecto.
+- Configurar las credenciales Wi-Fi.
+- Configurar el host del Edge Service.
+- Configurar el puerto del Edge Service.
+- Configurar el path del Edge Service.
+- Configurar el token de autenticación del Edge Service.
+
+**Paso 3: Verificación del código fuente**
+
+Después, se debe comprobar que el código fuente y sus dependencias sean válidos antes de cargar el firmware en el dispositivo ESP32. Para ello, se siguen los siguientes pasos:
+
+- Conectar el ESP32 al equipo mediante un cable USB.
+- Seleccionar la placa ESP32 correspondiente.
+- Seleccionar el puerto de comunicación.
+- Ejecutar la opción Verify (ícono de marca de verificación).
+- Revisar el resultado de la compilación.
+
+**Paso 4: Carga del firmware en el ESP32**
+
+Finalmente, se compila y transfiere el firmware generado al dispositivo físico para ejecutar la aplicación embebida.
+
+- Confirmar que el ESP32 permanezca conectado mediante USB.
+- Hacer clic en Upload (ícono de flecha hacia la derecha).
+- Esperar a que finalice la carga.
+- Verificar el resultado en la consola.
 
 ## 7.2. Solution Implementation
 
