@@ -1160,6 +1160,142 @@ alivia-embedded-controller/
 
 ### 7.1.4. Software Deployment Configuration
 
+Con los productos digitales desarrollados en cada avance, es necesario alojarlos en un sitio público de modo que se pueda realizar una verificación real en línea, en lugar de una prueba local. Para ello, se despliega cada producto en un proveedor de nube definido en la sección **7.1.1.**. A continuación, se resume en una tabla el proveedor asignado para cada producto a desplegar:
+
+| Producto digital                | Dónde se despliega |
+|---------------------------------|--------------------|
+| Landing Page                    | Cloudflare Pages   |
+| Aplicación web (Usuarios)       | Cloudflare Pages   |
+| Aplicación web (Administrativa) | Cloudflare Pages   |
+| Servicios web (API)             | Azure App Service  |
+| Aplicación embebida             | ESP32 (Hardware)   |
+
+De la misma forma, cada despliegue sigue distintos pasos tanto para configurar, preparar los archivos y ejecutar el despliegue. Así, se explica paso a paso el proceso seguido para el despliegue de los productos digitales que abarca Alivia:
+
+#### Landing Page y Aplicaciones web
+
+#### Servicios web
+
+**Paso 1: Preparación de la infraestructura**
+
+Para el despliegue de los servicios web, se realiza una gestión de la infraestructura mediante código utilizando Terraform. Por ello, lo primero que se realiza es crear los archivos tanto para los entornos a preparar (como staging y production) y de los módulos (como las bases de datos o la propia plataforma) a utilizar. En este caso, se crean dos carpetas principales: 'modules' y 'environments'. Dentro de la primera, se crean las siguientes subcarpetas:
+
+- 'registry' para preparar el servicio de Azure Container Registry.
+- 'platform' para preparar el servicio de Azure App Service.
+- 'postgres' para preparar el servicio de Azure Database for PostgreSQL.
+- 'mongodb-atlas' para el servicio de MongoDB Atlas Cloud.
+- 'deploy-identity' para las credenciales federadas que habilitan al repositorio de GitHub para ejecutar los workflows de GitHub Actions para Continuous Delivery y Continuous Deployment.
+
+Por otro lado, en la carpeta de 'environments' se crean los dos ambientes principales: 'staging' y 'production'. De la misma forma, se crea un ambiente 'shared' para la generación del grupo de recursos en Azure que contendrá todo lo relacionado a Alivia. A continuación, se muestran los comandos para generar estas carpetas
+
+```bash
+mkdir -p infrastructure/terraform/modules/{registry,platform,postgres,mongodb-atlas,deploy-identity}
+mkdir -p infrastructure/terraform/environments/{shared,staging/tests,production/tests}
+```
+
+Luego, se deben crear los archivos con extensión `.tf` para utilizar IaaC con Terraform. Se crean dos archivos: `main.tf` y `terraform.tfvars.example`.
+
+- [`main.tf`](https://github.com/resolum/alivia-web-services/blob/main/infrastructure/terraform/environments/shared/main.tf) contiene la lógica central de infraestructura de cada ambiente. Además, se declaran los recursos que va a crear Terraform.
+- [`terraform.tfvars.example`](https://github.com/resolum/alivia-web-services/blob/main/infrastructure/terraform/environments/shared/terraform.tfvars.example) contiene las variables de entrada que recibe el archivo `main.tf` para generar los recursos. Sin embargo, esta versión solo contiene valores de ejemplo, ya que los reales contienen secretos que no se suben a los repositorios.
+
+Finalmente, se debe reemplazar cada valor del archivo de variables con los valores reales de lo que se desee.
+
+**Paso 2:** Levantar la infraestructura**
+
+A continuación, con los archivos de Terraform configurados, se deben ejecutar los siguientes comandos para iniciar el proceso de levantar la infraestructura. Es decir, la creación de los recursos definidos para cada ambiente.
+
+Por otro lado, se requieren algunas variables a configurar en la consola donde se esté ejecutando el proceso para evitar errores:
+
+```bash
+$env:MONGODB_ATLAS_PUBLIC_KEY  = "<clave pública>"
+$env:MONGODB_ATLAS_PRIVATE_KEY = "<clave privada>"
+```
+
+Luego, se ejecuta la siguiente lista de comandos para iniciar lo principal que es el grupo de recursos en Azure y el servicio de Azure Container Registry para almacenar las imágenes de los despliegues del API.
+
+```bash
+# 1) shared
+cd infrastructure/terraform/environments/shared
+terraform init
+terraform plan -out tfplan
+terraform apply tfplan
+terraform output acr_name                 # → acr_name de staging y production
+cd -
+```
+
+Después, se debe colocar el nombre del contenedor de registros generado por el ambiente compartido en los archivos de variables tanto de `staging` y `production` y ejecutar los mismos comandos
+
+```bash
+# 2) cada entorno, en dos pasos la primera vez (repetir con ENV=production)
+cd infrastructure/terraform/environments/$ENV
+terraform init
+terraform apply -target=module.platform
+terraform plan -out tfplan
+terraform apply tfplan
+terraform plan                            # debe decir: No changes
+cd -
+```
+
+Al finalizar este paso, para cada ambiente se generaron los registros de aplicaciones web para el API, la base de datos en MongoDB y en PostgreSQL y las identidades federadas para permitir al repositorio ejecutar Continuous Delivery y Continuous Deployment.
+
+**Paso 3: Configurar los entornos en GitHub**
+
+Como el nombre del paso indica, a continuación, se configura tanto los ambientes de `staging` como `production` en el repositorio de GitHub del API. Para ello, se ejecutan los siguientes comandos:
+
+```bash
+# staging
+gh api -X PUT "repos/$R/environments/staging"
+
+# production: revisores y solo la rama main
+REVIEWER_LOGIN="<usuario de GitHub de quien aprueba>"
+REVIEWER_ID=$(gh api "users/$REVIEWER_LOGIN" --jq .id)
+gh api -X PUT "repos/$R/environments/production" --input - <<JSON
+{
+  "reviewers": [ { "type": "User", "id": $REVIEWER_ID } ],
+  "deployment_branch_policy": { "protected_branches": false, "custom_branch_policies": true }
+}
+JSON
+gh api -X POST "repos/$R/environments/production/deployment-branch-policies" -f name=main -f type=branch
+```
+
+**Paso 4: Cargar las variables y secretos**
+
+Luego, se debe configurar las variables y secretos de cada entorno configurado. Para ello, la estrategia es asignar variables mediante comandos desde la salida del archivo de variables de Terraform hacia el repositorio de Git con los siguientes comandos:
+
+```bash
+export ENV=staging
+export TF_DIR=infrastructure/terraform/environments/$ENV
+cd "$TF_DIR"
+v() { gh variable set "$1" --env "$ENV" --repo "$R" --body "$2"; }
+
+v AZURE_CLIENT_ID            "$(terraform output -raw deploy_identity_client_id)"
+v AZURE_TENANT_ID            "$(terraform output -raw azure_tenant_id)"
+v AZURE_SUBSCRIPTION_ID      "$(terraform output -raw azure_subscription_id)"
+v AZURE_RESOURCE_GROUP       "$(terraform output -raw resource_group_name)"
+v AZURE_WEBAPP_NAME          "$(terraform output -raw webapp_name)"
+v AZURE_POSTGRES_SERVER_NAME "$(terraform output -raw postgres_server_name)"
+v ACR_NAME                   "$(terraform output -raw acr_name)"
+v DB_URL                     "$(terraform output -raw postgres_jdbc_url)"
+v DB_USERNAME                "$(terraform output -raw postgres_administrator_login)"
+
+terraform output -raw postgres_administrator_password | gh secret set DB_PASSWORD --env "$ENV" --repo "$R"
+cd - >/dev/null
+```
+
+**Paso 5: Ejecutar el pipeline de despliegue**
+
+Ahora que se tienen configurados los servicios en la nube y los entornos, es momento de realizar el despliegue. Para ello, se utiliza la contenedorización mediante Docker para empaquetar el API y subirlo a la nube. Además, se utiliza GitHub Actions para ejecutar el despliegue de manera automatizada. De modo que, el [pipeline](https://github.com/resolum/alivia-web-services/blob/main/.github/workflows/cd-deploy.yml) verifica la imagen y ejecuta un comando en bash que contiene las operaciones para desplegar el API.
+
+```bash
+cp -r <ruta-referencia>/infrastructure/scripts infrastructure/
+mkdir -p .github/workflows
+cp <ruta-referencia>/.github/workflows/cd-deploy.yml .github/workflows/
+```
+
+Con el archivo bash y el workflow creados, se debe realizar un commit en la rama correspondiente y realizar un Pull Request hacia develop para que inicie el pipeline de despliegue.
+
+#### Aplicación embebida
+
 ## 7.2. Solution Implementation
 
 ### 7.2.1. Sprint 1
