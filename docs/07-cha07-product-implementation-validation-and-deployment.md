@@ -123,20 +123,30 @@ Se describen las herramientas requeridas para el desarrollo del proyecto. Entre 
     <td>https://www.postman.com/downloads/</td>
   </tr>
   <tr>
-    <td rowspan="5">Software Deployment</td>
+    <td rowspan="7">Software Deployment</td>
     <td>Cloudflare Pages</td>
     <td>Servicio en la nube para desplegar el sitio web estático y de las aplicaciones web (administrativa y de usuarios)</td>
     <td>https://www.cloudflare.com/es-es/developer-platform/products/pages/</td>
   </tr>
   <tr>
-    <td>Oracle Cloud Infrastructure</td>
-    <td>Servicio en la nube para desplegar el API y gestionar el balanceador de carga</td>
-    <td>https://www.oracle.com/latam/cloud/</td>
+    <td>Terraform</td>
+    <td>Herramienta para preparar la infraestructura del despliegue de la aplicación mediante archivos redactados con código</td>
+    <td>https://developer.hashicorp.com/terraform/install</td>
   </tr>
   <tr>
-    <td>Oracle Autonomous Database</td>
-    <td>Servicio en la nube para desplegar la base de datos operacional en PostgreSQL</td>
-    <td>https://www.oracle.com/latam/autonomous-database/</td>
+    <td>Azure Container Registry</td>
+    <td>Servicio en la nube para alojar las imágenes en contenedores del API generadas por Docker previo despliegue</td>
+    <td>https://azure.microsoft.com/en-us/products/container-registry</td>
+  </tr>
+  <tr>
+    <td>Azure App Service</td>
+    <td>Servicio en la nube para realizar el proceso de despliegue del API</td>
+    <td>https://azure.microsoft.com/es-es/products/app-service</td>
+  </tr>
+  <tr>
+    <td>Azure Database for PostgreSQL (Servidores flexibles)</td>
+    <td>Servicio en la nube para alojar la base de datos principal del servidor</td>
+    <td>https://azure.microsoft.com/es-es/products/postgresql</td>
   </tr>
   <tr>
     <td>MongoDB Atlas</td>
@@ -166,7 +176,7 @@ El control de versiones del código fuente de los productos de software para el 
 | Servicios Web - REST API            | https://github.com/resolum/alivia-web-services           |
 | Servicios en el borde - Controlador | https://github.com/resolum/alivia-control-edge-service   |
 | Servicios en el borde - Actuadores  | https://github.com/resolum/alivia-actuators-edge-service |
-| Aplicación embebida - Controlador   |                                                          |
+| Aplicación embebida - Controlador   | https://github.com/resolum/embebido                      |
 | Aplicación embebida - Actuadores    |                                                          |
 
 **Aplicación de Git Flow**
@@ -263,10 +273,6 @@ En esta sección, se explica brevemente la forma de aplicación de Semantic Vers
 **Aplicación de Conventional Commits**
 
 Los commits son necesarios para dar una descripción breve al equipo acerca del contenido agregado o modificado dentro del código de los productos de software. Por ello, se debe seguir un estándar interno que facilite la lectura de estos mensajes y dejen clara qué se ha implementado. A continuación, se explica el estándar definido para los commits dentro de la organización:
-
-<div align="center">
-  <img src="https://imgur.com/vfirypa.png" alt="mensaje de ejemplo para commits">
-</div>
 
 <table style="max-width: 100%;">
   <tr>
@@ -1153,6 +1159,325 @@ alivia-embedded-controller/
 ```
 
 ### 7.1.4. Software Deployment Configuration
+
+Con los productos digitales desarrollados en cada avance, es necesario alojarlos en un sitio público de modo que se pueda realizar una verificación real en línea, en lugar de una prueba local. Para ello, se despliega cada producto en un proveedor de nube definido en la sección **7.1.1.**. A continuación, se resume en una tabla el proveedor asignado para cada producto a desplegar:
+
+| Producto digital                | Dónde se despliega |
+|---------------------------------|--------------------|
+| Landing Page                    | Cloudflare Pages   |
+| Aplicación web (Usuarios)       | Cloudflare Pages   |
+| Aplicación web (Administrativa) | Cloudflare Pages   |
+| Servicios web (API)             | Azure App Service  |
+| Aplicación embebida             | ESP32 (Hardware)   |
+
+De la misma forma, cada despliegue sigue distintos pasos tanto para configurar, preparar los archivos y ejecutar el despliegue. Así, se explica paso a paso el proceso seguido para el despliegue de los productos digitales que abarca Alivia:
+
+#### Landing Page y Aplicaciones web
+
+El despliegue de una aplicación web en Cloudflare Pages se realiza mediante la integración con un repositorio GitHub, desde donde Cloudflare obtiene el código fuente, instala las dependencias, ejecuta el proceso de compilación y publica los archivos generados.
+
+**Paso 1: Preparación del proyecto**
+
+Primero, se debe preparar el entorno para desplegar. La estrategia aquí consiste en utilizar la carpeta "dist" donde se aloja el archivo html compilado de la aplicación. De esta forma, se debe ejecutar el comando de compilación localmente.
+
+```bash
+# 1) Landing Page
+astro build  # Compilar la Landing Page
+```
+
+```bash
+# 2) Aplicación Web de Usuarios
+pnpm install    # Instalar las dependencias del proyecto
+pnpm build      # Genera la carpeta dist
+```
+
+```bash
+# 3) Aplicación Web Administrativa
+npm install    # Instalar las dependencias del proyecto
+npm build      # Genera la carpeta dist
+```
+
+**Paso 2: Creación y conexión del proyecto en Cloudflare Pages**
+
+A continuación, lo que sigue es crear el proyecto en el dashboard de Cloudflare. De esta forma, se conecta el repositorio de la aplicación deseada con la página para que los cambios se desplieguen automáticamente al subir cambios a la rama principal.
+
+- Iniciar sesión en el Dashboard de Cloudflare.
+- Ingresar a `Workers & Pages`.
+- Seleccionar `Create application` y luego `Pages`.
+- Seleccionar `Connect to Git`.
+- Autorizar la integración con GitHub.
+- Seleccionar el repositorio de la aplicación web.
+- Hacer clic en `Begin setup`.
+
+**Paso 3: Configuración del proceso de construcción**
+
+Después, se deben establecer los parámetros que Cloudflare utilizará para compilar y publicar la aplicación web. Con ello, Cloudflare podrá iniciar el proceso automático de despliegue tomando la carpeta dist.
+
+- Definir el nombre del proyecto en Cloudflare.
+- Seleccionar la rama de producción (main).
+- Seleccionar el framework correspondiente (Astro para Landing Page, React para aplicación de usuarios y Angular para administrativa).
+- Configurar el comando de construcción (astro build; pnpm build o npm build).
+- Configurar el directorio de salida mediante un archivo `wrangler.jsonc`, de esta forma, Cloudflare utilizará `dist` para los despliegues.
+- Configurar la variables de entorno que contiene el URL del API desplegado.
+- Hacer clic en `Save and Deploy`.
+
+**Paso 4: Ejecución del despliegue**
+
+Finalmente, se ejecuta el proceso de automatización de despliegues. Además, se supervisa que el proceso concluya sin errores.
+
+- Tras realizar cambios en la rama main, se debe esperar la ejecución del proceso de construcción.
+- Para verificar que todo haya salido sin errores, se revisan los registros de ejecución (Build Logs).
+- Luego, se verifica el resultado del despliegue.
+
+Si estos pasos ocurren sin errores, solo falta acceder a la URL generada por Cloudflare Pages para visualizar la aplicación desplegada.
+
+#### Aplicación móvil
+
+La aplicación móvil de Alivia está desarrollada utilizando Kotlin y el entorno de desarrollo Android. Para su distribución en entornos de prueba, se utiliza Firebase App Distribution, permitiendo compartir versiones APK con testers registrados antes de una publicación formal en Google Play Store.
+
+**Paso 1: Instalación de dependencias**
+
+La administración de dependencias se realiza mediante Gradle. Para preparar el proyecto, se debe abrir en Android Studio y sincronizar las dependencias declaradas en los archivos de configuración del proyecto.
+
+```bash
+./gradlew build
+```
+
+Con este comando, se instalan las dependencias y se genera el APK para ejecutar la aplicación en modo prueba antes de desplegarla.
+
+**Paso 2: Generar el APK de distribución**
+
+A continuación, se debe generar el APK que será utilizada para el despliegue en el ambiente de Firebase App Distribution.
+
+```bash
+./gradlew assembleRelease
+```
+
+El archivo generado se ubicará en:
+
+```text
+app/build/outputs/apk/release/app-release.apk
+```
+
+**Paso 3: Configuración de Firebase App Distribution**
+
+Para distribuir la aplicación móvil mediante Firebase App Distribution, se deben seguir los siguientes pasos:
+
+- Crear o seleccionar un proyecto en Firebase Console.
+- Registrar la aplicación Android dentro del proyecto Firebase, utilizando el mismo `applicationId` definido en Gradle.
+- Obtener el identificador de la aplicación Firebase (Firebase App ID), necesario para realizar la distribución.
+- Descargar el archivo de configuración:
+
+```text
+google-services.json
+```
+
+Luego, Ubicar el archivo dentro del proyecto Android en:
+
+```text
+app/
+└── google-services.json
+```
+
+- Habilitar Firebase App Distribution.
+- Registrar los correos de los testers autorizados.
+- Subir el archivo APK generado desde Firebase Console o mediante Firebase CLI.
+
+**Paso 4: Distribución mediante Firebase Console**
+
+- Ingresar a Firebase Console.
+- Seleccionar el proyecto de Alivia.
+- Entrar a `App Distribution`.
+- Seleccionar la aplicación Android.
+- Subir el archivo:
+
+```text
+app-release.apk
+```
+
+- Agregar testers o grupos de testers.
+- Añadir notas de versión.
+- Publicar la distribución.
+
+**Paso 5: Distribución mediante Firebase CLI**
+
+Para distribuir el APK mediante consola, se puede utilizar Firebase CLI:
+
+```bash
+npm install -g firebase-tools
+firebase login
+```
+
+```bash
+firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
+  --app <firebase-app-id> \
+  --groups "testers" \
+  --release-notes "Release version for testing"
+```
+
+#### Servicios web
+
+El despliegue de los servicios web se realiza con punto de finalización en Azure App Service, teniendo las bases de datos en Azure Database for PostgreSQL y MongoDB Atlas Cloud. Además, el despliegue se realiza de forma continua mediante workflows de GitHub Actions para agilizar el proceso. De la misma forma, la infraestructura se maneja mediante Terraform para crear los recursos de una manera más sencilla.
+
+**Paso 1: Preparación de la infraestructura**
+
+Para el despliegue de los servicios web, se realiza una gestión de la infraestructura mediante código utilizando Terraform. Por ello, lo primero que se realiza es crear los archivos tanto para los entornos a preparar (como staging y production) y de los módulos (como las bases de datos o la propia plataforma) a utilizar. En este caso, se crean dos carpetas principales: 'modules' y 'environments'. Dentro de la primera, se crean las siguientes subcarpetas:
+
+- 'registry' para preparar el servicio de Azure Container Registry.
+- 'platform' para preparar el servicio de Azure App Service.
+- 'postgres' para preparar el servicio de Azure Database for PostgreSQL.
+- 'mongodb-atlas' para el servicio de MongoDB Atlas Cloud.
+- 'deploy-identity' para las credenciales federadas que habilitan al repositorio de GitHub para ejecutar los workflows de GitHub Actions para Continuous Delivery y Continuous Deployment.
+
+Por otro lado, en la carpeta de 'environments' se crean los dos ambientes principales: 'staging' y 'production'. De la misma forma, se crea un ambiente 'shared' para la generación del grupo de recursos en Azure que contendrá todo lo relacionado a Alivia. A continuación, se muestran los comandos para generar estas carpetas
+
+```bash
+mkdir -p infrastructure/terraform/modules/{registry,platform,postgres,mongodb-atlas,deploy-identity}
+mkdir -p infrastructure/terraform/environments/{shared,staging/tests,production/tests}
+```
+
+Luego, se deben crear los archivos con extensión `.tf` para utilizar IaaC con Terraform. Se crean dos archivos: `main.tf` y `terraform.tfvars.example`.
+
+- [`main.tf`](https://github.com/resolum/alivia-web-services/blob/main/infrastructure/terraform/environments/shared/main.tf) contiene la lógica central de infraestructura de cada ambiente. Además, se declaran los recursos que va a crear Terraform.
+- [`terraform.tfvars.example`](https://github.com/resolum/alivia-web-services/blob/main/infrastructure/terraform/environments/shared/terraform.tfvars.example) contiene las variables de entrada que recibe el archivo `main.tf` para generar los recursos. Sin embargo, esta versión solo contiene valores de ejemplo, ya que los reales contienen secretos que no se suben a los repositorios.
+
+Finalmente, se debe reemplazar cada valor del archivo de variables con los valores reales de lo que se desee.
+
+**Paso 2:** Levantar la infraestructura**
+
+A continuación, con los archivos de Terraform configurados, se deben ejecutar los siguientes comandos para iniciar el proceso de levantar la infraestructura. Es decir, la creación de los recursos definidos para cada ambiente.
+
+Por otro lado, se requieren algunas variables a configurar en la consola donde se esté ejecutando el proceso para evitar errores:
+
+```bash
+$env:MONGODB_ATLAS_PUBLIC_KEY  = "<clave pública>"
+$env:MONGODB_ATLAS_PRIVATE_KEY = "<clave privada>"
+```
+
+Luego, se ejecuta la siguiente lista de comandos para iniciar lo principal que es el grupo de recursos en Azure y el servicio de Azure Container Registry para almacenar las imágenes de los despliegues del API.
+
+```bash
+# 1) shared
+cd infrastructure/terraform/environments/shared
+terraform init
+terraform plan -out tfplan
+terraform apply tfplan
+terraform output acr_name                 # → acr_name de staging y production
+cd -
+```
+
+Después, se debe colocar el nombre del contenedor de registros generado por el ambiente compartido en los archivos de variables tanto de `staging` y `production` y ejecutar los mismos comandos
+
+```bash
+# 2) cada entorno, en dos pasos la primera vez (repetir con ENV=production)
+cd infrastructure/terraform/environments/$ENV
+terraform init
+terraform apply -target=module.platform
+terraform plan -out tfplan
+terraform apply tfplan
+terraform plan                            # debe decir: No changes
+cd -
+```
+
+Al finalizar este paso, para cada ambiente se generaron los registros de aplicaciones web para el API, la base de datos en MongoDB y en PostgreSQL y las identidades federadas para permitir al repositorio ejecutar Continuous Delivery y Continuous Deployment.
+
+**Paso 3: Configurar los entornos en GitHub**
+
+Como el nombre del paso indica, a continuación, se configura tanto los ambientes de `staging` como `production` en el repositorio de GitHub del API. Para ello, se ejecutan los siguientes comandos:
+
+```bash
+# staging
+gh api -X PUT "repos/$R/environments/staging"
+
+# production: revisores y solo la rama main
+REVIEWER_LOGIN="<usuario de GitHub de quien aprueba>"
+REVIEWER_ID=$(gh api "users/$REVIEWER_LOGIN" --jq .id)
+gh api -X PUT "repos/$R/environments/production" --input - <<JSON
+{
+  "reviewers": [ { "type": "User", "id": $REVIEWER_ID } ],
+  "deployment_branch_policy": { "protected_branches": false, "custom_branch_policies": true }
+}
+JSON
+gh api -X POST "repos/$R/environments/production/deployment-branch-policies" -f name=main -f type=branch
+```
+
+**Paso 4: Cargar las variables y secretos**
+
+Luego, se debe configurar las variables y secretos de cada entorno configurado. Para ello, la estrategia es asignar variables mediante comandos desde la salida del archivo de variables de Terraform hacia el repositorio de Git con los siguientes comandos:
+
+```bash
+export ENV=staging
+export TF_DIR=infrastructure/terraform/environments/$ENV
+cd "$TF_DIR"
+v() { gh variable set "$1" --env "$ENV" --repo "$R" --body "$2"; }
+
+v AZURE_CLIENT_ID            "$(terraform output -raw deploy_identity_client_id)"
+v AZURE_TENANT_ID            "$(terraform output -raw azure_tenant_id)"
+v AZURE_SUBSCRIPTION_ID      "$(terraform output -raw azure_subscription_id)"
+v AZURE_RESOURCE_GROUP       "$(terraform output -raw resource_group_name)"
+v AZURE_WEBAPP_NAME          "$(terraform output -raw webapp_name)"
+v AZURE_POSTGRES_SERVER_NAME "$(terraform output -raw postgres_server_name)"
+v ACR_NAME                   "$(terraform output -raw acr_name)"
+v DB_URL                     "$(terraform output -raw postgres_jdbc_url)"
+v DB_USERNAME                "$(terraform output -raw postgres_administrator_login)"
+
+terraform output -raw postgres_administrator_password | gh secret set DB_PASSWORD --env "$ENV" --repo "$R"
+cd - >/dev/null
+```
+
+**Paso 5: Ejecutar el pipeline de despliegue**
+
+Ahora que se tienen configurados los servicios en la nube y los entornos, es momento de realizar el despliegue. Para ello, se utiliza la contenedorización mediante Docker para empaquetar el API y subirlo a la nube. Además, se utiliza GitHub Actions para ejecutar el despliegue de manera automatizada. De modo que, el [pipeline](https://github.com/resolum/alivia-web-services/blob/main/.github/workflows/cd-deploy.yml) verifica la imagen y ejecuta un comando en bash que contiene las operaciones para desplegar el API.
+
+```bash
+cp -r <ruta-referencia>/infrastructure/scripts infrastructure/
+mkdir -p .github/workflows
+cp <ruta-referencia>/.github/workflows/cd-deploy.yml .github/workflows/
+```
+
+Con el archivo bash y el workflow creados, se debe realizar un commit en la rama correspondiente y realizar un Pull Request hacia develop para que inicie el pipeline de despliegue.
+
+#### Aplicación embebida
+
+**Paso 1: Preparación del entorno de desarrollo**
+
+Primero, se deben instalar las dependencias del framework ModestIoT para poder ejecutar la aplicación. Para ello, se accede al administrador de bibliotecas de Arduino IDE y se realiza la instalación de las dependencias requeridas por el framework.
+
+**Paso 2: Configuración de parámetros de conexión**
+
+Luego, antes de cargar el firmware, se debe colocar las variables necesarias para configurar la conexión a utilizar. En este caso, la conexión WiFi. Para ello, se siguen los siguientes pasos:
+
+- Ubicar el archivo de configuración del proyecto.
+- Configurar las credenciales Wi-Fi.
+- Configurar el host del Edge Service.
+- Configurar el puerto del Edge Service.
+- Configurar el path del Edge Service.
+- Configurar el token de autenticación del Edge Service.
+
+**Paso 3: Verificación del código fuente**
+
+Después, se debe comprobar que el código fuente y sus dependencias sean válidos antes de cargar el firmware en el dispositivo ESP32. Para ello, se siguen los siguientes pasos:
+
+- Conectar el ESP32 al equipo mediante un cable USB.
+- Seleccionar la placa ESP32 correspondiente.
+- Seleccionar el puerto de comunicación.
+- Ejecutar la opción Verify (ícono de marca de verificación).
+- Revisar el resultado de la compilación.
+
+**Paso 4: Carga del firmware en el ESP32**
+
+Finalmente, se compila y transfiere el firmware generado al dispositivo físico para ejecutar la aplicación embebida.
+
+- Confirmar que el ESP32 permanezca conectado mediante USB.
+- Hacer clic en Upload (ícono de flecha hacia la derecha).
+- Esperar a que finalice la carga.
+- Verificar el resultado en la consola.
+
+#### Diagrama de Despliegue
+
+A continuación, se muestra un diagrama de despliegue que representa la arquitectura de la solución implementada, incluyendo los servicios en la nube, el API y la aplicación embebida.
+
+![Diagrama de despliegue de Alivia](../images/diagrams/img/alivia-deployment-diagram.svg)
 
 ## 7.2. Solution Implementation
 
