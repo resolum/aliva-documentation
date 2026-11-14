@@ -1,103 +1,117 @@
 @startuml
-title Database Diagram - Identity And Access Management
-
 hide circle
+skinparam packageStyle rectangle
 skinparam linetype ortho
 skinparam shadowing false
-skinparam backgroundColor #FFFFFF
-skinparam ArrowColor #455A64
-skinparam entity {
-  BackgroundColor #E3F2FD
-  BorderColor #455A64
+skinparam roundCorner 8
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2E7D32
+  BorderThickness 1.2
+  HeaderBackgroundColor #E8F5E9
+  ArrowColor #444444
+}
+skinparam package {
+  BorderColor #555555
+  FontStyle bold
+  FontSize 14
+  BorderThickness 1.4
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 11
 }
 
-' =====================================================
-' TABLES
-' =====================================================
+package "Bounded Context: IAM" as ctx_iam #F6FBF6 {
 
-entity "users" as users {
-  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
-  --
-  * email : VARCHAR(255) <<UNIQUE>>
-  * password_hash : VARCHAR(255)
-  * access_role : VARCHAR(30)
-  * status : VARCHAR(30)
-  * email_verified : BOOLEAN
-  * failed_access_attempts : INT
-  --
-  * created_at : DATETIME
-  * updated_at : DATETIME
+  entity "users" as users {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * email_address : VARCHAR(254) <<UK>>
+    password : VARCHAR(120)
+    * temporary_password : BOOLEAN
+    * email_verified : BOOLEAN
+    * account_type : VARCHAR(10)
+    * status : VARCHAR(15)
+    password_token_hash : CHAR(64) <<UK>>
+    password_token_purpose : VARCHAR(10)
+    password_token_expires_at : TIMESTAMP
+    verification_code_hash : CHAR(64)
+    verification_code_expires_at : TIMESTAMP
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+  }
+
+  entity "roles" as roles {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * name : VARCHAR(30) <<UK>>
+  }
+
+  entity "user_roles" as user_roles {
+    * user_id : BIGINT <<PK>> <<FK>>
+    * role_id : BIGINT <<PK>> <<FK>>
+  }
+
+  entity "device_credentials" as credentials {
+    * id : BIGINT <<PK>> <<identity>>
+    --
+    * edge_id : BIGINT <<ref Assets>>
+    * secret : VARCHAR(120)
+    * status : VARCHAR(10)
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+    ..
+    UK parcial (edge_id) WHERE status = 'ACTIVE'
+  }
 }
 
-entity "email_verification_tokens" as evt {
-  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
-  --
-  * user_id : BIGINT <<FK>>
-  * token_value : VARCHAR(255) <<UNIQUE>>
-  * expires_at : DATETIME
-  used_at : DATETIME
-  * created_at : DATETIME
-}
-
-entity "password_recovery_codes" as prc {
-  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
-  --
-  * user_id : BIGINT <<FK>>
-  * code_value : VARCHAR(10)
-  * channel : VARCHAR(20)
-  * expires_at : DATETIME
-  used_at : DATETIME
-  * created_at : DATETIME
-}
-
-entity "password_recovery_tokens" as prt {
-  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
-  --
-  * user_id : BIGINT <<FK>>
-  * token_value : VARCHAR(255) <<UNIQUE>>
-  * channel : VARCHAR(20)
-  * expires_at : DATETIME
-  used_at : DATETIME
-  * created_at : DATETIME
-}
-
-entity "activation_tokens" as act {
-  * id : BIGINT <<PK>> <<AUTO_INCREMENT>>
-  --
-  * user_id : BIGINT <<FK>>
-  * employee_id : BIGINT
-  * token_value : VARCHAR(255) <<UNIQUE>>
-  * expires_at : DATETIME
-  used_at : DATETIME
-  * created_at : DATETIME
-}
-
-' =====================================================
-' RELATIONSHIPS
-' =====================================================
-
-users ||--o{ evt : "verifies email"
-users ||--o{ prc : "recovers with code"
-users ||--o{ prt : "recovers with token"
-users ||--o{ act : "activates account"
-
-' =====================================================
-' NOTES
-' =====================================================
+users ||--|{ user_roles : "roles\n(1..*)"
+roles ||--o{ user_roles : "(0..*)"
 
 note right of users
-  **access_role** (enum AccessRole):
-  ADMINISTRATOR, CAREGIVER,
-  TECHNICIAN, SUBSCRIPTION_MANAGER
-
-  **status** (enum UserStatus):
-  PENDING_VERIFICATION, ACTIVE,
-  BLOCKED, INACTIVE
+  <b>users</b> (aggregate User)
+  email_address: correo normalizado en minúsculas;
+  es el usuario para iniciar sesión.
+  password: hash (BCrypt). Nulo mientras una cuenta
+  invitada no define su contraseña.
+  temporary_password: verdadero mientras el empleado no
+  cambia la contraseña temporal.
+  account_type: PERSONAL o CORPORATE.
+  status: PENDING, ACTIVE, BLOCKED o DEACTIVATED. No se
+  borra: una cuenta desactivada queda como historial.
+  password_token_*: value object PasswordToken embebido
+  (@Embedded). Solo el hash del token (SHA-256); nulos
+  cuando no hay enlace vigente. UK para buscar la cuenta
+  por el token.
+  email_verified y verification_code_*: value object
+  VerificationCode embebido; el código se guarda como
+  hash y se borra al verificar el correo.
 end note
 
-note bottom of prc
-  **channel** (enum RecoveryChannel):
-  MOBILE_CODE, WEB_LINK
+note right of roles
+  <b>roles</b> (entidad Role)
+  Catálogo: una fila por cada valor de Roles, creada al
+  iniciar la aplicación (SeedRolesCommand).
+end note
+
+note bottom of user_roles
+  <b>user_roles</b>
+  Relación @ManyToMany de User con Role, igual que en la
+  referencia. PK compuesta (user_id, role_id).
+end note
+
+note bottom of credentials
+  <b>device_credentials</b> (aggregate DeviceCredential)
+  edge_id: Edge de Assets. Sin FK: otro contexto.
+  secret: hash del secreto del edge.
+  status: ACTIVE o REVOKED. Un edge tiene una sola
+  credencial ACTIVE; las revocadas quedan como historial.
 end note
 
 @enduml

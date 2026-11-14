@@ -1,147 +1,840 @@
 @startuml
-title Alivia · Bounded Context Assets
+' Bounded Context: Assets (Bienes). Solo capa domain.
+'
+' Cambios de la revisión de Domain:
+'  B1  Tres aggregates: Edge (edges del hogar), Device (micrófono y actuadores) y DeviceNetwork (la red de
+'      una instalación, que enlaza los equipos asignados). Antes había un solo aggregate Device con
+'      DeviceType EDGE.
+'  B2  Edge y Device extienden la base abstracta Asset (MacAddress, BusinessId, estado y transiciones),
+'      como Profile en Profiles.
+'  B3  La instalación pertenece a Soporte Técnico: decide cuántos actuadores se instalan y los asigna al
+'      edge. Assets recibe el resultado (CreateDeviceNetworkCommand) y referencia la instalación por
+'      InstallationId (value object de Shared).
+'  B4  La tabla de accesos (quién puede enviar a quién) se calcula desde la red: micrófono a edge de
+'      micrófono, edge de micrófono a edge de actuadores, edge de actuadores a cada actuador y cada edge a
+'      la nube. No se guarda. IAM solo autentica al edge cuando llama a la API.
+'  B5  Una red tiene un edge de actuadores, un edge de micrófono y un solo micrófono asignado (el edge de
+'      micrófono atiende a un micrófono). En el inventario puede haber varios edges de cada tipo, varios
+'      micrófonos y varios actuadores registrados; la red solo limita lo asignado.
+'  B6  DeviceType: MICROPHONE (sensor; también recibe el pedido de auxilio por voz) y los actuadores
+'      DOOR, WINDOW, CURTAIN y LIGHT.
+'  B7  AssetStatus: AVAILABLE, IN_USE, MAINTENANCE y BROKEN (antes operational, IN_USE, maintenance,
+'      broken). IN_USE = instalado en una red. Las transiciones son métodos, no un String.
+'  B8  UpdateEdgeCommand y UpdateDeviceCommand corrigen la MAC o el tipo mal registrados desde el frontend.
+'      Solo mientras el equipo está AVAILABLE (AssetNotEditable). Un equipo instalado solo cambia cuando
+'      Soporte Técnico lo pasa a MAINTENANCE o BROKEN.
+'  B9  BusinessId viene de Shared (antes se duplicaba en Assets). Se elimina DeviceId, que no existía.
+'  B10 Nombres alineados con los demás contextos: exceptions sin sufijo Exception, services en singular,
+'      commands en PascalCase, GetAll...By...Query, paquetes en plural.
+'  B11 Eventos: cada cambio de la red mantiene el estado de cada equipo (AssetAssignedToNetworkEvent,
+'      AssetRemovedFromNetworkEvent, AssetStatusChangedEvent). La tabla no se envía por evento (B14).
+'  B12 DeviceNetwork es aggregate (no entidad suelta como Role de IAM): tiene invariantes, cambia por
+'      commands y registra eventos.
+'  B13 DeviceNetwork referencia directamente a Edge y Device (mismo contexto, como en Assistance): se
+'      eliminan NetworkMember y NetworkMembers. Un campo por cada edge y por el micrófono garantiza "uno
+'      de cada tipo"; los actuadores son una lista.
+'  B14 La nube no envía nada al edge: no puede llegar a un edge detrás del router del hogar. Cada edge
+'      pide su tabla con GetEdgeAccessTableQuery (con su token) al arrancar y cada 30 segundos, y
+'      reemplaza su copia completa. Se quita AccessTableUpdatedEvent: su único consumidor era el envío.
+'      Como en veyra-edge (GET /edge/registry).
+'  B15 ExistsEdgeByMacAddressQuery y ExistsDeviceByMacAddressQuery validan que la MAC no se repita entre
+'      edges y devices (MacAddressAlreadyExists), como las Exists...Query de Profiles.
+'  B16 Se declara BusinessNotFound en domain.exceptions, igual que en HCM y Assistance.
+'  B17 EdgeAccessTable lleva networkId e installationId, y NodeRef el DeviceType de cada dispositivo:
+'      el edge los agrega a sus reportes a Tracking, que así no consulta a Assets por cada reporte.
+'  B18 GetEdgeByMacAddressQuery y GetDeviceByMacAddressQuery: Support identifica por MAC los equipos que
+'      el técnico instala o reemplaza (la MAC se normaliza igual que al registrar).
+'  B19 AssetStatusChangedEvent lleva el businessId: Analytics cuenta los equipos malogrados por negocio.
+'  B20 La credencial del edge nace con el edge: RegisterEdgeCommand pide a IAM la credencial y devuelve
+'      el secreto una sola vez al administrador, que lo copia en la configuración del edge antes de
+'      llevarlo al hogar. Así el secreto no se genera dentro de un event handler, donde no había a quién
+'      devolverlo. RenewEdgeCredentialCommand emite otra para reutilizar un edge (su credencial se revoca
+'      al salir de una red) o si se perdió el secreto.
+'  B21 Al cancelarse la suscripción se apaga todo: la red pasa a DEACTIVATED, las tablas de sus edges
+'      quedan vacías, IAM revoca sus credenciales y Tracking deja de monitorearlos
+'      (DeviceNetworkDeactivatedEvent). Los equipos siguen IN_USE porque siguen en el hogar hasta que el
+'      técnico los recoge; entonces la red pasa a DISMANTLED y los libera (DismantleDeviceNetworkCommand).
+'  B22 AssetStatusChangedEvent solo lo registran los cambios manuales (sendToMaintenance, markBroken,
+'      markRepaired); markInUse y release los activa la red y no lo registran, así no hay ciclos.
+'  B23 AssetAssignedToNetworkEvent lleva installationId: Tracking empieza a monitorear al edge.
 
-skinparam classAttributeIconSize 0
-skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 60
 skinparam shadowing false
-skinparam roundCorner 12
-skinparam defaultFontName Helvetica
-skinparam defaultFontSize 13
-skinparam backgroundColor #FFFFFF
-skinparam nodesep 50
-skinparam ranksep 110
-skinparam ArrowThickness 1.6
-skinparam ArrowColor #64748B
-skinparam ArrowFontSize 11
-skinparam ArrowFontColor #475569
-skinparam ArrowFontStyle italic
-skinparam ClassBorderThickness 1.6
-skinparam ClassFontColor #0F172A
-skinparam ClassFontStyle bold
-skinparam ClassAttributeFontColor #334155
-skinparam ClassStereotypeFontColor #64748B
-skinparam PackageFontColor #334155
-skinparam PackageFontStyle bold
-skinparam TitleFontSize 20
-skinparam TitleFontColor #1E293B
-left to right direction
-
-package alivia.shared.domain.model.aggregate #F1F5F9;line:64748B;text:334155 {
-  abstract class AbstractAggregateRoot<T> #FFFFFF;line:64748B {
-    - id : Long
-    - createdAt : LocalDateTime
-    - updatedAt : LocalDateTime
-    + addDomainEvent(event : Object) : void
-  }
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor White
+  ArrowColor #444444
+  BorderColor #333333
+  BackgroundColor<<Exception>> #FFEBEE
+  BorderColor<<Exception>> #C62828
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #B8A800
+}
+skinparam package {
+  BorderColor #888888
+  FontStyle bold
 }
 
-package alivia.platform.assets #FFFFFF;line:CBD5E1;line.dashed {
+legend left
+  |= Color |= Significado |
+  |<#DCEBFA>   | Aggregate |
+  |<#EADCF8>   | Value Object / Enum |
+  |<#FFE4C4>   | Command (escritura) |
+  |<#D5F0D8>   | Query (lectura) |
+  |<#FFF3B0>   | Service (interface) |
+  |<#CDEFF2>   | Event |
+  |<#FFEBEE>   | Exception (dominio) |
+endlegend
 
-  package domain.model.aggregate #EEF2FF;line:4F46E5;text:3730A3 {
-    class Device #FFFFFF;line:4F46E5 {
-      - macAddress : MacAddress
-      - devicesType : DevicesType
-      - deviceStatus : DevicesStatus
-      + void update(Long deviceId)
-      + void changeStatus(String newStatus)
+package alivia.platform.Assets {
+
+  package "domain.model.aggregates" #F4F9FE {
+
+    abstract class Asset #DCEBFA {
+      - BusinessId businessId
+      - MacAddress macAddress
+      - AssetStatus status
+      --
+      # Asset(BusinessId businessId, MacAddress macAddress)
+      + belongsTo(BusinessId businessId) : boolean
+      + isAvailable() : boolean
+      + markInUse()
+      + release()
+      + sendToMaintenance()
+      + markBroken()
+      + markRepaired()
+      # correctMacAddress(MacAddress macAddress)
+      # nodeType() : NodeType
     }
+
+    note bottom of Asset
+      <b>Asset</b> (base abstracta de Edge y Device)
+      No es un aggregate propio: no tiene repositorio.
+      Constructor: estado AVAILABLE (en almacén).
+      Transiciones (InvalidAssetStatusTransition).
+      sendToMaintenance, markBroken y markRepaired
+      registran AssetStatusChangedEvent; markInUse y
+      release no (los activa la red).
+      markInUse: AVAILABLE a IN_USE (se asigna a una red).
+      release: IN_USE a AVAILABLE (sale de una red).
+      sendToMaintenance: AVAILABLE o IN_USE a MAINTENANCE.
+      markBroken: AVAILABLE, IN_USE o MAINTENANCE a BROKEN.
+      markRepaired: MAINTENANCE o BROKEN a AVAILABLE.
+      IN_USE y AVAILABLE por asignación solo cambian por la
+      red (AssetAssignedToNetworkEvent y
+      AssetRemovedFromNetworkEvent).
+      <b>Equipo instalado con falla</b>: Soporte Técnico lo
+      revisa y, si hay que cambiarlo, lo pasa de IN_USE a
+      MAINTENANCE o BROKEN. Eso registra
+      AssetStatusChangedEvent y la red lo retira.
+      correctMacAddress: solo si está AVAILABLE
+      (AssetNotEditable).
+    end note
+
+    class Edge #DCEBFA {
+      - EdgeType type
+      --
+      + Edge(BusinessId businessId, MacAddress macAddress, EdgeType type)
+      + isMicrophoneEdge() : boolean
+      + isActuatorEdge() : boolean
+      + update(MacAddress macAddress, EdgeType type)
+      # nodeType() : NodeType
+    }
+
+    class Device #DCEBFA {
+      - DeviceType type
+      --
+      + Device(BusinessId businessId, MacAddress macAddress, DeviceType type)
+      + isMicrophone() : boolean
+      + isActuator() : boolean
+      + update(MacAddress macAddress, DeviceType type)
+      # nodeType() : NodeType
+    }
+
+    note bottom of Edge
+      <b>Edge</b>: aplicación edge instalada en el hogar.
+      MICROPHONE_EDGE transcribe el audio del micrófono;
+      ACTUATOR_EDGE ejecuta las acciones en los actuadores.
+      <b>Device</b>: dispositivo embebido.
+      MICROPHONE: sensor; recibe las órdenes por voz y el
+      pedido de auxilio. Actuadores: DOOR, WINDOW, CURTAIN
+      y LIGHT.
+      update: corrige la MAC o el tipo mal registrados,
+      solo si está AVAILABLE (AssetNotEditable). La MAC no
+      se repite entre edges y devices
+      (MacAddressAlreadyExists).
+      <b>Inventario</b>: un negocio registra todos los edges
+      (de ambos tipos), micrófonos y actuadores que quiera;
+      no hay límite. Un equipo sin red queda AVAILABLE.
+    end note
+
+    class DeviceNetwork #DCEBFA {
+      - InstallationId installationId
+      - BusinessId businessId
+      - NetworkStatus status
+      - Edge microphoneEdge
+      - Edge actuatorEdge
+      - Device microphone
+      - List<Device> actuators
+      --
+      + DeviceNetwork(InstallationId installationId, BusinessId businessId,
+      \t Edge microphoneEdge, Edge actuatorEdge, Device microphone, List<Device> actuators)
+      + addEdge(Edge edge)
+      + addDevice(Device device)
+      + removeEdge(Long edgeId)
+      + removeDevice(Long deviceId)
+      + deactivate()
+      + dismantle()
+      + containsEdge(Long edgeId) : boolean
+      + containsDevice(Long deviceId) : boolean
+      + edgeIds() : List<Long>
+      + tableFor(Long edgeId) : EdgeAccessTable
+      + isActive() : boolean
+    }
+
+    note bottom of DeviceNetwork
+      <b>Red de dispositivos de una instalación</b>
+      La crea Soporte Técnico al terminar la instalación:
+      él decide cuántos actuadores se instalan y los asigna
+      al edge. DeviceNetwork enlaza los equipos asignados;
+      solo los lee, nunca los modifica.
+      --
+      <b>Asignación</b>: 1 edge de micrófono, 1 edge de
+      actuadores, 1 micrófono y N actuadores.
+      <b>Invariantes</b>
+      Constructor: estado ACTIVE; recibe los tres equipos
+      únicos; cada uno es del tipo de su campo y actuators
+      solo tiene actuadores (InvalidNetworkMember).
+      Todo equipo es del mismo negocio (AssetNotInBusiness)
+      y está AVAILABLE (AssetNotAvailable).
+      addEdge: ocupa el campo de su tipo si está vacío
+      (NodeTypeAlreadyInNetwork).
+      addDevice: el micrófono ocupa su campo si está vacío
+      (NodeTypeAlreadyInNetwork); un actuador se suma a la
+      lista si no está ya (AssetAlreadyInNetwork).
+      removeEdge / removeDevice: el equipo está en la red
+      (containsEdge / containsDevice; AssetNotInNetwork); su
+      campo queda vacío hasta que Soporte Técnico asigne otro.
+      addDevice usa containsDevice (AssetAlreadyInNetwork).
+      add y remove solo en una red ACTIVE
+      (isActive; DeviceNetworkDeactivated).
+      deactivate: ACTIVE a DEACTIVATED (se canceló la
+      suscripción). Los equipos siguen asignados e IN_USE
+      (están en el hogar); registra
+      DeviceNetworkDeactivatedEvent.
+      dismantle: DEACTIVATED a DISMANTLED (el técnico
+      recogió los equipos); retira todos y registra
+      AssetRemovedFromNetworkEvent por cada uno
+      (InvalidNetworkStatusTransition).
+      Cada alta o baja registra AssetAssignedToNetworkEvent
+      o AssetRemovedFromNetworkEvent.
+      --
+      <b>tableFor(edgeId)</b>: calcula la tabla del edge con
+      los equipos asignados en ese momento:
+      micrófono a MICROPHONE_EDGE
+      MICROPHONE_EDGE a ACTUATOR_EDGE (por el broker)
+      ACTUATOR_EDGE a cada actuador
+      cada edge a CLOUD
+      Un equipo retirado ya no aparece. Una red que no está
+      ACTIVE no da tabla: el edge queda sin equipos.
+    end note
   }
 
-  package domain.model.valueobjects #ECFDF5;line:059669;text:047857 {
-    class BusinessId <<record>> #FFFFFF;line:059669 {
-      - value : Long
+  package "domain.model.valueobjects" #F9F4FD {
+
+    class MacAddress <<Record>> #EADCF8 {
+      + String macAddress
+      + MacAddress(String macAddress)
     }
 
-    class MacAddress <<record>> #FFFFFF;line:059669 {
-      - MacAddress : String
+    note bottom of MacAddress
+      Seis pares hexadecimales separados por ":" o "-"
+      (InvalidMacAddress). Se normaliza a mayúsculas con ":"
+      (AA:BB:CC:DD:EE:FF) para comparar sin importar cómo
+      se escribió.
+    end note
+
+    class NodeRef <<Record>> #EADCF8 {
+      + NodeType type
+      + Long assetId
+      + MacAddress macAddress
+      + DeviceType deviceType
+      + NodeRef(NodeType type, Long assetId, MacAddress macAddress, DeviceType deviceType)
+      + {static} of(Asset asset) : NodeRef
+      + {static} cloud() : NodeRef
     }
 
-    enum DeviceType #FFFFFF;line:059669 {
-      EDGE
-      ACTUATOR
+    note bottom of NodeRef
+      Un nodo de la tabla de un edge: el equipo con su MAC,
+      que es con lo que el edge identifica a quien le envía.
+      Para CLOUD, assetId y macAddress son nulos
+      (NodeRef.cloud()).
+      deviceType: tipo del micrófono o del actuador
+      (DOOR, LIGHT, etc.); nulo para edges y CLOUD. El edge
+      de actuadores lo usa para ejecutar la acción y para
+      reportarla a Tracking.
+    end note
+
+    class EdgeAccessTable <<Record>> #EADCF8 {
+      + Long edgeId
+      + Long networkId
+      + Long installationId
+      + List<NodeRef> allowedSources
+      + List<NodeRef> allowedTargets
+      + EdgeAccessTable(Long edgeId, Long networkId, Long installationId,
+      	 List<NodeRef> allowedSources, List<NodeRef> allowedTargets)
+    }
+
+    note bottom of EdgeAccessTable
+      La tabla de un edge. No se guarda: la calcula
+      DeviceNetwork.tableFor. El edge la pide
+      (GetEdgeAccessTableQuery) al arrancar y cada 30
+      segundos; la nube no se la envía.
+      allowedSources: quién le puede enviar (el micrófono
+      o el otro edge). allowedTargets: a quién puede enviar
+      (el otro edge, los actuadores o CLOUD).
+      El edge reemplaza su copia local (SQLite) completa
+      cada vez que recibe una. Los dispositivos se conectan
+      al edge por HTTP y, si falla el wifi, por Bluetooth;
+      por los dos canales el edge los valida con la MAC de
+      esta tabla.
+      networkId e installationId: datos de la red que el
+      edge agrega a cada reporte que envía a Tracking
+      (edgeId, deviceId, installationId y tipo), para que
+      Tracking no consulte a Assets por cada reporte.
+    end note
+
+    enum EdgeType #EADCF8 {
+      MICROPHONE_EDGE
+      ACTUATOR_EDGE
+    }
+
+    enum DeviceType #EADCF8 {
       MICROPHONE
+      DOOR
+      WINDOW
+      CURTAIN
+      LIGHT
     }
 
-    enum DeviceStatus #FFFFFF;line:059669 {
-      operational
+    enum AssetStatus #EADCF8 {
+      AVAILABLE
       IN_USE
-      maintenance
-      broken
+      MAINTENANCE
+      BROKEN
+    }
+
+    enum NetworkStatus #EADCF8 {
+      ACTIVE
+      DEACTIVATED
+      DISMANTLED
+    }
+
+    enum NodeType #EADCF8 {
+      MICROPHONE
+      ACTUATOR
+      MICROPHONE_EDGE
+      ACTUATOR_EDGE
+      CLOUD
     }
   }
 
-  package domain.services #F5F3FF;line:7C3AED;text:5B21B6 {
-    interface DeviceCommandServices #FFFFFF;line:7C3AED {
-      Long handle(RegisterDevicesCommand command);
-      Long handle(UpdateDevicesCommand command);
-      Long handle(changeDevicesStatusCommand command);
+  package "domain.model.events" #DDF3F5 {
+
+    class AssetAssignedToNetworkEvent <<Record>> #CDEFF2 {
+      + AssetAssignedToNetworkEvent(NodeType type, Long assetId, Long installationId)
     }
 
-    interface DeviceQueryServices #FFFFFF;line:7C3AED {
-      Optional<Device> handle(GetDeviceByIdQuery query);
-      List<Device> handle(GetAllDevicesBusinessIdQuery query);
-      List<Device> handle(GetDevicesByBusinessIdAndStatusQuery query);
+    class AssetRemovedFromNetworkEvent <<Record>> #CDEFF2 {
+      + AssetRemovedFromNetworkEvent(NodeType type, Long assetId)
+    }
+
+    class DeviceNetworkDeactivatedEvent <<Record>> #CDEFF2 {
+      + DeviceNetworkDeactivatedEvent(Long networkId, Long installationId, List<Long> edgeIds)
+    }
+
+    class AssetStatusChangedEvent <<Record>> #CDEFF2 {
+      + AssetStatusChangedEvent(NodeType type, Long assetId, Long businessId,
+      \t AssetStatus status)
+    }
+
+    note bottom of DeviceNetworkDeactivatedEvent
+      <b>Dentro de Assets</b>
+      AssetAssignedToNetworkEvent: activa
+      MarkEdgeInUseCommand o MarkDeviceInUseCommand.
+      AssetRemovedFromNetworkEvent: activa ReleaseEdgeCommand
+      o ReleaseDeviceCommand si el equipo sigue IN_USE.
+      AssetStatusChangedEvent: con MAINTENANCE o BROKEN y
+      el equipo en una red, activa
+      RemoveEdgeFromNetworkCommand o
+      RemoveDeviceFromNetworkCommand.
+      --
+      <b>Hacia otros contextos</b>
+      AssetAssignedToNetworkEvent de un edge: Tracking
+      StartEdgeMonitoringCommand (con installationId; se
+      registra en el constructor de la red, antes de que
+      exista networkId, por eso no lo lleva).
+      AssetRemovedFromNetworkEvent de un edge: IAM
+      RevokeDeviceCredentialCommand y Tracking
+      StopEdgeMonitoringCommand.
+      DeviceNetworkDeactivatedEvent: por cada edge, IAM
+      RevokeDeviceCredentialCommand y Tracking
+      StopEdgeMonitoringCommand.
+      AssetStatusChangedEvent con BROKEN: Analytics cuenta
+      un equipo malogrado de ese negocio.
+    end note
+  }
+
+  package "domain.model.commands" #FFF6EC {
+
+    class RegisterEdgeCommand <<Record>> #FFE4C4 {
+      + RegisterEdgeCommand(Long businessId, String macAddress, EdgeType type)
+    }
+
+    class RegisterDeviceCommand <<Record>> #FFE4C4 {
+      + RegisterDeviceCommand(Long businessId, String macAddress, DeviceType type)
+    }
+
+    class UpdateEdgeCommand <<Record>> #FFE4C4 {
+      + UpdateEdgeCommand(Long edgeId, Long businessId, String macAddress, EdgeType type)
+    }
+
+    class UpdateDeviceCommand <<Record>> #FFE4C4 {
+      + UpdateDeviceCommand(Long deviceId, Long businessId, String macAddress, DeviceType type)
+    }
+
+    class ChangeEdgeStatusCommand <<Record>> #FFE4C4 {
+      + ChangeEdgeStatusCommand(Long edgeId, Long businessId, AssetStatus status)
+    }
+
+    class ChangeDeviceStatusCommand <<Record>> #FFE4C4 {
+      + ChangeDeviceStatusCommand(Long deviceId, Long businessId, AssetStatus status)
+    }
+
+    class MarkEdgeInUseCommand <<Record>> #FFE4C4 {
+      + MarkEdgeInUseCommand(Long edgeId)
+    }
+
+    class ReleaseEdgeCommand <<Record>> #FFE4C4 {
+      + ReleaseEdgeCommand(Long edgeId)
+    }
+
+    class MarkDeviceInUseCommand <<Record>> #FFE4C4 {
+      + MarkDeviceInUseCommand(Long deviceId)
+    }
+
+    class ReleaseDeviceCommand <<Record>> #FFE4C4 {
+      + ReleaseDeviceCommand(Long deviceId)
+    }
+
+    class CreateDeviceNetworkCommand <<Record>> #FFE4C4 {
+      - Long installationId
+      - Long businessId
+      - Long microphoneEdgeId
+      - Long actuatorEdgeId
+      - Long microphoneId
+      - List<Long> actuatorIds
+      + CreateDeviceNetworkCommand(...)
+    }
+
+    class AddEdgeToNetworkCommand <<Record>> #FFE4C4 {
+      + AddEdgeToNetworkCommand(Long networkId, Long edgeId)
+    }
+
+    class AddDeviceToNetworkCommand <<Record>> #FFE4C4 {
+      + AddDeviceToNetworkCommand(Long networkId, Long deviceId)
+    }
+
+    class RemoveEdgeFromNetworkCommand <<Record>> #FFE4C4 {
+      + RemoveEdgeFromNetworkCommand(Long networkId, Long edgeId)
+    }
+
+    class RemoveDeviceFromNetworkCommand <<Record>> #FFE4C4 {
+      + RemoveDeviceFromNetworkCommand(Long networkId, Long deviceId)
+    }
+
+    class DeactivateDeviceNetworkCommand <<Record>> #FFE4C4 {
+      + DeactivateDeviceNetworkCommand(Long networkId)
+    }
+
+    class DismantleDeviceNetworkCommand <<Record>> #FFE4C4 {
+      + DismantleDeviceNetworkCommand(Long networkId)
+    }
+
+    class RenewEdgeCredentialCommand <<Record>> #FFE4C4 {
+      + RenewEdgeCredentialCommand(Long edgeId, Long businessId)
     }
   }
 
-  package domain.exceptions #FFF1F2;line:E11D48;text:BE123C {
-    class DeviceNotFoundException <<exception>> #FFFFFF;line:E11D48 {
-      + DeviceNotFoundException(DeviceId id)
+  package "domain.model.queries" #EEF8EF {
+
+    class GetEdgeByIdQuery <<Record>> #D5F0D8 {
+      + GetEdgeByIdQuery(Long edgeId)
     }
-    class DeviceAlreadyExistsException <<exception>> #FFFFFF;line:E11D48 {
-      + DeviceAlreadyExistsException(MacAddress macAddress)
+
+    class GetAllEdgesByBusinessIdQuery <<Record>> #D5F0D8 {
+      + GetAllEdgesByBusinessIdQuery(Long businessId)
     }
-    class InvalidMacAddressException <<exception>> #FFFFFF;line:E11D48 {
-      + InvalidMacAddressException(String macAddress)
+
+    class GetDeviceByIdQuery <<Record>> #D5F0D8 {
+      + GetDeviceByIdQuery(Long deviceId)
+    }
+
+    class GetAllDevicesByBusinessIdQuery <<Record>> #D5F0D8 {
+      + GetAllDevicesByBusinessIdQuery(Long businessId)
+    }
+
+
+    class ExistsEdgeByMacAddressQuery <<Record>> #D5F0D8 {
+      + ExistsEdgeByMacAddressQuery(String macAddress)
+    }
+
+    class GetEdgeByMacAddressQuery <<Record>> #D5F0D8 {
+      + GetEdgeByMacAddressQuery(String macAddress)
+    }
+
+    class GetDeviceByMacAddressQuery <<Record>> #D5F0D8 {
+      + GetDeviceByMacAddressQuery(String macAddress)
+    }
+
+    class ExistsDeviceByMacAddressQuery <<Record>> #D5F0D8 {
+      + ExistsDeviceByMacAddressQuery(String macAddress)
+    }
+
+    class GetDeviceNetworkByIdQuery <<Record>> #D5F0D8 {
+      + GetDeviceNetworkByIdQuery(Long networkId)
+    }
+
+    class GetDeviceNetworkByInstallationIdQuery <<Record>> #D5F0D8 {
+      + GetDeviceNetworkByInstallationIdQuery(Long installationId)
+    }
+
+    class GetDeviceNetworkByEdgeIdQuery <<Record>> #D5F0D8 {
+      + GetDeviceNetworkByEdgeIdQuery(Long edgeId)
+    }
+
+    class GetDeviceNetworkByDeviceIdQuery <<Record>> #D5F0D8 {
+      + GetDeviceNetworkByDeviceIdQuery(Long deviceId)
+    }
+
+    class GetEdgeAccessTableQuery <<Record>> #D5F0D8 {
+      + GetEdgeAccessTableQuery(Long edgeId)
     }
   }
 
-  package domain.model.commands #FFFBEB;line:D97706;text:B45309 {
-    class RegisterDevicesCommand <<Record>> #FFFFFF;line:D97706 {
-      + RegisterDevicesCommand(Long businessId, String macAddress, String deviceType)
+  package "domain.exceptions" #FFF5F6 {
+    class EdgeNotFound <<Exception>> {
+      + EdgeNotFound(Long edgeId)
     }
-
-    class UpdateDevicesCommand <<Record>> #FFFFFF;line:D97706 {
-      + UpdateDevicesCommand(Long deviceId, Long businessId, String macAddress, String deviceType)
+    class DeviceNotFound <<Exception>> {
+      + DeviceNotFound(Long deviceId)
     }
-
-    class changeDevicesStatusCommand <<Record>> #FFFFFF;line:D97706 {
-      + changeDevicesStatusCommand(Long deviceId, String newStatus)
+    class DeviceNetworkNotFound <<Exception>> {
+      + DeviceNetworkNotFound(Long networkId)
+    }
+    class InvalidMacAddress <<Exception>> {
+      + InvalidMacAddress(String macAddress)
+    }
+    class MacAddressAlreadyExists <<Exception>> {
+      + MacAddressAlreadyExists(String macAddress)
+    }
+    class BusinessNotFound <<Exception>> {
+      + BusinessNotFound(Long businessId)
+    }
+    class AssetNotInBusiness <<Exception>> {
+      + AssetNotInBusiness(Long assetId)
+    }
+    class InvalidAssetStatusTransition <<Exception>> {
+      + InvalidAssetStatusTransition(AssetStatus from, AssetStatus to)
+    }
+    class AssetNotAvailable <<Exception>> {
+      + AssetNotAvailable(Long assetId)
+    }
+    class AssetNotEditable <<Exception>> {
+      + AssetNotEditable(Long assetId)
+    }
+    class InvalidNetworkMember <<Exception>> {
+      + InvalidNetworkMember(Long assetId)
+    }
+    class NodeTypeAlreadyInNetwork <<Exception>> {
+      + NodeTypeAlreadyInNetwork(NodeType type)
+    }
+    class AssetAlreadyInNetwork <<Exception>> {
+      + AssetAlreadyInNetwork(Long assetId)
+    }
+    class AssetNotInNetwork <<Exception>> {
+      + AssetNotInNetwork(Long assetId)
+    }
+    class DeviceNetworkAlreadyExists <<Exception>> {
+      + DeviceNetworkAlreadyExists(Long installationId)
+    }
+    class DeviceNetworkDeactivated <<Exception>> {
+      + DeviceNetworkDeactivated(Long networkId)
+    }
+    class InvalidNetworkStatusTransition <<Exception>> {
+      + InvalidNetworkStatusTransition(NetworkStatus from, NetworkStatus to)
     }
   }
 
-  package domain.model.queries #F0F9FF;line:0284C7;text:0369A1 {
-    class GetDeviceByIdQuery <<Record>> #FFFFFF;line:0284C7 {
-      + GetDeviceByIdQuery(Long DeviceId)
+  package "domain.services" #FFFCEA {
+
+    interface EdgeCommandService #FFF3B0 {
+      ImmutablePair<Long, String> handle(RegisterEdgeCommand command)
+      String handle(RenewEdgeCredentialCommand command)
+      Long handle(UpdateEdgeCommand command)
+      Long handle(ChangeEdgeStatusCommand command)
+      Long handle(MarkEdgeInUseCommand command)
+      Long handle(ReleaseEdgeCommand command)
     }
 
-    class GetAllDevicesBusinessIdQuery <<Record>> #FFFFFF;line:0284C7 {
-      + GetAllDevicesBusinessIdQuery(BusinessId businessId)
+    interface EdgeQueryService #FFF3B0 {
+      Optional<Edge> handle(GetEdgeByIdQuery query)
+      List<Edge> handle(GetAllEdgesByBusinessIdQuery query)
+      boolean handle(ExistsEdgeByMacAddressQuery query)
+      Optional<Edge> handle(GetEdgeByMacAddressQuery query)
     }
 
-    class GetDevicesByBusinessIdAndStatusQuery <<Record>> #FFFFFF;line:0284C7 {
-      + GetDevicesByBusinessIdAndStatusQuery(BusinessId businessId, DeviceStatus deviceStatus)
+    interface DeviceCommandService #FFF3B0 {
+      Long handle(RegisterDeviceCommand command)
+      Long handle(UpdateDeviceCommand command)
+      Long handle(ChangeDeviceStatusCommand command)
+      Long handle(MarkDeviceInUseCommand command)
+      Long handle(ReleaseDeviceCommand command)
+    }
+
+    interface DeviceQueryService #FFF3B0 {
+      Optional<Device> handle(GetDeviceByIdQuery query)
+      List<Device> handle(GetAllDevicesByBusinessIdQuery query)
+      boolean handle(ExistsDeviceByMacAddressQuery query)
+      Optional<Device> handle(GetDeviceByMacAddressQuery query)
+    }
+
+    interface DeviceNetworkCommandService #FFF3B0 {
+      Long handle(CreateDeviceNetworkCommand command)
+      Long handle(AddEdgeToNetworkCommand command)
+      Long handle(AddDeviceToNetworkCommand command)
+      Long handle(RemoveEdgeFromNetworkCommand command)
+      Long handle(RemoveDeviceFromNetworkCommand command)
+      Long handle(DeactivateDeviceNetworkCommand command)
+      Long handle(DismantleDeviceNetworkCommand command)
+    }
+
+    interface DeviceNetworkQueryService #FFF3B0 {
+      Optional<DeviceNetwork> handle(GetDeviceNetworkByIdQuery query)
+      Optional<DeviceNetwork> handle(GetDeviceNetworkByInstallationIdQuery query)
+      Optional<DeviceNetwork> handle(GetDeviceNetworkByEdgeIdQuery query)
+      Optional<DeviceNetwork> handle(GetDeviceNetworkByDeviceIdQuery query)
+      Optional<EdgeAccessTable> handle(GetEdgeAccessTableQuery query)
     }
   }
 }
 
-' ---- Composición del agregado Device ----
-Device -[#059669]-> DeviceType : define qué rol cumple\nel dispositivo (EDGE,\nACTUATOR o MICROPHONE)
-Device -[#059669]-> DeviceStatus : indica su estado actual\n(operational, IN_USE,\nmaintenance o broken)
-Device -[#059669]-> MacAddress : lo identifica de forma\núnica en la red
-Device -[#059669]-> BusinessId : guarda a qué negocio\npertenece el dispositivo
+note as N_Shared
+  <b>Value objects de Shared que usa Assets</b>
+  --
+  <b>BusinessId</b>: negocio dueño de los equipos (Company).
+  Lo guardan Edge, Device y DeviceNetwork.
+  <b>InstallationId</b>: instalación de Soporte Técnico donde
+  se monta la red. Lo guarda DeviceNetwork.
+  Assets solo guarda sus ids: nunca accede a esos contextos
+  directamente.
+end note
 
-' ---- Queries: lecturas ----
-GetDeviceByIdQuery -[#0284C7]-> DeviceQueryServices : pide un solo dispositivo\npor su id
-GetAllDevicesBusinessIdQuery -[#0284C7]-> DeviceQueryServices : pide todos los dispositivos\nde un negocio
-GetDevicesByBusinessIdAndStatusQuery -[#0284C7]-> DeviceQueryServices : pide los dispositivos de un\nnegocio filtrados por estado
+' ---------- DISPOSICIÓN ----------
+RegisterEdgeCommand -[hidden]down- UpdateEdgeCommand
+UpdateEdgeCommand -[hidden]down- ChangeEdgeStatusCommand
+ChangeEdgeStatusCommand -[hidden]down- MarkEdgeInUseCommand
+MarkEdgeInUseCommand -[hidden]down- ReleaseEdgeCommand
+RegisterDeviceCommand -[hidden]down- UpdateDeviceCommand
+UpdateDeviceCommand -[hidden]down- ChangeDeviceStatusCommand
+ChangeDeviceStatusCommand -[hidden]down- MarkDeviceInUseCommand
+MarkDeviceInUseCommand -[hidden]down- ReleaseDeviceCommand
+CreateDeviceNetworkCommand -[hidden]down- AddEdgeToNetworkCommand
+AddEdgeToNetworkCommand -[hidden]down- AddDeviceToNetworkCommand
+AddDeviceToNetworkCommand -[hidden]down- RemoveEdgeFromNetworkCommand
+RemoveEdgeFromNetworkCommand -[hidden]down- RemoveDeviceFromNetworkCommand
+RemoveDeviceFromNetworkCommand -[hidden]down- DeactivateDeviceNetworkCommand
+DeactivateDeviceNetworkCommand -[hidden]down- DismantleDeviceNetworkCommand
+ReleaseEdgeCommand -[hidden]down- RenewEdgeCredentialCommand
+GetEdgeByIdQuery -[hidden]down- GetAllEdgesByBusinessIdQuery
+GetAllEdgesByBusinessIdQuery -[hidden]down- ExistsEdgeByMacAddressQuery
+ExistsEdgeByMacAddressQuery -[hidden]down- GetEdgeByMacAddressQuery
+GetDeviceByIdQuery -[hidden]down- GetAllDevicesByBusinessIdQuery
+GetAllDevicesByBusinessIdQuery -[hidden]down- ExistsDeviceByMacAddressQuery
+ExistsDeviceByMacAddressQuery -[hidden]down- GetDeviceByMacAddressQuery
+GetDeviceNetworkByIdQuery -[hidden]down- GetDeviceNetworkByInstallationIdQuery
+GetDeviceNetworkByInstallationIdQuery -[hidden]down- GetDeviceNetworkByEdgeIdQuery
+GetDeviceNetworkByEdgeIdQuery -[hidden]down- GetDeviceNetworkByDeviceIdQuery
+GetDeviceNetworkByDeviceIdQuery -[hidden]down- GetEdgeAccessTableQuery
+EdgeNotFound -[hidden]down- DeviceNotFound
+DeviceNotFound -[hidden]down- DeviceNetworkNotFound
+DeviceNetworkNotFound -[hidden]down- InvalidMacAddress
+InvalidMacAddress -[hidden]down- MacAddressAlreadyExists
+MacAddressAlreadyExists -[hidden]down- BusinessNotFound
+AssetNotInBusiness -[hidden]down- InvalidAssetStatusTransition
+InvalidAssetStatusTransition -[hidden]down- AssetNotAvailable
+AssetNotAvailable -[hidden]down- AssetNotEditable
+InvalidNetworkMember -[hidden]down- NodeTypeAlreadyInNetwork
+NodeTypeAlreadyInNetwork -[hidden]down- AssetAlreadyInNetwork
+AssetAlreadyInNetwork -[hidden]down- AssetNotInNetwork
+DeviceNetworkAlreadyExists -[hidden]down- DeviceNetworkDeactivated
+DeviceNetworkDeactivated -[hidden]down- InvalidNetworkStatusTransition
 
-' ---- Commands: escrituras ----
-RegisterDevicesCommand -[#D97706]-> DeviceCommandServices : ordena registrar un\ndispositivo nuevo
-UpdateDevicesCommand -[#D97706]-> DeviceCommandServices : ordena modificar los datos\nde un dispositivo existente
-changeDevicesStatusCommand -[#D97706]-> DeviceCommandServices : ordena cambiar solo el\nestado de un dispositivo
+' ---------- HERENCIA, COMPOSICIÓN Y REFERENCIAS ----------
+Asset <|-- Edge
+Asset <|-- Device
+Asset "0..*" --> "1" AssetStatus : status
+Asset "1" *-- "1" MacAddress : macAddress
+Edge "0..*" --> "1" EdgeType : type
+Device "0..*" --> "1" DeviceType : type
+DeviceNetwork "0..*" --> "1" NetworkStatus : status
+DeviceNetwork "0..1" -[#6A1B9A]-> "0..1" Edge : microphoneEdge >
+DeviceNetwork "0..1" -[#6A1B9A]-> "0..1" Edge : actuatorEdge >
+DeviceNetwork "0..1" -[#6A1B9A]-> "0..1" Device : microphone >
+DeviceNetwork "0..1" -[#6A1B9A]-> "0..*" Device : actuators >
+DeviceNetwork ..> EdgeAccessTable : tableFor >
+EdgeAccessTable "1" *-- "0..*" NodeRef : allowedSources / allowedTargets
+NodeRef "0..*" --> "1" NodeType : type
+NodeRef "0..*" --> "0..1" DeviceType : deviceType
 
-' ---- Herencia ----
-Device -[#4F46E5]-|> AbstractAggregateRoot : hereda id, fechas de auditoría\ny addDomainEvent()
+' ---------- EVENTOS ----------
+Asset ..> AssetStatusChangedEvent : registra >
+DeviceNetwork ..> AssetAssignedToNetworkEvent : registra >
+DeviceNetwork ..> AssetRemovedFromNetworkEvent : registra >
+DeviceNetwork ..> DeviceNetworkDeactivatedEvent : registra >
+AssetAssignedToNetworkEvent ..> MarkEdgeInUseCommand : activa >
+AssetAssignedToNetworkEvent ..> MarkDeviceInUseCommand : activa >
+AssetRemovedFromNetworkEvent ..> ReleaseEdgeCommand : activa >
+AssetRemovedFromNetworkEvent ..> ReleaseDeviceCommand : activa >
+AssetStatusChangedEvent ..> RemoveEdgeFromNetworkCommand : activa >
+AssetStatusChangedEvent ..> RemoveDeviceFromNetworkCommand : activa >
+
+' ---------- SERVICES ----------
+EdgeCommandService ..> RegisterEdgeCommand : recibe >
+EdgeCommandService ..> UpdateEdgeCommand : recibe >
+EdgeCommandService ..> ChangeEdgeStatusCommand : recibe >
+EdgeCommandService ..> MarkEdgeInUseCommand : recibe >
+EdgeCommandService ..> ReleaseEdgeCommand : recibe >
+EdgeCommandService ..> RenewEdgeCredentialCommand : recibe >
+EdgeCommandService ..> Edge : crea / modifica >
+EdgeQueryService ..> GetEdgeByIdQuery : recibe >
+EdgeQueryService ..> GetAllEdgesByBusinessIdQuery : recibe >
+EdgeQueryService ..> ExistsEdgeByMacAddressQuery : recibe >
+EdgeQueryService ..> GetEdgeByMacAddressQuery : recibe >
+EdgeQueryService ..> Edge : devuelve >
+
+DeviceCommandService ..> RegisterDeviceCommand : recibe >
+DeviceCommandService ..> UpdateDeviceCommand : recibe >
+DeviceCommandService ..> ChangeDeviceStatusCommand : recibe >
+DeviceCommandService ..> MarkDeviceInUseCommand : recibe >
+DeviceCommandService ..> ReleaseDeviceCommand : recibe >
+DeviceCommandService ..> Device : crea / modifica >
+DeviceQueryService ..> GetDeviceByIdQuery : recibe >
+DeviceQueryService ..> GetAllDevicesByBusinessIdQuery : recibe >
+DeviceQueryService ..> ExistsDeviceByMacAddressQuery : recibe >
+DeviceQueryService ..> GetDeviceByMacAddressQuery : recibe >
+DeviceQueryService ..> Device : devuelve >
+
+DeviceNetworkCommandService ..> CreateDeviceNetworkCommand : recibe >
+DeviceNetworkCommandService ..> AddEdgeToNetworkCommand : recibe >
+DeviceNetworkCommandService ..> AddDeviceToNetworkCommand : recibe >
+DeviceNetworkCommandService ..> RemoveEdgeFromNetworkCommand : recibe >
+DeviceNetworkCommandService ..> RemoveDeviceFromNetworkCommand : recibe >
+DeviceNetworkCommandService ..> DeactivateDeviceNetworkCommand : recibe >
+DeviceNetworkCommandService ..> DismantleDeviceNetworkCommand : recibe >
+DeviceNetworkCommandService ..> DeviceNetwork : crea / modifica >
+DeviceNetworkQueryService ..> GetDeviceNetworkByIdQuery : recibe >
+DeviceNetworkQueryService ..> GetDeviceNetworkByInstallationIdQuery : recibe >
+DeviceNetworkQueryService ..> GetDeviceNetworkByEdgeIdQuery : recibe >
+DeviceNetworkQueryService ..> GetDeviceNetworkByDeviceIdQuery : recibe >
+DeviceNetworkQueryService ..> GetEdgeAccessTableQuery : recibe >
+DeviceNetworkQueryService ..> DeviceNetwork : devuelve >
+
+' ---------- REGLAS DE LOS SERVICES ----------
+note as N_RulesAssets
+  <b>Reglas de Edge y Device CommandService</b>
+  --
+  Register: la MAC es válida (InvalidMacAddress) y no
+  existe en ningún Edge ni Device: consulta
+  ExistsEdgeByMacAddressQuery y
+  ExistsDeviceByMacAddressQuery (MacAddressAlreadyExists). El negocio existe en Company
+  (BusinessNotFound, vía ACL).
+  <b>RegisterEdgeCommand</b>: después de guardar el edge,
+  application pide a IAM su credencial (ACL,
+  IssueDeviceCredentialCommand) y devuelve el id y el
+  secreto una sola vez. El administrador lo copia en la
+  configuración del edge (.env) antes de llevarlo al
+  hogar; con edgeId y secreto el edge obtiene su token.
+  <b>RenewEdgeCredentialCommand</b>: el edge existe, es
+  del negocio y está AVAILABLE (AssetNotAvailable).
+  Application revoca la credencial ACTIVE si la hay y
+  pide una nueva a IAM; devuelve el secreto una sola vez.
+  Se usa para reutilizar un edge que salió de una red o
+  si se perdió el secreto.
+  Update: el equipo existe y es del negocio; está
+  AVAILABLE (AssetNotEditable); la MAC nueva es válida y
+  no la usa otro edge o device (las mismas dos queries;
+  MacAddressAlreadyExists).
+  ChangeStatus: el equipo existe (EdgeNotFound,
+  DeviceNotFound) y es del negocio (AssetNotInBusiness).
+  Solo acepta MAINTENANCE, BROKEN o AVAILABLE (reparado);
+  IN_USE lo pone la red (InvalidAssetStatusTransition).
+  Lo usa Soporte Técnico cuando revisa una falla.
+  MarkInUse y Release: solo los activan los eventos de
+  la red; no se exponen en la API.
+end note
+
+note as N_RulesNetwork
+  <b>Reglas de DeviceNetworkCommandService</b>
+  --
+  CreateDeviceNetworkCommand: lo envía Soporte Técnico al
+  terminar la instalación. La instalación no tiene otra
+  red que no esté DISMANTLED (DeviceNetworkAlreadyExists).
+  GetDeviceNetworkByInstallationIdQuery devuelve esa red,
+  ACTIVE o DEACTIVATED: la usan ActuatorsAdded y
+  EquipmentReplaced (ACTIVE), Deactivate (ACTIVE) y
+  Dismantle (DEACTIVATED). Carga los Edge
+  y Device por id (EdgeNotFound, DeviceNotFound) y se los
+  pasa al constructor, que valida tipos, negocio y
+  disponibilidad. El número de actuadores lo decide
+  Soporte Técnico; Assets no lo limita.
+  Add / Remove / Deactivate / Dismantle: la red existe
+  (DeviceNetworkNotFound) y carga el equipo por id; las
+  demás reglas las valida DeviceNetwork.
+  DeactivateDeviceNetworkCommand: lo activa el evento de
+  Support que apaga el servicio al cancelarse la
+  suscripción (InstallationServiceEndedEvent; la red se
+  busca con GetDeviceNetworkByInstallationIdQuery). Si la
+  instalación aún no tiene red, no hace nada.
+  DismantleDeviceNetworkCommand: lo activa el evento de
+  Support de la visita de retiro (EquipmentRemovedEvent).
+  RemoveEdgeFromNetworkCommand y
+  RemoveDeviceFromNetworkCommand también llegan por
+  AssetStatusChangedEvent: application busca la red con
+  GetDeviceNetworkByEdgeIdQuery o
+  GetDeviceNetworkByDeviceIdQuery.
+  <b>Quién valida qué</b>
+  Assets decide quién puede enviar a quién (tableFor).
+  IAM solo autentica al edge cuando llama a la API: la
+  credencial nace al registrar el edge (B20) y IAM la
+  revoca cuando el edge sale de una red o la red se
+  desactiva.
+  GetEdgeAccessTableQuery: la llama el edge con su token
+  (edgeId del token). Sin red ACTIVE, Optional vacío.
+  Tracking (Telemetría) guarda lo que reportan los edges
+  (MongoDB); Assets no lo guarda. Los reportes llegan con
+  los datos de la red que el edge recibió en su
+  EdgeAccessTable; Tracking no consulta a Assets.
+end note
+
+EdgeCommandService .. N_RulesAssets
+DeviceCommandService .. N_RulesAssets
+DeviceNetworkCommandService .. N_RulesNetwork
 
 @enduml
