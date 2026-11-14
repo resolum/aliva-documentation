@@ -2643,6 +2643,177 @@ A continuación, se presenta la tabla con los commits relacionados con testing r
 
 #### 7.2.1.7. Software Deployment Evidence for Sprint 1 Review
 
+Durante el Sprint 1, el equipo ejecutó las primeras actividades de despliegue de los productos web incluidos en el alcance de Alivia. Estas labores formaron parte del proceso de entrega continua y permitieron validar que las soluciones podían publicarse en un entorno real, sincronizadas con los cambios realizados en sus repositorios de código fuente.
+
+En esta iteración, el esfuerzo de deployment se centró en tres productos: la Landing Page institucional, la Web Application de usuarios (familiares y cuidadores) y la Web Application administrativa (administradores y técnicos). Los tres se desplegaron en Cloudflare, proveedor de hosting definido en la arquitectura de despliegue del sistema. Para ello fue necesario configurar en cada repositorio un archivo `wrangler.jsonc`, que indica a Cloudflare el nombre del proyecto, la fecha de compatibilidad y el directorio de archivos compilados que debe publicar.
+
+##### Despliegue de la Landing Page
+
+La Landing Page se desplegó en Cloudflare como sitio institucional de Alivia. El repositorio `alivia-landing-page` se vinculó a Cloudflare y se añadió el siguiente archivo de configuración en la raíz del proyecto:
+
+```jsonc
+{
+  "name": "resolum-alivia",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist"
+  },
+  "previews": {}
+}
+```
+
+En esta configuración, `name` define el nombre del proyecto en Cloudflare, `compatibility_date` fija la versión del entorno de ejecución y `assets.directory` indica que se publica el contenido generado en `./dist` tras el build del sitio estático (Astro).
+
+Los pasos seguidos fueron los siguientes:
+
+1. Se vinculó el repositorio `alivia-landing-page` con la cuenta de Cloudflare.
+2. Se creó el archivo `wrangler.jsonc` con la configuración anterior.
+3. Se configuró el build para generar el sitio en el directorio `dist`.
+4. Se ejecutó el despliegue inicial para obtener la URL pública de acceso.
+5. Se comprobó que la versión publicada mostrara correctamente el contenido institucional del proyecto.
+
+<p align="center">
+  <img src="https://imgur.com/vLRqKHT.png" alt="Despliegue de la Landing Page en Cloudflare" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+La imagen anterior evidencia la Landing Page publicada en Cloudflare, accesible en línea y con el despliegue continuo funcionando según lo planificado.
+
+##### Despliegue de la Web Application de Usuarios
+
+La aplicación web para familiares y cuidadores (React) se desplegó como un proyecto independiente. Al ser una Single Page Application, su `wrangler.jsonc` incluye además la opción `not_found_handling`, que redirige cualquier ruta no encontrada a la página principal para que el enrutador de la aplicación resuelva la navegación.
+
+```jsonc
+{
+  "name": "alivia-users",
+  "compatibility_date": "2026-10-28",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
+```
+
+Los pasos seguidos fueron los siguientes:
+
+1. Se vinculó el repositorio `alivia-users-web-application` con la cuenta de Cloudflare.
+2. Se creó el archivo `wrangler.jsonc` con la configuración anterior.
+3. Se configuró el build para generar los archivos en el directorio `dist`.
+4. Se ejecutó el despliegue inicial y se obtuvo la URL pública.
+5. Se comprobó que la navegación y la recarga directa de rutas internas funcionaran en la versión publicada.
+
+<p align="center">
+  <img src="https://imgur.com/Tj6CTX9.png" alt="Despliegue de la Web Application de Usuarios en Cloudflare" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+La imagen anterior evidencia la aplicación web de usuarios publicada en Cloudflare con el despliegue completado.
+
+##### Despliegue de la Web Application Administrativa
+
+La aplicación web administrativa (Angular) se desplegó con la misma estrategia, también como proyecto independiente. Su `wrangler.jsonc` usa la misma estructura que la aplicación de usuarios, con el modo `single-page-application` y el directorio `./dist`, cambiando únicamente el nombre del proyecto.
+
+Los pasos seguidos fueron los siguientes:
+
+1. Se vinculó el repositorio `alivia-admin-web-application` con la cuenta de Cloudflare.
+2. Se creó el archivo `wrangler.jsonc` con la configuración de SPA.
+3. Se configuró el build para generar los archivos en el directorio `dist`.
+4. Se ejecutó el despliegue inicial y se obtuvo la URL pública.
+5. Se comprobó que las vistas administrativas cargaran correctamente en la versión publicada.
+
+<p align="center">
+  <img src="https://imgur.com/Tj6CTX9.png" alt="Despliegue de la Web Application Administrativa en Cloudflare" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+La imagen anterior evidencia la aplicación web administrativa publicada en Cloudflare con el despliegue finalizado.
+
+##### Despliegue del Backend (Web Services)
+
+Además de los productos web, durante el Sprint 1 se preparó la infraestructura para desplegar el backend de Alivia (`alivia-web-services`) en un entorno de staging. El aprovisionamiento se realizó como infraestructura como código con Terraform, ubicado en el directorio `infrastructure/terraform` del repositorio, con una configuración compartida (`shared`) y otra por ambiente (`environments/staging`). Los recursos se crearon en la suscripción Azure for Students, dentro del grupo de recursos `rg-alivia`, en la región Brazil South, y la base de datos documental en MongoDB Atlas.
+
+Los pasos seguidos fueron los siguientes:
+
+1. Se registraron en Azure los proveedores de recursos necesarios para los servicios a crear (por ejemplo, `Microsoft.ManagedIdentity` y `Microsoft.Web`), verificando que su estado cambiara a *Registered*.
+2. Se creó en MongoDB Atlas una API Key a nivel de organización (`resolum`) con el permiso *Organization Project Creator*, destinada al uso del proveedor de Terraform.
+3. Se cargaron las credenciales de Atlas (`MONGODB_ATLAS_PUBLIC_KEY` y `MONGODB_ATLAS_PRIVATE_KEY`) y el identificador de la suscripción (`ARM_SUBSCRIPTION_ID`) como variables de entorno, evitando exponerlas en el código.
+4. Se ejecutó `terraform plan` y `terraform apply` sobre la configuración compartida, lo que creó el Container Registry `acraliviaiflzl`, donde se almacenarán las imágenes del backend.
+5. Se ejecutó `terraform apply` sobre el ambiente de staging, que finalizó con *Apply complete! Resources: 4 added, 0 changed, 0 destroyed* y entregó como salidas el nombre del registro, el grupo de recursos y el hostname `app-alivia-staging-c600b.azurewebsites.net`.
+6. Se verificó en el portal de Azure la creación del App Service `app-alivia-staging-c600b` (estado *En ejecución*, plan Básico), la instancia de PostgreSQL `psql-alivia-staging` (versión 18.6, estado *Listo*) y, en MongoDB Atlas, el proyecto `alivia-staging`.
+
+**Registro de proveedores de recursos en Azure**
+
+<p align="center">
+  <img src="https://imgur.com/dyPWz4m.png" alt="Registro de proveedores de Azure" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+**API Key de MongoDB Atlas para Terraform**
+
+<p align="center">
+  <img src="https://imgur.com/OnRC7f0.png" alt="API Key de MongoDB Atlas" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+**Carga de credenciales como variables de entorno**
+
+<p align="center">
+  <img src="https://imgur.com/VGuRF9E.png" alt="Variables de entorno para Terraform" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+**Container Registry creado con la configuración compartida**
+
+<p align="center">
+  <img src="https://imgur.com/4wVMZee.png" alt="Azure Container Registry" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+**Resultado del terraform apply en staging**
+
+<p align="center">
+  <img src="https://imgur.com/YXsxdPc.png" alt="Resultado de terraform apply en staging" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+**App Service de staging**
+
+<p align="center">
+  <img src="https://imgur.com/LSNPyUA.png" alt="App Service de staging en Azure" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+**Base de datos PostgreSQL de staging**
+
+<p align="center">
+  <img src="https://imgur.com/KAGb9gE.png" alt="PostgreSQL de staging en Azure" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+**Proyecto de MongoDB Atlas de staging**
+
+<p align="center">
+  <img src="https://imgur.com/qXpcvwJ.png" alt="Proyecto alivia-staging en MongoDB Atlas" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+**Web Services Desplegado**
+
+<p align="center">
+  <img src="https://imgur.com/VVdmB6y.png" alt="Proyecto alivia web sercies" style="width:100%; max-width:900px; height:auto;">
+</p>
+
+Estas evidencias demuestran que la infraestructura del backend quedó aprovisionada de forma reproducible y que el entorno de staging cuenta con el servicio de aplicación, el registro de contenedores y las bases de datos relacional y documental listos para recibir el despliegue de la API.
+
+##### Despliegue de la Aplicación Móvil Android
+
+La aplicación móvil Android (`alivia-android-application`) se distribuyó mediante Firebase App Distribution. Esta herramienta permite publicar el archivo APK de cada versión y compartirlo con el equipo y los evaluadores sin pasar por una tienda de aplicaciones. Así se verificó que el artefacto compilado pudiera instalarse y ejecutarse en un dispositivo real.
+
+Los pasos seguidos para esta distribución fueron los siguientes:
+
+1. Se generó el APK de la aplicación a partir de la rama de trabajo del repositorio `alivia-android-application`.
+2. Se subió el APK a Firebase App Distribution, asociado al proyecto de Firebase de Alivia.
+3. Se agregó a los testers del equipo para que recibieran la invitación de descarga.
+4. Se instaló la aplicación en un dispositivo Android a partir de la versión distribuida.
+5. Se comprobó que la aplicación iniciara correctamente y mostrara la pantalla de inicio de sesión.
+
+**Aplicación instalada y en ejecución en un dispositivo Android**
+
+<p align="center">
+  <img src="https://imgur.com/6L7pMjE.png" alt="Pantalla de inicio de sesión de la aplicación Android de Alivia" style="width:100%; max-width:300px; height:auto;">
+</p>
+
+La captura anterior muestra la aplicación instalada desde la versión distribuida: la pantalla de bienvenida con los campos de correo electrónico y contraseña, el enlace de recuperación de contraseña y el botón de ingreso. Con ello se valida que el APK publicado en Firebase App Distribution es instalable y ejecutable, y que el equipo cuenta con un canal de distribución para las pruebas móviles del Sprint 1.
+
 #### 7.2.1.8. Team Collaboration Insights during Sprint 1
 
 ## 7.3. Validation Interviews
