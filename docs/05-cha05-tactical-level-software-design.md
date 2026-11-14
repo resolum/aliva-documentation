@@ -7002,6 +7002,18 @@ La Infrastructure Layer implementa cada repositorio del dominio sobre PostgreSQL
 
 ### 5.5.5. Bounded Context Software Architecture Component Level Diagrams
 
+**Backend / API**
+
+![Diagrama de componentes de Asistencia Médica en backend](https://i.imgur.com/VRC55WN.png)
+
+**Aplicación Web - Users**
+
+![Diagrama de componentes de Asistencia Médica en web usuarios](https://i.imgur.com/LnSPaBs.png)
+
+**Aplicación Móvil**
+
+![Diagrama de componentes de Asistencia Médica en la aplicación móvil](https://i.imgur.com/Pv2tkMl.png)
+
 ### 5.5.6. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.5.6.1. Bounded Context Domain Layer Class Diagrams
@@ -8737,6 +8749,22 @@ La Infrastructure Layer implementa los repositorios con Spring Data JPA sobre Po
 
 ### 5.6.5. Bounded Context Software Architecture Component Level Diagrams
 
+**Backend / API**
+
+![Diagrama de componentes de Pagos y Suscripciones en backend](https://i.imgur.com/AKuQvo8.png)
+
+**Aplicación Móvil**
+
+![Diagrama de componentes de Pagos y Suscripciones en la aplicación móvil](https://i.imgur.com/QVAWeKV.png)
+
+**Aplicación Web - Administrativa**
+
+![Diagrama de componentes de Pagos y Suscripciones en web administrativa](https://i.imgur.com/NE9kHgO.png)
+
+**Aplicación Web - Users**
+
+![Diagrama de componentes de Pagos y Suscripciones en web usuarios](https://i.imgur.com/yFF37qg.png)
+
 ### 5.6.6. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.6.6.1. Bounded Context Domain Layer Class Diagrams
@@ -10388,6 +10416,18 @@ La Infrastructure Layer implementa los repositorios con Spring Data JPA sobre Po
 
 ### 5.7.5. Bounded Context Software Architecture Component Level Diagrams
 
+**Backend / API**
+
+![Diagrama de componentes de Soporte Técnico en backend](https://i.imgur.com/TBvYH7J.png)
+
+**Aplicación Móvil**
+
+![Diagrama de componentes de Soporte Técnico en la aplicación móvil](https://i.imgur.com/k49PYDy.png)
+
+**Aplicación Web - Administrativa**
+
+![Diagrama de componentes de Soporte Técnico en web administrativa](https://i.imgur.com/tieJ4aT.png)
+
 ### 5.7.6. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.7.6.1. Bounded Context Domain Layer Class Diagrams
@@ -11431,6 +11471,18 @@ La Infrastructure Layer implementa los repositorios con Spring Data JPA sobre Po
 
 ### 5.8.5. Bounded Context Software Architecture Component Level Diagrams
 
+**Backend / API**
+
+![Diagrama de componentes de Comunicaciones en backend](https://i.imgur.com/gWOwpsI.png)
+
+**Aplicación Móvil**
+
+![Diagrama de componentes de Comunicaciones en la aplicación móvil](https://i.imgur.com/q8qx5lY.png)
+
+**Aplicación Web - Users**
+
+![Diagrama de componentes de Comunicaciones en web usuarios](https://i.imgur.com/0EGCX91.png)
+
 ### 5.8.6. Bounded Context Software Architecture Code Level Diagrams
 
 #### 5.8.6.1. Bounded Context Domain Layer Class Diagrams
@@ -12093,6 +12145,22 @@ La persistencia se configura mediante `AnaliticasPersistenceConfiguration`, que 
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | Los repositorios se declaran como puertos en Domain; sus implementaciones concretas (SaleRepositoryJpa, DeviceMetricRepositoryMongo) están en Infrastructure (5.9.4). |
 
 ### 5.9.5. Bounded Context Software Architecture Component Level Diagrams
+
+**Backend / API**
+
+![Diagrama de componentes de Analíticas en backend](https://i.imgur.com/AG8qveR.png)
+
+**Aplicación Móvil**
+
+![Diagrama de componentes de Analíticas en la aplicación móvil](https://i.imgur.com/T3amnkg.png)
+
+**Aplicación Web - Administrativa**
+
+![Diagrama de componentes de Analíticas en web administrativa](https://i.imgur.com/50upHdr.png)
+
+**Aplicación Web - Users**
+
+![Diagrama de componentes de Analíticas en web usuarios](https://i.imgur.com/4oIZ40s.png)
 
 ### 5.9.6. Bounded Context Software Architecture Code Level Diagrams
 
@@ -12973,6 +13041,18 @@ La persistencia se configura mediante `TelemetriaPersistenceConfiguration`, que 
 | Ninguna clase de Domain depende de Infrastructure ni de frameworks | Sí | DeviceStatusGateway se declara como puerto en Domain; su implementación concreta (FirebaseCloudMessagingGateway) está en Infrastructure (5.10.4). |
 
 ### 5.10.5. Bounded Context Software Architecture Component Level Diagrams
+
+**Backend / API**
+
+![Diagrama de componentes de Telemetría en backend](https://i.imgur.com/TgcIsHs.png)
+
+**Aplicación Móvil**
+
+![Diagrama de componentes de Telemtría en la aplicación móvil](https://i.imgur.com/XaLR3S7.png)
+
+**Aplicación Web - Users**
+
+![Diagrama de componentes de Telemetría en web usuarios](https://i.imgur.com/52mY7vo.png)
 
 ### 5.10.6. Bounded Context Software Architecture Code Level Diagrams
 
@@ -14638,6 +14718,18 @@ La Infrastructure Layer implementa los repositorios con Spring Data JPA sobre Po
 | household_device_registry | Aggregate/Entidad HouseholdDeviceRegistry | Todo lo que Assets sabe de los dispositivos de un hogar: qué dispositivos hay, en qué cuarto y con qué función, los edges que los operan y la versión de la tabla. |
 
 ### 5.11.5. Bounded Context Software Architecture Component Level Diagrams
+
+**Backend / API**
+
+![Diagrama de componentes de Bienes en backend](https://i.imgur.com/8vuZl12.png)
+
+**Aplicación Web - Administrativa**
+
+![Diagrama de componentes de Bienes en web administrativa](https://i.imgur.com/VLDWtNK.png)
+
+**Aplicación Web - Users**
+
+![Diagrama de componentes de Bienes en web usuarios](https://i.imgur.com/EdC2yTb.png)
 
 ### 5.11.6. Bounded Context Software Architecture Code Level Diagrams
 
