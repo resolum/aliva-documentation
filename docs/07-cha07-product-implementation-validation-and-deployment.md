@@ -3105,6 +3105,76 @@ La captura anterior muestra la aplicación instalada desde la versión distribui
 
 #### 7.2.1.8. Team Collaboration Insights during Sprint 1
 
+### 7.2.2. Sprint 2
+
+En este sprint se planifica el segundo incremento de Alivia, centrado en completar las capacidades de analítica, incorporar las notificaciones push y validar el producto final con usuarios reales. Las siguientes secciones reúnen la planificación del sprint.
+
+### 7.2.2.1. Sprint 2 Planning
+
+<table>
+  <tbody>
+    <tr>
+      <th>Sprint #</th>
+      <th>Sprint 2</th>
+    </tr>
+    <tr>
+      <th colspan="2">Sprint Planning Background</th>
+    </tr>
+    <tr>
+      <td>Date</td>
+      <td>17 de noviembre de 2026</td>
+    </tr>
+    <tr>
+      <td>Time</td>
+      <td>08:00 AM (GMT-5)</td>
+    </tr>
+    <tr>
+      <td>Location</td>
+      <td>Reunión virtual mediante Discord</td>
+    </tr>
+    <tr>
+      <td>Prepared By</td>
+      <td>Coronel Espinoza, Farid Sebastian</td>
+    </tr>
+    <tr>
+      <td>Attendees (to planning meeting)</td>
+      <td>Oscar Javier Armas Sánchez; Renato Guillermo Calvo Yalan; Farid Sebastian Coronel Espinoza; Matias Sebastian Diaz Quispe; Nicolas Emilio Walter Juarez Leon; Dayro Richard Rios Piñan.</td>
+    </tr>
+    <tr>
+      <th colspan="2">Sprint Goal &amp; User Stories</th>
+    </tr>
+    <tr>
+      <td>Sprint 2 Goal</td>
+      <td>
+        <p><strong>Nos enfocamos en ofrecer</strong> el producto final de Alivia, incorporando la analítica del uso de los dispositivos y del cuidado, las notificaciones push que mantienen informados a cuidadores y administradores, y la validación del producto con usuarios reales: personas con discapacidad motora severa, sus cuidadores y los clientes del servicio.</p>
+        <p><strong>Creemos que esto proporciona</strong> a los cuidadores y administradores información oportuna y comprensible para anticiparse a situaciones de riesgo y decidir mejor, a las personas con discapacidad la tranquilidad de contar con una red de asistencia que reacciona a tiempo, y a nuestro negocio evidencia real de uso y aceptación para cerrar la propuesta de valor y la oferta comercial.</p>
+        <p><strong>Esto se confirmará cuando</strong> las notificaciones push lleguen a los dispositivos móviles de los cuidadores en el <strong>95 % de los eventos relevantes probados</strong>, las vistas de analítica muestren datos actualizados y coherentes con los registros del sistema, y el producto sea evaluado por usuarios reales en sesiones de validación en las que al menos el <strong>80 % de los participantes</strong> complete las tareas principales sin ayuda. Para el negocio, se recogerán la satisfacción y la disposición de los participantes a contratar la suscripción y adquirir los dispositivos, registrando sus motivos de aceptación o rechazo y los hallazgos de usabilidad para priorizar los ajustes finales.</p>
+      </td>
+    </tr>
+    <tr>
+      <td>Sprint 2 Velocity</td>
+      <td>155 puntos de historia</td>
+    </tr>
+    <tr>
+      <td>Sum of Story Points</td>
+      <td>155 puntos de historia</td>
+    </tr>
+  </tbody>
+</table>
+
+### Aspect Leaders and Collaborators
+
+La siguiente matriz muestra la participación de cada integrante en los aspectos del proyecto. **L** identifica al responsable principal, **C** a quien colabora y **—** indica que no tiene una participación asignada en ese aspecto.
+
+| **Team Member**                    | **GitHub Username** | IAM   | Company | Profiles | HCM   | Medical Assistance | Subscriptions | Support | Assets | Tracking | Communications | Analytics | Shared |
+|------------------------------------|---------------------|-------|---------|----------|-------|--------------------|---------------|---------|--------|----------|----------------|-----------|--------|
+| Armas Sánchez, Oscar Javier        | Racso24k            | C     | —       | —        | —     | C                  | —             | **L**   | —      | —        | C              | —         | **L**  |
+| Calvo Yalan, Renato Guillermo      | RenatoCY            | —     | —       | —        | —     | C                  | —             | —       | **L**  | **L**    | —              | C         | C      |
+| Coronel Espinoza, Farid Sebastian  | Far14z              | —     | C       | C        | **L** | —                  | **L**         | C       | C      | —        | —              | —         | —      |
+| Diaz Quispe, Matías Sebastian      | equinox-1092        | C     | —       | —        | —     | C                  | —             | —       | —      | C        | **L**          | **L**     | C      |
+| Juarez Leon, Nicolas Emilio Walter | JuarezLn10          | **L** | —       | C        | —     | **L**              | —             | —       | C      | C        | —              | —         | —      |
+| Rios Piñan, Dayro Richard          | Addicted2you        | —     | **L**   | **L**    | C     | —                  | C             | —       | C      | C        | —              | —         | —      |
+
 ## 7.3. Validation Interviews
 
 ### 7.3.1. Diseño de entrevistas de validación
