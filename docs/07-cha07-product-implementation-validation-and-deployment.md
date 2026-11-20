@@ -3485,7 +3485,57 @@ La tabla contiene exclusivamente los **84 elementos principales** asignados a **
 
 #### 7.2.2.3. Development Evidence for Sprint 2 Review
 
+En esta sección se describen los avances de implementación realizados durante el Sprint 2, tomando en cuenta únicamente el trabajo realizado desde el lunes 16 de noviembre de 2026. El avance principal es la incorporación de las notificaciones push mediante Firebase Cloud Messaging: el backend envía las notificaciones a los dispositivos móviles, la aplicación Android registra el token del dispositivo y muestra los mensajes recibidos, y los servicios y nodos embebidos reportan los eventos del hogar.
+
+En el backend (Spring Boot), se implementó el envío de notificaciones push con Firebase (configurable mediante una cuenta de servicio en archivo o codificada en Base64), la notificación a los familiares ante solicitudes de ayuda, batería baja y fallas de dispositivos reportadas por los edges mediante el endpoint de eventos, la notificación a los técnicos cuando se les asigna una orden y el recordatorio a los familiares 15 minutos antes de cada actividad de cuidado, incluida la medicación. Además, se corrigieron la validación del cuidador en las invitaciones y el procesamiento de identificadores en los relevos de turno. En la aplicación Android, se implementó el registro del token FCM del dispositivo, la recepción de notificaciones y la visualización de las solicitudes de ayuda en el canal de alertas. En los servicios edge y los nodos embebidos, se implementó el reporte al backend de las solicitudes de ayuda, la batería baja y las fallas de los dispositivos, y la lectura y el envío del nivel de batería de los nodos ESP32.
+
+A continuación, se muestra una tabla que contiene la información sobre los **commits** realizados en los repositorios **alivia-web-services** (14), **alivia-android-application** (2), **edge-actuator** (1), **edge-devices** (1), **embebido-actuador** (1), **embebido-dispositivo** (1), que contienen las funcionalidades implementadas durante el Sprint 2. En total son 20 commits. No se incluyen los commits de merge ni los repositorios sin cambios en este periodo (**alivia-users-web-application**, **alivia-admin-web-application** y **alivia-ios-application**).
+
+| Repository | Branch | Commit Id | Commit Message | Commited On |
+| --- | --- | --- | --- | --- |
+| alivia-web-services | feature/connection-with-frontend | 8caa79918417856a34592f95b9fd10920f1be85d | fix(assistance): parse non-numeric caregiver and actor ids in handovers | 16/11/26 |
+| alivia-web-services | feature/connection-with-frontend | 5001f1d437b35c013800b152df36c0db641ef721 | fix(assistance): validate null caregiverUserId on invitation accept and update coverage test | 16/11/26 |
+| alivia-web-services | feature/connection-with-frontend | f5e352e960a930b9133324f615fca019e28f771b | test(assistance,subscriptions): add unit tests for medications and subscription enrichment | 16/11/26 |
+| alivia-web-services | feature/connection-with-frontend | b7c51545a078ade31b2e513652d11cc1329c7866 | test(assistance,subscriptions): fix unit test fixtures for medications and subscriptions | 16/11/26 |
+| alivia-web-services | feature/connection-with-frontend | dbe943b29a13c457efcd60db864e10076fb001a6 | test(assistance): add unit tests for caregiver enrichment, activity types and handovers | 16/11/26 |
+| alivia-web-services | feature/connection-with-frontend | 6827e6d078563c05f0c170ff1839ecbb58a91294 | test(assistance): fix CareShift constructor args in HandoversControllerTest | 16/11/26 |
+| alivia-web-services | feature/firebase | 3ec88e9ba8266082d516f1e5a321b403f495ee12 | feat(communications): send push notifications through Firebase Cloud Messaging | 17/11/26 |
+| alivia-web-services | feature/firebase | 2b65b66789a84871db826dc729a93bbd93533055 | feat(communications): accept the Firebase service account encoded in Base64 | 17/11/26 |
+| alivia-web-services | feature/firebase | 55ab5bff50ba7f30c585728289eed5a39f13e6d3 | chore(communications): read the local Firebase service account from the project folder | 17/11/26 |
+| alivia-web-services | feature/firebase | dc2cbce8792e9afaef8d4293789ce3dca763086b | refactor(communications): move the push senders to the firebase package | 17/11/26 |
+| alivia-web-services | feature/firebase | 18f4589463c59b032c460ed08073e671f05ca73c | fix(communications): save the push delivery status after the notification is committed | 17/11/26 |
+| alivia-web-services | feature/firebase | 75d695098a1a8c0784e7836d0938cbe3cb9d8a97 | feat(notifications): notify technicians of their orders and relatives of upcoming care activities | 17/11/26 |
+| alivia-web-services | feature/firebase | 7dd20184269b7390b5adff645ffd1917757d1b02 | feat(notifications): notify relatives of help requests, low battery and device failures reported by the edges | 17/11/26 |
+| alivia-web-services | feature/firebase | 55ed94964b2373f83b1c2ed614c9a6578b4dca9d | fix(assistance): drop the null check on the reminder count flagged by SonarCloud | 17/11/26 |
+| alivia-android-application | feature/firebase | 5146bb6508d9dd3713becdcf55c5571537dbb19f | feat(notifications): receive push notifications with Firebase Cloud Messaging | 17/11/26 |
+| alivia-android-application | feature/firebase | 2163ef3d060ddb1d084fe58bd98e6a5fd6dd3955 | feat(notifications): show help requests on the alerts channel | 17/11/26 |
+| edge-actuator | feature/firebase | 89ba7b1fe8ccf0d94fb56fe87efb67e829d35489 | feat(events): report device failures and low battery to the backend | 17/11/26 |
+| edge-devices | feature/firebase | 51e7fcbb84c7d3ba701d7a1e20d8cd7113d741d0 | feat(alerts): report help requests and low battery to the backend | 17/11/26 |
+| embebido-actuador | feature/firebase | bb9e6b22c8197858c99bdc4aa1bec355063a3800 | feat(battery): send the battery of the actuators ESP32 in its telemetry | 17/11/26 |
+| embebido-dispositivo | feature/firebase | 2a34610d1cca163dede3ec65620cc1d66e35d4e6 | feat(battery): report the node battery to the voice edge and add LinkProtocolDelegate to ModestIoT | 17/11/26 |
+
 #### 7.2.2.4. Testing Suite Evidence for Sprint 2 Review
+
+En esta sección se presenta el conjunto de pruebas automatizadas implementadas durante el Sprint 2, tomando en cuenta únicamente el trabajo realizado desde el lunes 16 de noviembre de 2026. Las pruebas cubren los Web Services de Alivia (envío de notificaciones con Firebase, recordatorios de actividades de cuidado, notificaciones a técnicos, eventos reportados por los edges, medicamentos, suscripciones y relevos de turno), la aplicación Android (registro de dispositivos para notificaciones push) y los servicios y nodos embebidos (reporte de eventos, alertas y batería).
+
+A continuación, se presenta la tabla con los commits relacionados con testing realizados en los repositorios **alivia-web-services** (10), **alivia-android-application** (1), **edge-actuator** (1), **edge-devices** (1), **embebido-actuador** (1) durante el Sprint 2. En total son 14 commits que incluyen pruebas automatizadas. No se incluyen los commits de merge.
+
+| Repository | Branch | Commit Id | Commit Message | Commit Message Body | Commited on (Date) |
+| --- | --- | --- | --- | --- | --- |
+| alivia-web-services | feature/connection-with-frontend | 5001f1d437b35c013800b152df36c0db641ef721 | fix(assistance): validate null caregiverUserId on invitation accept and update coverage test | — | 16/11/26 |
+| alivia-web-services | feature/connection-with-frontend | f5e352e960a930b9133324f615fca019e28f771b | test(assistance,subscriptions): add unit tests for medications and subscription enrichment | — | 16/11/26 |
+| alivia-web-services | feature/connection-with-frontend | b7c51545a078ade31b2e513652d11cc1329c7866 | test(assistance,subscriptions): fix unit test fixtures for medications and subscriptions | — | 16/11/26 |
+| alivia-web-services | feature/connection-with-frontend | dbe943b29a13c457efcd60db864e10076fb001a6 | test(assistance): add unit tests for caregiver enrichment, activity types and handovers | — | 16/11/26 |
+| alivia-web-services | feature/connection-with-frontend | 6827e6d078563c05f0c170ff1839ecbb58a91294 | test(assistance): fix CareShift constructor args in HandoversControllerTest | — | 16/11/26 |
+| alivia-web-services | feature/firebase | 3ec88e9ba8266082d516f1e5a321b403f495ee12 | feat(communications): send push notifications through Firebase Cloud Messaging | Add a Firebase sender selected with PUSH_PROVIDER=firebase and configured with the service account in FIREBASE_CREDENTIALS_PATH or FIREBASE_CREDENTIALS_JSON. Tokens Firebase reports as unregistered are removed. The log sender stays the default. | 17/11/26 |
+| alivia-web-services | feature/firebase | 2b65b66789a84871db826dc729a93bbd93533055 | feat(communications): accept the Firebase service account encoded in Base64 | — | 17/11/26 |
+| alivia-web-services | feature/firebase | dc2cbce8792e9afaef8d4293789ce3dca763086b | refactor(communications): move the push senders to the firebase package | — | 17/11/26 |
+| alivia-web-services | feature/firebase | 75d695098a1a8c0784e7836d0938cbe3cb9d8a97 | feat(notifications): notify technicians of their orders and relatives of upcoming care activities | Technicians get a notification when an order is assigned to them or moves to another block. The relative of an assisted person is reminded 15 minutes before each care activity, medication included, once per occurrence. | 17/11/26 |
+| alivia-web-services | feature/firebase | 7dd20184269b7390b5adff645ffd1917757d1b02 | feat(notifications): notify relatives of help requests, low battery and device failures reported by the edges | Edge services report what happens in the home at POST /api/v1/edge/events with their credential. The relatives in charge of the household (PRINCIPAL) are notified once per event id; help requests and device failures are sent as urgent alerts. | 17/11/26 |
+| alivia-android-application | feature/firebase | 5146bb6508d9dd3713becdcf55c5571537dbb19f | feat(notifications): receive push notifications with Firebase Cloud Messaging | Register the FCM token of the device for the signed-in account (POST /api/v1/push-devices), remove it on sign-out, show messages received in the foreground on the notifications or alerts channel, and ask for the notification permission on Android 13+. | 17/11/26 |
+| edge-actuator | feature/firebase | 89ba7b1fe8ccf0d94fb56fe87efb67e829d35489 | feat(events): report device failures and low battery to the backend | Failed orders (not the ones rejected before reaching the servo) and the battery the ESP32 sends in its telemetry are reported at POST /api/v1/edge/events, from an in-memory queue with retries, so the backend notifies the relatives of the home. | 17/11/26 |
+| edge-devices | feature/firebase | 51e7fcbb84c7d3ba701d7a1e20d8cd7113d741d0 | feat(alerts): report help requests and low battery to the backend | "Alivia, ayuda" (or the help button of the node) warns the family at once, without the LLM or a confirmation; the battery the node sends in its telemetry is reported when it runs low. | 17/11/26 |
+| embebido-actuador | feature/firebase | bb9e6b22c8197858c99bdc4aa1bec355063a3800 | feat(battery): send the battery of the actuators ESP32 in its telemetry | The node reads its battery through an ADC pin with a voltage divider and sends batteryPct to the actuator edge when it connects and every minute; "b &lt;0-100&gt;" in the serial console simulates it. Secrets.h is now ignored by git. | 17/11/26 |
 
 ## 7.3. Validation Interviews
 
